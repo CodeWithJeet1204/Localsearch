@@ -1,5 +1,5 @@
-import 'package:find_easy_user/main/post_page.dart';
-import 'package:find_easy_user/main/profile_page.dart';
+import 'package:find_easy_user/page/main/post_page.dart';
+import 'package:find_easy_user/page/main/profile_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:flutter/material.dart';
 
