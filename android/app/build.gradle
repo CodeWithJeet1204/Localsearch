@@ -24,7 +24,7 @@ if (flutterVersionName == null) {
 
 android {
     namespace "com.example.find_easy_user"
-    compileSdkVersion flutter.compileSdkVersion
+    compileSdkVersion 33
     ndkVersion flutter.ndkVersion
 
     compileOptions {
@@ -45,10 +45,11 @@ android {
         applicationId "com.example.find_easy_user"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion flutter.minSdkVersion
+        minSdkVersion 23
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+        multiDexEnabled true
     }
 
     buildTypes {
@@ -56,6 +57,14 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig signingConfigs.debug
+            compileOptions {
+                sourceCompatibility JavaVersion.VERSION_1_8
+                targetCompatibility JavaVersion.VERSION_1_8
+                lintOptions {
+                    enable 'deprecation'
+                    enable 'unchecked'
+                }
+}
         }
     }
 }
@@ -64,4 +73,7 @@ flutter {
     source '../..'
 }
 
-dependencies {}
+dependencies {
+    implementation("com.google.firebase:firebase-auth:22.3.0")
+    implementation('com.google.firebase:firebase-appcheck-playintegrity:17.0.0')
+}
