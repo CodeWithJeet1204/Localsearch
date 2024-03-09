@@ -1,6 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:find_easy_user/page/auth/register_cred.dart';
-import 'package:find_easy_user/page/auth/register_data.dart';
+import 'package:find_easy_user/page/auth/register_details_page.dart';
 import 'package:find_easy_user/page/auth/verify/number_verify.dart';
 import 'package:find_easy_user/widgets/snack_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -10,22 +8,8 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthMethods {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   User get user => _auth.currentUser!;
-
-  // Future<model.User> getUserDetails() async {
-  //   User currentUser = _auth.currentUser!;
-
-  //   DocumentSnapshot snap = await _firestore
-  //       .collection('Business')
-  //       .doc('Owners')
-  //       .collection('Users')
-  //       .doc(currentUser.uid)
-  //       .get();
-
-  //   return model.User.fromSnap(snap);
-  // }
 
   // STATE PERSISTENCE
   Stream<User?> get authState => FirebaseAuth.instance.authStateChanges();
@@ -41,9 +25,16 @@ class AuthMethods {
         email: email,
         password: password,
       );
-    } on FirebaseAuthException catch (e) {
+      await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+    } catch (e) {
       if (context.mounted) {
-        mySnackBar(e.message!, context);
+        mySnackBar(
+          e.toString(),
+          context,
+        );
       }
     }
   }
@@ -52,10 +43,16 @@ class AuthMethods {
   Future<void> sendEmailVerification(BuildContext context) async {
     try {
       _auth.currentUser!.sendEmailVerification();
-      mySnackBar("Email Verification has been sent", context);
+      mySnackBar(
+        "Email Verification has been sent",
+        context,
+      );
     } on FirebaseAuthException catch (e) {
       if (context.mounted) {
-        mySnackBar(e.message!, context);
+        mySnackBar(
+          e.message!,
+          context,
+        );
       }
     }
   }
@@ -75,14 +72,17 @@ class AuthMethods {
       }
     } on FirebaseAuthException catch (e) {
       if (context.mounted) {
-        mySnackBar(e.message!, context);
+        mySnackBar(
+          e.message!,
+          context,
+        );
       }
     }
   }
 
   // GOOGLE SIGN IN
   final GoogleSignIn googleSignIn = GoogleSignIn(
-    hostedDomain: "", // Prevent automatic sign-in
+    hostedDomain: "",
   );
 
   /*Future<void>*/ signInWithGoogle(BuildContext context) async {
@@ -100,20 +100,10 @@ class AuthMethods {
           await FirebaseAuth.instance.signInWithCredential(credential);
       if (userCredential.user != null) {
         if (userCredential.additionalUserInfo!.isNewUser) {
-          userFirestoreData.addAll({
-            "uid": FirebaseAuth.instance.currentUser!.uid,
-            "Name": FirebaseAuth.instance.currentUser!.displayName,
-            "Email": FirebaseAuth.instance.currentUser!.email,
-            "Image": FirebaseAuth.instance.currentUser!.photoURL,
-          });
           if (context.mounted) {
             Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(
-                builder: ((context) => const RegisterCredPage(
-                    // emailChosen: false,
-                    // numberChosen: false,
-                    // googleChosen: true,
-                    )),
+                builder: ((context) => const RegisterDetailsPage()),
               ),
               (route) => false,
             );
@@ -124,7 +114,10 @@ class AuthMethods {
       return userCredential;
     } on FirebaseAuthException catch (e) {
       if (context.mounted) {
-        mySnackBar(e.message!, context);
+        mySnackBar(
+          e.message!,
+          context,
+        );
       }
     }
   }
@@ -142,7 +135,10 @@ class AuthMethods {
         },
         verificationFailed: (FirebaseAuthException e) {
           if (context.mounted) {
-            mySnackBar(e.toString(), context);
+            mySnackBar(
+              e.toString(),
+              context,
+            );
           }
         },
         codeSent: (String verificationId, int? resendToken) async {
@@ -152,24 +148,17 @@ class AuthMethods {
               builder: (context) => NumberVerifyPage(
                 verificationId: verificationId,
                 isLogging: false,
+                phoneNumber: phoneNumber,
               ),
             ),
           );
         },
         codeAutoRetrievalTimeout: (String verificationId) {
-          mySnackBar(verificationId.toString(), context);
+          mySnackBar(
+            verificationId.toString(),
+            context,
+          );
         });
-  }
-
-  // ANONYMOUS SIGN IN
-  Future<void> signInAnonymously(BuildContext context) async {
-    try {
-      await _auth.signInAnonymously();
-    } on FirebaseAuthException catch (e) {
-      if (context.mounted) {
-        mySnackBar(e.message!, context);
-      }
-    }
   }
 
   // SIGN OUT
@@ -178,7 +167,10 @@ class AuthMethods {
       await _auth.signOut();
     } on FirebaseAuthException catch (e) {
       if (context.mounted) {
-        mySnackBar(e.message!, context);
+        mySnackBar(
+          e.message!,
+          context,
+        );
       }
     }
   }
@@ -189,7 +181,10 @@ class AuthMethods {
       await _auth.currentUser!.delete();
     } on FirebaseAuthException catch (e) {
       if (context.mounted) {
-        mySnackBar(e.message!, context);
+        mySnackBar(
+          e.message!,
+          context,
+        );
       }
     }
   }

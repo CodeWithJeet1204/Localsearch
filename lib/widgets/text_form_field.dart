@@ -44,7 +44,6 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
                 Expanded(
                   child: TextFormField(
                     autofocus: false,
-                    focusNode: FocusNode(),
                     controller: widget.controller,
                     keyboardType: widget.keyboardType,
                     obscureText: isShowPassword,
@@ -85,9 +84,8 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
               ],
             )
           : TextFormField(
-              focusNode: FocusNode(),
               autofillHints: widget.autoFillHints,
-              autofocus: widget.autoFocus,
+              autofocus: false,
               controller: widget.controller,
               keyboardType: widget.keyboardType,
               decoration: InputDecoration(
@@ -107,8 +105,8 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
                         return 'Invalid email';
                       }
                     } else if (widget.hintText == "Phone Number") {
-                      if (value.length < 10) {
-                        return 'Phone No. should be at least 10 characters';
+                      if (value.length != 10) {
+                        return 'Phone No. should be  10 chars long';
                       }
                     }
                   } else {
