@@ -45,6 +45,7 @@ dependencies:
   flutter_image_compress: ^2.1.0
   firebase_storage: ^11.6.9
   uuid: ^4.3.3
+  feather_icons: ^1.2.0
 
 dev_dependencies:
   flutter_test:

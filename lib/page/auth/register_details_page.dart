@@ -109,7 +109,7 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
       await uploadImage(_image);
 
       try {
-        !signInMethodProvider.isEmailChosen
+        FirebaseAuth.instance.currentUser!.email == null
             ? await FirebaseFirestore.instance
                 .collection('Users')
                 .doc(FirebaseAuth.instance.currentUser!.uid)

@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:feather_icons/feather_icons.dart';
 import 'package:find_easy_user/page/auth/register_details_page.dart';
 import 'package:find_easy_user/page/auth/verify/email_verify.dart';
-import 'package:find_easy_user/page/main/post_page.dart';
+import 'package:find_easy_user/page/main/home_page.dart';
 import 'package:find_easy_user/page/main/profile_page.dart';
 import 'package:find_easy_user/page/main/search_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
@@ -20,7 +21,7 @@ class _MainPageState extends State<MainPage> {
   Widget? detailsPage;
 
   List<Widget> items = [
-    PostPage(),
+    HomePage(),
     SearchPage(),
     ProfilePage(),
   ];
@@ -32,6 +33,7 @@ class _MainPageState extends State<MainPage> {
     super.initState();
   }
 
+  // GET INFO DETAILS
   Future<void> getInfoDetails() async {
     final userData = await FirebaseFirestore.instance
         .collection('Users')
@@ -63,33 +65,34 @@ class _MainPageState extends State<MainPage> {
           bottomNavigationBar: BottomNavigationBar(
             backgroundColor: primary2,
             selectedLabelStyle: const TextStyle(
-              fontWeight: FontWeight.w600,
               color: primaryDark,
+              fontWeight: FontWeight.w600,
             ),
-            selectedIconTheme: const IconThemeData(
-              size: 28,
+            type: BottomNavigationBarType.fixed,
+            selectedIconTheme: IconThemeData(
+              size: MediaQuery.of(context).size.width * 0.07785,
               color: primaryDark,
             ),
             currentIndex: current,
             onTap: (value) {
               changePage(value);
             },
-            items: const [
+            items: [
               BottomNavigationBarItem(
                 icon: Icon(
-                  Icons.home,
+                  FeatherIcons.home,
                 ),
-                label: "Add",
+                label: "Home",
               ),
               BottomNavigationBarItem(
                 icon: Icon(
-                  Icons.search,
+                  FeatherIcons.search,
                 ),
                 label: "Search",
               ),
               BottomNavigationBarItem(
                 icon: Icon(
-                  Icons.person_outline,
+                  FeatherIcons.user,
                 ),
                 label: "Profile",
               ),
