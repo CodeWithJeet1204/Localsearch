@@ -1,8 +1,6 @@
 import 'package:find_easy_user/firebase_options.dart';
 import 'package:find_easy_user/page/auth/login_page.dart';
-import 'package:find_easy_user/page/auth/register_details_page.dart';
 import 'package:find_easy_user/page/auth/register_method_page.dart';
-import 'package:find_easy_user/page/auth/verify/email_verify.dart';
 import 'package:find_easy_user/page/main/main_page.dart';
 import 'package:find_easy_user/providers/register_details_provider.dart';
 import 'package:find_easy_user/providers/sign_in_method_provider.dart';
@@ -45,17 +43,6 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
-    final signInMethodProvider = Provider.of<SignInMethodProvider>(context);
-    final bool emailChosen = signInMethodProvider.isEmailChosen;
-    final bool numberChosen = signInMethodProvider.isNumberChosen;
-    final bool googleChosen = signInMethodProvider.isGoogleChosen;
-    final registerWithDetailsProvider =
-        Provider.of<RegisterDetailsProvider>(context);
-    final bool isRegisteredWithDetails =
-        registerWithDetailsProvider.isRegisteredWithDetails;
-    final verificationProvider = Provider.of<VerificationProvider>(context);
-    final bool isVerified = verificationProvider.isVerified;
-
     return MaterialApp(
       title: 'Find Easy',
       theme: ThemeData(
@@ -110,44 +97,19 @@ class MyApp extends StatelessWidget {
       home: StreamBuilder(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: ((context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.active) {
-            if (snapshot.hasData &&
-                (emailChosen || numberChosen || googleChosen) &&
-                isRegisteredWithDetails) {
-              return const MainPage();
-            } else if (snapshot.hasData &&
-                (emailChosen || numberChosen || googleChosen) &&
-                !isVerified) {
-              return emailChosen
-                  ? EmailVerifyPage()
-                  : googleChosen
-                      ? MainPage()
-                      : RegisterMethodPage();
-            } else if (snapshot.hasData &&
-                (emailChosen || numberChosen || googleChosen) &&
-                !isRegisteredWithDetails) {
-              return RegisterDetailsPage();
-            } else if (snapshot.hasData &&
-                (emailChosen == false &&
-                    numberChosen == false &&
-                    googleChosen == false)) {
-              return RegisterDetailsPage();
-            } else if (snapshot.hasError) {
-              return const Center(
-                child: Text("Some error occured\nClose & Open the app again"),
-              );
-            } else {
-              return const LoginPage();
-            }
-          } else if (snapshot.connectionState == ConnectionState.waiting) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
               child: CircularProgressIndicator(
                 color: primaryDark,
               ),
             );
-          } else {
-            return const LoginPage();
           }
+
+          if (snapshot.hasData) {
+            return MainPage();
+          }
+
+          return const LoginPage();
         }),
       ),
     );
