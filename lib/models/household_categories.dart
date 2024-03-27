@@ -1,0 +1,70 @@
+List<List<String>> householdCategories = [
+  [
+    'Garments',
+    'https://img.freepik.com/free-vector/various-color-checkered-cotton-shirts-folded-stack_1441-3074.jpg?w=1380&t=st=1708074608~exp=1708075208~hmac=08ad9e959fea122ee32e34b5865982a5d3bf423a78796794223a4beebd35b7a9',
+  ],
+  [
+    'Weaving,',
+    'https://img.freepik.com/free-vector/various-color-checkered-cotton-shirts-folded-stack_1441-3074.jpg?w=1380&t=st=1708074608~exp=1708075208~hmac=08ad9e959fea122ee32e34b5865982a5d3bf423a78796794223a4beebd35b7a9',
+  ],
+  [
+    'Tailoring',
+    'https://img.freepik.com/free-vector/various-color-checkered-cotton-shirts-folded-stack_1441-3074.jpg?w=1380&t=st=1708074608~exp=1708075208~hmac=08ad9e959fea122ee32e34b5865982a5d3bf423a78796794223a4beebd35b7a9',
+  ],
+  [
+    'Food',
+    'https://img.freepik.com/free-vector/various-color-checkered-cotton-shirts-folded-stack_1441-3074.jpg?w=1380&t=st=1708074608~exp=1708075208~hmac=08ad9e959fea122ee32e34b5865982a5d3bf423a78796794223a4beebd35b7a9',
+  ],
+  [
+    'Bakery Items',
+    'https://img.freepik.com/free-vector/various-color-checkered-cotton-shirts-folded-stack_1441-3074.jpg?w=1380&t=st=1708074608~exp=1708075208~hmac=08ad9e959fea122ee32e34b5865982a5d3bf423a78796794223a4beebd35b7a9',
+  ],
+  [
+    'Woodwork',
+    'https://img.freepik.com/free-vector/various-color-checkered-cotton-shirts-folded-stack_1441-3074.jpg?w=1380&t=st=1708074608~exp=1708075208~hmac=08ad9e959fea122ee32e34b5865982a5d3bf423a78796794223a4beebd35b7a9',
+  ],
+  [
+    'Metalwork',
+    'https://img.freepik.com/free-vector/various-color-checkered-cotton-shirts-folded-stack_1441-3074.jpg?w=1380&t=st=1708074608~exp=1708075208~hmac=08ad9e959fea122ee32e34b5865982a5d3bf423a78796794223a4beebd35b7a9',
+  ],
+  [
+    'Beauty Products (Cosmetics)',
+    'https://img.freepik.com/free-vector/various-color-checkered-cotton-shirts-folded-stack_1441-3074.jpg?w=1380&t=st=1708074608~exp=1708075208~hmac=08ad9e959fea122ee32e34b5865982a5d3bf423a78796794223a4beebd35b7a9',
+  ],
+  [
+    'Candles',
+    'https://img.freepik.com/free-vector/various-color-checkered-cotton-shirts-folded-stack_1441-3074.jpg?w=1380&t=st=1708074608~exp=1708075208~hmac=08ad9e959fea122ee32e34b5865982a5d3bf423a78796794223a4beebd35b7a9',
+  ],
+  [
+    'Ayurvedic Products',
+    'https://img.freepik.com/free-vector/various-color-checkered-cotton-shirts-folded-stack_1441-3074.jpg?w=1380&t=st=1708074608~exp=1708075208~hmac=08ad9e959fea122ee32e34b5865982a5d3bf423a78796794223a4beebd35b7a9',
+  ],
+  [
+    'Indian Snacks',
+    'https://img.freepik.com/free-vector/various-color-checkered-cotton-shirts-folded-stack_1441-3074.jpg?w=1380&t=st=1708074608~exp=1708075208~hmac=08ad9e959fea122ee32e34b5865982a5d3bf423a78796794223a4beebd35b7a9',
+  ],
+  [
+    'Papercraft',
+    'https://img.freepik.com/free-vector/various-color-checkered-cotton-shirts-folded-stack_1441-3074.jpg?w=1380&t=st=1708074608~exp=1708075208~hmac=08ad9e959fea122ee32e34b5865982a5d3bf423a78796794223a4beebd35b7a9',
+  ],
+  [
+    'Jewelry',
+    'https://img.freepik.com/free-vector/various-color-checkered-cotton-shirts-folded-stack_1441-3074.jpg?w=1380&t=st=1708074608~exp=1708075208~hmac=08ad9e959fea122ee32e34b5865982a5d3bf423a78796794223a4beebd35b7a9',
+  ],
+  [
+    'Paintings',
+    'https://img.freepik.com/free-vector/various-color-checkered-cotton-shirts-folded-stack_1441-3074.jpg?w=1380&t=st=1708074608~exp=1708075208~hmac=08ad9e959fea122ee32e34b5865982a5d3bf423a78796794223a4beebd35b7a9',
+  ],
+  [
+    'Sculptures',
+    'https://img.freepik.com/free-vector/various-color-checkered-cotton-shirts-folded-stack_1441-3074.jpg?w=1380&t=st=1708074608~exp=1708075208~hmac=08ad9e959fea122ee32e34b5865982a5d3bf423a78796794223a4beebd35b7a9',
+  ],
+  [
+    'Decorations',
+    'https://img.freepik.com/free-vector/various-color-checkered-cotton-shirts-folded-stack_1441-3074.jpg?w=1380&t=st=1708074608~exp=1708075208~hmac=08ad9e959fea122ee32e34b5865982a5d3bf423a78796794223a4beebd35b7a9',
+  ],
+  [
+    'Festive Essentials',
+    'https://img.freepik.com/free-vector/various-color-checkered-cotton-shirts-folded-stack_1441-3074.jpg?w=1380&t=st=1708074608~exp=1708075208~hmac=08ad9e959fea122ee32e34b5865982a5d3bf423a78796794223a4beebd35b7a9',
+  ],
+];

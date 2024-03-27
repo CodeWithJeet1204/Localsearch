@@ -20,7 +20,7 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   final auth = FirebaseAuth.instance.currentUser!;
   final store = FirebaseFirestore.instance;
-  int current = 2;
+  int current = 0;
   Widget? detailsPage;
 
   List<Widget> items = [
@@ -41,13 +41,14 @@ class _MainPageState extends State<MainPage> {
     try {
       final userSnap = await store.collection('Users').doc(auth.uid).get();
       final userData = userSnap.data()!;
-      print(userData);
 
       if (userData['Name'] == null) {
         setState(() {
           detailsPage = RegisterDetailsPage();
         });
-      } else if (auth.email != null && !auth.emailVerified) {
+      } else if (auth.email != null &&
+          auth.email!.length > 4 &&
+          !auth.emailVerified) {
         setState(() {
           detailsPage = EmailVerifyPage();
         });
@@ -70,7 +71,6 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    print(detailsPage);
     return detailsPage ??
         Scaffold(
           body: items[current],

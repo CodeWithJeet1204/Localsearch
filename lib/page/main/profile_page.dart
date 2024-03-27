@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:find_easy_user/page/auth/login_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
+import 'package:find_easy_user/widgets/small_text_container.dart';
 import 'package:find_easy_user/widgets/snack_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -61,13 +62,16 @@ class ProfilePage extends StatelessWidget {
                 children: [
                   Container(
                     width: width,
-                    height: width * 0.5625,
-                    color: primary2,
+                    height: width * 0.33,
                     alignment: Alignment.center,
                     margin: EdgeInsets.only(bottom: width * 0.01),
                     padding: EdgeInsets.symmetric(
                       horizontal: width * 0.045,
                       vertical: width * 0.01125,
+                    ),
+                    decoration: BoxDecoration(
+                      color: primary2,
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     child: FutureBuilder(
                       future: userFuture,
@@ -82,18 +86,13 @@ class ProfilePage extends StatelessWidget {
                           final userData = snapshot.data!;
 
                           return Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              SizedBox(
-                                width: width * 0.025,
-                              ),
-                              Column(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                crossAxisAlignment: CrossAxisAlignment.center,
+                              // IMAGE, NAME & INFO
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                  // IMAGE, NAME & INFO
                                   CircleAvatar(
                                     radius: width * 0.1195,
                                     backgroundColor: primary2,
@@ -101,17 +100,22 @@ class ProfilePage extends StatelessWidget {
                                       userData['Image'],
                                     ),
                                   ),
-                                  SizedBox(
-                                    width: width * 0.75,
-                                    child: Text(
-                                      userData['Name']?.toUpperCase() ?? 'N/A',
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: width * 0.07,
-                                        fontWeight: FontWeight.w700,
-                                        color: primaryDark.withBlue(5),
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.only(left: width * 0.05),
+                                    child: SizedBox(
+                                      width: width * 0.45,
+                                      child: Text(
+                                        userData['Name']?.toUpperCase() ??
+                                            'N/A',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        textAlign: TextAlign.start,
+                                        style: TextStyle(
+                                          fontSize: width * 0.07,
+                                          fontWeight: FontWeight.w700,
+                                          color: primaryDark.withBlue(5),
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -122,6 +126,7 @@ class ProfilePage extends StatelessWidget {
                                 icon: Icon(
                                   FeatherIcons.settings,
                                 ),
+                                tooltip: "Edit Info",
                               ),
                             ],
                           );
@@ -130,6 +135,21 @@ class ProfilePage extends StatelessWidget {
                         return Container();
                       }),
                     ),
+                  ),
+                  Divider(),
+
+                  // FOLLOWED
+                  SmallTextContainer(
+                    text: 'Followed',
+                    onPressed: () {},
+                    width: width,
+                  ),
+
+                  // WISHLIST
+                  SmallTextContainer(
+                    text: 'Wishlist',
+                    onPressed: () {},
+                    width: width,
                   ),
                 ],
               ),
