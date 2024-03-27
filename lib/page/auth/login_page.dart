@@ -117,11 +117,8 @@ class _LoginPageState extends State<LoginPage> {
             });
             // Register with Phone
 
-            setState(() {
-              isPhoneLogging = true;
-            });
             await FirebaseAuth.instance.verifyPhoneNumber(
-                phoneNumber: "+91 ${phoneController.text}",
+                phoneNumber: "${phoneController.text.toString()}",
                 timeout: const Duration(seconds: 120),
                 verificationCompleted: (PhoneAuthCredential credential) async {
                   await FirebaseAuth.instance.signInWithCredential(credential);
