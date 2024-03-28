@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:find_easy_user/models/business_categories.dart';
+import 'package:find_easy_user/page/main/search/search_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/text_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -99,7 +100,7 @@ class _HomePageState extends State<HomePage> {
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: MediaQuery.of(context).size.width * 0.0225,
+            horizontal: MediaQuery.of(context).size.width * 0.0125,
             vertical: MediaQuery.of(context).size.width * 0.0166,
           ),
           child: LayoutBuilder(
@@ -111,49 +112,24 @@ class _HomePageState extends State<HomePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // SEARCH
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: width * 0.0125,
-                        vertical: width * 0.0125,
-                      ),
-                      child: InkWell(
-                        onTap: () {
-                          print(1);
-                        },
-                        splashColor: Color.fromARGB(255, 200, 244, 255),
-                        customBorder: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(100),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: width * 0.0125,
+                          vertical: width * 0.0125,
                         ),
-                        child: Container(
-                          width: width,
-                          height: width * 0.125,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: width * 0.05,
-                          ),
-                          decoration: BoxDecoration(
-                            color: primary2,
-                            borderRadius: BorderRadius.circular(100),
-                            border: Border.all(
-                              color: primaryDark.withOpacity(0.1),
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Search...',
-                                style: TextStyle(
-                                  color: primaryDark2.withOpacity(0.5),
-                                  fontSize: width * 0.045,
-                                ),
+                        child: IconButton(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: ((context) => SearchPage()),
                               ),
-                              Icon(
-                                FeatherIcons.search,
-                                color: primaryDark2.withOpacity(0.5),
-                              ),
-                            ],
-                          ),
+                            );
+                          },
+                          icon: Icon(FeatherIcons.search),
+                          color: primaryDark2.withOpacity(0.8),
+                          tooltip: "Search",
                         ),
                       ),
                     ),
@@ -334,7 +310,7 @@ class _HomePageState extends State<HomePage> {
                               vertical: width * 0.025,
                             ),
                             child: Text(
-                              'Recent',
+                              'Continue Shopping',
                               style: TextStyle(
                                 color: primaryDark,
                                 fontSize: width * 0.07,

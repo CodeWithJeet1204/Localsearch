@@ -78,6 +78,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
               'followedShops': [],
               'wishlists': [],
               'likedProducts': [],
+              'recentSearches': [],
             });
 
             signInMethodProvider.chooseEmail();
@@ -389,6 +390,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                         const SizedBox(height: 16),
 
                         // GOOGLE
+                        // TODO: MISTAKE: creates business account to be fixed
                         GestureDetector(
                           onTap: () async {
                             setState(() {

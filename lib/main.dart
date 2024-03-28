@@ -2,7 +2,6 @@ import 'package:find_easy_user/firebase_options.dart';
 import 'package:find_easy_user/page/auth/login_page.dart';
 import 'package:find_easy_user/page/auth/register_method_page.dart';
 import 'package:find_easy_user/page/main/main_page.dart';
-import 'package:find_easy_user/providers/name_provider.dart';
 import 'package:find_easy_user/providers/recent_provider.dart';
 import 'package:find_easy_user/providers/register_details_provider.dart';
 import 'package:find_easy_user/providers/sign_in_method_provider.dart';
@@ -29,9 +28,6 @@ void main() async {
         ),
         ChangeNotifierProvider(
           create: (_) => RegisterDetailsProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => NameProvider(),
         ),
         ChangeNotifierProvider(
           create: (_) => RecentProvider(),
