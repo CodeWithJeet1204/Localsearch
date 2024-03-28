@@ -4,7 +4,7 @@ import 'package:find_easy_user/page/auth/register_details_page.dart';
 import 'package:find_easy_user/page/auth/verify/email_verify.dart';
 import 'package:find_easy_user/page/main/home_page.dart';
 import 'package:find_easy_user/page/main/profile_page.dart';
-import 'package:find_easy_user/page/main/search_page.dart';
+import 'package:find_easy_user/page/main/search/search_with_products_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/snack_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -20,12 +20,12 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   final auth = FirebaseAuth.instance.currentUser!;
   final store = FirebaseFirestore.instance;
-  int current = 0;
+  int current = 1;
   Widget? detailsPage;
 
   List<Widget> items = [
     HomePage(),
-    SearchPage(),
+    SearchWithProductsPage(),
     ProfilePage(),
   ];
 

@@ -64,6 +64,7 @@ class _NumberVerifyPageState extends State<NumberVerifyPage> {
             'followedShops': [],
             'wishlists': [],
             'likedProducts': [],
+            'recentSearches': [],
           });
         }
 
