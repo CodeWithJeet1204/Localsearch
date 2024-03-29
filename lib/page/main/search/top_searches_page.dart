@@ -19,7 +19,7 @@ class _TopSearchPageState extends State<TopSearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Top Searches 🔥'),
+        title: const Text('Top Searches 🔥'),
       ),
       body: SafeArea(
         child: Padding(
@@ -91,7 +91,7 @@ class _TopSearchPageState extends State<TopSearchPage> {
                               ),
                               IconButton(
                                 onPressed: () {},
-                                icon: Icon(FeatherIcons.search),
+                                icon: const Icon(FeatherIcons.search),
                                 tooltip: 'Search \'$name\'',
                               ),
                             ],

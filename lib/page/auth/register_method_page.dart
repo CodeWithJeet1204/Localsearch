@@ -83,10 +83,12 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
 
             signInMethodProvider.chooseEmail();
           } else {
-            mySnackBar(
-              'User Sign In Error',
-              context,
-            );
+            if (mounted) {
+              mySnackBar(
+                'User Sign In Error',
+                context,
+              );
+            }
           }
 
           setState(() {
@@ -96,12 +98,14 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
               FirebaseAuth.instance.currentUser!.email != null) {
             SystemChannels.textInput.invokeMethod('TextInput.hide');
             if (context.mounted) {
-              Navigator.of(context).pop();
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const EmailVerifyPage(),
-                ),
-              );
+              if (mounted) {
+                Navigator.of(context).pop();
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const EmailVerifyPage(),
+                  ),
+                );
+              }
             }
           }
         } on FirebaseAuthException catch (e) {
@@ -110,14 +114,14 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
           });
 
           if (e.code == 'email-already-in-use') {
-            if (context.mounted) {
+            if (mounted) {
               mySnackBar(
                 'This email is already in use.',
                 context,
               );
             }
           } else {
-            if (context.mounted) {
+            if (mounted) {
               mySnackBar(
                 e.message ?? 'An error occurred.',
                 context,
@@ -128,7 +132,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
           setState(() {
             isEmailRegistering = false;
           });
-          if (context.mounted) {
+          if (mounted) {
             mySnackBar(
               e.toString(),
               context,
@@ -222,16 +226,14 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
           isPhoneRegistering = false;
           phoneText = "SIGNUP";
         });
-        if (context.mounted) {
+        if (mounted) {
           mySnackBar(
             e.toString(),
             context,
           );
         }
       }
-    } else {
-      print(1234);
-    }
+    } else {}
   }
 
   @override

@@ -15,14 +15,18 @@ class ProfilePage extends StatelessWidget {
     try {
       await FirebaseAuth.instance.signOut();
 
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(
-          builder: ((context) => LoginPage()),
-        ),
-        (route) => false,
-      );
+      if (context.mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder: ((context) => const LoginPage()),
+          ),
+          (route) => false,
+        );
+      }
     } catch (e) {
-      mySnackBar(e.toString(), context);
+      if (context.mounted) {
+        mySnackBar(e.toString(), context);
+      }
     }
   }
 
@@ -35,13 +39,13 @@ class ProfilePage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("PROFILE"),
+        title: const Text("PROFILE"),
         actions: [
           IconButton(
             onPressed: () async {
               await logOut(context);
             },
-            icon: Icon(Icons.logout),
+            icon: const Icon(Icons.logout),
             tooltip: "LOG OUT",
           ),
         ],
@@ -77,7 +81,7 @@ class ProfilePage extends StatelessWidget {
                       future: userFuture,
                       builder: ((context, snapshot) {
                         if (snapshot.hasError) {
-                          return Center(
+                          return const Center(
                             child: Text('Something went wrong'),
                           );
                         }
@@ -123,7 +127,7 @@ class ProfilePage extends StatelessWidget {
                               ),
                               IconButton(
                                 onPressed: () {},
-                                icon: Icon(
+                                icon: const Icon(
                                   FeatherIcons.settings,
                                 ),
                                 tooltip: "Edit Info",
@@ -136,7 +140,7 @@ class ProfilePage extends StatelessWidget {
                       }),
                     ),
                   ),
-                  Divider(),
+                  const Divider(),
 
                   // FOLLOWED
                   SmallTextContainer(

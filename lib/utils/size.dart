@@ -1,1 +1,1 @@
-final screenSize = 540;
+const screenSize = 540;

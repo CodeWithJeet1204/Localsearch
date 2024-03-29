@@ -58,21 +58,24 @@ class _LoginPageState extends State<LoginPage> {
           password: passwordController.text.toString(),
         );
         if (user != null) {
-          mySnackBar(
-            'Signed In',
-            context,
-          );
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(
-              builder: ((context) => MainPage()),
-            ),
-            (route) => false,
-          );
+          if (mounted) {
+            mySnackBar('Signed In', context);
+          }
+          if (mounted) {
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(
+                builder: ((context) => const MainPage()),
+              ),
+              (route) => false,
+            );
+          }
         } else {
-          mySnackBar(
-            'Some error occured',
-            context,
-          );
+          if (mounted) {
+            mySnackBar(
+              'Some error occured',
+              context,
+            );
+          }
         }
         setState(() {
           isEmailLogging = false;
@@ -81,13 +84,11 @@ class _LoginPageState extends State<LoginPage> {
         setState(() {
           isEmailLogging = false;
         });
-        if (context.mounted) {
-          if (context.mounted) {
-            mySnackBar(
-              e.toString(),
-              context,
-            );
-          }
+        if (mounted) {
+          mySnackBar(
+            e.toString(),
+            context,
+          );
         }
       }
     }
@@ -118,7 +119,7 @@ class _LoginPageState extends State<LoginPage> {
             // Register with Phone
 
             await FirebaseAuth.instance.verifyPhoneNumber(
-                phoneNumber: "${phoneController.text.toString()}",
+                phoneNumber: phoneController.text.toString(),
                 timeout: const Duration(seconds: 120),
                 verificationCompleted: (PhoneAuthCredential credential) async {
                   await FirebaseAuth.instance.signInWithCredential(credential);
@@ -167,15 +168,17 @@ class _LoginPageState extends State<LoginPage> {
             setState(() {
               isPhoneLogging = false;
             });
-            if (context.mounted) {
+            if (mounted) {
               mySnackBar(e.toString(), context);
             }
           }
         } else {
-          mySnackBar(
-            'You have not registered with this phone number',
-            context,
-          );
+          if (mounted) {
+            mySnackBar(
+              'You have not registered with this phone number',
+              context,
+            );
+          }
         }
       }
 
@@ -195,19 +198,21 @@ class _LoginPageState extends State<LoginPage> {
         setState(() {
           isGoogleLogging = false;
         });
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(
-            builder: ((context) => MainPage()),
-          ),
-          (route) => false,
-        );
+        if (mounted) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: ((context) => const MainPage()),
+            ),
+            (route) => false,
+          );
+        }
       } else {
-        if (context.mounted) {
+        if (mounted) {
           mySnackBar("Some error occured!", context);
         }
       }
     } on FirebaseAuthException catch (e) {
-      if (context.mounted) {
+      if (mounted) {
         mySnackBar(e.toString(), context);
       }
     }
@@ -401,7 +406,8 @@ class _LoginPageState extends State<LoginPage> {
                             Navigator.of(context).pop();
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                  builder: (context) => RegisterMethodPage()),
+                                  builder: (context) =>
+                                      const RegisterMethodPage()),
                             );
                           },
                           text: "REGISTER",
@@ -719,7 +725,7 @@ class _LoginPageState extends State<LoginPage> {
                                     Navigator.of(context).push(
                                       MaterialPageRoute(
                                           builder: (context) =>
-                                              RegisterMethodPage()),
+                                              const RegisterMethodPage()),
                                     );
                                   },
                                   text: "REGISTER",

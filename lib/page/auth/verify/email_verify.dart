@@ -40,7 +40,7 @@ class _EmailVerifyPageState extends State<EmailVerifyPage> {
     isEmailVerified = FirebaseAuth.instance.currentUser!.emailVerified;
 
     if (isEmailVerified) {
-      if (context.mounted) {
+      if (mounted) {
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
               builder: ((context) => const RegisterDetailsPage())),
@@ -48,7 +48,9 @@ class _EmailVerifyPageState extends State<EmailVerifyPage> {
         );
       }
     } else if (fromButton != null) {
-      mySnackBar('Pls verify your email', context);
+      if (mounted) {
+        mySnackBar('Pls verify your email', context);
+      }
     }
   }
 
@@ -57,7 +59,7 @@ class _EmailVerifyPageState extends State<EmailVerifyPage> {
     try {
       final user = FirebaseAuth.instance.currentUser!;
       await user.sendEmailVerification();
-      if (context.mounted) {
+      if (mounted) {
         mySnackBar(
           "Verification Email Sent",
           context,
@@ -72,7 +74,7 @@ class _EmailVerifyPageState extends State<EmailVerifyPage> {
         canResendEmail = true;
       });
     } catch (e) {
-      if (context.mounted) {
+      if (mounted) {
         mySnackBar(
           e.toString(),
           context,

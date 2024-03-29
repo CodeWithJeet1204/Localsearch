@@ -50,7 +50,7 @@ class _SearchWithProductsPageState extends State<SearchWithProductsPage> {
     productNames.clear();
     productImageUrls.clear();
 
-    displayedProducts.forEach((productDoc) {
+    for (var productDoc in displayedProducts) {
       final String productId = productDoc.id;
       final String productName =
           (productDoc.data() as Map<String, dynamic>)['productName'];
@@ -60,7 +60,7 @@ class _SearchWithProductsPageState extends State<SearchWithProductsPage> {
       productIds.add(productId);
       productNames.add(productName);
       productImageUrls.add(productImageUrl);
-    });
+    }
 
     setState(() {
       getData = true;
@@ -83,7 +83,7 @@ class _SearchWithProductsPageState extends State<SearchWithProductsPage> {
   @override
   Widget build(BuildContext context) {
     return !getData
-        ? Center(
+        ? const Center(
             child: CircularProgressIndicator(),
           )
         : Scaffold(
@@ -110,7 +110,7 @@ class _SearchWithProductsPageState extends State<SearchWithProductsPage> {
                                 PageRouteBuilder(
                                   pageBuilder:
                                       (context, animation, secondaryAnimation) {
-                                    return SearchPage();
+                                    return const SearchPage();
                                   },
                                   transitionsBuilder: (context, animation,
                                       secondaryAnimation, child) {
@@ -130,7 +130,8 @@ class _SearchWithProductsPageState extends State<SearchWithProductsPage> {
                                 ),
                               );
                             },
-                            splashColor: Color.fromARGB(255, 200, 244, 255),
+                            splashColor:
+                                const Color.fromARGB(255, 200, 244, 255),
                             customBorder: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(100),
                             ),
@@ -210,11 +211,11 @@ class _SearchWithProductsPageState extends State<SearchWithProductsPage> {
                                 repeatPattern:
                                     QuiltedGridRepeatPattern.inverted,
                                 pattern: [
-                                  QuiltedGridTile(2, 2),
-                                  QuiltedGridTile(1, 1),
-                                  QuiltedGridTile(1, 1),
-                                  QuiltedGridTile(1, 1),
-                                  QuiltedGridTile(1, 1),
+                                  const QuiltedGridTile(2, 2),
+                                  const QuiltedGridTile(1, 1),
+                                  const QuiltedGridTile(1, 1),
+                                  const QuiltedGridTile(1, 1),
+                                  const QuiltedGridTile(1, 1),
                                 ],
                               ),
                               childrenDelegate: SliverChildBuilderDelegate(
@@ -228,7 +229,7 @@ class _SearchWithProductsPageState extends State<SearchWithProductsPage> {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => HomePage(
+                                          builder: (context) => const HomePage(
                                               /*productId: productId,
                                                   productName: productName*/
                                               ),

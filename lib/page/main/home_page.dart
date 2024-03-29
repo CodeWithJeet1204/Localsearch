@@ -75,6 +75,7 @@ class _HomePageState extends State<HomePage> {
   Future<int> getRecentShopProductInfo(bool fromRecent) async {
     List<String> temporaryNameList = [];
     List<String> temporaryImageList = [];
+    // ignore: avoid_function_literals_in_foreach_calls
     recentShopProducts.forEach((productId) async {
       final productData = await store
           .collection('Business')
@@ -123,11 +124,11 @@ class _HomePageState extends State<HomePage> {
                           onPressed: () {
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: ((context) => SearchPage()),
+                                builder: ((context) => const SearchPage()),
                               ),
                             );
                           },
-                          icon: Icon(FeatherIcons.search),
+                          icon: const Icon(FeatherIcons.search),
                           color: primaryDark2.withOpacity(0.8),
                           tooltip: "Search",
                         ),
@@ -186,7 +187,7 @@ class _HomePageState extends State<HomePage> {
                             child: ListView.builder(
                               shrinkWrap: true,
                               scrollDirection: Axis.horizontal,
-                              physics: NeverScrollableScrollPhysics(),
+                              physics: const NeverScrollableScrollPhysics(),
                               itemCount: 4,
                               itemBuilder: ((context, index) {
                                 final String name =
@@ -244,7 +245,7 @@ class _HomePageState extends State<HomePage> {
                             child: ListView.builder(
                               shrinkWrap: true,
                               scrollDirection: Axis.horizontal,
-                              physics: NeverScrollableScrollPhysics(),
+                              physics: const NeverScrollableScrollPhysics(),
                               itemCount: 4,
                               itemBuilder: ((context, index) {
                                 final String name =

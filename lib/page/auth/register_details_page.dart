@@ -58,10 +58,10 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
     showDialog(
       context: context,
       builder: ((context) {
-        return Dialog(
+        return const Dialog(
           backgroundColor: primary2,
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16),
             child: Text(
               'Name: Helps Vendors identify you in messages.\n\nStreet Address: To recommend nearby shops to you\n\nCity Name: To show you the shops in your city',
               style: TextStyle(
@@ -90,7 +90,7 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
           });
         });
       } catch (e) {
-        if (context.mounted) {
+        if (mounted) {
           mySnackBar(
             e.toString(),
             context,
@@ -134,15 +134,18 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
         setState(() {
           isSaving = false;
         });
-
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(
-            builder: (context) => MainPage(),
-          ),
-          (route) => false,
-        );
+        if (mounted) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: (context) => const MainPage(),
+            ),
+            (route) => false,
+          );
+        }
       } catch (e) {
-        return mySnackBar(e.toString(), context);
+        if (mounted) {
+          return mySnackBar(e.toString(), context);
+        }
       }
     } else {
       mySnackBar('Select Gender', context);
@@ -155,10 +158,10 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Enter Details"),
+        title: const Text("Enter Details"),
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         child: LayoutBuilder(
           builder: ((context, constraints) {
             final double width = constraints.maxWidth;
@@ -219,13 +222,13 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                           borderRadius: 12,
                           horizontalPadding: 0,
                           verticalPadding: 12,
-                          autoFillHints: [AutofillHints.email],
+                          autoFillHints: const [AutofillHints.email],
                         ),
 
                         // EMAIL
                         !signInMethodProvider.isEmailChosen
                             ? TextFormField(
-                                autofillHints: [AutofillHints.email],
+                                autofillHints: const [AutofillHints.email],
                                 autofocus: false,
                                 controller: emailController,
                                 keyboardType: TextInputType.emailAddress,
@@ -261,7 +264,7 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                                 borderRadius: 12,
                                 horizontalPadding: 0,
                                 verticalPadding: 12,
-                                autoFillHints: [AutofillHints.email],
+                                autoFillHints: const [AutofillHints.email],
                               ),
 
                         // STREET
@@ -271,7 +274,7 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                           borderRadius: 12,
                           horizontalPadding: 0,
                           verticalPadding: 12,
-                          autoFillHints: [AutofillHints.email],
+                          autoFillHints: const [AutofillHints.email],
                         ),
 
                         // CITY
@@ -281,7 +284,7 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                           borderRadius: 12,
                           horizontalPadding: 0,
                           verticalPadding: 12,
-                          autoFillHints: [AutofillHints.email],
+                          autoFillHints: const [AutofillHints.email],
                         ),
 
                         // SELECT GENDER
@@ -294,23 +297,23 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                               color: primary3,
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 4),
                             child: DropdownButton(
-                              value: selectedGender ?? null,
-                              hint: Text(
+                              value: selectedGender,
+                              hint: const Text(
                                 "Select Gender",
                                 style: TextStyle(
                                   color: primaryDark2,
                                 ),
                               ),
-                              underline: SizedBox(),
+                              underline: const SizedBox(),
                               iconEnabledColor: primaryDark,
                               dropdownColor: primary2,
                               items: ['Male', 'Female']
                                   .map((e) => DropdownMenuItem(
-                                        child: Text(e),
                                         value: e,
+                                        child: Text(e),
                                       ))
                                   .toList(),
                               onChanged: (value) {
@@ -346,12 +349,12 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                       children: [
                         IconButton(
                           onPressed: showInfoDialog,
-                          icon: Icon(
+                          icon: const Icon(
                             Icons.info_outline_rounded,
                             size: 20,
                           ),
                         ),
-                        Text(
+                        const Text(
                           'Why we collect this info?',
                           style: TextStyle(
                             fontSize: 12,

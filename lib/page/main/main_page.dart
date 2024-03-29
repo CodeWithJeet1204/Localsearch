@@ -24,9 +24,9 @@ class _MainPageState extends State<MainPage> {
   Widget? detailsPage;
 
   List<Widget> items = [
-    HomePage(),
-    SearchWithProductsPage(),
-    ProfilePage(),
+    const HomePage(),
+    const SearchWithProductsPage(),
+    const ProfilePage(),
   ];
 
   // INIT STATE
@@ -44,13 +44,13 @@ class _MainPageState extends State<MainPage> {
 
       if (userData['Name'] == null) {
         setState(() {
-          detailsPage = RegisterDetailsPage();
+          detailsPage = const RegisterDetailsPage();
         });
       } else if (auth.email != null &&
           auth.email!.length > 4 &&
           !auth.emailVerified) {
         setState(() {
-          detailsPage = EmailVerifyPage();
+          detailsPage = const EmailVerifyPage();
         });
       } else {
         setState(() {
@@ -58,7 +58,9 @@ class _MainPageState extends State<MainPage> {
         });
       }
     } catch (e) {
-      mySnackBar(e.toString(), context);
+      if (mounted) {
+        mySnackBar(e.toString(), context);
+      }
     }
   }
 
@@ -87,21 +89,21 @@ class _MainPageState extends State<MainPage> {
             ),
             currentIndex: current,
             onTap: changePage,
-            items: [
+            items: const [
               BottomNavigationBarItem(
-                icon: const Icon(
+                icon: Icon(
                   FeatherIcons.home,
                 ),
                 label: "Home",
               ),
               BottomNavigationBarItem(
-                icon: const Icon(
+                icon: Icon(
                   FeatherIcons.search,
                 ),
                 label: "Search",
               ),
               BottomNavigationBarItem(
-                icon: const Icon(
+                icon: Icon(
                   FeatherIcons.user,
                 ),
                 label: "Profile",

@@ -37,10 +37,7 @@ void main() async {
     ),
   );
   if (FirebaseAuth.instance.currentUser != null) {
-    print(FirebaseAuth.instance.currentUser!.uid);
-  } else {
-    print("No user");
-  }
+  } else {}
 }
 
 class MyApp extends StatelessWidget {
@@ -53,7 +50,7 @@ class MyApp extends StatelessWidget {
         progressIndicatorTheme: const ProgressIndicatorThemeData(
           color: primaryDark2,
         ),
-        dropdownMenuTheme: DropdownMenuThemeData(
+        dropdownMenuTheme: const DropdownMenuThemeData(
           menuStyle: MenuStyle(),
           textStyle: TextStyle(
             fontSize: 22,
@@ -95,7 +92,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       routes: {
-        '/register': ((context) => RegisterMethodPage()),
+        '/register': ((context) => const RegisterMethodPage()),
       },
       debugShowCheckedModeBanner: false,
       home: StreamBuilder(
@@ -110,7 +107,7 @@ class MyApp extends StatelessWidget {
           }
 
           if (snapshot.hasData) {
-            return MainPage();
+            return const MainPage();
           }
 
           return const LoginPage();

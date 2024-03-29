@@ -17,11 +17,11 @@ class _SearchPageState extends State<SearchPage> {
   final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
   final searchController = TextEditingController();
-  List? recentSearches = null;
+  List? recentSearches;
   Map? topSearchesMap = {};
-  List? recentProductId = null;
-  List? recentProductName = null;
-  List? recentProductImage = null;
+  List? recentProductId;
+  List? recentProductName;
+  List? recentProductImage;
 
   // INIT STATE
   @override
@@ -69,8 +69,7 @@ class _SearchPageState extends State<SearchPage> {
     final recent = userData['recentSearches'] as List;
 
     if (!recent.contains(searchController.text) &&
-        searchController.text.isNotEmpty &&
-        searchController.text.length != 0) {
+        searchController.text.isNotEmpty) {
       recent.insert(0, searchController.text);
     }
 
@@ -148,17 +147,17 @@ class _SearchPageState extends State<SearchPage> {
 
     final trendSnap = await store.collection('Users').get();
 
-    trendSnap.docs.forEach((userData) {
+    for (var userData in trendSnap.docs) {
       final recentSearches = userData['recentSearches'] as List;
 
-      recentSearches.forEach((search) {
+      for (var search in recentSearches) {
         if (trendSearchMap.containsKey(search)) {
           trendSearchMap[search] = trendSearchMap[search]! + 1;
         } else {
           trendSearchMap[search] = 1;
         }
-      });
-    });
+      }
+    }
 
     var sortedEntries = trendSearchMap.entries.toList();
     sortedEntries.sort((a, b) => b.value.compareTo(a.value));
@@ -192,7 +191,6 @@ class _SearchPageState extends State<SearchPage> {
 
     for (String productId in recentProductIds) {
       if (productId.contains('//')) {
-        print('Invalid productId: $productId');
         continue;
       }
       final productDoc = await store
@@ -215,9 +213,6 @@ class _SearchPageState extends State<SearchPage> {
     recentProductId = internalProductIdList;
     recentProductName = internalProductNameList;
     recentProductImage = internalProductImageList;
-    print("Recent Product Ids: $recentProductId");
-    print("Recent Product Names: $recentProductName");
-    print("Recent ProductImages: $recentProductImage");
   }
 
   @override
@@ -254,7 +249,7 @@ class _SearchPageState extends State<SearchPage> {
                             onPressed: () {
                               Navigator.of(context).pop();
                             },
-                            icon: Icon(FeatherIcons.arrowLeft),
+                            icon: const Icon(FeatherIcons.arrowLeft),
                           ),
                           // SEARCH BAR
                           Container(
@@ -272,7 +267,7 @@ class _SearchPageState extends State<SearchPage> {
                               children: [
                                 Container(
                                   width: width * 0.6875,
-                                  decoration: BoxDecoration(
+                                  decoration: const BoxDecoration(
                                     border: Border(
                                       right: BorderSide(
                                         width: 0.5,
@@ -285,12 +280,12 @@ class _SearchPageState extends State<SearchPage> {
                                       top: width * 0.035,
                                     ),
                                     child: TextFormField(
-                                      autofillHints: [],
+                                      autofillHints: const [],
                                       autofocus: true,
                                       controller: searchController,
                                       keyboardType: TextInputType.text,
                                       textInputAction: TextInputAction.search,
-                                      decoration: InputDecoration(
+                                      decoration: const InputDecoration(
                                         hintText: 'Search',
                                         hintStyle: TextStyle(
                                           textBaseline: TextBaseline.alphabetic,
@@ -360,7 +355,7 @@ class _SearchPageState extends State<SearchPage> {
 
                     // RECENT SEEARCHES LIST
                     recentSearches == null
-                        ? Center(
+                        ? const Center(
                             child: CircularProgressIndicator(),
                           )
                         : recentSearches!.isEmpty
@@ -371,7 +366,7 @@ class _SearchPageState extends State<SearchPage> {
                                     ? 5 * width * 0.15
                                     : recentSearches!.length * width * 0.15,
                                 child: ListView.builder(
-                                  physics: NeverScrollableScrollPhysics(),
+                                  physics: const NeverScrollableScrollPhysics(),
                                   itemCount: recentSearches!.length > 5
                                       ? 5
                                       : recentSearches!.length,
@@ -407,7 +402,7 @@ class _SearchPageState extends State<SearchPage> {
                                                 index,
                                               );
                                             },
-                                            icon: Icon(FeatherIcons.x),
+                                            icon: const Icon(FeatherIcons.x),
                                             tooltip: "Remove",
                                           ),
                                         ],
@@ -419,7 +414,7 @@ class _SearchPageState extends State<SearchPage> {
 
                     recentSearches != null && recentSearches!.isEmpty
                         ? Container()
-                        : Divider(),
+                        : const Divider(),
 
                     // TOP SEARCHES
                     topSearchesMap == null || topSearchesMap!.isEmpty
@@ -466,7 +461,7 @@ class _SearchPageState extends State<SearchPage> {
                                 ? 3 * width * 0.15
                                 : topSearchesMap!.keys.length * width * 0.15,
                             child: ListView.builder(
-                              physics: NeverScrollableScrollPhysics(),
+                              physics: const NeverScrollableScrollPhysics(),
                               itemCount: topSearchesMap!.keys.length > 3
                                   ? 3
                                   : topSearchesMap!.keys.length,
@@ -514,7 +509,7 @@ class _SearchPageState extends State<SearchPage> {
 
                     recentProductId == null || recentProductId!.isEmpty
                         ? Container()
-                        : Divider(),
+                        : const Divider(),
 
                     // RECENT PRODUCTS
                     recentProductId == null || recentProductId!.isEmpty
@@ -542,7 +537,7 @@ class _SearchPageState extends State<SearchPage> {
                             child: ListView.builder(
                               shrinkWrap: true,
                               scrollDirection: Axis.horizontal,
-                              physics: NeverScrollableScrollPhysics(),
+                              physics: const NeverScrollableScrollPhysics(),
                               itemCount: recentProductImage!.length > 3
                                   ? 3
                                   : recentProductImage!.length,
