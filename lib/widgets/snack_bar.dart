@@ -1,10 +1,23 @@
+import 'package:find_easy_user/utils/colors.dart';
 import 'package:flutter/material.dart';
 
 void mySnackBar(String text, BuildContext context) {
   ScaffoldMessenger.of(context).clearSnackBars();
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
-      content: Text(text),
+      content: Text(
+        text,
+        style: TextStyle(
+          color: primaryDark,
+        ),
+      ),
+      elevation: 2,
+      backgroundColor: Color.fromARGB(255, 240, 252, 255),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      dismissDirection: DismissDirection.down,
+      behavior: SnackBarBehavior.floating,
     ),
   );
 }

@@ -33,8 +33,8 @@ class _MainPageState extends State<MainPage> {
   // INIT STATE
   @override
   void initState() {
-    super.initState();
     fetchUserDetails();
+    super.initState();
   }
 
   // FETCH USER DETAILS
@@ -98,11 +98,13 @@ class _MainPageState extends State<MainPage> {
             backgroundColor: white,
             selectedLabelStyle: const TextStyle(
               fontWeight: FontWeight.w500,
+              color: primaryDark,
             ),
+            useLegacyColorScheme: false,
             type: BottomNavigationBarType.fixed,
             selectedIconTheme: const IconThemeData(
               size: 24,
-              color: black,
+              color: primaryDark,
             ),
             unselectedIconTheme: IconThemeData(
               size: 24,
@@ -115,19 +117,21 @@ class _MainPageState extends State<MainPage> {
                 icon: Icon(
                   FeatherIcons.home,
                 ),
+                activeIcon: Icon(FeatherIcons.home),
                 label: "Home",
+                tooltip: 'HOME',
               ),
               BottomNavigationBarItem(
-                icon: Icon(
-                  FeatherIcons.search,
-                ),
+                icon: Icon(FeatherIcons.search),
+                activeIcon: Icon(FeatherIcons.search),
                 label: "Search",
+                tooltip: 'SEARCH',
               ),
               BottomNavigationBarItem(
-                icon: Icon(
-                  FeatherIcons.user,
-                ),
+                icon: Icon(FeatherIcons.user),
+                activeIcon: Icon(FeatherIcons.user),
                 label: "Profile",
+                tooltip: 'PROFILE',
               ),
             ],
           ),
