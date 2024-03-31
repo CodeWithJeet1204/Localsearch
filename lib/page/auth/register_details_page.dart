@@ -75,6 +75,7 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
     );
   }
 
+  // UPLOAD IMAGE
   Future<void> uploadImage(File? image) async {
     if (image != null) {
       try {
@@ -157,9 +158,6 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
     final signInMethodProvider = Provider.of<SignInMethodProvider>(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Enter Details"),
-      ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: LayoutBuilder(
@@ -172,7 +170,7 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // USER DETAILS HEADTEXT
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 80),
                   const HeadText(
                     text: "USER\nDETAILS",
                   ),

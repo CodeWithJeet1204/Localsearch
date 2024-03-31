@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
+import 'package:find_easy_user/page/main/search/search_results_page.dart';
 import 'package:find_easy_user/page/main/search/top_searches_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/speech_to_text.dart';
@@ -18,6 +19,7 @@ class _SearchPageState extends State<SearchPage> {
   final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
   final searchController = TextEditingController();
+  List? allProducts;
   List? recentSearches;
   Map? topSearchesMap = {};
   List? recentProductId;
@@ -32,6 +34,7 @@ class _SearchPageState extends State<SearchPage> {
     getRecentSearch();
     getTopSearches();
     getRecentProducts();
+    getAllProducts();
     super.initState();
   }
 
@@ -49,9 +52,17 @@ class _SearchPageState extends State<SearchPage> {
 
   // SEARCH
   Future<void> search() async {
-    // search function
-
     await addRecentSearch();
+
+    // search function
+    if (searchController.text.isNotEmpty) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: ((context) =>
+              SearchResultsPage(search: searchController.text)),
+        ),
+      );
+    }
   }
 
   // GET RECENT SEARCH
@@ -93,8 +104,6 @@ class _SearchPageState extends State<SearchPage> {
     });
 
     await getRecentSearch();
-
-    searchController.clear();
   }
 
   // REMOVE RECENT SEARCH
@@ -184,6 +193,28 @@ class _SearchPageState extends State<SearchPage> {
     });
   }
 
+  // GET ALL PRODUCTS
+  Future<void> getAllProducts() async {
+    List products = [];
+    final productsSnap = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Products')
+        .get();
+
+    productsSnap.docs.forEach((productDoc) {
+      final productData = productDoc.data();
+
+      final productName = productData['productName'];
+
+      if (!products.contains(productName)) {
+        products.add(productName);
+      }
+    });
+
+    allProducts = products;
+  }
+
   // GET RECENT PRODUCTS
   Future<void> getRecentProducts() async {
     final userDoc =
@@ -196,7 +227,6 @@ class _SearchPageState extends State<SearchPage> {
         recentProductName = [];
         recentProductImage = [];
       });
-
       return;
     }
 
@@ -239,7 +269,7 @@ class _SearchPageState extends State<SearchPage> {
         toolbarHeight: width * 0.15125,
         title: Padding(
           padding: EdgeInsets.only(
-            top: width * 0.0225,
+            top: width * 0.025,
             bottom: width * 0.0225,
             right: width * 0.0125,
           ),
@@ -267,26 +297,21 @@ class _SearchPageState extends State<SearchPage> {
                     ),
                   ),
                   alignment: Alignment.center,
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                        // top: width * 0.135,
-                        ),
-                    child: TextFormField(
-                      autofillHints: const [],
-                      autofocus: true,
-                      minLines: 1,
-                      maxLines: 1,
-                      controller: searchController,
-                      keyboardType: TextInputType.text,
-                      textInputAction: TextInputAction.search,
-                      decoration: const InputDecoration(
-                        hintText: 'Search',
-                        hintStyle: TextStyle(
-                          textBaseline: TextBaseline.alphabetic,
-                        ),
-                        border: OutlineInputBorder(
-                          borderSide: BorderSide.none,
-                        ),
+                  child: TextFormField(
+                    autofillHints: const [],
+                    autofocus: true,
+                    minLines: 1,
+                    maxLines: 1,
+                    controller: searchController,
+                    keyboardType: TextInputType.text,
+                    textInputAction: TextInputAction.search,
+                    decoration: const InputDecoration(
+                      hintText: 'Search',
+                      hintStyle: TextStyle(
+                        textBaseline: TextBaseline.alphabetic,
+                      ),
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide.none,
                       ),
                     ),
                   ),
@@ -418,9 +443,7 @@ class _SearchPageState extends State<SearchPage> {
 
                     // RECENT SEEARCHES LIST
                     recentSearches == null
-                        ? const Center(
-                            child: CircularProgressIndicator(),
-                          )
+                        ? Container()
                         : recentSearches!.isEmpty
                             ? Container()
                             : SizedBox(
@@ -605,7 +628,7 @@ class _SearchPageState extends State<SearchPage> {
                                   ? 3
                                   : recentProductImage!.length,
                               itemBuilder: ((context, index) {
-                                final String id = recentProductId![index];
+                                // final String id = recentProductId![index];
                                 final String name = recentProductName![index];
                                 final String image = recentProductImage![index];
 

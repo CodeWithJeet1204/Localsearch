@@ -25,6 +25,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final store = FirebaseFirestore.instance;
   final GlobalKey<FormState> emailLoginFormKey = GlobalKey<FormState>();
   final GlobalKey<FormState> numberLoginFormKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
@@ -48,6 +49,12 @@ class _LoginPageState extends State<LoginPage> {
   // LOGIN WITH EMAIL
   Future<void> loginWithEmail() async {
     if (emailLoginFormKey.currentState!.validate()) {
+      // final businessDoc = await store
+      //     .collection('Business')
+      //     .doc('Owners')
+      //     .collection('Users')
+      //     .get();
+
       try {
         setState(() {
           isEmailLogging = true;
@@ -98,7 +105,7 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> loginWithPhone() async {
     if (numberLoginFormKey.currentState!.validate()) {
       Future<bool> isPhoneRegistered() async {
-        final phoneSnap = await FirebaseFirestore.instance
+        final phoneSnap = await store
             .collection('Business')
             .doc('Owners')
             .collection('Users')
@@ -167,6 +174,7 @@ class _LoginPageState extends State<LoginPage> {
           } catch (e) {
             setState(() {
               isPhoneLogging = false;
+              phoneText = 'VERIFY';
             });
             if (mounted) {
               mySnackBar(e.toString(), context);

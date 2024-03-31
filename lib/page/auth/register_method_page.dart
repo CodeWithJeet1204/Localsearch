@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:find_easy_user/firebase/auth_methods.dart';
+import 'package:find_easy_user/page/auth/login_page.dart';
 import 'package:find_easy_user/page/auth/register_details_page.dart';
 import 'package:find_easy_user/page/auth/verify/email_verify.dart';
 import 'package:find_easy_user/page/auth/verify/number_verify.dart';
@@ -10,6 +11,7 @@ import 'package:find_easy_user/widgets/button.dart';
 import 'package:find_easy_user/widgets/collapse_container.dart';
 import 'package:find_easy_user/widgets/head_text.dart';
 import 'package:find_easy_user/widgets/snack_bar.dart';
+import 'package:find_easy_user/widgets/text_button.dart';
 import 'package:find_easy_user/widgets/text_form_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -79,6 +81,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
               'wishlists': [],
               'likedProducts': [],
               'recentSearches': [],
+              'recentProducts': [],
             });
 
             signInMethodProvider.chooseEmail();
@@ -507,6 +510,31 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                                   ),
                           ),
                         ),
+                        SizedBox(height: width * 0.33),
+
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const Text(
+                              overflow: TextOverflow.ellipsis,
+                              "Already have an account?",
+                            ),
+                            MyTextButton(
+                              onPressed: () {
+                                SystemChannels.textInput
+                                    .invokeMethod('TextInput.hide');
+                                Navigator.of(context).pop();
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                      builder: (context) => const LoginPage()),
+                                );
+                              },
+                              text: "SIGN IN",
+                              textColor: buttonColor,
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ],
@@ -755,6 +783,30 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                         //           ),
                         //   ),
                         // ),
+
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const Text(
+                              overflow: TextOverflow.ellipsis,
+                              "Already have an account?",
+                            ),
+                            MyTextButton(
+                              onPressed: () {
+                                SystemChannels.textInput
+                                    .invokeMethod('TextInput.hide');
+                                Navigator.of(context).pop();
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                      builder: (context) => const LoginPage()),
+                                );
+                              },
+                              text: "SIGN IN",
+                              textColor: buttonColor,
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),

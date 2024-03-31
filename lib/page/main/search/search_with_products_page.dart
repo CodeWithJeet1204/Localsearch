@@ -220,8 +220,8 @@ class _SearchWithProductsPageState extends State<SearchWithProductsPage> {
                               ),
                               childrenDelegate: SliverChildBuilderDelegate(
                                 (context, index) {
-                                  final productId = productIds[index];
-                                  final productName = productNames[index];
+                                  // final productId = productIds[index];
+                                  // final productName = productNames[index];
                                   final productImageUrl =
                                       productImageUrls[index];
                                   return InkWell(

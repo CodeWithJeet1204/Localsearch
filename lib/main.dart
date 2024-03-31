@@ -10,6 +10,7 @@ import 'package:find_easy_user/utils/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
@@ -36,8 +37,15 @@ void main() async {
       child: const MyApp(),
     ),
   );
+  SystemChrome.setEnabledSystemUIMode(
+    SystemUiMode.manual,
+    overlays: [],
+  );
   if (FirebaseAuth.instance.currentUser != null) {
-  } else {}
+    print(FirebaseAuth.instance.currentUser!.uid);
+  } else {
+    print("No user");
+  }
 }
 
 class MyApp extends StatelessWidget {

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
+import 'package:find_easy_user/page/auth/login_page.dart';
 import 'package:find_easy_user/page/auth/register_details_page.dart';
 import 'package:find_easy_user/page/auth/verify/email_verify.dart';
 import 'package:find_easy_user/page/main/home_page.dart';
@@ -40,9 +41,25 @@ class _MainPageState extends State<MainPage> {
   Future<void> fetchUserDetails() async {
     try {
       final userSnap = await store.collection('Users').doc(auth.uid).get();
+
+      if (!userSnap.exists) {
+        await FirebaseAuth.instance.signOut();
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder: ((context) => LoginPage()),
+          ),
+          (route) => false,
+        );
+        mySnackBar(
+          'The account you created was for business app, create / login with another account for this app',
+          context,
+        );
+        return;
+      }
+
       final userData = userSnap.data()!;
 
-      if (userData['Name'] == null) {
+      if (userData['Name'] == null || userData['Image']) {
         setState(() {
           detailsPage = const RegisterDetailsPage();
         });
