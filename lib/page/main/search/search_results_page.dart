@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:find_easy_user/utils/colors.dart';
+import 'package:find_easy_user/widgets/product_quick_view.dart';
 import 'package:find_easy_user/widgets/speech_to_text.dart';
 import 'package:find_easy_user/widgets/text_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -645,148 +646,173 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                               searchedProducts.keys
                                                   .toList()[index]
                                                   .toString();
+
                                           final image =
                                               searchedProducts[currentProduct]
                                                   [0];
+
                                           final productId = searchedProducts
                                               .values
                                               .toList()[index][3];
+
                                           final price = searchedProducts[
-                                                      currentProduct][1]
-                                                  .isEmpty
+                                                      currentProduct][1] ==
+                                                  ''
                                               ? 'N/A'
                                               : 'Rs. ${searchedProducts[currentProduct][1]}';
                                           final isWishListed =
                                               snapshot.data ?? false;
+
                                           return Builder(
                                             builder: (context) {
-                                              return Container(
-                                                decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                  border: Border.all(
-                                                    width: 0.25,
-                                                    color: Colors.grey
-                                                        .withOpacity(0.25),
+                                              return GestureDetector(
+                                                onDoubleTap: () async {
+                                                  await showDialog(
+                                                    context: context,
+                                                    builder: ((context) =>
+                                                        ProductQuickView(
+                                                          productId: productId,
+                                                        )),
+                                                  );
+                                                },
+                                                onLongPress: () async {
+                                                  await showDialog(
+                                                    context: context,
+                                                    builder: ((context) =>
+                                                        ProductQuickView(
+                                                          productId: productId,
+                                                        )),
+                                                  );
+                                                },
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    border: Border.all(
+                                                      width: 0.25,
+                                                      color: Colors.grey
+                                                          .withOpacity(0.25),
+                                                    ),
                                                   ),
-                                                ),
-                                                padding: EdgeInsets.all(
-                                                  MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.0125,
-                                                ),
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Center(
-                                                      child: Image.network(
-                                                        image,
-                                                        fit: BoxFit.cover,
-                                                        width: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .width *
-                                                            0.5,
-                                                        height: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .width *
-                                                            0.58,
+                                                  padding: EdgeInsets.all(
+                                                    MediaQuery.of(context)
+                                                            .size
+                                                            .width *
+                                                        0.0125,
+                                                  ),
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Center(
+                                                        child: Image.network(
+                                                          image,
+                                                          fit: BoxFit.cover,
+                                                          width: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .width *
+                                                              0.5,
+                                                          height: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .width *
+                                                              0.58,
+                                                        ),
                                                       ),
-                                                    ),
-                                                    Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .center,
-                                                      children: [
-                                                        Column(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .spaceAround,
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            Padding(
-                                                              padding:
-                                                                  EdgeInsets
-                                                                      .only(
-                                                                left: MediaQuery.of(
-                                                                            context)
-                                                                        .size
-                                                                        .width *
-                                                                    0.0125,
-                                                                right: MediaQuery.of(
-                                                                            context)
-                                                                        .size
-                                                                        .width *
-                                                                    0.0125,
-                                                                top: MediaQuery.of(
-                                                                            context)
-                                                                        .size
-                                                                        .width *
-                                                                    0.0225,
-                                                              ),
-                                                              child: Text(
-                                                                currentProduct,
-                                                                style:
-                                                                    TextStyle(
-                                                                  fontSize: MediaQuery.of(
+                                                      Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceBetween,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Column(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceAround,
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Padding(
+                                                                padding:
+                                                                    EdgeInsets
+                                                                        .only(
+                                                                  left: MediaQuery.of(
                                                                               context)
                                                                           .size
                                                                           .width *
-                                                                      0.0575,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                            Padding(
-                                                              padding: EdgeInsets
-                                                                  .symmetric(
-                                                                horizontal: MediaQuery.of(
-                                                                            context)
-                                                                        .size
-                                                                        .width *
-                                                                    0.0125,
-                                                              ),
-                                                              child: Text(
-                                                                price,
-                                                                style:
-                                                                    TextStyle(
-                                                                  fontSize: MediaQuery.of(
+                                                                      0.0125,
+                                                                  right: MediaQuery.of(
                                                                               context)
                                                                           .size
                                                                           .width *
-                                                                      0.05,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w500,
+                                                                      0.0125,
+                                                                  top: MediaQuery.of(
+                                                                              context)
+                                                                          .size
+                                                                          .width *
+                                                                      0.0225,
+                                                                ),
+                                                                child: Text(
+                                                                  currentProduct,
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontSize: MediaQuery.of(context)
+                                                                            .size
+                                                                            .width *
+                                                                        0.0575,
+                                                                  ),
                                                                 ),
                                                               ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                        IconButton(
-                                                          onPressed: () async {
-                                                            await wishlistProduct(
-                                                                productId);
-                                                          },
-                                                          icon: Icon(
-                                                            isWishListed
-                                                                ? Icons.favorite
-                                                                : Icons
-                                                                    .favorite_border,
-                                                            color: Colors.red,
+                                                              Padding(
+                                                                padding: EdgeInsets
+                                                                    .symmetric(
+                                                                  horizontal: MediaQuery.of(
+                                                                              context)
+                                                                          .size
+                                                                          .width *
+                                                                      0.0125,
+                                                                ),
+                                                                child: Text(
+                                                                  price,
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontSize: MediaQuery.of(context)
+                                                                            .size
+                                                                            .width *
+                                                                        0.05,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ],
                                                           ),
-                                                          splashColor:
-                                                              Colors.red,
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ],
+                                                          IconButton(
+                                                            onPressed:
+                                                                () async {
+                                                              await wishlistProduct(
+                                                                  productId);
+                                                            },
+                                                            icon: Icon(
+                                                              isWishListed
+                                                                  ? Icons
+                                                                      .favorite
+                                                                  : Icons
+                                                                      .favorite_border,
+                                                              color: Colors.red,
+                                                            ),
+                                                            splashColor:
+                                                                Colors.red,
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ],
+                                                  ),
                                                 ),
                                               );
                                             },

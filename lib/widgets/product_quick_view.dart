@@ -1,0 +1,295 @@
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:find_easy_user/utils/colors.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+
+class ProductQuickView extends StatefulWidget {
+  const ProductQuickView({
+    super.key,
+    required this.productId,
+  });
+
+  final String productId;
+
+  @override
+  State<ProductQuickView> createState() => _ProductQuickViewState();
+}
+
+class _ProductQuickViewState extends State<ProductQuickView> {
+  final auth = FirebaseAuth.instance;
+  final store = FirebaseFirestore.instance;
+  String? name;
+  String? price;
+  List? images;
+  String? vendorName;
+  String? vendorImage;
+  bool getData = false;
+  bool? isWishListed;
+  bool? wishlist;
+
+  // INIT STATE
+  @override
+  void initState() {
+    getProductInfo();
+    getIfWishlist(widget.productId);
+    super.initState();
+  }
+
+  // GET PRODUCT INFO
+  Future<void> getProductInfo() async {
+    final productId = widget.productId;
+    String? vendorId;
+
+    final productSnap = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Products')
+        .doc(productId)
+        .get();
+
+    final productData = productSnap.data()!;
+
+    name = productData['productName'] ?? '';
+    price =
+        productData['productPrice'] == '' ? 'N/A' : productData['productPrice'];
+    images = productData['images'] ?? [];
+    vendorId = productData['vendorId'] ?? '';
+
+    await getVendorInfo(vendorId!);
+  }
+
+  // GET VENDOR INFO
+  Future<void> getVendorInfo(String vendorId) async {
+    final vendorSnap = await store
+        .collection('Business')
+        .doc('Owners')
+        .collection('Shops')
+        .doc(vendorId)
+        .get();
+
+    final vendorData = vendorSnap.data()!;
+
+    vendorName = vendorData['Name'] ?? '';
+    vendorImage = vendorData['Image'] ?? '';
+
+    setState(() {
+      getData = true;
+    });
+  }
+
+  // GET IF WISHLIST
+  Future<void> getIfWishlist(String productId) async {
+    final userSnap =
+        await store.collection('Users').doc(auth.currentUser!.uid).get();
+
+    final userData = userSnap.data()!;
+    final userWishlist = userData['wishlists'] as List;
+
+    setState(() {
+      if (userWishlist.contains(productId)) {
+        isWishListed = true;
+        wishlist = true;
+      } else {
+        isWishListed = false;
+        wishlist = false;
+      }
+    });
+  }
+
+  // WISHLIST PRODUCT
+  Future<void> wishlistProduct(String productId) async {
+    print(wishlist);
+    if (wishlist != null) {
+      setState(() {
+        wishlist = !wishlist!;
+      });
+    }
+    final userSnap =
+        await store.collection('Users').doc(auth.currentUser!.uid).get();
+
+    final userData = userSnap.data()!;
+    List<dynamic> userWishlist = userData['wishlists'] as List<dynamic>;
+
+    bool alreadyInWishlist = userWishlist.contains(productId);
+
+    if (!alreadyInWishlist) {
+      userWishlist.add(productId);
+    } else {
+      userWishlist.remove(productId);
+    }
+
+    await store.collection('Users').doc(auth.currentUser!.uid).update({
+      'wishlists': userWishlist,
+    });
+
+    final productDoc = store
+        .collection('Business')
+        .doc('Data')
+        .collection('Products')
+        .doc(productId);
+
+    final productSnap = await productDoc.get();
+    final productData = productSnap.data()!;
+
+    int noOfWishList = productData['productWishlist'] ?? 0;
+
+    if (!alreadyInWishlist) {
+      noOfWishList++;
+    } else {
+      noOfWishList--;
+    }
+
+    await productDoc.update({
+      'productWishlist': noOfWishList,
+    });
+
+    await getIfWishlist(productId);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+
+    return Dialog(
+      elevation: 1,
+      backgroundColor: white,
+      child: Container(
+        width: width * 0.8,
+        height: 364,
+        decoration: BoxDecoration(
+          border: Border.all(
+            width: 2,
+            color: primaryDark,
+          ),
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: !getData
+            ? Center(
+                child: CircularProgressIndicator(),
+              )
+            : Padding(
+                padding: EdgeInsets.symmetric(horizontal: width * 0.05),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // IMAGES CAROUSEL
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      child: CarouselSlider(
+                        items: images!
+                            .map(
+                              (e) => Container(
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: primaryDark2,
+                                    width: 1.5,
+                                  ),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(
+                                    12,
+                                  ),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      image: DecorationImage(
+                                        image: NetworkImage(e),
+                                        fit: BoxFit.contain,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )
+                            .toList(),
+                        options: CarouselOptions(
+                          enableInfiniteScroll:
+                              images!.length > 1 ? true : false,
+                          aspectRatio: 1.2,
+                          enlargeCenterPage: true,
+                        ),
+                      ),
+                    ),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // NAME
+                            Padding(
+                              padding: EdgeInsets.symmetric(vertical: 6),
+                              child: Text(
+                                name!,
+                                style: TextStyle(
+                                  fontSize: width * 0.055,
+                                ),
+                              ),
+                            ),
+
+                            // PRICE
+                            Padding(
+                              padding: EdgeInsets.symmetric(vertical: 6),
+                              child: Text(
+                                'Rs. ${price!}',
+                                style: TextStyle(
+                                  fontSize: width * 0.045,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        // WISHLIST
+                        isWishListed == null
+                            ? Container()
+                            : IconButton(
+                                onPressed: () async {
+                                  await wishlistProduct(widget.productId);
+                                },
+                                icon: Icon(
+                                  wishlist!
+                                      ? Icons.favorite
+                                      : Icons.favorite_border,
+                                  color: Colors.red,
+                                ),
+                                splashColor: Colors.red,
+                                iconSize: width * 0.075,
+                              ),
+                      ],
+                    ),
+
+                    // VENDOR INFO
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            backgroundImage: NetworkImage(vendorImage!),
+                            radius: width * 0.04,
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(left: 8),
+                            child: Text(
+                              vendorName!,
+                              style: TextStyle(
+                                fontSize: width * 0.045,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+      ),
+    );
+  }
+}
