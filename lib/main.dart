@@ -2,7 +2,6 @@ import 'package:find_easy_user/firebase_options.dart';
 import 'package:find_easy_user/page/auth/login_page.dart';
 import 'package:find_easy_user/page/auth/register_method_page.dart';
 import 'package:find_easy_user/page/main/main_page.dart';
-import 'package:find_easy_user/providers/recent_provider.dart';
 import 'package:find_easy_user/providers/register_details_provider.dart';
 import 'package:find_easy_user/providers/sign_in_method_provider.dart';
 import 'package:find_easy_user/providers/verification_provider.dart';
@@ -10,7 +9,6 @@ import 'package:find_easy_user/utils/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
@@ -30,16 +28,9 @@ void main() async {
         ChangeNotifierProvider(
           create: (_) => RegisterDetailsProvider(),
         ),
-        ChangeNotifierProvider(
-          create: (_) => RecentProvider(),
-        ),
       ],
       child: const MyApp(),
     ),
-  );
-  SystemChrome.setEnabledSystemUIMode(
-    SystemUiMode.manual,
-    overlays: [],
   );
   if (FirebaseAuth.instance.currentUser != null) {
     print(FirebaseAuth.instance.currentUser!.uid);
@@ -73,7 +64,6 @@ class MyApp extends StatelessWidget {
         ),
         scaffoldBackgroundColor: primary,
         appBarTheme: const AppBarTheme(
-          // toolbarHeight: 50,
           backgroundColor: primary,
           foregroundColor: primaryDark,
           titleTextStyle: TextStyle(
@@ -95,7 +85,7 @@ class MyApp extends StatelessWidget {
         ),
         indicatorColor: primaryDark,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color.fromARGB(255, 10, 217, 213),
+          seedColor: primary2,
         ),
         useMaterial3: true,
       ),

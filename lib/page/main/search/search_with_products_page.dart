@@ -107,45 +107,28 @@ class _SearchWithProductsPageState extends State<SearchWithProductsPage> {
                           child: InkWell(
                             onTap: () {
                               Navigator.of(context).push(
-                                PageRouteBuilder(
-                                  pageBuilder:
-                                      (context, animation, secondaryAnimation) {
-                                    return const SearchPage();
-                                  },
-                                  transitionsBuilder: (context, animation,
-                                      secondaryAnimation, child) {
-                                    var begin = 0.0;
-                                    var end = 1.0;
-                                    var curve = Curves.ease;
-                                    var tween = Tween(begin: begin, end: end)
-                                        .chain(CurveTween(curve: curve));
-                                    var opacityAnimation =
-                                        animation.drive(tween);
-
-                                    return FadeTransition(
-                                      opacity: opacityAnimation,
-                                      child: child,
-                                    );
-                                  },
+                                MaterialPageRoute(
+                                  builder: ((context) => SearchPage()),
                                 ),
                               );
                             },
-                            splashColor:
-                                const Color.fromARGB(255, 200, 244, 255),
+                            splashColor: primary2.withOpacity(0.125),
                             customBorder: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(100),
+                              borderRadius: BorderRadius.circular(8),
                             ),
+                            splashFactory:
+                                InkSparkle.constantTurbulenceSeedSplashFactory,
                             child: Container(
                               width: width,
-                              height: width * 0.125,
+                              height: width * 0.15,
                               padding: EdgeInsets.symmetric(
                                 horizontal: width * 0.05,
                               ),
                               decoration: BoxDecoration(
-                                color: primary2,
-                                borderRadius: BorderRadius.circular(100),
+                                color: primary2.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
                                 border: Border.all(
-                                  color: primaryDark.withOpacity(0.1),
+                                  color: primaryDark.withOpacity(0.25),
                                 ),
                               ),
                               child: Row(
@@ -171,29 +154,6 @@ class _SearchWithProductsPageState extends State<SearchWithProductsPage> {
                         ),
 
                         // PRODUCTS
-                        // SizedBox(
-                        //   width: width,
-                        //   height: constraints.maxHeight,
-                        //   child: MasonryGridView.builder(
-                        //     shrinkWrap: true,
-                        //     gridDelegate:
-                        //         SliverSimpleGridDelegateWithFixedCrossAxisCount(
-                        //       crossAxisCount: 2,
-                        //     ),
-                        //     itemCount: productImageUrl.length > 20
-                        //         ? 20
-                        //         : productImageUrl.length,
-                        //     itemBuilder: ((context, index) {
-                        //       return Container(
-                        //         margin: EdgeInsets.all(width * 0.0125),
-                        //         child: ClipRRect(
-                        //           borderRadius: BorderRadius.circular(12),
-                        //           child: Image.network(productImageUrl[index]),
-                        //         ),
-                        //       );
-                        //     }),
-                        //   ),
-                        // ),
                         SizedBox(
                           width: width,
                           height: getScreenHeight(width),
@@ -204,6 +164,7 @@ class _SearchWithProductsPageState extends State<SearchWithProductsPage> {
                             ),
                             child: GridView.custom(
                               shrinkWrap: true,
+                              physics: ClampingScrollPhysics(),
                               gridDelegate: SliverQuiltedGridDelegate(
                                 crossAxisCount: 4,
                                 mainAxisSpacing: 4,

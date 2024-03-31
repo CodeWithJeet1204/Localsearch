@@ -51,17 +51,26 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   // SEARCH
-  Future<void> search() async {
+  Future<void> search({String? search}) async {
     await addRecentSearch();
 
-    // search function
-    if (searchController.text.isNotEmpty) {
+    // Search function
+    if (search != null && search.isNotEmpty) {
+      searchController.text = search;
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: ((context) =>
-              SearchResultsPage(search: searchController.text)),
+          builder: ((context) => SearchResultsPage(search: search)),
         ),
       );
+    } else {
+      if (searchController.text.isNotEmpty) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: ((context) =>
+                SearchResultsPage(search: searchController.text)),
+          ),
+        );
+      }
     }
   }
 
@@ -94,8 +103,11 @@ class _SearchPageState extends State<SearchPage> {
 
     final recent = userData['recentSearches'] as List;
 
-    if (!recent.contains(searchController.text) &&
-        searchController.text.isNotEmpty) {
+    if (recent.contains(searchController.text)) {
+      recent.remove(searchController.text);
+    }
+
+    if (searchController.text.isNotEmpty) {
       recent.insert(0, searchController.text);
     }
 
@@ -288,7 +300,7 @@ class _SearchPageState extends State<SearchPage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
-                  width: width * 0.466,
+                  width: width * 0.425,
                   decoration: const BoxDecoration(
                     border: Border(
                       right: BorderSide(
@@ -449,49 +461,57 @@ class _SearchPageState extends State<SearchPage> {
                             : SizedBox(
                                 width: width,
                                 height: recentSearches!.length > 5
-                                    ? 5 * width * 0.15
-                                    : recentSearches!.length * width * 0.15,
+                                    ? 5 * width * 0.166
+                                    : recentSearches!.length * width * 0.166,
                                 child: ListView.builder(
                                   physics: const NeverScrollableScrollPhysics(),
                                   itemCount: recentSearches!.length > 5
                                       ? 5
                                       : recentSearches!.length,
                                   itemBuilder: ((context, index) {
-                                    return Container(
-                                      padding: EdgeInsets.only(
-                                        left: width * 0.033,
-                                        right: width * 0.015,
-                                      ),
-                                      margin: EdgeInsets.symmetric(
-                                        horizontal: width * 0.0125,
-                                        vertical: width * 0.0125,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: primary2.withOpacity(0.75),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            recentSearches![index],
-                                            style: TextStyle(
-                                              fontSize: width * 0.05,
+                                    final String name = recentSearches![index];
+
+                                    return GestureDetector(
+                                      onTap: () async {
+                                        await search(search: name);
+                                      },
+                                      child: Container(
+                                        padding: EdgeInsets.only(
+                                          left: width * 0.033,
+                                          right: width * 0.015,
+                                        ),
+                                        margin: EdgeInsets.symmetric(
+                                          horizontal: width * 0.0125,
+                                          vertical: width * 0.0125,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: primary2.withOpacity(0.75),
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              name,
+                                              style: TextStyle(
+                                                fontSize: width * 0.05,
+                                              ),
                                             ),
-                                          ),
-                                          IconButton(
-                                            onPressed: () async {
-                                              await removeRecentSearch(
-                                                index,
-                                              );
-                                            },
-                                            icon: const Icon(FeatherIcons.x),
-                                            tooltip: "Remove",
-                                          ),
-                                        ],
+                                            IconButton(
+                                              onPressed: () async {
+                                                await removeRecentSearch(
+                                                  index,
+                                                );
+                                              },
+                                              icon: const Icon(FeatherIcons.x),
+                                              tooltip: "Remove",
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     );
                                   }),
@@ -552,41 +572,50 @@ class _SearchPageState extends State<SearchPage> {
                                   ? 3
                                   : topSearchesMap!.keys.length,
                               itemBuilder: ((context, index) {
-                                return Container(
-                                  padding: EdgeInsets.only(
-                                    left: width * 0.033,
-                                    right: width * 0.015,
-                                    top: width * 0.0275,
-                                    bottom: width * 0.0275,
-                                  ),
-                                  margin: EdgeInsets.symmetric(
-                                    horizontal: width * 0.0125,
-                                    vertical: width * 0.0125,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: primary2.withOpacity(0.75),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        topSearchesMap!.keys.toList()[index],
-                                        style: TextStyle(
-                                          fontSize: width * 0.05,
+                                final String name =
+                                    topSearchesMap!.keys.toList()[index];
+                                final String number = topSearchesMap!.values
+                                    .toList()[index]
+                                    .toString();
+
+                                return GestureDetector(
+                                  onTap: () async {
+                                    await search(search: name);
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.only(
+                                      left: width * 0.033,
+                                      right: width * 0.015,
+                                      top: width * 0.0275,
+                                      bottom: width * 0.0275,
+                                    ),
+                                    margin: EdgeInsets.symmetric(
+                                      horizontal: width * 0.0125,
+                                      vertical: width * 0.0125,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: primary2.withOpacity(0.75),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          name,
+                                          style: TextStyle(
+                                            fontSize: width * 0.05,
+                                          ),
                                         ),
-                                      ),
-                                      Text(
-                                        topSearchesMap!.values
-                                            .toList()[index]
-                                            .toString(),
-                                        style: TextStyle(
-                                          fontSize: width * 0.05,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      )
-                                    ],
+                                        Text(
+                                          number,
+                                          style: TextStyle(
+                                            fontSize: width * 0.05,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        )
+                                      ],
+                                    ),
                                   ),
                                 );
                               }),

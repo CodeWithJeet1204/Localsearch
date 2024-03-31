@@ -116,7 +116,7 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                 .doc(FirebaseAuth.instance.currentUser!.uid)
                 .update({
                 'Image': _imageDownloadUrl ??
-                    'https://upload.wikimedia.org/wikipedia/commons/2/24/Missing_avatar.svg',
+                    'https://storage.needpix.com/rsynced_images/blank-profile-picture-973460_1280.png',
                 'Name': nameController.text,
                 'Email': emailController.text,
                 'gender': selectedGender,
@@ -126,7 +126,7 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                 .doc(FirebaseAuth.instance.currentUser!.uid)
                 .update({
                 'Image': _imageDownloadUrl ??
-                    'https://upload.wikimedia.org/wikipedia/commons/2/24/Missing_avatar.svg',
+                    'https://storage.needpix.com/rsynced_images/blank-profile-picture-973460_1280.png',
                 'Name': nameController.text,
                 'Phone Number': '+91${phoneController.text}',
                 'gender': selectedGender,

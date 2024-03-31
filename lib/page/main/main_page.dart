@@ -94,15 +94,19 @@ class _MainPageState extends State<MainPage> {
         Scaffold(
           body: items[current],
           bottomNavigationBar: BottomNavigationBar(
-            backgroundColor: primary2,
+            elevation: 0,
+            backgroundColor: white,
             selectedLabelStyle: const TextStyle(
-              color: primaryDark,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
             ),
             type: BottomNavigationBarType.fixed,
             selectedIconTheme: const IconThemeData(
               size: 24,
-              color: primaryDark,
+              color: black,
+            ),
+            unselectedIconTheme: IconThemeData(
+              size: 24,
+              color: black.withOpacity(0.5),
             ),
             currentIndex: current,
             onTap: changePage,

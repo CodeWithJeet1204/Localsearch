@@ -76,7 +76,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
               'Image': null,
               'Name': null,
               'Phone Number': null,
-              'recentShop': null,
+              'recentShop': '',
               'followedShops': [],
               'wishlists': [],
               'likedProducts': [],
