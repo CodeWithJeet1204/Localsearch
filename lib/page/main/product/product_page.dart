@@ -23,11 +23,14 @@ class _ProductPageState extends State<ProductPage> {
   final store = FirebaseFirestore.instance;
   int _currentIndex = 0;
   bool isWishListed = false;
+  String? vendorName;
+  String? vendorImageUrl;
 
   // INIT STATE
   @override
   void initState() {
     getIfWishlist(widget.productData['productId']);
+    getVendorInfo();
     super.initState();
   }
 
@@ -90,6 +93,23 @@ class _ProductPageState extends State<ProductPage> {
 
     await productDoc.update({
       'productWishlist': noOfWishList,
+    });
+  }
+
+  // GET VENDOR INFO
+  Future<void> getVendorInfo() async {
+    final vendorSnap = await store
+        .collection('Business')
+        .doc('Owners')
+        .collection('Shops')
+        .doc(widget.productData['vendorId'])
+        .get();
+
+    final vendorData = vendorSnap.data()!;
+
+    setState(() {
+      vendorName = vendorData['Name'];
+      vendorImageUrl = vendorData['Image'];
     });
   }
 
@@ -212,6 +232,7 @@ class _ProductPageState extends State<ProductPage> {
                         )
                       : SizedBox(height: 36),
 
+                  // NAME, PRICE & WISHLIST
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -298,6 +319,38 @@ class _ProductPageState extends State<ProductPage> {
                     propertyValue: [],
                     width: width,
                   ),
+
+                  // VENDOR
+                  vendorName == null
+                      ? Container()
+                      : Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: width * 0.0125,
+                            vertical: width * 0.0225,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              // VENDOR PROFILE
+                              CircleAvatar(
+                                backgroundImage: NetworkImage(vendorImageUrl!),
+                              ),
+
+                              // VENDOR NAME
+                              Padding(
+                                padding: EdgeInsets.only(left: width * 0.033),
+                                child: Text(
+                                  vendorName!,
+                                  style: TextStyle(
+                                    color: primaryDark,
+                                    fontSize: width * 0.05,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
 
                   // PROPERTY 0
                   propertyValue0.isEmpty
