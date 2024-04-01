@@ -7,9 +7,15 @@ import 'package:find_easy_user/widgets/snack_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage>
+    with AutomaticKeepAliveClientMixin<ProfilePage> {
   // LOG OUT
   Future<void> logOut(BuildContext context) async {
     try {
@@ -32,6 +38,8 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     final userFuture = FirebaseFirestore.instance
         .collection('Users')
         .doc(FirebaseAuth.instance.currentUser!.uid)
@@ -163,4 +171,8 @@ class ProfilePage extends StatelessWidget {
       ),
     );
   }
+
+  // KEEP ALIVE
+  @override
+  bool get wantKeepAlive => true;
 }

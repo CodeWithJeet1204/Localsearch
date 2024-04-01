@@ -59,7 +59,7 @@ class _MainPageState extends State<MainPage> {
 
       final userData = userSnap.data()!;
 
-      if (userData['Name'] == null || userData['Image']) {
+      if (userData['Name'] == null || userData['Image'] == null) {
         setState(() {
           detailsPage = const RegisterDetailsPage();
         });
@@ -77,6 +77,7 @@ class _MainPageState extends State<MainPage> {
     } catch (e) {
       if (mounted) {
         mySnackBar(e.toString(), context);
+        print("Error: ${e.toString()}");
       }
     }
   }

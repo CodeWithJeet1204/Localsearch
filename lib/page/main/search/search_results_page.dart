@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
+import 'package:find_easy_user/page/main/product/product_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/product_quick_view.dart';
 import 'package:find_easy_user/widgets/speech_to_text.dart';
@@ -290,6 +291,20 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
     await productDoc.update({
       'productWishlist': noOfWishList,
     });
+  }
+
+  // GET PRODUCT DATA
+  Future<Map<String, dynamic>> getProductData(String productId) async {
+    final productsSnap = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Products')
+        .doc(productId)
+        .get();
+
+    final productData = productsSnap.data()!;
+
+    return productData;
   }
 
   @override
@@ -688,6 +703,14 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                                   .toList()[index][3],
                                             ),
                                             builder: (context, snapshot) {
+                                              if (snapshot.hasError) {
+                                                return Center(
+                                                  child: Text(
+                                                    'Something went wrong',
+                                                  ),
+                                                );
+                                              }
+
                                               final currentProduct =
                                                   searchedProducts.keys
                                                       .toList()[index]
@@ -711,6 +734,23 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                               return Builder(
                                                 builder: (context) {
                                                   return GestureDetector(
+                                                    onTap: () async {
+                                                      final productData =
+                                                          await getProductData(
+                                                        productId,
+                                                      );
+
+                                                      Navigator.of(context)
+                                                          .push(
+                                                        MaterialPageRoute(
+                                                          builder: ((context) =>
+                                                              ProductPage(
+                                                                productData:
+                                                                    productData,
+                                                              )),
+                                                        ),
+                                                      );
+                                                    },
                                                     onDoubleTap: () async {
                                                       await showDialog(
                                                         context: context,

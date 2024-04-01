@@ -1,0 +1,468 @@
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:find_easy_user/utils/colors.dart';
+import 'package:find_easy_user/widgets/image_view.dart';
+import 'package:find_easy_user/widgets/info_box.dart';
+import 'package:flutter/material.dart';
+
+class ProductPage extends StatefulWidget {
+  const ProductPage({
+    super.key,
+    required this.productData,
+  });
+
+  final Map<String, dynamic> productData;
+
+  @override
+  State<ProductPage> createState() => _ProductPageState();
+}
+
+class _ProductPageState extends State<ProductPage> {
+  final store = FirebaseFirestore.instance;
+  int _currentIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final Map<String, dynamic> data = widget.productData;
+    final String name = data['productName'];
+    final String price = data['productPrice'];
+    final String description = data['productDescription'];
+    final String brand = data['productBrand'];
+    final List images = data['images'];
+    // final String categoryId = data['categoryId'];
+    final String categoryName = data['categoryName'];
+
+    final Map<String, dynamic> properties = data['Properties'];
+    final String propertyName0 = properties['propertyName0'];
+    final String propertyName1 = properties['propertyName1'];
+    final String propertyName2 = properties['propertyName2'];
+    final String propertyName3 = properties['propertyName3'];
+    final String propertyName4 = properties['propertyName4'];
+    final String propertyName5 = properties['propertyName5'];
+
+    final List propertyValue0 = properties['propertyValue0'];
+    final List propertyValue1 = properties['propertyValue1'];
+    final List propertyValue2 = properties['propertyValue2'];
+    final List propertyValue3 = properties['propertyValue3'];
+    final List propertyValue4 = properties['propertyValue4'];
+    final List propertyValue5 = properties['propertyValue5'];
+
+    final int propertyNoOfAnswers0 = properties['propertyNoOfAnswers0'];
+    final int propertyNoOfAnswers1 = properties['propertyNoOfAnswers1'];
+    final int propertyNoOfAnswers2 = properties['propertyNoOfAnswers2'];
+    final int propertyNoOfAnswers3 = properties['propertyNoOfAnswers3'];
+    final int propertyNoOfAnswers4 = properties['propertyNoOfAnswers4'];
+    final int propertyNoOfAnswers5 = properties['propertyNoOfAnswers5'];
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          widget.productData['productName'],
+        ),
+      ),
+      body: LayoutBuilder(
+        builder: ((context, constraints) {
+          double width = constraints.maxWidth;
+          print(propertyName0);
+
+          return SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.all(width * 0.0225),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // IMAGES
+                  CarouselSlider(
+                    items: (images)
+                        .map(
+                          (e) => GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: ((context) => ImageView(
+                                        imagesUrl: images,
+                                      )),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: primaryDark2,
+                                  width: 1,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Image.network(
+                                e,
+                              ),
+                            ),
+                          ),
+                        )
+                        .toList(),
+                    options: CarouselOptions(
+                      enableInfiniteScroll: images.length > 1 ? true : false,
+                      aspectRatio: 1.2,
+                      enlargeCenterPage: true,
+                      onPageChanged: (index, reason) {
+                        setState(() {
+                          _currentIndex = index;
+                        });
+                      },
+                    ),
+                  ),
+
+                  // DOTS
+                  images.length > 1
+                      ? Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: (images).map((e) {
+                              int index = images.indexOf(e);
+
+                              return Container(
+                                width: _currentIndex == index ? 12 : 8,
+                                height: _currentIndex == index ? 12 : 8,
+                                margin: EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: _currentIndex == index
+                                      ? primaryDark
+                                      : primary2,
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        )
+                      : SizedBox(height: 36),
+
+                  // NAME
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Text(
+                      name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: primaryDark,
+                        fontSize: name.length > 12
+                            ? 28
+                            : name.length > 10
+                                ? 30
+                                : 32,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+
+                  // PRICE
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Text(
+                      price == "" ? 'N/A (price)' : 'Rs. ${price}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: primaryDark,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+
+                  // DESCRIPTION
+                  InfoBox(
+                    head: "Description",
+                    content: description,
+                    noOfAnswers: 1,
+                    propertyValue: [],
+                    width: width,
+                  ),
+
+                  // BRAND
+                  InfoBox(
+                    head: "Brand",
+                    content: brand,
+                    noOfAnswers: 1,
+                    propertyValue: [],
+                    width: width,
+                  ),
+
+                  // CATEGORY
+                  InfoBox(
+                    head: "Category",
+                    content: categoryName,
+                    noOfAnswers: 1,
+                    propertyValue: [],
+                    width: width,
+                  ),
+
+                  // PROPERTY 0
+                  propertyValue0.isEmpty
+                      ? Container()
+                      : InfoBox(
+                          head: propertyName0,
+                          noOfAnswers: propertyNoOfAnswers0,
+                          width: width,
+                          content: propertyValue0.length == 1
+                              ? propertyValue0[0]
+                              : null,
+                          propertyValue: propertyValue0.length > 1
+                              ? propertyValue0
+                                  .map(
+                                    (e) => Container(
+                                      height: 40,
+                                      margin: EdgeInsets.only(
+                                        right: 4,
+                                        top: 4,
+                                        bottom: 4,
+                                      ),
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 4,
+                                      ),
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        color: primary2.withOpacity(0.8),
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: Text(
+                                        e,
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          color: primaryDark2,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                  .toList()
+                              : List.empty(),
+                        ),
+
+                  // PROPERTY 1
+                  propertyValue1.isEmpty
+                      ? Container()
+                      : InfoBox(
+                          head: propertyName1,
+                          noOfAnswers: propertyNoOfAnswers1,
+                          width: width,
+                          content: propertyValue1.length == 1
+                              ? propertyValue1[0]
+                              : null,
+                          propertyValue: propertyValue1.length > 1
+                              ? propertyValue1
+                                  .map(
+                                    (e) => Container(
+                                      height: 40,
+                                      margin: EdgeInsets.only(
+                                        right: 4,
+                                        top: 4,
+                                        bottom: 4,
+                                      ),
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 4,
+                                      ),
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        color: primary2.withOpacity(0.8),
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: Text(
+                                        e,
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          color: primaryDark2,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                  .toList()
+                              : List.empty(),
+                        ),
+
+                  // PROPERTY 2
+                  propertyValue2.isEmpty
+                      ? Container()
+                      : InfoBox(
+                          head: propertyName2,
+                          noOfAnswers: propertyNoOfAnswers2,
+                          width: width,
+                          content: propertyValue2.length == 1
+                              ? propertyValue2[0]
+                              : null,
+                          propertyValue: propertyValue2.length > 1
+                              ? propertyValue2
+                                  .map(
+                                    (e) => Container(
+                                      height: 40,
+                                      margin: EdgeInsets.only(
+                                        right: 4,
+                                        top: 4,
+                                        bottom: 4,
+                                      ),
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 4,
+                                      ),
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        color: primary2.withOpacity(0.8),
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: Text(
+                                        e,
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          color: primaryDark2,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                  .toList()
+                              : List.empty(),
+                        ),
+
+                  // PROPERTY 3
+                  propertyValue3.isEmpty
+                      ? Container()
+                      : InfoBox(
+                          head: propertyName3,
+                          noOfAnswers: propertyNoOfAnswers3,
+                          width: width,
+                          content: propertyValue3.length == 1
+                              ? propertyValue3[0]
+                              : null,
+                          propertyValue: propertyValue3.length > 1
+                              ? propertyValue3
+                                  .map(
+                                    (e) => Container(
+                                      height: 40,
+                                      margin: EdgeInsets.only(
+                                        right: 4,
+                                        top: 4,
+                                        bottom: 4,
+                                      ),
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 4,
+                                      ),
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        color: primary2.withOpacity(0.8),
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: Text(
+                                        e,
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          color: primaryDark2,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                  .toList()
+                              : List.empty(),
+                        ),
+
+                  // PROPERTY 4
+                  propertyValue4.isEmpty
+                      ? Container()
+                      : InfoBox(
+                          head: propertyName4,
+                          noOfAnswers: propertyNoOfAnswers4,
+                          width: width,
+                          content: propertyValue4.length == 1
+                              ? propertyValue4[0]
+                              : null,
+                          propertyValue: propertyValue4.length > 1
+                              ? propertyValue4
+                                  .map(
+                                    (e) => Container(
+                                      height: 40,
+                                      margin: EdgeInsets.only(
+                                        right: 4,
+                                        top: 4,
+                                        bottom: 4,
+                                      ),
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 4,
+                                      ),
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        color: primary2.withOpacity(0.8),
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: Text(
+                                        e,
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          color: primaryDark2,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                  .toList()
+                              : List.empty(),
+                        ),
+
+                  // PROPERTY 5
+                  propertyValue5.isEmpty
+                      ? Container()
+                      : InfoBox(
+                          head: propertyName5,
+                          noOfAnswers: propertyNoOfAnswers5,
+                          width: width,
+                          content: propertyValue5.length == 1
+                              ? propertyValue5[0]
+                              : null,
+                          propertyValue: propertyValue5.length > 1
+                              ? propertyValue5
+                                  .map(
+                                    (e) => Container(
+                                      height: 40,
+                                      margin: EdgeInsets.only(
+                                        right: 4,
+                                        top: 4,
+                                        bottom: 4,
+                                      ),
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 4,
+                                      ),
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        color: primary2.withOpacity(0.8),
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: Text(
+                                        e,
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          color: primaryDark2,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                  .toList()
+                              : List.empty(),
+                        ),
+                ],
+              ),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+}
