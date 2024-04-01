@@ -163,6 +163,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
       final productData = productSnap.data();
 
       final String productName = productData['productName'].toString();
+      final List tags = productData['Tags'];
       final String imageUrl = productData['images'][0].toString();
       final String productPrice = productData['productPrice'].toString();
       final String productId = productData['productId'].toString();
@@ -179,9 +180,18 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
 
       final String vendor = vendorData['Name'];
 
-      if (productName.toLowerCase().contains(widget.search.toLowerCase())) {
-        int relevanceScore =
-            calculateRelevanceScore(productName, widget.search);
+      final productNameLower = productName.toLowerCase();
+      final searchLower = widget.search.toLowerCase();
+
+      if (productNameLower.contains(searchLower) ||
+          tags.any(
+              (tag) => tag.toString().toLowerCase().contains(searchLower))) {
+        int relevanceScore = calculateRelevanceScore(
+          productNameLower,
+          searchLower,
+          tags,
+          searchLower,
+        );
 
         searchedProducts[productName] = [
           imageUrl,
@@ -193,25 +203,33 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
       }
     });
 
+    searchedProducts = Map.fromEntries(searchedProducts.entries.toList()
+      ..sort((a, b) => b.value[4].compareTo(a.value[4])));
+
     setState(() {
       getProductsData = true;
     });
   }
 
   // CALCULATE RELEVANCE (PRODUCTS)
-  int calculateRelevanceScore(String productName, String searchKeyword) {
+  int calculateRelevanceScore(
+      String productName, String searchKeyword, List tags, String searchLower) {
     int score = 0;
-    String lowercaseProductName = productName.toLowerCase();
-    String lowercaseSearchKeyword = searchKeyword.toLowerCase();
 
-    for (int i = 0; i < lowercaseProductName.length; i++) {
-      if (i < lowercaseSearchKeyword.length &&
-          lowercaseProductName[i] == lowercaseSearchKeyword[i]) {
-        score += (lowercaseProductName.length - i);
+    for (int i = 0; i < productName.length; i++) {
+      if (i < searchKeyword.length && productName[i] == searchKeyword[i]) {
+        score += (productName.length - i) * 3;
       } else {
         break;
       }
     }
+
+    for (var tag in tags) {
+      if (tag.toString().toLowerCase().contains(searchLower)) {
+        score += 1;
+      }
+    }
+
     return score;
   }
 
@@ -278,9 +296,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
 
     return Scaffold(
       body: !getShopsData || !getProductsData
-          ? Center(
-              child: CircularProgressIndicator(),
-            )
+          ? Container()
           : SafeArea(
               child: Padding(
                 padding: EdgeInsets.all(
