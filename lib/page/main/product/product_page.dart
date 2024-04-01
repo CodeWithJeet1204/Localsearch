@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/image_view.dart';
 import 'package:find_easy_user/widgets/info_box.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class ProductPage extends StatefulWidget {
@@ -18,12 +19,84 @@ class ProductPage extends StatefulWidget {
 }
 
 class _ProductPageState extends State<ProductPage> {
+  final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
   int _currentIndex = 0;
+  bool isWishListed = false;
+
+  // INIT STATE
+  @override
+  void initState() {
+    getIfWishlist(widget.productData['productId']);
+    super.initState();
+  }
+
+  // GET IF WISHLIST
+  Future<void> getIfWishlist(String productId) async {
+    final userSnap =
+        await store.collection('Users').doc(auth.currentUser!.uid).get();
+
+    final userData = userSnap.data()!;
+    final userWishlist = userData['wishlists'] as List;
+
+    setState(() {
+      if (userWishlist.contains(productId)) {
+        isWishListed = true;
+      } else {
+        isWishListed = false;
+      }
+    });
+  }
+
+  // WISHLIST PRODUCT
+  Future<void> wishlistProduct(String productId) async {
+    setState(() {
+      isWishListed = !isWishListed;
+    });
+    final userSnap =
+        await store.collection('Users').doc(auth.currentUser!.uid).get();
+
+    final userData = userSnap.data()!;
+    List<dynamic> userWishlist = userData['wishlists'] as List<dynamic>;
+
+    bool alreadyInWishlist = userWishlist.contains(productId);
+
+    if (!alreadyInWishlist) {
+      userWishlist.add(productId);
+    } else {
+      userWishlist.remove(productId);
+    }
+
+    await store.collection('Users').doc(auth.currentUser!.uid).update({
+      'wishlists': userWishlist,
+    });
+
+    final productDoc = store
+        .collection('Business')
+        .doc('Data')
+        .collection('Products')
+        .doc(productId);
+
+    final productSnap = await productDoc.get();
+    final productData = productSnap.data()!;
+
+    int noOfWishList = productData['productWishlist'] ?? 0;
+
+    if (!alreadyInWishlist) {
+      noOfWishList++;
+    } else {
+      noOfWishList--;
+    }
+
+    await productDoc.update({
+      'productWishlist': noOfWishList,
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final Map<String, dynamic> data = widget.productData;
+    final String id = data['productId'];
     final String name = data['productName'];
     final String price = data['productPrice'];
     final String description = data['productDescription'];
@@ -139,38 +212,64 @@ class _ProductPageState extends State<ProductPage> {
                         )
                       : SizedBox(height: 36),
 
-                  // NAME
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Text(
-                      name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: primaryDark,
-                        fontSize: name.length > 12
-                            ? 28
-                            : name.length > 10
-                                ? 30
-                                : 32,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // NAME
+                          Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: Text(
+                              name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: primaryDark,
+                                fontSize: name.length > 12
+                                    ? 28
+                                    : name.length > 10
+                                        ? 30
+                                        : 32,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
 
-                  // PRICE
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Text(
-                      price == "" ? 'N/A (price)' : 'Rs. ${price}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: primaryDark,
-                        fontSize: 22,
-                        fontWeight: FontWeight.w500,
+                          // PRICE
+                          Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: Text(
+                              price == "" ? 'N/A (price)' : 'Rs. ${price}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: primaryDark,
+                                fontSize: 22,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
+
+                      // WISHLIST
+                      IconButton(
+                        onPressed: () async {
+                          await wishlistProduct(id);
+                        },
+                        icon: Icon(
+                          isWishListed ? Icons.favorite : Icons.favorite_border,
+                          color: Colors.red,
+                          size: width * 0.1,
+                        ),
+                        splashColor: Colors.red,
+                        tooltip: "Wishlist",
+                      ),
+                    ],
                   ),
 
                   // DESCRIPTION
