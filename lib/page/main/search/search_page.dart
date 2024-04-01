@@ -278,16 +278,16 @@ class _SearchPageState extends State<SearchPage> {
 
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: width * 0.15125,
+        toolbarHeight: width * 0.2,
         title: Padding(
           padding: EdgeInsets.only(
             top: width * 0.025,
             bottom: width * 0.0225,
-            right: width * 0.0125,
+            // right: width * 0.0125,
           ),
           child: Container(
             width: width,
-            height: width * 0.15,
+            height: width * 0.1875,
             decoration: BoxDecoration(
               color: primary,
               border: Border.all(
@@ -300,7 +300,7 @@ class _SearchPageState extends State<SearchPage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
-                  width: width * 0.425,
+                  width: width * 0.45,
                   decoration: const BoxDecoration(
                     border: Border(
                       right: BorderSide(
@@ -317,6 +317,9 @@ class _SearchPageState extends State<SearchPage> {
                     controller: searchController,
                     keyboardType: TextInputType.text,
                     textInputAction: TextInputAction.search,
+                    onFieldSubmitted: (value) async {
+                      await search();
+                    },
                     decoration: const InputDecoration(
                       hintText: 'Search',
                       hintStyle: TextStyle(

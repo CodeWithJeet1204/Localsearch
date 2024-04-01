@@ -34,8 +34,8 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
   @override
   void initState() {
     searchController.text = widget.search;
-    getShops();
     getProducts();
+    getShops();
     super.initState();
   }
 
@@ -137,6 +137,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
     setState(() {
       getShopsData = true;
     });
+    print(1);
   }
 
   // CALCULATE RELEVANCE (SHOPS)
@@ -159,7 +160,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
         .collection('Products')
         .get();
 
-    productsSnap.docs.forEach((productSnap) async {
+    for (var productSnap in productsSnap.docs) {
       final productData = productSnap.data();
 
       final String productName = productData['productName'].toString();
@@ -201,7 +202,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
           relevanceScore,
         ];
       }
-    });
+    }
 
     searchedProducts = Map.fromEntries(searchedProducts.entries.toList()
       ..sort((a, b) => b.value[4].compareTo(a.value[4])));
@@ -209,6 +210,8 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
     setState(() {
       getProductsData = true;
     });
+
+    print("Products: $searchedProducts");
   }
 
   // CALCULATE RELEVANCE (PRODUCTS)
@@ -254,7 +257,6 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
 
     final userData = userSnap.data()!;
     List<dynamic> userWishlist = userData['wishlists'] as List<dynamic>;
-    print("User Wishlist: $userWishlist");
 
     bool alreadyInWishlist = userWishlist.contains(productId);
 
@@ -295,556 +297,584 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
     double width = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      body: !getShopsData || !getProductsData
-          ? Container()
-          : SafeArea(
-              child: Padding(
-                padding: EdgeInsets.all(
-                  width * 0.0125,
-                ),
-                child: LayoutBuilder(
-                  builder: ((context, constraints) {
-                    final double width = constraints.maxWidth;
+      body: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.all(
+            width * 0.0125,
+          ),
+          child: LayoutBuilder(
+            builder: ((context, constraints) {
+              final double width = constraints.maxWidth;
 
-                    return SizedBox(
-                      height: MediaQuery.of(context).size.height,
-                      child: SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // SEARCH BAR
-                            Row(
-                              children: [
-                                InkWell(
-                                  onTap: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: Container(
-                                    width: width * 0.1,
-                                    child: Icon(
-                                      FeatherIcons.arrowLeft,
-                                    ),
-                                  ),
+              return SizedBox(
+                height: MediaQuery.of(context).size.height,
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // SEARCH BAR
+                      Row(
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: Container(
+                              width: width * 0.1,
+                              height: width * 0.2,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(100)),
+                              child: Icon(
+                                FeatherIcons.arrowLeft,
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(
+                              top: width * 0.025,
+                              bottom: width * 0.0225,
+                              right: width * 0.0125,
+                            ),
+                            child: Container(
+                              width: width * 0.875,
+                              height: width * 0.1875,
+                              decoration: BoxDecoration(
+                                color: primary,
+                                border: Border.all(
+                                  color: primaryDark.withOpacity(0.75),
                                 ),
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                    top: width * 0.025,
-                                    bottom: width * 0.0225,
-                                    right: width * 0.0125,
-                                  ),
-                                  child: Container(
-                                    width: width * 0.875,
-                                    height: width * 0.15,
-                                    decoration: BoxDecoration(
-                                      color: primary,
-                                      border: Border.all(
-                                        color: primaryDark.withOpacity(0.75),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    width: width * 0.566,
+                                    decoration: const BoxDecoration(
+                                      border: Border(
+                                        right: BorderSide(
+                                          width: 0.5,
+                                        ),
                                       ),
-                                      borderRadius: BorderRadius.circular(12),
                                     ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        Container(
-                                          width: width * 0.566,
-                                          decoration: const BoxDecoration(
-                                            border: Border(
-                                              right: BorderSide(
-                                                width: 0.5,
-                                              ),
+                                    alignment: Alignment.center,
+                                    child: Padding(
+                                      padding: EdgeInsets.only(
+                                          // top: width * 0.135,
+                                          ),
+                                      child: TextFormField(
+                                        autofillHints: const [],
+                                        autofocus: false,
+                                        minLines: 1,
+                                        maxLines: 1,
+                                        controller: searchController,
+                                        keyboardType: TextInputType.text,
+                                        textInputAction: TextInputAction.search,
+                                        decoration: const InputDecoration(
+                                          hintText: 'Search',
+                                          hintStyle: TextStyle(
+                                            textBaseline:
+                                                TextBaseline.alphabetic,
+                                          ),
+                                          border: OutlineInputBorder(
+                                            borderSide: BorderSide.none,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      InkWell(
+                                        onTapDown: (details) {
+                                          setState(() {
+                                            isMicPressed = true;
+                                          });
+                                        },
+                                        onTapUp: (details) {
+                                          setState(() {
+                                            isMicPressed = false;
+                                          });
+                                        },
+                                        onTapCancel: () {
+                                          setState(() {
+                                            isMicPressed = false;
+                                          });
+                                        },
+                                        onTap: () async {
+                                          await listen();
+                                        },
+                                        customBorder: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                        child: Container(
+                                          width: width * 0.15,
+                                          alignment: Alignment.center,
+                                          decoration: BoxDecoration(
+                                            color: isMicPressed
+                                                ? primary2.withOpacity(0.95)
+                                                : primary2.withOpacity(0.25),
+                                          ),
+                                          child: Icon(
+                                            FeatherIcons.mic,
+                                            size: width * 0.066,
+                                          ),
+                                        ),
+                                      ),
+                                      InkWell(
+                                        onTapDown: (details) {
+                                          setState(() {
+                                            isSearchPressed = true;
+                                          });
+                                        },
+                                        onTapUp: (details) {
+                                          setState(() {
+                                            isSearchPressed = false;
+                                          });
+                                        },
+                                        onTapCancel: () {
+                                          setState(() {
+                                            isSearchPressed = false;
+                                          });
+                                        },
+                                        onTap: () async {
+                                          await search();
+                                        },
+                                        customBorder: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(0),
+                                            bottomLeft: Radius.circular(0),
+                                            bottomRight: Radius.circular(12),
+                                            topRight: Radius.circular(12),
+                                          ),
+                                        ),
+                                        child: Container(
+                                          width: width * 0.15,
+                                          decoration: BoxDecoration(
+                                            color: isSearchPressed
+                                                ? primary2.withOpacity(0.95)
+                                                : primary2.withOpacity(0.25),
+                                            borderRadius: BorderRadius.only(
+                                              topLeft: Radius.circular(0),
+                                              bottomLeft: Radius.circular(0),
+                                              bottomRight: Radius.circular(12),
+                                              topRight: Radius.circular(12),
                                             ),
                                           ),
                                           alignment: Alignment.center,
-                                          child: Padding(
-                                            padding: EdgeInsets.only(
-                                                // top: width * 0.135,
-                                                ),
-                                            child: TextFormField(
-                                              autofillHints: const [],
-                                              autofocus: false,
-                                              minLines: 1,
-                                              maxLines: 1,
-                                              controller: searchController,
-                                              keyboardType: TextInputType.text,
-                                              textInputAction:
-                                                  TextInputAction.search,
-                                              decoration: const InputDecoration(
-                                                hintText: 'Search',
-                                                hintStyle: TextStyle(
-                                                  textBaseline:
-                                                      TextBaseline.alphabetic,
-                                                ),
-                                                border: OutlineInputBorder(
-                                                  borderSide: BorderSide.none,
-                                                ),
-                                              ),
-                                            ),
+                                          child: Icon(
+                                            FeatherIcons.search,
+                                            size: width * 0.066,
                                           ),
                                         ),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            InkWell(
-                                              onTapDown: (details) {
-                                                setState(() {
-                                                  isMicPressed = true;
-                                                });
-                                              },
-                                              onTapUp: (details) {
-                                                setState(() {
-                                                  isMicPressed = false;
-                                                });
-                                              },
-                                              onTapCancel: () {
-                                                setState(() {
-                                                  isMicPressed = false;
-                                                });
-                                              },
-                                              onTap: () async {
-                                                await listen();
-                                              },
-                                              customBorder:
-                                                  RoundedRectangleBorder(
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      // FILTERS
+                      // ListView.builder(
+                      //   scrollDirection: Axis.horizontal,
+                      //   itemCount: 4,
+                      //   itemBuilder: ((context, index) {
+                      //   }),
+                      // ),
+
+                      // SHOP
+                      !getShopsData
+                          ? Center(
+                              child: CircularProgressIndicator(),
+                            )
+                          : Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // SHOPS
+                                searchedShops.isEmpty
+                                    ? Container()
+                                    : Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Padding(
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: width * 0.0225,
+                                              vertical: width * 0.000725,
+                                            ),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                Text(
+                                                  'Shops',
+                                                  style: TextStyle(
+                                                    color: primaryDark
+                                                        .withOpacity(0.8),
+                                                    fontSize: width * 0.04,
+                                                  ),
+                                                ),
+                                                searchedShops.length > 3
+                                                    ? MyTextButton(
+                                                        onPressed: () {},
+                                                        text: "See All",
+                                                        textColor: primaryDark,
+                                                      )
+                                                    : Container(),
+                                              ],
+                                            ),
+                                          ),
+                                          Divider(),
+                                        ],
+                                      ),
+
+                                // SHOPS LIST
+                                searchedShops.isEmpty
+                                    ? searchedProducts.isEmpty
+                                        ? Center(
+                                            child: Padding(
+                                              padding: EdgeInsets.only(top: 40),
+                                              child: Text(
+                                                'No Shops Found',
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ),
+                                          )
+                                        : Container()
+                                    : ListView.builder(
+                                        shrinkWrap: true,
+                                        physics: NeverScrollableScrollPhysics(),
+                                        itemCount: searchedShops.length > 3
+                                            ? 3
+                                            : searchedShops.length,
+                                        itemBuilder: ((context, index) {
+                                          final currentShop = searchedShops.keys
+                                              .toList()[index];
+
+                                          return Padding(
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: width * 0.0125,
+                                              vertical: width * 0.00625,
+                                            ),
+                                            child: ListTile(
+                                              onTap: () {},
+                                              splashColor: white,
+                                              tileColor:
+                                                  primary2.withOpacity(0.125),
+                                              contentPadding:
+                                                  EdgeInsets.symmetric(
+                                                vertical: width * 0.0125,
+                                                horizontal: width * 0.025,
+                                              ),
+                                              shape: RoundedRectangleBorder(
                                                 borderRadius:
                                                     BorderRadius.circular(12),
                                               ),
-                                              child: Container(
-                                                width: width * 0.15,
-                                                alignment: Alignment.center,
-                                                decoration: BoxDecoration(
-                                                  color: isMicPressed
-                                                      ? primary2
-                                                          .withOpacity(0.95)
-                                                      : primary2
-                                                          .withOpacity(0.25),
+                                              leading: CircleAvatar(
+                                                backgroundImage: NetworkImage(
+                                                  searchedShops[currentShop][1],
                                                 ),
-                                                child: Icon(
-                                                  FeatherIcons.mic,
-                                                  size: width * 0.066,
+                                                radius: width * 0.0575,
+                                              ),
+                                              title: Text(
+                                                currentShop,
+                                                style: TextStyle(
+                                                  fontSize: width * 0.06125,
                                                 ),
+                                              ),
+                                              subtitle: Text(
+                                                searchedShops[currentShop][0],
+                                              ),
+                                              trailing: Icon(
+                                                FeatherIcons.chevronRight,
+                                                color: primaryDark,
                                               ),
                                             ),
-                                            InkWell(
-                                              onTapDown: (details) {
-                                                setState(() {
-                                                  isSearchPressed = true;
-                                                });
-                                              },
-                                              onTapUp: (details) {
-                                                setState(() {
-                                                  isSearchPressed = false;
-                                                });
-                                              },
-                                              onTapCancel: () {
-                                                setState(() {
-                                                  isSearchPressed = false;
-                                                });
-                                              },
-                                              onTap: () async {
-                                                await search();
-                                              },
-                                              customBorder:
-                                                  RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.only(
-                                                  topLeft: Radius.circular(0),
-                                                  bottomLeft:
-                                                      Radius.circular(0),
-                                                  bottomRight:
-                                                      Radius.circular(12),
-                                                  topRight: Radius.circular(12),
-                                                ),
-                                              ),
-                                              child: Container(
-                                                width: width * 0.15,
-                                                decoration: BoxDecoration(
-                                                  color: isSearchPressed
-                                                      ? primary2
-                                                          .withOpacity(0.95)
-                                                      : primary2
-                                                          .withOpacity(0.25),
-                                                  borderRadius:
-                                                      BorderRadius.only(
-                                                    topLeft: Radius.circular(0),
-                                                    bottomLeft:
-                                                        Radius.circular(0),
-                                                    bottomRight:
-                                                        Radius.circular(12),
-                                                    topRight:
-                                                        Radius.circular(12),
-                                                  ),
-                                                ),
-                                                alignment: Alignment.center,
-                                                child: Icon(
-                                                  FeatherIcons.search,
-                                                  size: width * 0.066,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
+                                          );
+                                        }),
+                                      ),
                               ],
                             ),
 
-                            // FILTERS
-                            // ListView.builder(
-                            //   scrollDirection: Axis.horizontal,
-                            //   itemCount: 4,
-                            //   itemBuilder: ((context, index) {
-                            //   }),
-                            // ),
-
-                            // SHOPS
-                            searchedShops.isEmpty
-                                ? Container()
-                                : Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Padding(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: width * 0.0225,
-                                          vertical: width * 0.000725,
+                      // PRODUCT
+                      !getProductsData
+                          ? Padding(
+                              padding: EdgeInsets.only(top: 40),
+                              child: Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                            )
+                          : Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // PRODUCTS
+                                searchedProducts.isEmpty
+                                    ? Center(
+                                        child: Padding(
+                                          padding: EdgeInsets.only(top: 40),
+                                          child: Text(
+                                            'No Products Found',
+                                            textAlign: TextAlign.center,
+                                          ),
                                         ),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              'Shops',
+                                      )
+                                    : Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Padding(
+                                            padding: EdgeInsets.only(
+                                              left: width * 0.0225,
+                                              right: width * 0.0225,
+                                              bottom: width * 0.0225,
+                                            ),
+                                            child: Text(
+                                              'Products',
                                               style: TextStyle(
                                                 color: primaryDark
                                                     .withOpacity(0.8),
                                                 fontSize: width * 0.04,
                                               ),
                                             ),
-                                            searchedShops.length > 3
-                                                ? MyTextButton(
-                                                    onPressed: () {},
-                                                    text: "See All",
-                                                    textColor: primaryDark,
-                                                  )
-                                                : Container(),
-                                          ],
-                                        ),
-                                      ),
-                                      Divider(),
-                                    ],
-                                  ),
-
-                            // SHOPS LIST
-                            searchedShops.isEmpty
-                                ? Container()
-                                : ListView.builder(
-                                    shrinkWrap: true,
-                                    physics: NeverScrollableScrollPhysics(),
-                                    itemCount: searchedShops.length > 3
-                                        ? 3
-                                        : searchedShops.length,
-                                    itemBuilder: ((context, index) {
-                                      final currentShop =
-                                          searchedShops.keys.toList()[index];
-
-                                      return Padding(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: width * 0.0125,
-                                          vertical: width * 0.00625,
-                                        ),
-                                        child: ListTile(
-                                          onTap: () {},
-                                          splashColor: white,
-                                          tileColor:
-                                              primary2.withOpacity(0.125),
-                                          contentPadding: EdgeInsets.symmetric(
-                                            vertical: width * 0.0125,
-                                            horizontal: width * 0.025,
                                           ),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                          ),
-                                          leading: CircleAvatar(
-                                            backgroundImage: NetworkImage(
-                                              searchedShops[currentShop][1],
+                                          Padding(
+                                            padding: EdgeInsets.only(
+                                              left: width * 0.0225,
+                                              right: width * 0.0225,
+                                              bottom: width * 0.0225,
                                             ),
-                                            radius: width * 0.0575,
-                                          ),
-                                          title: Text(
-                                            currentShop,
-                                            style: TextStyle(
-                                              fontSize: width * 0.06125,
+                                            child: Text(
+                                              searchedProducts.length
+                                                  .toString(),
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w500,
+                                              ),
                                             ),
                                           ),
-                                          subtitle: Text(
-                                            searchedShops[currentShop][0],
-                                          ),
-                                          trailing: Icon(
-                                            FeatherIcons.chevronRight,
-                                            color: primaryDark,
-                                          ),
-                                        ),
-                                      );
-                                    }),
-                                  ),
-
-                            // PRODUCTS
-                            searchedProducts.isEmpty
-                                ? Container()
-                                : Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Padding(
-                                        padding: EdgeInsets.only(
-                                          left: width * 0.0225,
-                                          right: width * 0.0225,
-                                          bottom: width * 0.0225,
-                                        ),
-                                        child: Text(
-                                          'Products',
-                                          style: TextStyle(
-                                            color: primaryDark.withOpacity(0.8),
-                                            fontSize: width * 0.04,
-                                          ),
-                                        ),
+                                        ],
                                       ),
-                                      Padding(
-                                        padding: EdgeInsets.only(
-                                          left: width * 0.0225,
-                                          right: width * 0.0225,
-                                          bottom: width * 0.0225,
+
+                                // PRODUCTS LIST
+                                searchedProducts.isEmpty
+                                    ? Container()
+                                    : GridView.builder(
+                                        shrinkWrap: true,
+                                        physics: ClampingScrollPhysics(),
+                                        gridDelegate:
+                                            SliverGridDelegateWithFixedCrossAxisCount(
+                                          crossAxisCount: 2,
+                                          childAspectRatio: width * 0.6 / width,
                                         ),
-                                        child: Text(
-                                          searchedProducts.length.toString(),
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                        itemCount: searchedProducts.length,
+                                        itemBuilder: ((context, index) {
+                                          return StreamBuilder<bool>(
+                                            stream: getIfWishlist(
+                                              searchedProducts.values
+                                                  .toList()[index][3],
+                                            ),
+                                            builder: (context, snapshot) {
+                                              final currentProduct =
+                                                  searchedProducts.keys
+                                                      .toList()[index]
+                                                      .toString();
 
-                            // PRODUCTS LIST
-                            searchedProducts.isEmpty
-                                ? Container()
-                                : GridView.builder(
-                                    shrinkWrap: true,
-                                    physics: ClampingScrollPhysics(),
-                                    gridDelegate:
-                                        SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 2,
-                                      childAspectRatio: width * 0.6 / width,
-                                    ),
-                                    itemCount: searchedProducts.length,
-                                    itemBuilder: ((context, index) {
-                                      return StreamBuilder<bool>(
-                                        stream: getIfWishlist(
-                                          searchedProducts.values
-                                              .toList()[index][3],
-                                        ),
-                                        builder: (context, snapshot) {
-                                          print(searchedProducts.values
-                                              .toList()[index][3]);
-                                          final currentProduct =
-                                              searchedProducts.keys
-                                                  .toList()[index]
-                                                  .toString();
+                                              final image = searchedProducts[
+                                                  currentProduct][0];
 
-                                          final image =
-                                              searchedProducts[currentProduct]
-                                                  [0];
+                                              final productId = searchedProducts
+                                                  .values
+                                                  .toList()[index][3];
 
-                                          final productId = searchedProducts
-                                              .values
-                                              .toList()[index][3];
+                                              final price = searchedProducts[
+                                                          currentProduct][1] ==
+                                                      ''
+                                                  ? 'N/A'
+                                                  : 'Rs. ${searchedProducts[currentProduct][1]}';
+                                              final isWishListed =
+                                                  snapshot.data ?? false;
 
-                                          final price = searchedProducts[
-                                                      currentProduct][1] ==
-                                                  ''
-                                              ? 'N/A'
-                                              : 'Rs. ${searchedProducts[currentProduct][1]}';
-                                          final isWishListed =
-                                              snapshot.data ?? false;
-
-                                          return Builder(
-                                            builder: (context) {
-                                              return GestureDetector(
-                                                onDoubleTap: () async {
-                                                  await showDialog(
-                                                    context: context,
-                                                    builder: ((context) =>
-                                                        ProductQuickView(
-                                                          productId: productId,
-                                                        )),
-                                                  );
-                                                },
-                                                onLongPress: () async {
-                                                  await showDialog(
-                                                    context: context,
-                                                    builder: ((context) =>
-                                                        ProductQuickView(
-                                                          productId: productId,
-                                                        )),
-                                                  );
-                                                },
-                                                child: Container(
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.white,
-                                                    border: Border.all(
-                                                      width: 0.25,
-                                                      color: Colors.grey
-                                                          .withOpacity(0.25),
-                                                    ),
-                                                  ),
-                                                  padding: EdgeInsets.all(
-                                                    MediaQuery.of(context)
-                                                            .size
-                                                            .width *
-                                                        0.0125,
-                                                  ),
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Center(
-                                                        child: Image.network(
-                                                          image,
-                                                          fit: BoxFit.cover,
-                                                          width: MediaQuery.of(
-                                                                      context)
-                                                                  .size
-                                                                  .width *
-                                                              0.5,
-                                                          height: MediaQuery.of(
-                                                                      context)
-                                                                  .size
-                                                                  .width *
-                                                              0.58,
+                                              return Builder(
+                                                builder: (context) {
+                                                  return GestureDetector(
+                                                    onDoubleTap: () async {
+                                                      await showDialog(
+                                                        context: context,
+                                                        builder: ((context) =>
+                                                            ProductQuickView(
+                                                              productId:
+                                                                  productId,
+                                                            )),
+                                                      );
+                                                    },
+                                                    onLongPress: () async {
+                                                      await showDialog(
+                                                        context: context,
+                                                        builder: ((context) =>
+                                                            ProductQuickView(
+                                                              productId:
+                                                                  productId,
+                                                            )),
+                                                      );
+                                                    },
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.white,
+                                                        border: Border.all(
+                                                          width: 0.25,
+                                                          color: Colors.grey
+                                                              .withOpacity(
+                                                                  0.25),
                                                         ),
                                                       ),
-                                                      Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
+                                                      padding: EdgeInsets.all(
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.0125,
+                                                      ),
+                                                      child: Column(
                                                         crossAxisAlignment:
                                                             CrossAxisAlignment
-                                                                .center,
+                                                                .start,
                                                         children: [
-                                                          Column(
+                                                          Center(
+                                                            child:
+                                                                Image.network(
+                                                              image,
+                                                              fit: BoxFit.cover,
+                                                              width: MediaQuery.of(
+                                                                          context)
+                                                                      .size
+                                                                      .width *
+                                                                  0.5,
+                                                              height: MediaQuery.of(
+                                                                          context)
+                                                                      .size
+                                                                      .width *
+                                                                  0.58,
+                                                            ),
+                                                          ),
+                                                          Row(
                                                             mainAxisAlignment:
                                                                 MainAxisAlignment
-                                                                    .spaceAround,
+                                                                    .spaceBetween,
                                                             crossAxisAlignment:
                                                                 CrossAxisAlignment
-                                                                    .start,
+                                                                    .center,
                                                             children: [
-                                                              Padding(
-                                                                padding:
-                                                                    EdgeInsets
-                                                                        .only(
-                                                                  left: MediaQuery.of(
-                                                                              context)
-                                                                          .size
-                                                                          .width *
-                                                                      0.0125,
-                                                                  right: MediaQuery.of(
-                                                                              context)
-                                                                          .size
-                                                                          .width *
-                                                                      0.0125,
-                                                                  top: MediaQuery.of(
-                                                                              context)
-                                                                          .size
-                                                                          .width *
-                                                                      0.0225,
-                                                                ),
-                                                                child: Text(
-                                                                  currentProduct,
-                                                                  style:
-                                                                      TextStyle(
-                                                                    fontSize: MediaQuery.of(context)
-                                                                            .size
-                                                                            .width *
-                                                                        0.0575,
+                                                              Column(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .spaceAround,
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .start,
+                                                                children: [
+                                                                  Padding(
+                                                                    padding:
+                                                                        EdgeInsets
+                                                                            .only(
+                                                                      left: MediaQuery.of(context)
+                                                                              .size
+                                                                              .width *
+                                                                          0.0125,
+                                                                      right: MediaQuery.of(context)
+                                                                              .size
+                                                                              .width *
+                                                                          0.0125,
+                                                                      top: MediaQuery.of(context)
+                                                                              .size
+                                                                              .width *
+                                                                          0.0225,
+                                                                    ),
+                                                                    child: Text(
+                                                                      currentProduct,
+                                                                      style:
+                                                                          TextStyle(
+                                                                        fontSize:
+                                                                            MediaQuery.of(context).size.width *
+                                                                                0.0575,
+                                                                      ),
+                                                                    ),
                                                                   ),
-                                                                ),
+                                                                  Padding(
+                                                                    padding:
+                                                                        EdgeInsets
+                                                                            .symmetric(
+                                                                      horizontal: MediaQuery.of(context)
+                                                                              .size
+                                                                              .width *
+                                                                          0.0125,
+                                                                    ),
+                                                                    child: Text(
+                                                                      price,
+                                                                      style:
+                                                                          TextStyle(
+                                                                        fontSize:
+                                                                            MediaQuery.of(context).size.width *
+                                                                                0.05,
+                                                                        fontWeight:
+                                                                            FontWeight.w500,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ],
                                                               ),
-                                                              Padding(
-                                                                padding: EdgeInsets
-                                                                    .symmetric(
-                                                                  horizontal: MediaQuery.of(
-                                                                              context)
-                                                                          .size
-                                                                          .width *
-                                                                      0.0125,
+                                                              IconButton(
+                                                                onPressed:
+                                                                    () async {
+                                                                  await wishlistProduct(
+                                                                      productId);
+                                                                },
+                                                                icon: Icon(
+                                                                  isWishListed
+                                                                      ? Icons
+                                                                          .favorite
+                                                                      : Icons
+                                                                          .favorite_border,
+                                                                  color: Colors
+                                                                      .red,
                                                                 ),
-                                                                child: Text(
-                                                                  price,
-                                                                  style:
-                                                                      TextStyle(
-                                                                    fontSize: MediaQuery.of(context)
-                                                                            .size
-                                                                            .width *
-                                                                        0.05,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w500,
-                                                                  ),
-                                                                ),
+                                                                splashColor:
+                                                                    Colors.red,
                                                               ),
                                                             ],
                                                           ),
-                                                          IconButton(
-                                                            onPressed:
-                                                                () async {
-                                                              await wishlistProduct(
-                                                                  productId);
-                                                            },
-                                                            icon: Icon(
-                                                              isWishListed
-                                                                  ? Icons
-                                                                      .favorite
-                                                                  : Icons
-                                                                      .favorite_border,
-                                                              color: Colors.red,
-                                                            ),
-                                                            splashColor:
-                                                                Colors.red,
-                                                          ),
                                                         ],
                                                       ),
-                                                    ],
-                                                  ),
-                                                ),
+                                                    ),
+                                                  );
+                                                },
                                               );
                                             },
                                           );
-                                        },
-                                      );
-                                    }),
-                                  ),
-                          ],
-                        ),
-                      ),
-                    );
-                  }),
+                                        }),
+                                      ),
+                              ],
+                            ),
+                    ],
+                  ),
                 ),
-              ),
-            ),
+              );
+            }),
+          ),
+        ),
+      ),
     );
   }
 }
