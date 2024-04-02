@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
-import 'package:find_easy_user/page/main/home_page.dart';
+import 'package:find_easy_user/page/main/product/product_page.dart';
 import 'package:find_easy_user/page/main/search/search_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
+import 'package:find_easy_user/widgets/product_quick_view.dart';
+import 'package:find_easy_user/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
@@ -18,9 +20,9 @@ class _SearchWithProductsPageState extends State<SearchWithProductsPage>
   final store = FirebaseFirestore.instance;
   final int noOfProducts = 20;
   final List<String> productIds = [];
-  final List<String> productNames = [];
   final List<String> productImageUrls = [];
   bool getData = false;
+  Map<String, dynamic>? productData;
 
   // INIT STATE
   @override
@@ -31,12 +33,25 @@ class _SearchWithProductsPageState extends State<SearchWithProductsPage>
 
   // GET PRODUCTS
   // TODO: Add Lazy loading to increase no of viewable products when scrolling
-  Future<void> getProducts() async {
+  Future<Map<String, dynamic>?>? getProducts({String? productId}) async {
     final QuerySnapshot productSnap = await store
         .collection('Business')
         .doc('Data')
         .collection('Products')
         .get();
+
+    if (productId != null) {
+      final currentProductSnap = await store
+          .collection('Business')
+          .doc('Data')
+          .collection('Products')
+          .doc(productId)
+          .get();
+
+      final productData = currentProductSnap.data()!;
+
+      return productData;
+    }
 
     final List<DocumentSnapshot> allProducts = productSnap.docs;
     final List<DocumentSnapshot> randomProducts = List.from(allProducts)
@@ -46,26 +61,23 @@ class _SearchWithProductsPageState extends State<SearchWithProductsPage>
         ? randomProducts.sublist(0, 20)
         : randomProducts;
 
-    // Clear the lists before adding new products
     productIds.clear();
-    productNames.clear();
     productImageUrls.clear();
 
     for (var productDoc in displayedProducts) {
       final String productId = productDoc.id;
-      final String productName =
-          (productDoc.data() as Map<String, dynamic>)['productName'];
       final String productImageUrl =
           (productDoc.data() as Map<String, dynamic>)['images'][0];
 
       productIds.add(productId);
-      productNames.add(productName);
       productImageUrls.add(productImageUrl);
     }
 
     setState(() {
       getData = true;
     });
+
+    return null;
   }
 
   // GET SCREEN HEIGHT
@@ -184,39 +196,79 @@ class _SearchWithProductsPageState extends State<SearchWithProductsPage>
                               ),
                               childrenDelegate: SliverChildBuilderDelegate(
                                 (context, index) {
-                                  // final productId = productIds[index];
-                                  // final productName = productNames[index];
+                                  final productId = productIds[index];
                                   final productImageUrl =
                                       productImageUrls[index];
-                                  return InkWell(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => const HomePage(
-                                              /*productId: productId,
-                                                  productName: productName*/
+                                  final productData =
+                                      getProducts(productId: productId);
+
+                                  return FutureBuilder<Map<String, dynamic>?>(
+                                      future: getProducts(productId: productId),
+                                      builder: (context, snapshot) {
+                                        if (snapshot.hasData) {
+                                          return InkWell(
+                                            onTap: () {
+                                              if (productData != null) {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        ProductPage(
+                                                      productData:
+                                                          snapshot.data!,
+                                                    ),
+                                                  ),
+                                                );
+                                              } else {
+                                                mySnackBar(
+                                                  'Some error occured',
+                                                  context,
+                                                );
+                                              }
+                                            },
+                                            onDoubleTap: () async {
+                                              await showDialog(
+                                                context: context,
+                                                builder: ((context) =>
+                                                    ProductQuickView(
+                                                      productId: productId,
+                                                    )),
+                                              );
+                                            },
+                                            onLongPress: () async {
+                                              await showDialog(
+                                                context: context,
+                                                builder: ((context) =>
+                                                    ProductQuickView(
+                                                      productId: productId,
+                                                    )),
+                                              );
+                                            },
+                                            splashColor: primary2,
+                                            customBorder:
+                                                RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                            child: Container(
+                                              padding: EdgeInsets.all(
+                                                  width * 0.00625),
+                                              child: ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                                clipBehavior:
+                                                    Clip.antiAliasWithSaveLayer,
+                                                child: Image.network(
+                                                  productImageUrl,
+                                                  fit: BoxFit.cover,
+                                                ),
                                               ),
-                                        ),
-                                      );
-                                    },
-                                    splashColor: primary2,
-                                    customBorder: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Container(
-                                      padding: EdgeInsets.all(width * 0.00625),
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(12),
-                                        clipBehavior:
-                                            Clip.antiAliasWithSaveLayer,
-                                        child: Image.network(
-                                          productImageUrl,
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                                    ),
-                                  );
+                                            ),
+                                          );
+                                        }
+
+                                        return Container();
+                                      });
                                 },
                                 childCount: productIds.length,
                               ),

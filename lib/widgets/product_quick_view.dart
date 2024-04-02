@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:find_easy_user/utils/colors.dart';
@@ -156,7 +157,7 @@ class _ProductQuickViewState extends State<ProductQuickView> {
       backgroundColor: white,
       child: Container(
         width: width * 0.8,
-        height: 364,
+        height: 372,
         decoration: BoxDecoration(
           border: Border.all(
             width: 2,
@@ -224,10 +225,16 @@ class _ProductQuickViewState extends State<ProductQuickView> {
                             // NAME
                             Padding(
                               padding: EdgeInsets.symmetric(vertical: 6),
-                              child: Text(
-                                name!,
-                                style: TextStyle(
-                                  fontSize: width * 0.055,
+                              child: SizedBox(
+                                width: width * 0.5,
+                                height: 36,
+                                child: AutoSizeText(
+                                  name!,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: width * 0.055,
+                                  ),
                                 ),
                               ),
                             ),

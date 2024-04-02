@@ -65,6 +65,7 @@ class _ImageViewState extends State<ImageView> {
                 options: CarouselOptions(
                   enableInfiniteScroll: false,
                   aspectRatio: 0.6,
+                  viewportFraction: 0.95,
                   enlargeCenterPage: false,
                   onPageChanged: (index, reason) {
                     setState(() {
