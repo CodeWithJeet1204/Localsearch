@@ -4,8 +4,10 @@ import 'package:feather_icons/feather_icons.dart';
 import 'package:find_easy_user/page/main/product/product_all_reviews_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/image_view.dart';
+import 'package:find_easy_user/widgets/info_box.dart';
 import 'package:find_easy_user/widgets/ratings_bar.dart';
 import 'package:find_easy_user/widgets/review_container.dart';
+import 'package:find_easy_user/widgets/search_bar.dart';
 import 'package:find_easy_user/widgets/see_more_text.dart';
 import 'package:find_easy_user/widgets/snack_bar.dart';
 import 'package:find_easy_user/widgets/text_button.dart';
@@ -375,7 +377,7 @@ class _ProductPageState extends State<ProductPage> {
     });
   }
 
-  // GET AVERAGE RATINGS
+// GET AVERAGE RATINGS
   Future<void> getAverageRatings() async {
     final productSnap = await store
         .collection('Business')
@@ -397,7 +399,9 @@ class _ProductPageState extends State<ProductPage> {
     };
 
     ratings.values.forEach((ratingData) {
-      int rating = ratingData[0];
+      int rating = (ratingData[0] is int)
+          ? ratingData[0]
+          : (ratingData[0] as double).toInt();
       ratingCountMap.update(rating, (count) => count + 1);
     });
 
@@ -439,6 +443,8 @@ class _ProductPageState extends State<ProductPage> {
       final review = ratings[uid][1];
       allUserReviews[userName] = [rating, review];
     }
+
+    allUserReviews.removeWhere((key, value) => value[1].isEmpty);
 
     setState(() {
       allReviews = allUserReviews;
@@ -580,12 +586,12 @@ class _ProductPageState extends State<ProductPage> {
     final List propertyValue4 = properties['propertyValue4'];
     final List propertyValue5 = properties['propertyValue5'];
 
-    // final int propertyNoOfAnswers0 = properties['propertyNoOfAnswers0'];
-    // final int propertyNoOfAnswers1 = properties['propertyNoOfAnswers1'];
-    // final int propertyNoOfAnswers2 = properties['propertyNoOfAnswers2'];
-    // final int propertyNoOfAnswers3 = properties['propertyNoOfAnswers3'];
-    // final int propertyNoOfAnswers4 = properties['propertyNoOfAnswers4'];
-    // final int propertyNoOfAnswers5 = properties['propertyNoOfAnswers5'];
+    final int propertyNoOfAnswers0 = properties['propertyNoOfAnswers0'];
+    final int propertyNoOfAnswers1 = properties['propertyNoOfAnswers1'];
+    final int propertyNoOfAnswers2 = properties['propertyNoOfAnswers2'];
+    final int propertyNoOfAnswers3 = properties['propertyNoOfAnswers3'];
+    final int propertyNoOfAnswers4 = properties['propertyNoOfAnswers4'];
+    final int propertyNoOfAnswers5 = properties['propertyNoOfAnswers5'];
 
     final discountPriceFuture = store
         .collection('Business')
@@ -613,7 +619,7 @@ class _ProductPageState extends State<ProductPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // SEARCH BAR
-                      SearchBar(),
+                      MySearchBar(width: width),
 
                       // VENDOR
                       Padding(
@@ -1088,7 +1094,6 @@ class _ProductPageState extends State<ProductPage> {
                             vertical: width * 0.025,
                           ),
                           margin: EdgeInsets.symmetric(
-                            // horizontal: width * 0.025,
                             vertical: width * 0.025,
                           ),
                           decoration: BoxDecoration(
@@ -1202,48 +1207,82 @@ class _ProductPageState extends State<ProductPage> {
                       ),
 
                       // PROPERTY 0
-                      // propertyValue0.isEmpty
-                      //     ? Container()
-                      //     : InfoBox(
-                      //         head: propertyName0,
-                      //         noOfAnswers: propertyNoOfAnswers0,
-                      //         width: width,
-                      //         content: propertyValue0.length == 1
-                      //             ? propertyValue0[0]
-                      //             : null,
-                      //         propertyValue: propertyValue0.length > 1
-                      //             ? propertyValue0
-                      //                 .map(
-                      //                   (e) => Container(
-                      //                     height: 40,
-                      //                     margin: EdgeInsets.only(
-                      //                       right: 4,
-                      //                       top: 4,
-                      //                       bottom: 4,
-                      //                     ),
-                      //                     padding: EdgeInsets.symmetric(
-                      //                       horizontal: 6,
-                      //                       vertical: 4,
-                      //                     ),
-                      //                     alignment: Alignment.center,
-                      //                     decoration: BoxDecoration(
-                      //                       color: primaryDark.withOpacity(0.8),
-                      //                       borderRadius:
-                      //                           BorderRadius.circular(4),
-                      //                     ),
-                      //                     child: Text(
-                      //                       e,
-                      //                       style: TextStyle(
-                      //                         fontSize: 18,
-                      //                         color: primaryDark2,
-                      //                         fontWeight: FontWeight.w500,
-                      //                       ),
-                      //                     ),
-                      //                   ),
-                      //                 )
-                      //                 .toList()
-                      //             : List.empty(),
-                      //       ),
+                      propertyValue0.isEmpty ||
+                              propertyName0 == '' ||
+                              propertyNoOfAnswers0 != 3
+                          ? Container()
+                          : InfoBox(
+                              head: propertyName0,
+                              content: propertyValue0[0],
+                              noOfAnswers: propertyNoOfAnswers0,
+                              propertyValue: propertyValue0,
+                              width: width,
+                            ),
+
+                      // PROPERTY 1
+                      propertyValue1.isEmpty ||
+                              propertyName1 == '' ||
+                              propertyNoOfAnswers1 != 3
+                          ? Container()
+                          : InfoBox(
+                              head: propertyName1,
+                              content: propertyValue1[0],
+                              noOfAnswers: propertyNoOfAnswers1,
+                              propertyValue: propertyValue1,
+                              width: width,
+                            ),
+
+                      // PROPERTY 2
+                      propertyValue2.isEmpty ||
+                              propertyName2 == '' ||
+                              propertyNoOfAnswers2 != 3
+                          ? Container()
+                          : InfoBox(
+                              head: propertyName2,
+                              content: propertyValue2[0],
+                              noOfAnswers: propertyNoOfAnswers2,
+                              propertyValue: propertyValue2,
+                              width: width,
+                            ),
+
+                      // PROPERTY 3
+                      propertyValue3.isEmpty ||
+                              propertyName3 == '' ||
+                              propertyNoOfAnswers3 != 3
+                          ? Container()
+                          : InfoBox(
+                              head: propertyName3,
+                              content: propertyValue3[0],
+                              noOfAnswers: propertyNoOfAnswers3,
+                              propertyValue: propertyValue3,
+                              width: width,
+                            ),
+
+                      // PROPERTY 4
+                      propertyValue4.isEmpty ||
+                              propertyName4 == '' ||
+                              propertyNoOfAnswers4 != 3
+                          ? Container()
+                          : InfoBox(
+                              head: propertyName4,
+                              content: propertyValue4[0],
+                              noOfAnswers: propertyNoOfAnswers4,
+                              propertyValue: propertyValue4,
+                              width: width,
+                            ),
+
+                      // PROPERTY 5
+                      propertyValue5.isEmpty ||
+                              propertyName5 == '' ||
+                              propertyNoOfAnswers5 != 3
+                          ? Container()
+                          : InfoBox(
+                              head: propertyName5,
+                              content: propertyValue5[0],
+                              noOfAnswers: propertyNoOfAnswers5,
+                              propertyValue: propertyValue5,
+                              width: width,
+                            ),
 
                       // SIMILAR PRODUCTS
                       Container(
@@ -1480,15 +1519,16 @@ class _ProductPageState extends State<ProductPage> {
                                         ),
 
                                   // SEE MORE
-                                  allReviews!.length <= 3
+                                  allReviews == null
                                       ? Container()
-                                      : Center(
-                                          child: MyTextButton(
-                                            onPressed: () {
-                                              Navigator.of(context).push(
-                                                MaterialPageRoute(
-                                                  builder:
-                                                      ((context) =>
+                                      : allReviews!.length <= 3
+                                          ? Container()
+                                          : Center(
+                                              child: MyTextButton(
+                                                onPressed: () {
+                                                  Navigator.of(context).push(
+                                                    MaterialPageRoute(
+                                                      builder: ((context) =>
                                                           ProductAllReviewPage(
                                                             reviews:
                                                                 allReviews!,
@@ -1534,14 +1574,14 @@ class _ProductPageState extends State<ProductPage> {
                                                                         ],
                                                                       ),
                                                           )),
-                                                ),
-                                              );
-                                            },
-                                            text:
-                                                'See All (${allReviews!.length})',
-                                            textColor: primaryDark2,
-                                          ),
-                                        ),
+                                                    ),
+                                                  );
+                                                },
+                                                text:
+                                                    'See All (${allReviews!.length})',
+                                                textColor: primaryDark2,
+                                              ),
+                                            ),
                                 ],
                               ),
                       ),
@@ -1648,36 +1688,50 @@ class _ProductPageState extends State<ProductPage> {
                     ),
 
                     // REVIEW
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.only(
-                            left: 10,
-                            right: 10,
-                            top: 10,
-                            bottom: 20,
-                          ),
-                          child: Text(
-                            previousReview!.trim(),
-                            maxLines: 10,
-                          ),
-                        ),
+                    previousReview!.trim().length == 0
+                        ? Center(
+                            child: // DELETE
+                                IconButton(
+                              onPressed: () async {
+                                await deleteReview();
+                              },
+                              icon: Icon(
+                                FeatherIcons.trash,
+                                color: Colors.red,
+                              ),
+                              tooltip: 'DELETE',
+                            ),
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  left: 10,
+                                  right: 10,
+                                  top: 10,
+                                  bottom: 20,
+                                ),
+                                child: Text(
+                                  previousReview!.trim(),
+                                  maxLines: 10,
+                                ),
+                              ),
 
-                        // DELETE
-                        IconButton(
-                          onPressed: () async {
-                            await deleteReview();
-                          },
-                          icon: Icon(
-                            FeatherIcons.trash,
-                            color: Colors.red,
+                              // DELETE
+                              IconButton(
+                                onPressed: () async {
+                                  await deleteReview();
+                                },
+                                icon: Icon(
+                                  FeatherIcons.trash,
+                                  color: Colors.red,
+                                ),
+                                tooltip: 'DELETE',
+                              ),
+                            ],
                           ),
-                          tooltip: 'DELETE',
-                        ),
-                      ],
-                    ),
                   ],
                 ),
               )

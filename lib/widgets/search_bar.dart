@@ -6,14 +6,19 @@ import 'package:find_easy_user/widgets/speech_to_text.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class SearchBar extends StatefulWidget {
-  const SearchBar({super.key});
+class MySearchBar extends StatefulWidget {
+  const MySearchBar({
+    super.key,
+    required this.width,
+  });
+
+  final double width;
 
   @override
-  State<SearchBar> createState() => _SearchBarState();
+  State<MySearchBar> createState() => _MySearchBarState();
 }
 
-class _SearchBarState extends State<SearchBar> {
+class _MySearchBarState extends State<MySearchBar> {
   final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
   final searchController = TextEditingController();
@@ -71,7 +76,7 @@ class _SearchBarState extends State<SearchBar> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
+    final width = widget.width;
 
     return Padding(
       padding: EdgeInsets.only(

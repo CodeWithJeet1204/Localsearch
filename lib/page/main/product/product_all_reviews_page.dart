@@ -18,6 +18,9 @@ class ProductAllReviewPage extends StatefulWidget {
 class _ProductAllReviewPageState extends State<ProductAllReviewPage> {
   @override
   Widget build(BuildContext context) {
+    widget.reviews.removeWhere((key, value) => value[1].isEmpty);
+    final reviews = widget.reviews;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('All Reviews'),
@@ -45,13 +48,11 @@ class _ProductAllReviewPageState extends State<ProductAllReviewPage> {
                         height: height,
                         child: ListView.builder(
                           shrinkWrap: true,
-                          itemCount: widget.reviews.length,
+                          itemCount: reviews.length,
                           itemBuilder: ((context, index) {
-                            final name = widget.reviews.keys.toList()[index];
-                            final rating =
-                                widget.reviews.values.toList()[index][0];
-                            final review =
-                                widget.reviews.values.toList()[index][1];
+                            final name = reviews.keys.toList()[index];
+                            final rating = reviews.values.toList()[index][0];
+                            final review = reviews.values.toList()[index][1];
 
                             return ReviewContainer(
                               name: name,

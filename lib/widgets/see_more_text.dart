@@ -7,9 +7,11 @@ class SeeMoreText extends StatefulWidget {
     Key? key,
     this.textStyle,
     this.seeMoreStyle,
+    this.maxWords = 40,
   });
 
   final String text;
+  final int maxWords;
   final TextStyle? textStyle;
   final TextStyle? seeMoreStyle;
 
@@ -30,16 +32,15 @@ class _SeeMoreTextState extends State<SeeMoreText> {
 
   // UPDATE MAX WORDS
   void _updateMaxWords() {
-    _currentMaxWords += int.parse((widget.text.length / 3).toStringAsFixed(0));
+    _currentMaxWords += widget.maxWords;
     if (_currentMaxWords >= widget.text.split(' ').length) {
       _isExpanded = true;
-      _currentMaxWords = int.parse((widget.text.length / 3).toStringAsFixed(0));
+      _currentMaxWords = widget.maxWords;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final maxWords = int.parse((widget.text.length / 3).toStringAsFixed(0));
     String trimmedText = widget.text.trim();
 
     List<String> words = trimmedText.split(' ');
@@ -80,7 +81,7 @@ class _SeeMoreTextState extends State<SeeMoreText> {
               ),
             ),
           ),
-        if (_isExpanded && widget.text.length < maxWords)
+        if (_isExpanded && widget.text.length > widget.maxWords)
           GestureDetector(
             onTap: () {
               setState(() {

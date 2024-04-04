@@ -3,6 +3,7 @@ import 'package:feather_icons/feather_icons.dart';
 import 'package:find_easy_user/page/main/search/search_results_page.dart';
 import 'package:find_easy_user/page/main/search/top_searches_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
+import 'package:find_easy_user/widgets/search_bar.dart';
 import 'package:find_easy_user/widgets/text_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -263,15 +264,11 @@ class _SearchPageState extends State<SearchPage> {
     double width = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: width * 0.2,
-        title: SearchBar(),
-      ),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: MediaQuery.of(context).size.width * 0.0225,
-            vertical: MediaQuery.of(context).size.width * 0.0125,
+            horizontal: width * 0.0225,
+            vertical: width * 0.0125,
           ),
           child: LayoutBuilder(
             builder: ((context, constraints) {
@@ -281,6 +278,8 @@ class _SearchPageState extends State<SearchPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    MySearchBar(width: width),
+
                     // RECENT SEARCHES
                     recentSearches == null || recentSearches!.isEmpty
                         ? Container()
@@ -298,7 +297,7 @@ class _SearchPageState extends State<SearchPage> {
                             ),
                           ),
 
-                    // RECENT SEEARCHES LIST
+                    // RECENT SEARCHES LIST
                     recentSearches == null
                         ? Container()
                         : recentSearches!.isEmpty
