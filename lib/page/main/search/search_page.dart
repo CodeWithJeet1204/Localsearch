@@ -3,7 +3,6 @@ import 'package:feather_icons/feather_icons.dart';
 import 'package:find_easy_user/page/main/search/search_results_page.dart';
 import 'package:find_easy_user/page/main/search/top_searches_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
-import 'package:find_easy_user/widgets/speech_to_text.dart';
 import 'package:find_easy_user/widgets/text_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -38,23 +37,10 @@ class _SearchPageState extends State<SearchPage> {
     super.initState();
   }
 
-  // LISTEN
-  Future<void> listen() async {
-    var result = await showDialog(
-      context: context,
-      builder: ((context) => SpeechToText()),
-    );
-
-    if (result != null && result is String) {
-      searchController.text = result;
-    }
-  }
-
   // SEARCH
   Future<void> search({String? search}) async {
     await addRecentSearch();
 
-    // Search function
     if (search != null && search.isNotEmpty) {
       searchController.text = search;
       Navigator.of(context).push(
@@ -279,151 +265,7 @@ class _SearchPageState extends State<SearchPage> {
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: width * 0.2,
-        title: Padding(
-          padding: EdgeInsets.only(
-            top: width * 0.025,
-            bottom: width * 0.0225,
-            // right: width * 0.0125,
-          ),
-          child: Container(
-            width: width,
-            height: width * 0.1875,
-            decoration: BoxDecoration(
-              color: primary,
-              border: Border.all(
-                color: primaryDark.withOpacity(0.75),
-              ),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  width: width * 0.45,
-                  decoration: const BoxDecoration(
-                    border: Border(
-                      right: BorderSide(
-                        width: 0.5,
-                      ),
-                    ),
-                  ),
-                  alignment: Alignment.center,
-                  child: TextFormField(
-                    autofillHints: const [],
-                    autofocus: true,
-                    minLines: 1,
-                    maxLines: 1,
-                    controller: searchController,
-                    keyboardType: TextInputType.text,
-                    textInputAction: TextInputAction.search,
-                    onFieldSubmitted: (value) async {
-                      await search();
-                    },
-                    decoration: const InputDecoration(
-                      hintText: 'Search',
-                      hintStyle: TextStyle(
-                        textBaseline: TextBaseline.alphabetic,
-                      ),
-                      border: OutlineInputBorder(
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    InkWell(
-                      onTapDown: (details) {
-                        setState(() {
-                          isMicPressed = true;
-                        });
-                      },
-                      onTapUp: (details) {
-                        setState(() {
-                          isMicPressed = false;
-                        });
-                      },
-                      onTapCancel: () {
-                        setState(() {
-                          isMicPressed = false;
-                        });
-                      },
-                      onTap: () async {
-                        await listen();
-                      },
-                      customBorder: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Container(
-                        width: width * 0.15,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: isMicPressed
-                              ? primary2.withOpacity(0.95)
-                              : primary2.withOpacity(0.25),
-                        ),
-                        child: Icon(
-                          FeatherIcons.mic,
-                          size: width * 0.066,
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      onTapDown: (details) {
-                        setState(() {
-                          isSearchPressed = true;
-                        });
-                      },
-                      onTapUp: (details) {
-                        setState(() {
-                          isSearchPressed = false;
-                        });
-                      },
-                      onTapCancel: () {
-                        setState(() {
-                          isSearchPressed = false;
-                        });
-                      },
-                      onTap: () async {
-                        await search();
-                      },
-                      customBorder: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(0),
-                          bottomLeft: Radius.circular(0),
-                          bottomRight: Radius.circular(12),
-                          topRight: Radius.circular(12),
-                        ),
-                      ),
-                      child: Container(
-                        width: width * 0.15,
-                        decoration: BoxDecoration(
-                          color: isSearchPressed
-                              ? primary2.withOpacity(0.95)
-                              : primary2.withOpacity(0.25),
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(0),
-                            bottomLeft: Radius.circular(0),
-                            bottomRight: Radius.circular(12),
-                            topRight: Radius.circular(12),
-                          ),
-                        ),
-                        alignment: Alignment.center,
-                        child: Icon(
-                          FeatherIcons.search,
-                          size: width * 0.066,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
+        title: SearchBar(),
       ),
       body: SafeArea(
         child: Padding(
