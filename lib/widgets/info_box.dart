@@ -126,7 +126,7 @@ class InfoBox extends StatelessWidget {
                                                     ),
                                                   ),
                                                   child: Text(
-                                                    e,
+                                                    e.toString(),
                                                     overflow:
                                                         TextOverflow.ellipsis,
                                                     style: TextStyle(
