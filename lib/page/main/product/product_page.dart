@@ -1,9 +1,12 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
+import 'package:find_easy_user/page/main/product/product_all_reviews_page.dart';
 import 'package:find_easy_user/page/main/search/search_results_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/image_view.dart';
+import 'package:find_easy_user/widgets/ratings_bar.dart';
+import 'package:find_easy_user/widgets/review_container.dart';
 import 'package:find_easy_user/widgets/see_more_text.dart';
 import 'package:find_easy_user/widgets/snack_bar.dart';
 import 'package:find_easy_user/widgets/speech_to_text.dart';
@@ -48,6 +51,8 @@ class _ProductPageState extends State<ProductPage> {
   String? previousReview;
   String? newReview;
   bool reviewAdded = false;
+  Map<String, int>? allRatings;
+  Map<String, dynamic>? allReviews;
 
   // INIT STATE
   @override
@@ -61,7 +66,9 @@ class _ProductPageState extends State<ProductPage> {
       widget.productData['productName'],
       search: widget.search,
     );
+    getAverageRatings();
     checkIfReviewed();
+    getAllReviews();
     super.initState();
   }
 
@@ -398,6 +405,77 @@ class _ProductPageState extends State<ProductPage> {
     });
   }
 
+  // GET AVERAGE RATINGS
+  Future<void> getAverageRatings() async {
+    final productSnap = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Products')
+        .doc(widget.productData['productId'])
+        .get();
+
+    final productData = productSnap.data()!;
+
+    final Map<String, dynamic> ratings = productData['ratings'];
+
+    Map<int, int> ratingCountMap = {
+      5: 0,
+      4: 0,
+      3: 0,
+      2: 0,
+      1: 0,
+    };
+
+    ratings.values.forEach((ratingData) {
+      int rating = ratingData[0];
+      ratingCountMap.update(rating, (count) => count + 1);
+    });
+
+    Map<String, int> ratingMap = {
+      '5': ratingCountMap[5]!,
+      '4': ratingCountMap[4]!,
+      '3': ratingCountMap[3]!,
+      '2': ratingCountMap[2]!,
+      '1': ratingCountMap[1]!,
+    };
+
+    print(ratingMap);
+
+    setState(() {
+      allRatings = ratingMap;
+    });
+  }
+
+  // GET ALL REVIEWS
+  Future<void> getAllReviews() async {
+    final productSnap = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Products')
+        .doc(widget.productData['productId'])
+        .get();
+
+    final productData = productSnap.data()!;
+
+    final Map<String, dynamic> ratings = productData['ratings'];
+
+    Map<String, dynamic> allUserReviews = {};
+
+    for (String uid in ratings.keys) {
+      final userDoc = await store.collection('Users').doc(uid).get();
+      final userData = userDoc.data()!;
+      final userName = userData['Name'];
+      final rating = ratings[uid][0];
+      final review = ratings[uid][1];
+      allUserReviews[userName] = [rating, review];
+    }
+
+    setState(() {
+      allReviews = allUserReviews;
+    });
+    print(allUserReviews);
+  }
+
   // CHECK IF REVIEWED
   Future<void> checkIfReviewed() async {
     final productSnap = await store
@@ -560,7 +638,6 @@ class _ProductPageState extends State<ProductPage> {
                 child: Padding(
                   padding: EdgeInsets.symmetric(
                     vertical: width * 0.0225,
-                    horizontal: width * 0.003125,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1512,7 +1589,6 @@ class _ProductPageState extends State<ProductPage> {
                       // RATINGS
                       Container(
                         width: width,
-                        height: ratings.isEmpty ? 50 : 400,
                         decoration: BoxDecoration(
                           border: Border.all(
                             width: 0.5,
@@ -1530,32 +1606,154 @@ class _ProductPageState extends State<ProductPage> {
                           vertical: width * 0.0125,
                         ),
                         child: ratings.isEmpty
-                            ? Center(
-                                child: Text(
-                                  'No Ratings yet',
-                                  style: TextStyle(
-                                    fontSize: width * 0.05,
-                                    fontWeight: FontWeight.w500,
+                            ? Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8),
+                                child: Center(
+                                  child: Text(
+                                    'No Ratings yet',
+                                    style: TextStyle(
+                                      fontSize: width * 0.05,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                 ),
                               )
                             : Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    ((ratings.values
-                                                .map((e) => e?[0] ?? 0)
-                                                .toList()
-                                                .reduce((a, b) => a + b) /
-                                            (ratings.values.length == 0
-                                                ? 1
-                                                : ratings.values.length)))
-                                        .toStringAsFixed(1),
-                                    style: TextStyle(
-                                      fontSize: width * 0.2,
-                                      fontWeight: FontWeight.w500,
-                                    ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        ((ratings.values
+                                                    .map((e) => e?[0] ?? 0)
+                                                    .toList()
+                                                    .reduce((a, b) => a + b) /
+                                                (ratings.values.length == 0
+                                                    ? 1
+                                                    : ratings.values
+                                                        .length)) as double)
+                                            .toStringAsFixed(1),
+                                        style: TextStyle(
+                                          fontSize: width * 0.2,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+
+                                      // RATINGS BAR
+                                      allRatings == null
+                                          ? Container()
+                                          : RatingsBars(
+                                              ratingMap: allRatings!,
+                                            ),
+                                    ],
                                   ),
+
+                                  // REVIEWS
+                                  allReviews == null
+                                      ? Container()
+                                      : Container(
+                                          width: width,
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: width * 0.0125,
+                                            vertical: width * 0.0125,
+                                          ),
+                                          margin: EdgeInsets.symmetric(
+                                            vertical: width * 0.0125,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: primary2.withOpacity(0.125),
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                          child: ListView.builder(
+                                            shrinkWrap: true,
+                                            itemCount: allReviews!.length > 3
+                                                ? 3
+                                                : allReviews!.length,
+                                            itemBuilder: ((context, index) {
+                                              final name = allReviews!.keys
+                                                  .toList()[index];
+                                              final rating = allReviews!.values
+                                                  .toList()[index][0];
+                                              final review = allReviews!.values
+                                                  .toList()[index][1];
+
+                                              return ReviewContainer(
+                                                name: name,
+                                                rating: rating,
+                                                review: review,
+                                              );
+                                            }),
+                                          ),
+                                        ),
+
+                                  // SEE MORE
+                                  allReviews!.length <= 3
+                                      ? Container()
+                                      : Center(
+                                          child: MyTextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                  builder:
+                                                      ((context) =>
+                                                          ProductAllReviewPage(
+                                                            reviews:
+                                                                allReviews!,
+                                                            rating:
+                                                                ratings.isEmpty
+                                                                    ? Padding(
+                                                                        padding:
+                                                                            EdgeInsets.symmetric(vertical: 8),
+                                                                        child:
+                                                                            Center(
+                                                                          child:
+                                                                              Text(
+                                                                            'No Ratings yet',
+                                                                            style:
+                                                                                TextStyle(
+                                                                              fontSize: width * 0.05,
+                                                                              fontWeight: FontWeight.w500,
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                      )
+                                                                    : Row(
+                                                                        mainAxisAlignment:
+                                                                            MainAxisAlignment.spaceAround,
+                                                                        crossAxisAlignment:
+                                                                            CrossAxisAlignment.center,
+                                                                        children: [
+                                                                          Text(
+                                                                            ((ratings.values.map((e) => e?[0] ?? 0).toList().reduce((a, b) => a + b) / (ratings.values.length == 0 ? 1 : ratings.values.length)) as double).toStringAsFixed(1),
+                                                                            style:
+                                                                                TextStyle(
+                                                                              fontSize: width * 0.2,
+                                                                              fontWeight: FontWeight.w500,
+                                                                            ),
+                                                                          ),
+
+                                                                          // RATINGS BAR
+                                                                          allRatings == null
+                                                                              ? Container()
+                                                                              : RatingsBars(
+                                                                                  ratingMap: allRatings!,
+                                                                                ),
+                                                                        ],
+                                                                      ),
+                                                          )),
+                                                ),
+                                              );
+                                            },
+                                            text:
+                                                'See All (${allReviews!.length})',
+                                            textColor: primaryDark2,
+                                          ),
+                                        ),
                                 ],
                               ),
                       ),
@@ -1573,6 +1771,7 @@ class _ProductPageState extends State<ProductPage> {
     );
   }
 
+  // ADD REVIEW WIDGET
   Widget AddReview() {
     final width = MediaQuery.of(context).size.width;
 
@@ -1588,18 +1787,23 @@ class _ProductPageState extends State<ProductPage> {
                   ),
                 ),
                 padding: EdgeInsets.symmetric(
-                    horizontal: width * 0.0225, vertical: width * 0.0125),
+                  horizontal: width * 0.0225,
+                  vertical: width * 0.0125,
+                ),
                 margin: EdgeInsets.symmetric(
-                    horizontal: width * 0.0125, vertical: width * 0.0125),
+                  horizontal: width * 0.0125,
+                  vertical: width * 0.0125,
+                ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Padding(
                       padding: EdgeInsets.only(
-                          left: width * 0.025,
-                          right: width * 0.025,
-                          top: width * 0.0166),
+                        left: width * 0.025,
+                        right: width * 0.025,
+                        top: width * 0.0166,
+                      ),
                       child: Text(
                         'Your previous Review',
                         textAlign: TextAlign.left,
@@ -1608,7 +1812,9 @@ class _ProductPageState extends State<ProductPage> {
                     // RATING STARS
                     Padding(
                       padding: EdgeInsets.only(
-                          bottom: userRating == 0 ? 10 : 20, top: 20),
+                        bottom: userRating == 0 ? 10 : 20,
+                        top: 20,
+                      ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -1633,6 +1839,7 @@ class _ProductPageState extends State<ProductPage> {
                                 color: darkGrey,
                               ),
                             ),
+                            ignoreGestures: true,
                             onRatingUpdate: (currentRating) {
                               setState(() {
                                 userRating = currentRating;
@@ -1665,7 +1872,7 @@ class _ProductPageState extends State<ProductPage> {
                             bottom: 20,
                           ),
                           child: Text(
-                            previousReview!,
+                            previousReview!.trim(),
                             maxLines: 10,
                           ),
                         ),
@@ -1695,18 +1902,23 @@ class _ProductPageState extends State<ProductPage> {
                   ),
                 ),
                 padding: EdgeInsets.symmetric(
-                    horizontal: width * 0.0225, vertical: width * 0.0125),
+                  horizontal: width * 0.0225,
+                  vertical: width * 0.0125,
+                ),
                 margin: EdgeInsets.symmetric(
-                    horizontal: width * 0.0125, vertical: width * 0.0125),
+                  horizontal: width * 0.0125,
+                  vertical: width * 0.0125,
+                ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Padding(
                       padding: EdgeInsets.only(
-                          left: width * 0.025,
-                          right: width * 0.025,
-                          top: width * 0.0166),
+                        left: width * 0.025,
+                        right: width * 0.025,
+                        top: width * 0.0166,
+                      ),
                       child: Text(
                         'Add Product Review',
                         textAlign: TextAlign.left,
