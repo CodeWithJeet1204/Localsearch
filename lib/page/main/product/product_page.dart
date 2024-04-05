@@ -43,8 +43,7 @@ class _ProductPageState extends State<ProductPage> {
   bool? isDiscount;
   String? brandImageUrl;
   String? categoryImageUrl;
-  List<Map<String, dynamic>> similarProductsDatas = [];
-  bool similarProductsAdded = false;
+  List? allDiscount;
   double userRating = 0.0;
   bool? hasReviewedBefore;
   double? previousRating;
@@ -53,6 +52,10 @@ class _ProductPageState extends State<ProductPage> {
   bool reviewAdded = false;
   Map<String, int>? allRatings;
   Map<String, dynamic>? allReviews;
+  List<Map<String, dynamic>> similarProductsDatas = [];
+  bool similarProductsAdded = false;
+  List<Map<String, dynamic>> otherVendorProductsDatas = [];
+  bool otherVendorProductsAdded = false;
 
   // INIT STATE
   @override
@@ -62,13 +65,15 @@ class _ProductPageState extends State<ProductPage> {
     getIfWishlist(widget.productData['productId']);
     getBrandImage();
     getCategoryImage();
+    getAllDiscounts();
+    getAverageRatings();
+    checkIfReviewed();
+    getAllReviews();
     getSimilarProducts(
       widget.productData['productName'],
       search: widget.search,
     );
-    getAverageRatings();
-    checkIfReviewed();
-    getAllReviews();
+    getProductsFromVendor();
     super.initState();
   }
 
@@ -240,6 +245,36 @@ class _ProductPageState extends State<ProductPage> {
     }
   }
 
+  // GET ALL DISCOUNTS
+  Future<void> getAllDiscounts() async {
+    final discountSnapshot = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Discounts')
+        .where('vendorId', isEqualTo: widget.productData['vendorId'])
+        .get();
+
+    List<Map<String, dynamic>> allDiscounts = [];
+
+    for (QueryDocumentSnapshot<Map<String, dynamic>> doc
+        in discountSnapshot.docs) {
+      final data = doc.data();
+
+      if ((data['discountEndDateTime'] as Timestamp)
+              .toDate()
+              .isAfter(DateTime.now()) &&
+          !(data['discountStartDateTime'] as Timestamp)
+              .toDate()
+              .isAfter(DateTime.now())) {
+        allDiscounts.add(data);
+      }
+    }
+
+    setState(() {
+      allDiscount = allDiscounts;
+    });
+  }
+
   // GET BRAND IMAGE
   Future<void> getBrandImage() async {
     final brandSnap = await store
@@ -280,104 +315,7 @@ class _ProductPageState extends State<ProductPage> {
     }
   }
 
-  // GIVE PROPERTY DATA
-  Map<String, List> givePropertyData(
-    String name0,
-    String name1,
-    String name2,
-    String name3,
-    String name4,
-    String name5,
-    List property0,
-    List property1,
-    List property2,
-    List property3,
-    List property4,
-    List property5,
-  ) {
-    Map<String, List> properties = {};
-    if (name0 != '' && property0.isNotEmpty) {
-      properties[name0] = property0;
-    }
-    if (name1 != '' && property1.isNotEmpty) {
-      properties[name1] = property1;
-    }
-    if (name2 != '' && property2.isNotEmpty) {
-      properties[name2] = property2;
-    }
-    if (name3 != '' && property3.isNotEmpty) {
-      properties[name3] = property3;
-    }
-    if (name4 != '' && property4.isNotEmpty) {
-      properties[name4] = property4;
-    }
-    if (name5 != '' && property5.isNotEmpty) {
-      properties[name5] = property5;
-    }
-
-    return properties;
-  }
-
-  // GET SIMILAR PRODUCTS
-  Future<void> getSimilarProducts(String productName, {String? search}) async {
-    List<QueryDocumentSnapshot<Map<String, dynamic>>> searchedProductDocs = [];
-    final productsSnap = await store
-        .collection('Business')
-        .doc('Data')
-        .collection('Products')
-        .get();
-
-    final productDocs = productsSnap.docs;
-
-    if (search != null) {
-      final searchedProductsSnap = await store
-          .collection('Business')
-          .doc('Data')
-          .collection('Products')
-          .where('productName', isGreaterThanOrEqualTo: search)
-          .get();
-
-      searchedProductDocs = searchedProductsSnap.docs;
-      searchedProductDocs.shuffle();
-
-      productDocs.addAll(searchedProductDocs);
-    }
-
-    final List<QueryDocumentSnapshot<Map<String, dynamic>>>
-        filteredProductDocs = [];
-
-    productDocs.forEach((productData) {
-      if (productData['productName'] == productName) {
-        return;
-      }
-
-      final List<String> productNameWords =
-          productName.toLowerCase().split(' ');
-      final String similarProductName =
-          productData['productName'].toString().toLowerCase();
-      final bool productNameMatch = productNameWords.any((word) =>
-          similarProductName.contains(' $word ') ||
-          similarProductName.contains('$word ') ||
-          similarProductName.contains(' $word'));
-
-      if (productNameMatch) {
-        filteredProductDocs.add(productData);
-      }
-    });
-
-    filteredProductDocs.shuffle();
-
-    filteredProductDocs.forEach((productData) {
-      final Map<String, dynamic> productDatas = productData.data();
-      similarProductsDatas.add(productDatas);
-    });
-
-    setState(() {
-      similarProductsAdded = true;
-    });
-  }
-
-// GET AVERAGE RATINGS
+  // GET AVERAGE RATINGS
   Future<void> getAverageRatings() async {
     final productSnap = await store
         .collection('Business')
@@ -413,8 +351,6 @@ class _ProductPageState extends State<ProductPage> {
       '1': ratingCountMap[1]!,
     };
 
-    print(ratingMap);
-
     setState(() {
       allRatings = ratingMap;
     });
@@ -449,7 +385,6 @@ class _ProductPageState extends State<ProductPage> {
     setState(() {
       allReviews = allUserReviews;
     });
-    print(allUserReviews);
   }
 
   // CHECK IF REVIEWED
@@ -558,6 +493,349 @@ class _ProductPageState extends State<ProductPage> {
     }
   }
 
+  // GET SIMILAR PRODUCTS
+  Future<void> getSimilarProducts(String productName, {String? search}) async {
+    List<QueryDocumentSnapshot<Map<String, dynamic>>> searchedProductDocs = [];
+    final productsSnap = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Products')
+        .get();
+
+    final productDocs = productsSnap.docs;
+
+    if (search != null) {
+      final searchedProductsSnap = await store
+          .collection('Business')
+          .doc('Data')
+          .collection('Products')
+          .where('productName', isGreaterThanOrEqualTo: search)
+          .get();
+
+      searchedProductDocs = searchedProductsSnap.docs;
+      searchedProductDocs.shuffle();
+
+      productDocs.addAll(searchedProductDocs);
+    }
+
+    final List<QueryDocumentSnapshot<Map<String, dynamic>>>
+        filteredProductDocs = [];
+
+    productDocs.forEach((productData) {
+      if (productData['productName'] == productName) {
+        return;
+      }
+
+      final List<String> productNameWords =
+          productName.toLowerCase().split(' ');
+      final String similarProductName =
+          productData['productName'].toString().toLowerCase();
+      final bool productNameMatch = productNameWords.any((word) =>
+          similarProductName.contains(' $word ') ||
+          similarProductName.contains('$word ') ||
+          similarProductName.contains(' $word'));
+
+      if (productNameMatch) {
+        filteredProductDocs.add(productData);
+      }
+    });
+
+    filteredProductDocs.shuffle();
+
+    filteredProductDocs.forEach((productData) {
+      final Map<String, dynamic> productDatas = productData.data();
+      similarProductsDatas.add(productDatas);
+    });
+
+    setState(() {
+      similarProductsAdded = true;
+    });
+  }
+
+  // GET PRODUCTS FROM VENDOR
+  Future<void> getProductsFromVendor() async {
+    final productsSnap = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Products')
+        .where('vendorId', isEqualTo: widget.productData['vendorId'])
+        .get();
+
+    productsSnap.docs.forEach((productSnap) {
+      final productData = productSnap.data();
+
+      if (productData['productName'] == widget.productData['productName']) {
+        return;
+      }
+
+      otherVendorProductsDatas.add(productData);
+    });
+
+    setState(() {
+      otherVendorProductsAdded = true;
+    });
+  }
+
+  // ADD REVIEW WIDGET
+  Widget AddReview() {
+    final width = MediaQuery.of(context).size.width;
+
+    return hasReviewedBefore == null
+        ? Container()
+        : hasReviewedBefore!
+            ? Container(
+                width: width,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    width: 0.5,
+                    color: darkGrey,
+                  ),
+                ),
+                padding: EdgeInsets.symmetric(
+                  horizontal: width * 0.0225,
+                  vertical: width * 0.0125,
+                ),
+                margin: EdgeInsets.symmetric(
+                  horizontal: width * 0.0125,
+                  vertical: width * 0.0125,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(
+                        left: width * 0.025,
+                        right: width * 0.025,
+                        top: width * 0.0166,
+                      ),
+                      child: Text(
+                        'Your previous Review',
+                        textAlign: TextAlign.left,
+                      ),
+                    ),
+                    // RATING STARS
+                    Padding(
+                      padding: EdgeInsets.only(
+                        bottom: userRating == 0 ? 10 : 20,
+                        top: 20,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          RatingBar(
+                            maxRating: 5,
+                            updateOnDrag: true,
+                            initialRating: previousRating!,
+                            glowColor: Colors.yellow,
+                            glowRadius: 0.5,
+                            ratingWidget: RatingWidget(
+                              full: Icon(
+                                Icons.star,
+                                color: Colors.yellow,
+                              ),
+                              half: Icon(
+                                Icons.star_half,
+                                color: Colors.yellow,
+                              ),
+                              empty: Icon(
+                                Icons.star_border,
+                                color: darkGrey,
+                              ),
+                            ),
+                            ignoreGestures: true,
+                            onRatingUpdate: (currentRating) {
+                              setState(() {
+                                userRating = currentRating;
+                              });
+                            },
+                          ),
+                          Text(
+                            userRating.toStringAsFixed(0) != '0'
+                                ? userRating.toStringAsFixed(0)
+                                : '---',
+                            style: TextStyle(
+                              fontSize: width * 0.05,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // REVIEW
+                    previousReview!.trim().length == 0
+                        ? Center(
+                            child: // DELETE
+                                IconButton(
+                              onPressed: () async {
+                                await deleteReview();
+                              },
+                              icon: Icon(
+                                FeatherIcons.trash,
+                                color: Colors.red,
+                              ),
+                              tooltip: 'DELETE',
+                            ),
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  left: 10,
+                                  right: 10,
+                                  top: 10,
+                                  bottom: 20,
+                                ),
+                                child: Text(
+                                  previousReview!.trim(),
+                                  maxLines: 10,
+                                ),
+                              ),
+
+                              // DELETE
+                              IconButton(
+                                onPressed: () async {
+                                  await deleteReview();
+                                },
+                                icon: Icon(
+                                  FeatherIcons.trash,
+                                  color: Colors.red,
+                                ),
+                                tooltip: 'DELETE',
+                              ),
+                            ],
+                          ),
+                  ],
+                ),
+              )
+            : Container(
+                width: width,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    width: 0.5,
+                    color: darkGrey,
+                  ),
+                ),
+                padding: EdgeInsets.symmetric(
+                  horizontal: width * 0.0225,
+                  vertical: width * 0.0125,
+                ),
+                margin: EdgeInsets.symmetric(
+                  horizontal: width * 0.0125,
+                  vertical: width * 0.0125,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(
+                        left: width * 0.025,
+                        right: width * 0.025,
+                        top: width * 0.0166,
+                      ),
+                      child: Text(
+                        'Add Product Review',
+                        textAlign: TextAlign.left,
+                      ),
+                    ),
+                    // RATING STARS
+                    Padding(
+                      padding: EdgeInsets.only(
+                        bottom: userRating == 0 ? 10 : 20,
+                        top: 20,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          RatingBar(
+                            maxRating: 5,
+                            initialRating: previousRating ?? 0,
+                            updateOnDrag: true,
+                            glowColor: Colors.yellow,
+                            glowRadius: 0.5,
+                            ratingWidget: RatingWidget(
+                              full: Icon(
+                                Icons.star,
+                                color: Colors.yellow,
+                              ),
+                              half: Icon(
+                                Icons.star_half,
+                                color: Colors.yellow,
+                              ),
+                              empty: Icon(
+                                Icons.star_border,
+                                color: darkGrey,
+                              ),
+                            ),
+                            onRatingUpdate: (currentRating) {
+                              setState(() {
+                                userRating = currentRating;
+                              });
+                            },
+                          ),
+                          Text(
+                            userRating.toStringAsFixed(0) != '0'
+                                ? userRating.toStringAsFixed(0)
+                                : '---',
+                            style: TextStyle(
+                              fontSize: width * 0.05,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // REVIEW
+                    userRating == 0
+                        ? Container()
+                        : Padding(
+                            padding: EdgeInsets.only(
+                              left: 10,
+                              right: 10,
+                              top: 10,
+                              bottom: 20,
+                            ),
+                            child: TextField(
+                              autofocus: false,
+                              controller: reviewController,
+                              textInputAction: TextInputAction.newline,
+                              maxLength: 500,
+                              minLines: 1,
+                              maxLines: 10,
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(
+                                    color: Colors.cyan.shade700,
+                                  ),
+                                ),
+                                hintText: 'Review',
+                              ),
+                            ),
+                          ),
+
+                    // DONE
+                    MyTextButton(
+                      onPressed: userRating == 0
+                          ? () {}
+                          : () async {
+                              await addReview();
+                            },
+                      text: 'DONE',
+                      textColor: primaryDark,
+                    ),
+                  ],
+                ),
+              );
+  }
+
   @override
   Widget build(BuildContext context) {
     final Map<String, dynamic> data = widget.productData;
@@ -593,6 +871,18 @@ class _ProductPageState extends State<ProductPage> {
     final int propertyNoOfAnswers4 = properties['propertyNoOfAnswers4'];
     final int propertyNoOfAnswers5 = properties['propertyNoOfAnswers5'];
 
+    final bool isAvailable = data['isAvailable'];
+
+    final bool bulkSellAvailable = data['bulkSellAvailable'];
+    final bool cardOffersAvailable = data['cardOffersAvailable'];
+    final bool codAvailable = data['codAvailable'];
+    final bool deliveryAvailable = data['deliveryAvailable'];
+    final int? deliveryRange = data['deliveryRange'];
+    final bool giftWrapAvailable = data['giftWrapAvailable'];
+    final bool gstInvoiceAvailable = data['gstInvoiceAvailable'];
+    final bool refundAvailable = data['refundAvailable'];
+    final int? refundRange = data['refundRange'];
+
     final discountPriceFuture = store
         .collection('Business')
         .doc('Data')
@@ -604,7 +894,7 @@ class _ProductPageState extends State<ProductPage> {
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: MediaQuery.of(context).size.width * 0.0125,
+            horizontal: MediaQuery.of(context).size.width * 0.00625,
           ),
           child: LayoutBuilder(
             builder: ((context, constraints) {
@@ -612,8 +902,8 @@ class _ProductPageState extends State<ProductPage> {
 
               return SingleChildScrollView(
                 child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    vertical: width * 0.0225,
+                  padding: EdgeInsets.only(
+                    bottom: width * 0.0225,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -629,16 +919,6 @@ class _ProductPageState extends State<ProductPage> {
                         ),
                         child: GestureDetector(
                           onTap: () {},
-                          onLongPress: () {
-                            setState(() {
-                              isVendorHold = true;
-                            });
-                          },
-                          onLongPressCancel: () {
-                            setState(() {
-                              isVendorHold = false;
-                            });
-                          },
                           onTapDown: (details) {
                             setState(() {
                               isVendorHold = true;
@@ -686,6 +966,7 @@ class _ProductPageState extends State<ProductPage> {
                       Padding(
                         padding: EdgeInsets.only(top: width * 0.05),
                         child: Stack(
+                          alignment: Alignment.topCenter,
                           children: [
                             CarouselSlider(
                               items: (images)
@@ -733,12 +1014,68 @@ class _ProductPageState extends State<ProductPage> {
                             ),
 
                             // SHARE
-                            IconButton.filledTonal(
-                              onPressed: () {},
-                              icon: Icon(
-                                Icons.share_outlined,
-                              ),
-                              tooltip: "Share",
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                // DISCOUNT OFF
+                                FutureBuilder(
+                                  future: discountPriceFuture,
+                                  builder: ((context, snapshot) {
+                                    if (snapshot.hasData) {
+                                      final priceSnap = snapshot.data!;
+                                      Map<String, dynamic> data = {};
+                                      for (QueryDocumentSnapshot<
+                                              Map<String, dynamic>> doc
+                                          in priceSnap.docs) {
+                                        data = doc.data();
+                                      }
+
+                                      return Container(
+                                        // alignment: Alignment.center,
+                                        decoration: BoxDecoration(
+                                          color: Colors.red,
+                                        ),
+                                        padding:
+                                            EdgeInsets.all(width * 0.00625),
+                                        margin: EdgeInsets.only(
+                                          left: width * 0.0125,
+                                        ),
+                                        child: data['isPercent']
+                                            ? Text(
+                                                "${data['discountAmount']}% off",
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: width * 0.05,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              )
+                                            : Text(
+                                                "Save Rs. ${data['discountAmount']}",
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: width * 0.05,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                      );
+                                    }
+                                    return Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  }),
+                                ),
+
+                                IconButton.filledTonal(
+                                  onPressed: () {},
+                                  icon: Icon(
+                                    Icons.share_outlined,
+                                  ),
+                                  tooltip: "Share",
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -811,18 +1148,25 @@ class _ProductPageState extends State<ProductPage> {
                                               horizontal: width * 0.0225,
                                             ),
                                             child: price == "" || price == 'N/A'
-                                                ? const Text(
+                                                ? Text(
                                                     'N/A',
                                                     overflow:
                                                         TextOverflow.ellipsis,
+                                                    style: TextStyle(
+                                                      color: isAvailable
+                                                          ? black
+                                                          : darkGrey,
+                                                    ),
                                                   )
                                                 : RichText(
                                                     overflow:
                                                         TextOverflow.ellipsis,
                                                     text: TextSpan(
                                                       text: 'Rs. ',
-                                                      style: const TextStyle(
-                                                        color: primaryDark,
+                                                      style: TextStyle(
+                                                        color: isAvailable
+                                                            ? primaryDark
+                                                            : darkGrey,
                                                         fontSize: 22,
                                                         fontWeight:
                                                             FontWeight.w500,
@@ -833,23 +1177,25 @@ class _ProductPageState extends State<ProductPage> {
                                                                   'isPercent']
                                                               ? '${double.parse(price) * (100 - (data['discountAmount'])) / 100}  '
                                                               : '${double.parse(price) - (data['discountAmount'])}  ',
-                                                          style:
-                                                              const TextStyle(
-                                                            color: Colors.green,
+                                                          style: TextStyle(
+                                                            color: isAvailable
+                                                                ? Colors.green
+                                                                : darkGrey,
                                                           ),
                                                         ),
                                                         TextSpan(
                                                           text: price,
-                                                          style:
-                                                              const TextStyle(
+                                                          style: TextStyle(
                                                             fontSize: 20,
-                                                            color:
-                                                                Color.fromRGBO(
-                                                              255,
-                                                              134,
-                                                              125,
-                                                              1,
-                                                            ),
+                                                            color: isAvailable
+                                                                ? Color
+                                                                    .fromRGBO(
+                                                                    255,
+                                                                    134,
+                                                                    125,
+                                                                    1,
+                                                                  )
+                                                                : darkGrey,
                                                             decoration:
                                                                 TextDecoration
                                                                     .lineThrough,
@@ -858,30 +1204,6 @@ class _ProductPageState extends State<ProductPage> {
                                                       ],
                                                     ),
                                                     maxLines: 1,
-                                                  ),
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.only(
-                                              left: width * 0.0266,
-                                            ),
-                                            child: data['isPercent']
-                                                ? Text(
-                                                    "${data['discountAmount']}% off",
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                    ),
-                                                  )
-                                                : Text(
-                                                    "Save Rs. ${data['discountAmount']}",
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                    ),
                                                   ),
                                           ),
                                           Padding(
@@ -900,8 +1222,10 @@ class _ProductPageState extends State<ProductPage> {
                                                   ? '''${(data['discountEndDateTime'] as Timestamp).toDate().difference(DateTime.now()).inHours} Hours Left'''
                                                   : '''${(data['discountEndDateTime'] as Timestamp).toDate().difference(DateTime.now()).inDays} Days Left''',
                                               overflow: TextOverflow.ellipsis,
-                                              style: const TextStyle(
-                                                color: Colors.red,
+                                              style: TextStyle(
+                                                color: isAvailable
+                                                    ? Colors.red
+                                                    : darkGrey,
                                                 fontWeight: FontWeight.w500,
                                               ),
                                             ),
@@ -949,11 +1273,47 @@ class _ProductPageState extends State<ProductPage> {
                         ],
                       ),
 
+                      // AVAILABLE
+                      !isAvailable
+                          ? Padding(
+                              padding: EdgeInsets.symmetric(
+                                vertical: width * 0.0175,
+                                horizontal: width * 0.02,
+                              ),
+                              child: Text(
+                                'OUT OF STOCK',
+                                style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: width * 0.05,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            )
+                          : Container(),
+
+                      // DELIVERY
+                      // TODO: It will depend upon range of delivery
+                      deliveryAvailable
+                          ? Padding(
+                              padding: EdgeInsets.symmetric(
+                                vertical: width * 0.0175,
+                                horizontal: width * 0.02,
+                              ),
+                              child: Text(
+                                'Delivery Available',
+                                style: TextStyle(
+                                  color: Colors.green,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            )
+                          : Container(),
+
                       // DESCRIPTION
                       Padding(
                         padding: EdgeInsets.symmetric(
-                          vertical: MediaQuery.of(context).size.width * 0.0175,
-                          horizontal: MediaQuery.of(context).size.width * 0.02,
+                          vertical: width * 0.0175,
+                          horizontal: width * 0.02,
                         ),
                         child: Container(
                           width: width,
@@ -1094,6 +1454,7 @@ class _ProductPageState extends State<ProductPage> {
                             vertical: width * 0.025,
                           ),
                           margin: EdgeInsets.symmetric(
+                            horizontal: width * 0.0125,
                             vertical: width * 0.025,
                           ),
                           decoration: BoxDecoration(
@@ -1199,6 +1560,100 @@ class _ProductPageState extends State<ProductPage> {
                                         ),
                                       ],
                                     ),
+                                  DataRow(
+                                    cells: [
+                                      DataCell(
+                                        Text('Delivery Available'),
+                                      ),
+                                      DataCell(
+                                        Text(
+                                          deliveryAvailable &&
+                                                  deliveryRange != null
+                                              ? 'Yes, within ${deliveryRange.toStringAsFixed(1).endsWith('0') ? deliveryRange.toString() : deliveryRange.toStringAsFixed(1)} km'
+                                              : 'No',
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  DataRow(
+                                    cells: [
+                                      DataCell(
+                                        Text('Refund Available'),
+                                      ),
+                                      DataCell(
+                                        Text(
+                                          refundAvailable &&
+                                                  refundRange != null &&
+                                                  refundRange > 0
+                                              ? 'Yes, within ${refundRange.toString()} days'
+                                              : refundAvailable &&
+                                                      refundRange == null
+                                                  ? 'Yes'
+                                                  : 'No',
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  DataRow(
+                                    cells: [
+                                      DataCell(
+                                        Text('Cash On Delivery'),
+                                      ),
+                                      DataCell(
+                                        Text(
+                                          codAvailable ? 'Yes' : 'No',
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  DataRow(
+                                    cells: [
+                                      DataCell(
+                                        Text('Card Offers'),
+                                      ),
+                                      DataCell(
+                                        Text(
+                                          cardOffersAvailable ? 'Yes' : 'No',
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  DataRow(
+                                    cells: [
+                                      DataCell(
+                                        Text('Bulk Sell'),
+                                      ),
+                                      DataCell(
+                                        Text(
+                                          bulkSellAvailable ? 'Yes' : 'No',
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  DataRow(
+                                    cells: [
+                                      DataCell(
+                                        Text('GST Invoice'),
+                                      ),
+                                      DataCell(
+                                        Text(
+                                          gstInvoiceAvailable ? 'Yes' : 'No',
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  DataRow(
+                                    cells: [
+                                      DataCell(
+                                        Text('Gift Wrap'),
+                                      ),
+                                      DataCell(
+                                        Text(
+                                          giftWrapAvailable ? 'Yes' : 'No',
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ],
                               ),
                             ],
@@ -1283,6 +1738,148 @@ class _ProductPageState extends State<ProductPage> {
                               propertyValue: propertyValue5,
                               width: width,
                             ),
+
+                      // ALL DISCOUNTS
+                      allDiscount == null
+                          ? Container()
+                          : AllDiscountsWidget(
+                              noOfDiscounts: allDiscount!.length,
+                              allDiscount: allDiscount!,
+                            ),
+
+                      Divider(
+                        color: Color.fromRGBO(219, 219, 219, 1),
+                      ),
+
+                      // OTHER VENDOR PRODUCTS
+                      Container(
+                        width: width,
+                        height: width * 0.6,
+                        decoration: BoxDecoration(
+                          color: white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: lightGrey,
+                            width: 1,
+                          ),
+                        ),
+                        padding: EdgeInsets.only(
+                          right: width * 0.02,
+                        ),
+                        margin: EdgeInsets.symmetric(
+                          horizontal: width * 0.00125,
+                          vertical: width * 0.0125,
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(
+                                left: width * 0.025,
+                                right: width * 0.025,
+                                top: width * 0.0166,
+                              ),
+                              child: Text(
+                                'Other Products From This Shop',
+                              ),
+                            ),
+                            SizedBox(
+                              width: width,
+                              height: width * 0.5,
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                scrollDirection: Axis.horizontal,
+                                itemCount: otherVendorProductsDatas.length,
+                                itemBuilder: ((context, index) {
+                                  final data = otherVendorProductsDatas[index];
+                                  final String name =
+                                      otherVendorProductsDatas[index]
+                                          ['productName'];
+                                  final String price =
+                                      otherVendorProductsDatas[index]
+                                          ['productPrice'];
+                                  final String image =
+                                      otherVendorProductsDatas[index]['images']
+                                          [0];
+
+                                  return Padding(
+                                    padding: EdgeInsets.only(
+                                      left: width * 0.025,
+                                      right: width * 0.025,
+                                      top: width * 0.01,
+                                      bottom: width * 0.015,
+                                    ),
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: ((context) => ProductPage(
+                                                  productData: data,
+                                                )),
+                                          ),
+                                        );
+                                      },
+                                      child: Container(
+                                        width: width * 0.3,
+                                        height: width * 0.2,
+                                        decoration: BoxDecoration(
+                                          color: primary2,
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                        child: Padding(
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: width * 0.025,
+                                            vertical: width * 0.0125,
+                                          ),
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceAround,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                                child: Image.network(
+                                                  image,
+                                                  fit: BoxFit.cover,
+                                                  width: width * 0.25,
+                                                  height: width * 0.3,
+                                                ),
+                                              ),
+                                              Text(
+                                                name,
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                                style: TextStyle(
+                                                  fontSize: width * 0.05,
+                                                ),
+                                              ),
+                                              Text(
+                                                'Rs. $price',
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                                style: TextStyle(
+                                                  fontSize: width * 0.045,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      Divider(),
 
                       // SIMILAR PRODUCTS
                       Container(
@@ -1598,264 +2195,302 @@ class _ProductPageState extends State<ProductPage> {
       ),
     );
   }
+}
 
-  // ADD REVIEW WIDGET
-  Widget AddReview() {
+class AllDiscountsWidget extends StatefulWidget {
+  const AllDiscountsWidget({
+    super.key,
+    required this.noOfDiscounts,
+    required this.allDiscount,
+  });
+
+  final int noOfDiscounts;
+  final List allDiscount;
+
+  @override
+  State<AllDiscountsWidget> createState() => _AllDiscountsWidgetState();
+}
+
+class _AllDiscountsWidgetState extends State<AllDiscountsWidget>
+    with SingleTickerProviderStateMixin {
+  // late AnimationController animationController;
+  final store = FirebaseFirestore.instance;
+
+  // INIT STATE
+  @override
+  void initState() {
+    super.initState();
+
+    // animationController =
+    //     AnimationController(vsync: this, duration: Duration(seconds: 1));
+    // animationController
+    //   ..addStatusListener((status) {
+    //     if (status == AnimationStatus.completed)
+    //       animationController.forward(from: 0);
+    //   });
+
+    // animationController.addListener(() {
+    //   setState(() {});
+    // });
+
+    // animationController.forward();
+  }
+
+  // DISPOSE
+  @override
+  void dispose() {
+    // animationController.dispose();
+    super.dispose();
+  }
+
+  // GET NAME
+  Future<String> getName(int index, bool wantName) async {
+    final discountSnap = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Discounts')
+        .doc(widget.allDiscount[index]['discountId'])
+        .get();
+
+    final discountData = discountSnap.data()!;
+    final List products = discountData['products'];
+    final List categories = discountData['categories'];
+    final List brands = discountData['brands'];
+
+    // PRODUCT
+    if (products.isNotEmpty) {
+      final productId = products[0];
+
+      final productSnap = await store
+          .collection('Business')
+          .doc('Data')
+          .collection('Products')
+          .doc(productId)
+          .get();
+
+      final productData = productSnap.data()!;
+
+      final String name = productData['productName'];
+      final String imageUrl = productData['images'][0];
+
+      return wantName ? name : imageUrl;
+    }
+
+    // CATEGORY
+    if (categories.isNotEmpty) {
+      final categoryId = categories[0];
+
+      final categorySnap = await store
+          .collection('Business')
+          .doc('Data')
+          .collection('Category')
+          .doc(categoryId)
+          .get();
+
+      final categoryData = categorySnap.data()!;
+
+      final name = categoryData['categoryName'];
+      final imageUrl = categoryData['imageUrl'];
+
+      return wantName ? name : imageUrl;
+    }
+
+    // BRAND
+    if (brands.isNotEmpty) {
+      final brandId = brands[0];
+
+      final brandSnap = await store
+          .collection('Business')
+          .doc('Data')
+          .collection('Brands')
+          .doc(brandId)
+          .get();
+
+      final brandData = brandSnap.data()!;
+
+      final name = brandData['brandName'];
+      final imageUrl = brandData['imageUrl'];
+
+      return wantName ? name : imageUrl;
+    }
+    return '';
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
 
-    return hasReviewedBefore == null
-        ? Container()
-        : hasReviewedBefore!
-            ? Container(
-                width: width,
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    width: 0.5,
-                    color: darkGrey,
-                  ),
-                ),
-                padding: EdgeInsets.symmetric(
-                  horizontal: width * 0.0225,
-                  vertical: width * 0.0125,
-                ),
-                margin: EdgeInsets.symmetric(
-                  horizontal: width * 0.0125,
-                  vertical: width * 0.0125,
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        vertical: width * 0.0175,
+        horizontal: width * 0.02,
+      ),
+      child: InkWell(
+        onTap: () {},
+        splashColor: primary2,
+        customBorder: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Container(
+          width: width,
+          height: width * 0.66,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            gradient: SweepGradient(
+              startAngle: 0,
+              colors: [
+                Colors.pink.shade300,
+                Colors.deepOrange.shade200,
+                Colors.amber.shade300,
+                Colors.indigo.shade200,
+                Colors.indigo.shade300,
+              ],
+              // transform: GradientRotation(animationController.value * 6),
+            ),
+          ),
+          child: Container(
+            height: width * 0.66,
+            padding: EdgeInsets.all(4),
+            margin: EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Padding(
-                      padding: EdgeInsets.only(
-                        left: width * 0.025,
-                        right: width * 0.025,
-                        top: width * 0.0166,
-                      ),
-                      child: Text(
-                        'Your previous Review',
-                        textAlign: TextAlign.left,
+                    Text(
+                      'Other Discounts From This Shop',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
-                    // RATING STARS
-                    Padding(
-                      padding: EdgeInsets.only(
-                        bottom: userRating == 0 ? 10 : 20,
-                        top: 20,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          RatingBar(
-                            maxRating: 5,
-                            updateOnDrag: true,
-                            initialRating: previousRating!,
-                            glowColor: Colors.yellow,
-                            glowRadius: 0.5,
-                            ratingWidget: RatingWidget(
-                              full: Icon(
-                                Icons.star,
-                                color: Colors.yellow,
-                              ),
-                              half: Icon(
-                                Icons.star_half,
-                                color: Colors.yellow,
-                              ),
-                              empty: Icon(
-                                Icons.star_border,
-                                color: darkGrey,
-                              ),
-                            ),
-                            ignoreGestures: true,
-                            onRatingUpdate: (currentRating) {
-                              setState(() {
-                                userRating = currentRating;
-                              });
-                            },
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          widget.noOfDiscounts.toString(),
+                          style: TextStyle(
+                            fontSize: width * 0.045,
                           ),
-                          Text(
-                            userRating.toStringAsFixed(0) != '0'
-                                ? userRating.toStringAsFixed(0)
-                                : '---',
-                            style: TextStyle(
-                              fontSize: width * 0.05,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                        SizedBox(width: width * 0.0125),
+                        Icon(FeatherIcons.chevronRight),
+                      ],
                     ),
-
-                    // REVIEW
-                    previousReview!.trim().length == 0
-                        ? Center(
-                            child: // DELETE
-                                IconButton(
-                              onPressed: () async {
-                                await deleteReview();
-                              },
-                              icon: Icon(
-                                FeatherIcons.trash,
-                                color: Colors.red,
-                              ),
-                              tooltip: 'DELETE',
-                            ),
-                          )
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.only(
-                                  left: 10,
-                                  right: 10,
-                                  top: 10,
-                                  bottom: 20,
-                                ),
-                                child: Text(
-                                  previousReview!.trim(),
-                                  maxLines: 10,
-                                ),
-                              ),
-
-                              // DELETE
-                              IconButton(
-                                onPressed: () async {
-                                  await deleteReview();
-                                },
-                                icon: Icon(
-                                  FeatherIcons.trash,
-                                  color: Colors.red,
-                                ),
-                                tooltip: 'DELETE',
-                              ),
-                            ],
-                          ),
                   ],
                 ),
-              )
-            : Container(
-                width: width,
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    width: 0.5,
-                    color: darkGrey,
-                  ),
-                ),
-                padding: EdgeInsets.symmetric(
-                  horizontal: width * 0.0225,
-                  vertical: width * 0.0125,
-                ),
-                margin: EdgeInsets.symmetric(
-                  horizontal: width * 0.0125,
-                  vertical: width * 0.0125,
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(
-                        left: width * 0.025,
-                        right: width * 0.025,
-                        top: width * 0.0166,
-                      ),
-                      child: Text(
-                        'Add Product Review',
-                        textAlign: TextAlign.left,
-                      ),
-                    ),
-                    // RATING STARS
-                    Padding(
-                      padding: EdgeInsets.only(
-                        bottom: userRating == 0 ? 10 : 20,
-                        top: 20,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          RatingBar(
-                            maxRating: 5,
-                            initialRating: previousRating ?? 0,
-                            updateOnDrag: true,
-                            glowColor: Colors.yellow,
-                            glowRadius: 0.5,
-                            ratingWidget: RatingWidget(
-                              full: Icon(
-                                Icons.star,
-                                color: Colors.yellow,
-                              ),
-                              half: Icon(
-                                Icons.star_half,
-                                color: Colors.yellow,
-                              ),
-                              empty: Icon(
-                                Icons.star_border,
-                                color: darkGrey,
-                              ),
-                            ),
-                            onRatingUpdate: (currentRating) {
-                              setState(() {
-                                userRating = currentRating;
-                              });
-                            },
-                          ),
-                          Text(
-                            userRating.toStringAsFixed(0) != '0'
-                                ? userRating.toStringAsFixed(0)
-                                : '---',
-                            style: TextStyle(
-                              fontSize: width * 0.05,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                SizedBox(
+                  width: width,
+                  height: width * 0.5,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    scrollDirection: Axis.horizontal,
+                    itemCount: widget.allDiscount.length,
+                    itemBuilder: ((context, index) {
+                      final currentDiscount = widget.allDiscount[index];
+                      final String? image = currentDiscount['discountImageUrl'];
+                      final name = currentDiscount['discountName'];
+                      final amount = currentDiscount['discountAmount'];
+                      final isPercent = currentDiscount['isPercent'];
+                      // final endData = currentDiscount['discountEndDateTime'];
 
-                    // REVIEW
-                    userRating == 0
-                        ? Container()
-                        : Padding(
-                            padding: EdgeInsets.only(
-                              left: 10,
-                              right: 10,
-                              top: 10,
-                              bottom: 20,
+                      return Padding(
+                        padding: EdgeInsets.only(
+                          left: width * 0.025,
+                          right: width * 0.025,
+                          top: width * 0.01,
+                          bottom: width * 0.015,
+                        ),
+                        child: Container(
+                          width: width * 0.3,
+                          height: width * 0.45,
+                          decoration: BoxDecoration(
+                            color: primary2,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: width * 0.0125,
+                              vertical: width * 0.0125,
                             ),
-                            child: TextField(
-                              autofocus: false,
-                              controller: reviewController,
-                              textInputAction: TextInputAction.newline,
-                              maxLength: 500,
-                              minLines: 1,
-                              maxLines: 10,
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(
-                                    color: Colors.cyan.shade700,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // IMAGE
+                                FutureBuilder(
+                                    future: getName(index, false),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.hasData) {
+                                        return ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          child: Image.network(
+                                            image ??
+                                                snapshot.data ??
+                                                'https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/ProhibitionSign2.svg/800px-ProhibitionSign2.svg.png',
+                                            fit: BoxFit.cover,
+                                            width: width * 0.3,
+                                            height: width * 0.3,
+                                          ),
+                                        );
+                                      }
+
+                                      return Center(
+                                        child: CircularProgressIndicator(),
+                                      );
+                                    }),
+
+                                //
+                                FutureBuilder(
+                                    future: getName(index, true),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.hasData) {
+                                        return Text(
+                                          snapshot.data ?? name,
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          style: TextStyle(
+                                            fontSize: width * 0.05,
+                                          ),
+                                        );
+                                      }
+
+                                      return Center(
+                                        child: CircularProgressIndicator(),
+                                      );
+                                    }),
+                                Text(
+                                  isPercent
+                                      ? '$amount % off'
+                                      : 'Save Rs. $amount',
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                  style: TextStyle(
+                                    fontSize: width * 0.045,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
-                                hintText: 'Review',
-                              ),
+                              ],
                             ),
                           ),
-
-                    // DONE
-                    MyTextButton(
-                      onPressed: userRating == 0
-                          ? () {}
-                          : () async {
-                              await addReview();
-                            },
-                      text: 'DONE',
-                      textColor: primaryDark,
-                    ),
-                  ],
+                        ),
+                      );
+                    }),
+                  ),
                 ),
-              );
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
