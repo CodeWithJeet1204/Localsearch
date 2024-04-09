@@ -10,9 +10,11 @@ class MySearchBar extends StatefulWidget {
   const MySearchBar({
     super.key,
     required this.width,
+    required this.autoFocus,
   });
 
   final double width;
+  final bool autoFocus;
 
   @override
   State<MySearchBar> createState() => _MySearchBarState();
@@ -135,7 +137,7 @@ class _MySearchBarState extends State<MySearchBar> {
                       alignment: Alignment.center,
                       child: TextFormField(
                         autofillHints: const [],
-                        autofocus: false,
+                        autofocus: widget.autoFocus,
                         minLines: 1,
                         maxLines: 1,
                         controller: searchController,

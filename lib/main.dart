@@ -41,6 +41,8 @@ void main() async {
   }
 }
 
+// TODO: CHANGE images to imageUrl (product)
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override

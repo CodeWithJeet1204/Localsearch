@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
+import 'package:find_easy_user/page/main/product/product_page.dart';
 import 'package:find_easy_user/page/main/search/search_results_page.dart';
 import 'package:find_easy_user/page/main/search/top_searches_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
@@ -22,9 +23,7 @@ class _SearchPageState extends State<SearchPage> {
   List? allProducts;
   List? recentSearches;
   Map? topSearchesMap = {};
-  List? recentProductId;
-  List? recentProductName;
-  List? recentProductImage;
+  Map? recentProducts;
   bool isMicPressed = false;
   bool isSearchPressed = false;
 
@@ -226,16 +225,12 @@ class _SearchPageState extends State<SearchPage> {
 
     if (recentProductIds == null || recentProductIds.isEmpty) {
       setState(() {
-        recentProductId = [];
-        recentProductName = [];
-        recentProductImage = [];
+        recentProducts = {};
       });
       return;
     }
 
-    List internalProductIdList = [];
-    List internalProductImageList = [];
-    List internalProductNameList = [];
+    Map<String, dynamic> product = {};
 
     for (String productId in recentProductIds) {
       if (productId.contains('//')) {
@@ -249,18 +244,15 @@ class _SearchPageState extends State<SearchPage> {
           .get();
 
       if (productDoc.exists) {
+        final productData = productDoc.data()!;
         final productName = productDoc['productName'];
-        final productImageUrl = productDoc['images'][0];
+        final imageUrl = productDoc['images'][0];
 
-        internalProductIdList.add(productId);
-        internalProductNameList.add(productName);
-        internalProductImageList.add(productImageUrl);
+        product[productId] = [productName, imageUrl, productData];
       }
     }
 
-    recentProductId = internalProductIdList;
-    recentProductName = internalProductNameList;
-    recentProductImage = internalProductImageList;
+    recentProducts = product;
   }
 
   @override
@@ -271,7 +263,7 @@ class _SearchPageState extends State<SearchPage> {
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: width * 0.0225,
+            horizontal: width * 0.00625,
             vertical: width * 0.0125,
           ),
           child: LayoutBuilder(
@@ -282,7 +274,10 @@ class _SearchPageState extends State<SearchPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    MySearchBar(width: width),
+                    MySearchBar(
+                      width: width,
+                      autoFocus: true,
+                    ),
 
                     // RECENT SEARCHES
                     recentSearches == null || recentSearches!.isEmpty
@@ -470,12 +465,12 @@ class _SearchPageState extends State<SearchPage> {
                             ),
                           ),
 
-                    recentProductId == null || recentProductId!.isEmpty
+                    recentProducts == null || recentProducts!.isEmpty
                         ? Container()
                         : const Divider(),
 
                     // RECENT PRODUCTS
-                    recentProductId == null || recentProductId!.isEmpty
+                    recentProducts == null || recentProducts!.isEmpty
                         ? Container()
                         : Padding(
                             padding: EdgeInsets.symmetric(
@@ -492,7 +487,7 @@ class _SearchPageState extends State<SearchPage> {
                           ),
 
                     // RECENT PRODUCTS LIST
-                    recentProductId == null || recentProductId!.isEmpty
+                    recentProducts == null || recentProducts!.isEmpty
                         ? Container()
                         : SizedBox(
                             width: width,
@@ -501,13 +496,16 @@ class _SearchPageState extends State<SearchPage> {
                               shrinkWrap: true,
                               scrollDirection: Axis.horizontal,
                               physics: const NeverScrollableScrollPhysics(),
-                              itemCount: recentProductImage!.length > 3
+                              itemCount: recentProducts!.length > 3
                                   ? 3
-                                  : recentProductImage!.length,
+                                  : recentProducts!.length,
                               itemBuilder: ((context, index) {
-                                // final String id = recentProductId![index];
-                                final String name = recentProductName![index];
-                                final String image = recentProductImage![index];
+                                final String name =
+                                    recentProducts!.values.toList()[index][0];
+                                final String image =
+                                    recentProducts!.values.toList()[index][1];
+                                final Map<String, dynamic> data =
+                                    recentProducts!.values.toList()[index][2];
 
                                 return Padding(
                                   padding: EdgeInsets.symmetric(
@@ -516,7 +514,13 @@ class _SearchPageState extends State<SearchPage> {
                                   ),
                                   child: GestureDetector(
                                     onTap: () {
-                                      // navigate to product page
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: ((context) => ProductPage(
+                                                productData: data,
+                                              )),
+                                        ),
+                                      );
                                     },
                                     child: Container(
                                       width: width * 0.3,

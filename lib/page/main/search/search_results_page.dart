@@ -3,6 +3,7 @@ import 'package:feather_icons/feather_icons.dart';
 import 'package:find_easy_user/page/main/product/product_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/product_quick_view.dart';
+import 'package:find_easy_user/widgets/search_bar.dart';
 import 'package:find_easy_user/widgets/speech_to_text.dart';
 import 'package:find_easy_user/widgets/text_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -109,7 +110,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
       final String address = shopData['Address'];
       final String vendorId = shopSnap.id;
 
-      allShops[shopName] = [address, imageUrl, vendorId];
+      allShops[vendorId] = [address, imageUrl, shopName];
     }
 
     searchedShops.clear();
@@ -327,175 +328,9 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // SEARCH BAR
-                      Row(
-                        children: [
-                          InkWell(
-                            onTap: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: Container(
-                              width: width * 0.1,
-                              height: width * 0.2,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(100)),
-                              child: const Icon(
-                                FeatherIcons.arrowLeft,
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(
-                              top: width * 0.025,
-                              bottom: width * 0.0225,
-                              right: width * 0.0125,
-                            ),
-                            child: Container(
-                              width: width * 0.875,
-                              height: width * 0.1875,
-                              decoration: BoxDecoration(
-                                color: primary,
-                                border: Border.all(
-                                  color: primaryDark.withOpacity(0.75),
-                                ),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Container(
-                                    width: width * 0.566,
-                                    decoration: const BoxDecoration(
-                                      border: Border(
-                                        right: BorderSide(
-                                          width: 0.5,
-                                        ),
-                                      ),
-                                    ),
-                                    alignment: Alignment.center,
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(
-                                          // top: width * 0.135,
-                                          ),
-                                      child: TextFormField(
-                                        autofillHints: const [],
-                                        autofocus: false,
-                                        minLines: 1,
-                                        maxLines: 1,
-                                        controller: searchController,
-                                        keyboardType: TextInputType.text,
-                                        textInputAction: TextInputAction.search,
-                                        decoration: const InputDecoration(
-                                          hintText: 'Search',
-                                          hintStyle: TextStyle(
-                                            textBaseline:
-                                                TextBaseline.alphabetic,
-                                          ),
-                                          border: OutlineInputBorder(
-                                            borderSide: BorderSide.none,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      InkWell(
-                                        onTapDown: (details) {
-                                          setState(() {
-                                            isMicPressed = true;
-                                          });
-                                        },
-                                        onTapUp: (details) {
-                                          setState(() {
-                                            isMicPressed = false;
-                                          });
-                                        },
-                                        onTapCancel: () {
-                                          setState(() {
-                                            isMicPressed = false;
-                                          });
-                                        },
-                                        onTap: () async {
-                                          await listen();
-                                        },
-                                        customBorder: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                        ),
-                                        child: Container(
-                                          width: width * 0.15,
-                                          alignment: Alignment.center,
-                                          decoration: BoxDecoration(
-                                            color: isMicPressed
-                                                ? primary2.withOpacity(0.95)
-                                                : primary2.withOpacity(0.25),
-                                          ),
-                                          child: Icon(
-                                            FeatherIcons.mic,
-                                            size: width * 0.066,
-                                          ),
-                                        ),
-                                      ),
-                                      InkWell(
-                                        onTapDown: (details) {
-                                          setState(() {
-                                            isSearchPressed = true;
-                                          });
-                                        },
-                                        onTapUp: (details) {
-                                          setState(() {
-                                            isSearchPressed = false;
-                                          });
-                                        },
-                                        onTapCancel: () {
-                                          setState(() {
-                                            isSearchPressed = false;
-                                          });
-                                        },
-                                        onTap: () async {
-                                          await search();
-                                        },
-                                        customBorder:
-                                            const RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.only(
-                                            topLeft: Radius.circular(0),
-                                            bottomLeft: Radius.circular(0),
-                                            bottomRight: Radius.circular(12),
-                                            topRight: Radius.circular(12),
-                                          ),
-                                        ),
-                                        child: Container(
-                                          width: width * 0.15,
-                                          decoration: BoxDecoration(
-                                            color: isSearchPressed
-                                                ? primary2.withOpacity(0.95)
-                                                : primary2.withOpacity(0.25),
-                                            borderRadius:
-                                                const BorderRadius.only(
-                                              topLeft: Radius.circular(0),
-                                              bottomLeft: Radius.circular(0),
-                                              bottomRight: Radius.circular(12),
-                                              topRight: Radius.circular(12),
-                                            ),
-                                          ),
-                                          alignment: Alignment.center,
-                                          child: Icon(
-                                            FeatherIcons.search,
-                                            size: width * 0.066,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
+                      MySearchBar(
+                        width: width,
+                        autoFocus: false,
                       ),
 
                       // FILTERS
@@ -586,7 +421,9 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                               vertical: width * 0.00625,
                                             ),
                                             child: ListTile(
-                                              onTap: () {},
+                                              onTap: () {
+                                                // Navigator.of(context).push(MaterialPageRoute(builder: ((context) => VendorPage(vendorId: vendorId))))
+                                              },
                                               splashColor: white,
                                               tileColor:
                                                   primary2.withOpacity(0.125),
@@ -782,7 +619,8 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                                           width: 0.25,
                                                           color: Colors.grey
                                                               .withOpacity(
-                                                                  0.25),
+                                                            0.25,
+                                                          ),
                                                         ),
                                                       ),
                                                       padding: EdgeInsets.all(
@@ -836,23 +674,33 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                                                       left: MediaQuery.of(context)
                                                                               .size
                                                                               .width *
-                                                                          0.0125,
+                                                                          0.00625,
                                                                       right: MediaQuery.of(context)
                                                                               .size
                                                                               .width *
-                                                                          0.0125,
+                                                                          0.00625,
                                                                       top: MediaQuery.of(context)
                                                                               .size
                                                                               .width *
                                                                           0.0225,
                                                                     ),
-                                                                    child: Text(
-                                                                      currentProduct,
-                                                                      style:
-                                                                          TextStyle(
-                                                                        fontSize:
-                                                                            MediaQuery.of(context).size.width *
-                                                                                0.0575,
+                                                                    child:
+                                                                        SizedBox(
+                                                                      width:
+                                                                          width *
+                                                                              0.3,
+                                                                      child:
+                                                                          Text(
+                                                                        currentProduct,
+                                                                        maxLines:
+                                                                            1,
+                                                                        overflow:
+                                                                            TextOverflow.ellipsis,
+                                                                        style:
+                                                                            TextStyle(
+                                                                          fontSize:
+                                                                              width * 0.0575,
+                                                                        ),
                                                                       ),
                                                                     ),
                                                                   ),
@@ -870,7 +718,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                                                       style:
                                                                           TextStyle(
                                                                         fontSize:
-                                                                            MediaQuery.of(context).size.width *
+                                                                            width *
                                                                                 0.05,
                                                                         fontWeight:
                                                                             FontWeight.w500,

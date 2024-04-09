@@ -50,7 +50,7 @@ class _SeeMoreTextState extends State<SeeMoreText> {
     }
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           trimmedText,
@@ -74,6 +74,7 @@ class _SeeMoreTextState extends State<SeeMoreText> {
               ),
               child: Text(
                 'See more',
+                textAlign: TextAlign.end,
                 style: widget.seeMoreStyle ??
                     const TextStyle(
                       color: Colors.blue,
@@ -96,6 +97,7 @@ class _SeeMoreTextState extends State<SeeMoreText> {
               ),
               child: Text(
                 'See less',
+                textAlign: TextAlign.end,
                 style: widget.seeMoreStyle ??
                     const TextStyle(
                       color: Colors.blue,

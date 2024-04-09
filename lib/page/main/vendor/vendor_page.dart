@@ -3,10 +3,16 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:find_easy_user/page/main/product/product_page.dart';
+import 'package:find_easy_user/page/main/vendor/brand/all_brand_page.dart';
+import 'package:find_easy_user/page/main/vendor/brand/brand_page.dart';
+import 'package:find_easy_user/page/main/vendor/category/all_category_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
+import 'package:find_easy_user/widgets/image_show.dart';
 import 'package:find_easy_user/widgets/snack_bar.dart';
+import 'package:find_easy_user/widgets/text_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 enum ProductSorting {
@@ -35,7 +41,7 @@ class _VendorPageState extends State<VendorPage> {
   Map<String, dynamic>? shopData;
   Map<String, dynamic>? ownerData;
   bool isFollowing = false;
-  List? brandImageUrls;
+  Map brands = {};
   List? allDiscount;
   Map<String, dynamic>? categories;
   Map<String, dynamic> products = {};
@@ -207,7 +213,7 @@ class _VendorPageState extends State<VendorPage> {
 
   // GET BRANDS
   Future<void> getBrands() async {
-    List imageUrls = [];
+    Map brand = {};
     final brandSnap = await store
         .collection('Business')
         .doc('Data')
@@ -216,16 +222,16 @@ class _VendorPageState extends State<VendorPage> {
         .get();
 
     for (var brandData in brandSnap.docs) {
+      final id = brandData['brandId'];
       final imageUrl = brandData['imageUrl'];
 
-      if (imageUrl != null) {
-        imageUrls.add(imageUrl);
-      }
+      brand[id] = imageUrl;
     }
 
     setState(() {
-      brandImageUrls = imageUrls;
+      brands = brand;
     });
+    print(brands);
   }
 
   // GET DISCOUNTS
@@ -422,10 +428,22 @@ class _VendorPageState extends State<VendorPage> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
                                       children: [
-                                        CircleAvatar(
-                                          radius: width * 0.09,
-                                          backgroundImage: NetworkImage(
-                                            shopData!['Image'],
+                                        GestureDetector(
+                                          onTap: () {
+                                            showDialog(
+                                              context: context,
+                                              builder: ((context) => ImageShow(
+                                                    imageUrl:
+                                                        shopData!['Image'],
+                                                    width: width,
+                                                  )),
+                                            );
+                                          },
+                                          child: CircleAvatar(
+                                            radius: width * 0.09,
+                                            backgroundImage: NetworkImage(
+                                              shopData!['Image'],
+                                            ),
                                           ),
                                         ),
                                         Padding(
@@ -554,74 +572,113 @@ class _VendorPageState extends State<VendorPage> {
                         const Divider(),
 
                         // BRAND
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: width * 0.01,
-                            horizontal: width * 0.0125,
-                          ),
-                          child: Text(
-                            'Brands',
-                            style: TextStyle(
-                              fontSize: width * 0.0425,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
+                        brands.isEmpty
+                            ? Container()
+                            : Padding(
+                                padding: EdgeInsets.symmetric(
+                                  vertical: width * 0.01,
+                                  horizontal: width * 0.0125,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Brands',
+                                      style: TextStyle(
+                                        fontSize: width * 0.0425,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    brands.length <= 3
+                                        ? Container()
+                                        : MyTextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                  builder: ((context) =>
+                                                      AllBrandPage(
+                                                        vendorId:
+                                                            widget.vendorId,
+                                                      )),
+                                                ),
+                                              );
+                                            },
+                                            text: 'See All',
+                                            textColor: primaryDark,
+                                          ),
+                                  ],
+                                ),
+                              ),
 
                         // BRANDS
-                        brandImageUrls == null
+                        brands.isEmpty
                             ? Container()
-                            : brandImageUrls!.isEmpty
-                                ? Container()
-                                : Container(
-                                    width: width,
-                                    height: width * 0.2,
-                                    margin: EdgeInsets.all(width * 0.00125),
-                                    padding: EdgeInsets.all(width * 0.00125),
-                                    child: ListView.builder(
-                                      shrinkWrap: true,
-                                      scrollDirection: Axis.horizontal,
-                                      physics: brandImageUrls!.length > 4
-                                          ? const AlwaysScrollableScrollPhysics()
-                                          : const NeverScrollableScrollPhysics(),
-                                      itemCount: brandImageUrls!.length,
-                                      itemBuilder: ((context, index) {
-                                        final imageUrl = brandImageUrls![index];
+                            : Container(
+                                width: width,
+                                height: width * 0.2,
+                                margin: EdgeInsets.all(width * 0.00125),
+                                padding: EdgeInsets.all(width * 0.00125),
+                                child: ListView.builder(
+                                  shrinkWrap: true,
+                                  scrollDirection: Axis.horizontal,
+                                  physics: brands.length > 4
+                                      ? const AlwaysScrollableScrollPhysics()
+                                      : const NeverScrollableScrollPhysics(),
+                                  itemCount: brands.length,
+                                  itemBuilder: ((context, index) {
+                                    final id = brands.keys.toList()[index];
+                                    final imageUrl =
+                                        brands.values.toList()[index];
 
-                                        return Container(
-                                          width: width * 0.2,
-                                          margin: EdgeInsets.symmetric(
-                                            horizontal: width * 0.0125,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(4),
-                                            image: DecorationImage(
-                                              image: NetworkImage(imageUrl),
-                                              fit: BoxFit.cover,
-                                            ),
+                                    return GestureDetector(
+                                      onTap: () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: ((context) => BrandPage(
+                                                  brandId: id,
+                                                )),
                                           ),
                                         );
-                                      }),
-                                    ),
-                                  ),
+                                      },
+                                      child: Container(
+                                        width: width * 0.2,
+                                        margin: EdgeInsets.symmetric(
+                                          horizontal: width * 0.0125,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(4),
+                                          image: DecorationImage(
+                                            image: NetworkImage(imageUrl),
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }),
+                                ),
+                              ),
 
-                        const Divider(),
+                        brands.isEmpty ? Container() : const Divider(),
 
                         // DISCOUNT
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: width * 0.01,
-                            horizontal: width * 0.0125,
-                          ),
-                          child: Text(
-                            'Discounts',
-                            style: TextStyle(
-                              fontSize: width * 0.0425,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
+                        allDiscount == null
+                            ? Container()
+                            : Padding(
+                                padding: EdgeInsets.symmetric(
+                                  vertical: width * 0.01,
+                                  horizontal: width * 0.0125,
+                                ),
+                                child: Text(
+                                  'Discounts',
+                                  style: TextStyle(
+                                    fontSize: width * 0.0425,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
 
                         // DISCOUNTS
                         allDiscount == null
@@ -631,22 +688,51 @@ class _VendorPageState extends State<VendorPage> {
                                 allDiscount: allDiscount!,
                               ),
 
-                        const Divider(),
+                        allDiscount == null ? Container() : const Divider(),
 
                         // CATEGORY
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: width * 0.01,
-                            horizontal: width * 0.0125,
-                          ),
-                          child: Text(
-                            'Categories',
-                            style: TextStyle(
-                              fontSize: width * 0.0425,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
+                        categories == null
+                            ? Container()
+                            : categories!.isEmpty
+                                ? Container()
+                                : Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      vertical: width * 0.01,
+                                      horizontal: width * 0.0125,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          'Categories',
+                                          style: TextStyle(
+                                            fontSize: width * 0.0425,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        categories!.length <= 8
+                                            ? Container()
+                                            : MyTextButton(
+                                                onPressed: () {
+                                                  Navigator.of(context).push(
+                                                    MaterialPageRoute(
+                                                      builder: ((context) =>
+                                                          AllCategoryPage(
+                                                            vendorId:
+                                                                widget.vendorId,
+                                                          )),
+                                                    ),
+                                                  );
+                                                },
+                                                text: 'See All',
+                                                textColor: primaryDark,
+                                              ),
+                                      ],
+                                    ),
+                                  ),
 
                         // CATEGORIES
                         categories == null
@@ -714,7 +800,11 @@ class _VendorPageState extends State<VendorPage> {
                                     ),
                                   ),
 
-                        const Divider(),
+                        categories == null
+                            ? Container()
+                            : categories!.isEmpty
+                                ? Container()
+                                : const Divider(),
 
                         // PRODUCT & FILTER
                         products.isEmpty

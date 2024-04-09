@@ -912,7 +912,10 @@ class _ProductPageState extends State<ProductPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // SEARCH BAR
-                      MySearchBar(width: width),
+                      MySearchBar(
+                        width: width,
+                        autoFocus: false,
+                      ),
 
                       // VENDOR
                       Padding(
@@ -1570,6 +1573,133 @@ class _ProductPageState extends State<ProductPage> {
                                         ),
                                       ],
                                     ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      // PROPERTY 0
+                      propertyValue0.isEmpty ||
+                              propertyName0 == '' ||
+                              propertyNoOfAnswers0 != 3
+                          ? Container()
+                          : InfoBox(
+                              head: propertyName0,
+                              content: propertyValue0[0],
+                              noOfAnswers: propertyNoOfAnswers0,
+                              propertyValue: propertyValue0,
+                              width: width,
+                            ),
+
+                      // PROPERTY 1
+                      propertyValue1.isEmpty ||
+                              propertyName1 == '' ||
+                              propertyNoOfAnswers1 != 3
+                          ? Container()
+                          : InfoBox(
+                              head: propertyName1,
+                              content: propertyValue1[0],
+                              noOfAnswers: propertyNoOfAnswers1,
+                              propertyValue: propertyValue1,
+                              width: width,
+                            ),
+
+                      // PROPERTY 2
+                      propertyValue2.isEmpty ||
+                              propertyName2 == '' ||
+                              propertyNoOfAnswers2 != 3
+                          ? Container()
+                          : InfoBox(
+                              head: propertyName2,
+                              content: propertyValue2[0],
+                              noOfAnswers: propertyNoOfAnswers2,
+                              propertyValue: propertyValue2,
+                              width: width,
+                            ),
+
+                      // PROPERTY 3
+                      propertyValue3.isEmpty ||
+                              propertyName3 == '' ||
+                              propertyNoOfAnswers3 != 3
+                          ? Container()
+                          : InfoBox(
+                              head: propertyName3,
+                              content: propertyValue3[0],
+                              noOfAnswers: propertyNoOfAnswers3,
+                              propertyValue: propertyValue3,
+                              width: width,
+                            ),
+
+                      // PROPERTY 4
+                      propertyValue4.isEmpty ||
+                              propertyName4 == '' ||
+                              propertyNoOfAnswers4 != 3
+                          ? Container()
+                          : InfoBox(
+                              head: propertyName4,
+                              content: propertyValue4[0],
+                              noOfAnswers: propertyNoOfAnswers4,
+                              propertyValue: propertyValue4,
+                              width: width,
+                            ),
+
+                      // PROPERTY 5
+                      propertyValue5.isEmpty ||
+                              propertyName5 == '' ||
+                              propertyNoOfAnswers5 != 3
+                          ? Container()
+                          : InfoBox(
+                              head: propertyName5,
+                              content: propertyValue5[0],
+                              noOfAnswers: propertyNoOfAnswers5,
+                              propertyValue: propertyValue5,
+                              width: width,
+                            ),
+
+                      // SERVICES
+                      Center(
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: width * 0.05,
+                            vertical: width * 0.025,
+                          ),
+                          margin: EdgeInsets.symmetric(
+                            horizontal: width * 0.0125,
+                            vertical: width * 0.025,
+                          ),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              width: 0.25,
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: width * 0.0225,
+                                  vertical: width * 0.0125,
+                                ),
+                                child: Text(
+                                  'Services',
+                                  style: TextStyle(
+                                    fontSize: width * 0.05,
+                                  ),
+                                ),
+                              ),
+                              DataTable(
+                                columns: const [
+                                  DataColumn(
+                                    label: Text('Service'),
+                                  ),
+                                  DataColumn(
+                                    label: Text('Value'),
+                                  ),
+                                ],
+                                rows: [
                                   DataRow(
                                     cells: [
                                       const DataCell(
@@ -1670,84 +1800,6 @@ class _ProductPageState extends State<ProductPage> {
                           ),
                         ),
                       ),
-
-                      // PROPERTY 0
-                      propertyValue0.isEmpty ||
-                              propertyName0 == '' ||
-                              propertyNoOfAnswers0 != 3
-                          ? Container()
-                          : InfoBox(
-                              head: propertyName0,
-                              content: propertyValue0[0],
-                              noOfAnswers: propertyNoOfAnswers0,
-                              propertyValue: propertyValue0,
-                              width: width,
-                            ),
-
-                      // PROPERTY 1
-                      propertyValue1.isEmpty ||
-                              propertyName1 == '' ||
-                              propertyNoOfAnswers1 != 3
-                          ? Container()
-                          : InfoBox(
-                              head: propertyName1,
-                              content: propertyValue1[0],
-                              noOfAnswers: propertyNoOfAnswers1,
-                              propertyValue: propertyValue1,
-                              width: width,
-                            ),
-
-                      // PROPERTY 2
-                      propertyValue2.isEmpty ||
-                              propertyName2 == '' ||
-                              propertyNoOfAnswers2 != 3
-                          ? Container()
-                          : InfoBox(
-                              head: propertyName2,
-                              content: propertyValue2[0],
-                              noOfAnswers: propertyNoOfAnswers2,
-                              propertyValue: propertyValue2,
-                              width: width,
-                            ),
-
-                      // PROPERTY 3
-                      propertyValue3.isEmpty ||
-                              propertyName3 == '' ||
-                              propertyNoOfAnswers3 != 3
-                          ? Container()
-                          : InfoBox(
-                              head: propertyName3,
-                              content: propertyValue3[0],
-                              noOfAnswers: propertyNoOfAnswers3,
-                              propertyValue: propertyValue3,
-                              width: width,
-                            ),
-
-                      // PROPERTY 4
-                      propertyValue4.isEmpty ||
-                              propertyName4 == '' ||
-                              propertyNoOfAnswers4 != 3
-                          ? Container()
-                          : InfoBox(
-                              head: propertyName4,
-                              content: propertyValue4[0],
-                              noOfAnswers: propertyNoOfAnswers4,
-                              propertyValue: propertyValue4,
-                              width: width,
-                            ),
-
-                      // PROPERTY 5
-                      propertyValue5.isEmpty ||
-                              propertyName5 == '' ||
-                              propertyNoOfAnswers5 != 3
-                          ? Container()
-                          : InfoBox(
-                              head: propertyName5,
-                              content: propertyValue5[0],
-                              noOfAnswers: propertyNoOfAnswers5,
-                              propertyValue: propertyValue5,
-                              width: width,
-                            ),
 
                       // ALL DISCOUNTS
                       allDiscount == null
