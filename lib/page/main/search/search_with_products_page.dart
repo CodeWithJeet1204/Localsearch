@@ -123,7 +123,7 @@ class _SearchWithProductsPageState extends State<SearchWithProductsPage>
                             onTap: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
-                                  builder: ((context) => SearchPage()),
+                                  builder: ((context) => const SearchPage()),
                                 ),
                               );
                             },
@@ -179,7 +179,7 @@ class _SearchWithProductsPageState extends State<SearchWithProductsPage>
                             ),
                             child: GridView.custom(
                               shrinkWrap: true,
-                              physics: ClampingScrollPhysics(),
+                              physics: const ClampingScrollPhysics(),
                               gridDelegate: SliverQuiltedGridDelegate(
                                 crossAxisCount: 4,
                                 mainAxisSpacing: 4,

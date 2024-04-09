@@ -12,7 +12,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class MainPage extends StatefulWidget {
-  const MainPage({Key? key}) : super(key: key);
+  const MainPage({super.key});
 
   @override
   State<MainPage> createState() => _MainPageState();
@@ -44,16 +44,18 @@ class _MainPageState extends State<MainPage> {
 
       if (!userSnap.exists) {
         await FirebaseAuth.instance.signOut();
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(
-            builder: ((context) => LoginPage()),
-          ),
-          (route) => false,
-        );
-        mySnackBar(
-          'The account you created was for business app, create / login with another account for this app',
-          context,
-        );
+        if (mounted) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: ((context) => const LoginPage()),
+            ),
+            (route) => false,
+          );
+          mySnackBar(
+            'The account you created was for business app, create / login with another account for this app',
+            context,
+          );
+        }
         return;
       }
 
@@ -77,7 +79,6 @@ class _MainPageState extends State<MainPage> {
     } catch (e) {
       if (mounted) {
         mySnackBar(e.toString(), context);
-        print("Error: ${e.toString()}");
       }
     }
   }

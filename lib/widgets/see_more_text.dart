@@ -4,10 +4,10 @@ import 'package:find_easy_user/utils/colors.dart';
 class SeeMoreText extends StatefulWidget {
   const SeeMoreText(
     this.text, {
-    Key? key,
     this.textStyle,
-    this.seeMoreStyle,
     this.maxWords = 40,
+    this.seeMoreStyle,
+    super.key,
   });
 
   final String text;
@@ -16,6 +16,7 @@ class SeeMoreText extends StatefulWidget {
   final TextStyle? seeMoreStyle;
 
   @override
+  // ignore: library_private_types_in_public_api
   _SeeMoreTextState createState() => _SeeMoreTextState();
 }
 
@@ -45,7 +46,7 @@ class _SeeMoreTextState extends State<SeeMoreText> {
 
     List<String> words = trimmedText.split(' ');
     if (!_isExpanded && words.length > _currentMaxWords) {
-      trimmedText = words.sublist(0, _currentMaxWords).join(' ') + '... ';
+      trimmedText = '${words.sublist(0, _currentMaxWords).join(' ')}... ';
     }
 
     return Column(
@@ -74,7 +75,7 @@ class _SeeMoreTextState extends State<SeeMoreText> {
               child: Text(
                 'See more',
                 style: widget.seeMoreStyle ??
-                    TextStyle(
+                    const TextStyle(
                       color: Colors.blue,
                       fontWeight: FontWeight.bold,
                     ),
@@ -96,7 +97,7 @@ class _SeeMoreTextState extends State<SeeMoreText> {
               child: Text(
                 'See less',
                 style: widget.seeMoreStyle ??
-                    TextStyle(
+                    const TextStyle(
                       color: Colors.blue,
                       fontWeight: FontWeight.bold,
                     ),

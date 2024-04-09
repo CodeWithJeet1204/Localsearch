@@ -23,7 +23,7 @@ class _ProductAllReviewPageState extends State<ProductAllReviewPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('All Reviews'),
+        title: const Text('All Reviews'),
       ),
       body: SafeArea(
         child: Padding(

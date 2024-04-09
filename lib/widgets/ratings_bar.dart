@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 class RatingsBars extends StatelessWidget {
   final Map<String, int> ratingMap;
 
-  const RatingsBars({Key? key, required this.ratingMap}) : super(key: key);
+  const RatingsBars({
+    super.key,
+    required this.ratingMap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +38,7 @@ class RatingsBars extends StatelessWidget {
             color: Colors.grey.shade700,
           ),
         ),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         Container(
           height: 4,
           width: 1 + barWidth,
@@ -44,7 +47,7 @@ class RatingsBars extends StatelessWidget {
             borderRadius: BorderRadius.circular(100),
           ),
         ),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         Text(
           '$count',
           style: TextStyle(

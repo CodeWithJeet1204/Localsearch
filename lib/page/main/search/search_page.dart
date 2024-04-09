@@ -44,19 +44,23 @@ class _SearchPageState extends State<SearchPage> {
 
     if (search != null && search.isNotEmpty) {
       searchController.text = search;
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: ((context) => SearchResultsPage(search: search)),
-        ),
-      );
-    } else {
-      if (searchController.text.isNotEmpty) {
+      if (mounted) {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: ((context) =>
-                SearchResultsPage(search: searchController.text)),
+            builder: ((context) => SearchResultsPage(search: search)),
           ),
         );
+      }
+    } else {
+      if (searchController.text.isNotEmpty) {
+        if (mounted) {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: ((context) =>
+                  SearchResultsPage(search: searchController.text)),
+            ),
+          );
+        }
       }
     }
   }
@@ -201,7 +205,7 @@ class _SearchPageState extends State<SearchPage> {
         .collection('Products')
         .get();
 
-    productsSnap.docs.forEach((productDoc) {
+    for (var productDoc in productsSnap.docs) {
       final productData = productDoc.data();
 
       final productName = productData['productName'];
@@ -209,7 +213,7 @@ class _SearchPageState extends State<SearchPage> {
       if (!products.contains(productName)) {
         products.add(productName);
       }
-    });
+    }
 
     allProducts = products;
   }

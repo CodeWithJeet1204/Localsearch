@@ -100,7 +100,6 @@ class _ProductQuickViewState extends State<ProductQuickView> {
 
   // WISHLIST PRODUCT
   Future<void> wishlistProduct(String productId) async {
-    print(wishlist);
     if (wishlist != null) {
       setState(() {
         wishlist = !wishlist!;
@@ -166,7 +165,7 @@ class _ProductQuickViewState extends State<ProductQuickView> {
           borderRadius: BorderRadius.circular(24),
         ),
         child: !getData
-            ? Center(
+            ? const Center(
                 child: CircularProgressIndicator(),
               )
             : Padding(
@@ -176,7 +175,7 @@ class _ProductQuickViewState extends State<ProductQuickView> {
                   children: [
                     // IMAGES CAROUSEL
                     Padding(
-                      padding: EdgeInsets.symmetric(vertical: 12),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                       child: CarouselSlider(
                         items: images!
                             .map(
@@ -224,7 +223,7 @@ class _ProductQuickViewState extends State<ProductQuickView> {
                           children: [
                             // NAME
                             Padding(
-                              padding: EdgeInsets.symmetric(vertical: 6),
+                              padding: const EdgeInsets.symmetric(vertical: 6),
                               child: SizedBox(
                                 width: width * 0.5,
                                 height: 36,
@@ -241,7 +240,7 @@ class _ProductQuickViewState extends State<ProductQuickView> {
 
                             // PRICE
                             Padding(
-                              padding: EdgeInsets.symmetric(vertical: 6),
+                              padding: const EdgeInsets.symmetric(vertical: 6),
                               child: Text(
                                 'Rs. ${price!}',
                                 style: TextStyle(
@@ -274,7 +273,7 @@ class _ProductQuickViewState extends State<ProductQuickView> {
 
                     // VENDOR INFO
                     Padding(
-                      padding: EdgeInsets.symmetric(vertical: 12),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                       child: Row(
                         children: [
                           CircleAvatar(
@@ -282,7 +281,7 @@ class _ProductQuickViewState extends State<ProductQuickView> {
                             radius: width * 0.04,
                           ),
                           Padding(
-                            padding: EdgeInsets.only(left: 8),
+                            padding: const EdgeInsets.only(left: 8),
                             child: Text(
                               vendorName!,
                               style: TextStyle(

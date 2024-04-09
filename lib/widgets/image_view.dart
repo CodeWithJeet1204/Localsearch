@@ -33,7 +33,7 @@ class _ImageViewState extends State<ImageView> {
               CarouselSlider(
                 carouselController: controller,
                 items: widget.imagesUrl
-                    .map((e) => Container(
+                    .map((e) => SizedBox(
                           height: width * 8,
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(8),

@@ -337,12 +337,12 @@ class _ProductPageState extends State<ProductPage> {
       1: 0,
     };
 
-    ratings.values.forEach((ratingData) {
+    for (var ratingData in ratings.values) {
       int rating = (ratingData[0] is int)
           ? ratingData[0]
           : (ratingData[0] as double).toInt();
-      ratingCountMap.update(rating, (count) => count + 1);
-    });
+      ratingCountMap.update(rating, (countAbc) => countAbc + 1);
+    }
 
     Map<String, int> ratingMap = {
       '5': ratingCountMap[5]!,
@@ -490,7 +490,9 @@ class _ProductPageState extends State<ProductPage> {
 
       await checkIfReviewed();
     } catch (e) {
-      mySnackBar(e.toString(), context);
+      if (mounted) {
+        mySnackBar(e.toString(), context);
+      }
     }
   }
 
@@ -522,9 +524,9 @@ class _ProductPageState extends State<ProductPage> {
     final List<QueryDocumentSnapshot<Map<String, dynamic>>>
         filteredProductDocs = [];
 
-    productDocs.forEach((productData) {
+    for (var productData in productDocs) {
       if (productData['productName'] == productName) {
-        return;
+        continue;
       }
 
       final List<String> productNameWords =
@@ -539,14 +541,14 @@ class _ProductPageState extends State<ProductPage> {
       if (productNameMatch) {
         filteredProductDocs.add(productData);
       }
-    });
+    }
 
     filteredProductDocs.shuffle();
 
-    filteredProductDocs.forEach((productData) {
+    for (var productData in filteredProductDocs) {
       final Map<String, dynamic> productDatas = productData.data();
       similarProductsDatas.add(productDatas);
-    });
+    }
 
     setState(() {
       similarProductsAdded = true;
@@ -562,15 +564,15 @@ class _ProductPageState extends State<ProductPage> {
         .where('vendorId', isEqualTo: widget.productData['vendorId'])
         .get();
 
-    productsSnap.docs.forEach((productSnap) {
+    for (var productSnap in productsSnap.docs) {
       final productData = productSnap.data();
 
       if (productData['productName'] == widget.productData['productName']) {
-        return;
+        continue;
       }
 
       otherVendorProductsDatas.add(productData);
-    });
+    }
 
     setState(() {
       otherVendorProductsAdded = true;
@@ -578,7 +580,7 @@ class _ProductPageState extends State<ProductPage> {
   }
 
   // ADD REVIEW WIDGET
-  Widget AddReview() {
+  Widget addAReview() {
     final width = MediaQuery.of(context).size.width;
 
     return hasReviewedBefore == null
@@ -610,7 +612,7 @@ class _ProductPageState extends State<ProductPage> {
                         right: width * 0.025,
                         top: width * 0.0166,
                       ),
-                      child: Text(
+                      child: const Text(
                         'Your previous Review',
                         textAlign: TextAlign.left,
                       ),
@@ -632,15 +634,15 @@ class _ProductPageState extends State<ProductPage> {
                             glowColor: Colors.yellow,
                             glowRadius: 0.5,
                             ratingWidget: RatingWidget(
-                              full: Icon(
+                              full: const Icon(
                                 Icons.star,
                                 color: Colors.yellow,
                               ),
-                              half: Icon(
+                              half: const Icon(
                                 Icons.star_half,
                                 color: Colors.yellow,
                               ),
-                              empty: Icon(
+                              empty: const Icon(
                                 Icons.star_border,
                                 color: darkGrey,
                               ),
@@ -666,14 +668,14 @@ class _ProductPageState extends State<ProductPage> {
                     ),
 
                     // REVIEW
-                    previousReview!.trim().length == 0
+                    previousReview!.trim().isEmpty
                         ? Center(
                             child: // DELETE
                                 IconButton(
                               onPressed: () async {
                                 await deleteReview();
                               },
-                              icon: Icon(
+                              icon: const Icon(
                                 FeatherIcons.trash,
                                 color: Colors.red,
                               ),
@@ -685,7 +687,7 @@ class _ProductPageState extends State<ProductPage> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Padding(
-                                padding: EdgeInsets.only(
+                                padding: const EdgeInsets.only(
                                   left: 10,
                                   right: 10,
                                   top: 10,
@@ -702,7 +704,7 @@ class _ProductPageState extends State<ProductPage> {
                                 onPressed: () async {
                                   await deleteReview();
                                 },
-                                icon: Icon(
+                                icon: const Icon(
                                   FeatherIcons.trash,
                                   color: Colors.red,
                                 ),
@@ -739,7 +741,7 @@ class _ProductPageState extends State<ProductPage> {
                         right: width * 0.025,
                         top: width * 0.0166,
                       ),
-                      child: Text(
+                      child: const Text(
                         'Add Product Review',
                         textAlign: TextAlign.left,
                       ),
@@ -761,15 +763,15 @@ class _ProductPageState extends State<ProductPage> {
                             glowColor: Colors.yellow,
                             glowRadius: 0.5,
                             ratingWidget: RatingWidget(
-                              full: Icon(
+                              full: const Icon(
                                 Icons.star,
                                 color: Colors.yellow,
                               ),
-                              half: Icon(
+                              half: const Icon(
                                 Icons.star_half,
                                 color: Colors.yellow,
                               ),
-                              empty: Icon(
+                              empty: const Icon(
                                 Icons.star_border,
                                 color: darkGrey,
                               ),
@@ -797,7 +799,7 @@ class _ProductPageState extends State<ProductPage> {
                     userRating == 0
                         ? Container()
                         : Padding(
-                            padding: EdgeInsets.only(
+                            padding: const EdgeInsets.only(
                               left: 10,
                               right: 10,
                               top: 10,
@@ -945,7 +947,7 @@ class _ProductPageState extends State<ProductPage> {
                           child: Text(
                             'Visit the $vendorName store',
                             style: TextStyle(
-                              color: Color.fromARGB(255, 0, 114, 196),
+                              color: const Color.fromARGB(255, 0, 114, 196),
                               fontSize: width * 0.045,
                               decoration: isVendorHold
                                   ? TextDecoration.underline
@@ -1041,7 +1043,7 @@ class _ProductPageState extends State<ProductPage> {
 
                                       return Container(
                                         // alignment: Alignment.center,
-                                        decoration: BoxDecoration(
+                                        decoration: const BoxDecoration(
                                           color: Colors.red,
                                         ),
                                         padding:
@@ -1070,7 +1072,7 @@ class _ProductPageState extends State<ProductPage> {
                                               ),
                                       );
                                     }
-                                    return Center(
+                                    return const Center(
                                       child: CircularProgressIndicator(),
                                     );
                                   }),
@@ -1078,7 +1080,7 @@ class _ProductPageState extends State<ProductPage> {
 
                                 IconButton.filledTonal(
                                   onPressed: () {},
-                                  icon: Icon(
+                                  icon: const Icon(
                                     Icons.share_outlined,
                                   ),
                                   tooltip: "Share",
@@ -1090,10 +1092,10 @@ class _ProductPageState extends State<ProductPage> {
                       ),
 
                       // DOTS
-                      images.length == 0
-                          ? SizedBox(height: 36)
+                      images.isEmpty
+                          ? const SizedBox(height: 36)
                           : Padding(
-                              padding: EdgeInsets.only(
+                              padding: const EdgeInsets.only(
                                 top: 12,
                                 bottom: 24,
                               ),
@@ -1106,7 +1108,7 @@ class _ProductPageState extends State<ProductPage> {
                                   return Container(
                                     width: 8,
                                     height: 8,
-                                    margin: EdgeInsets.all(4),
+                                    margin: const EdgeInsets.all(4),
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
                                       color: _currentIndex == index
@@ -1196,7 +1198,7 @@ class _ProductPageState extends State<ProductPage> {
                                                           style: TextStyle(
                                                             fontSize: 20,
                                                             color: isAvailable
-                                                                ? Color
+                                                                ? const Color
                                                                     .fromRGBO(
                                                                     255,
                                                                     134,
@@ -1307,7 +1309,7 @@ class _ProductPageState extends State<ProductPage> {
                                 vertical: width * 0.0175,
                                 horizontal: width * 0.02,
                               ),
-                              child: Text(
+                              child: const Text(
                                 'Delivery Available',
                                 style: TextStyle(
                                   color: Colors.green,
@@ -1334,7 +1336,7 @@ class _ProductPageState extends State<ProductPage> {
                           ),
                           child: SeeMoreText(
                             description,
-                            textStyle: TextStyle(
+                            textStyle: const TextStyle(
                               color: primaryDark,
                             ),
                             seeMoreStyle: TextStyle(
@@ -1381,10 +1383,10 @@ class _ProductPageState extends State<ProductPage> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Text(
+                                      const Text(
                                         overflow: TextOverflow.ellipsis,
                                         'Brand',
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontWeight: FontWeight.w500,
                                           color: primaryDark2,
                                         ),
@@ -1406,7 +1408,7 @@ class _ProductPageState extends State<ProductPage> {
                                   ),
                                 ],
                               ),
-                              SizedBox(height: 20),
+                              const SizedBox(height: 20),
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
@@ -1424,10 +1426,10 @@ class _ProductPageState extends State<ProductPage> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Text(
+                                      const Text(
                                         overflow: TextOverflow.ellipsis,
                                         'Category',
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontWeight: FontWeight.w500,
                                           color: primaryDark2,
                                         ),
@@ -1487,7 +1489,7 @@ class _ProductPageState extends State<ProductPage> {
                                 ),
                               ),
                               DataTable(
-                                columns: [
+                                columns: const [
                                   DataColumn(
                                     label: Text('Property'),
                                   ),
@@ -1570,7 +1572,7 @@ class _ProductPageState extends State<ProductPage> {
                                     ),
                                   DataRow(
                                     cells: [
-                                      DataCell(
+                                      const DataCell(
                                         Text('Delivery Available'),
                                       ),
                                       DataCell(
@@ -1585,7 +1587,7 @@ class _ProductPageState extends State<ProductPage> {
                                   ),
                                   DataRow(
                                     cells: [
-                                      DataCell(
+                                      const DataCell(
                                         Text('Refund Available'),
                                       ),
                                       DataCell(
@@ -1604,7 +1606,7 @@ class _ProductPageState extends State<ProductPage> {
                                   ),
                                   DataRow(
                                     cells: [
-                                      DataCell(
+                                      const DataCell(
                                         Text('Cash On Delivery'),
                                       ),
                                       DataCell(
@@ -1616,7 +1618,7 @@ class _ProductPageState extends State<ProductPage> {
                                   ),
                                   DataRow(
                                     cells: [
-                                      DataCell(
+                                      const DataCell(
                                         Text('Card Offers'),
                                       ),
                                       DataCell(
@@ -1628,7 +1630,7 @@ class _ProductPageState extends State<ProductPage> {
                                   ),
                                   DataRow(
                                     cells: [
-                                      DataCell(
+                                      const DataCell(
                                         Text('Bulk Sell'),
                                       ),
                                       DataCell(
@@ -1640,7 +1642,7 @@ class _ProductPageState extends State<ProductPage> {
                                   ),
                                   DataRow(
                                     cells: [
-                                      DataCell(
+                                      const DataCell(
                                         Text('GST Invoice'),
                                       ),
                                       DataCell(
@@ -1652,7 +1654,7 @@ class _ProductPageState extends State<ProductPage> {
                                   ),
                                   DataRow(
                                     cells: [
-                                      DataCell(
+                                      const DataCell(
                                         Text('Gift Wrap'),
                                       ),
                                       DataCell(
@@ -1755,7 +1757,7 @@ class _ProductPageState extends State<ProductPage> {
                               allDiscount: allDiscount!,
                             ),
 
-                      Divider(
+                      const Divider(
                         color: Color.fromRGBO(219, 219, 219, 1),
                       ),
 
@@ -1788,7 +1790,7 @@ class _ProductPageState extends State<ProductPage> {
                                 right: width * 0.025,
                                 top: width * 0.0166,
                               ),
-                              child: Text(
+                              child: const Text(
                                 'Other Products From This Shop',
                               ),
                             ),
@@ -1887,7 +1889,7 @@ class _ProductPageState extends State<ProductPage> {
                         ),
                       ),
 
-                      Divider(),
+                      const Divider(),
 
                       // SIMILAR PRODUCTS
                       Container(
@@ -1918,7 +1920,7 @@ class _ProductPageState extends State<ProductPage> {
                                 right: width * 0.025,
                                 top: width * 0.0166,
                               ),
-                              child: Text(
+                              child: const Text(
                                 'Similar Products',
                               ),
                             ),
@@ -2029,7 +2031,7 @@ class _ProductPageState extends State<ProductPage> {
                           left: width * 0.0225,
                           right: width * 0.0225,
                           top: width * 0.0125,
-                          bottom: ratings == '0' ? 0 : width * 0.0125,
+                          bottom: ratings.isEmpty ? 0 : width * 0.0125,
                         ),
                         margin: EdgeInsets.symmetric(
                           horizontal: width * 0.0125,
@@ -2037,7 +2039,8 @@ class _ProductPageState extends State<ProductPage> {
                         ),
                         child: ratings.isEmpty
                             ? Padding(
-                                padding: EdgeInsets.symmetric(vertical: 8),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 8),
                                 child: Center(
                                   child: Text(
                                     'No Ratings yet',
@@ -2062,7 +2065,7 @@ class _ProductPageState extends State<ProductPage> {
                                                     .map((e) => e?[0] ?? 0)
                                                     .toList()
                                                     .reduce((a, b) => a + b) /
-                                                (ratings.values.length == 0
+                                                (ratings.values.isEmpty
                                                     ? 1
                                                     : ratings.values
                                                         .length)) as double)
@@ -2102,7 +2105,7 @@ class _ProductPageState extends State<ProductPage> {
                                           child: ListView.builder(
                                             shrinkWrap: true,
                                             physics:
-                                                NeverScrollableScrollPhysics(),
+                                                const NeverScrollableScrollPhysics(),
                                             itemCount: allReviews!.length > 3
                                                 ? 3
                                                 : allReviews!.length,
@@ -2140,8 +2143,10 @@ class _ProductPageState extends State<ProductPage> {
                                                             rating:
                                                                 ratings.isEmpty
                                                                     ? Padding(
-                                                                        padding:
-                                                                            EdgeInsets.symmetric(vertical: 8),
+                                                                        padding: const EdgeInsets
+                                                                            .symmetric(
+                                                                            vertical:
+                                                                                8),
                                                                         child:
                                                                             Center(
                                                                           child:
@@ -2162,7 +2167,7 @@ class _ProductPageState extends State<ProductPage> {
                                                                             CrossAxisAlignment.center,
                                                                         children: [
                                                                           Text(
-                                                                            ((ratings.values.map((e) => e?[0] ?? 0).toList().reduce((a, b) => a + b) / (ratings.values.length == 0 ? 1 : ratings.values.length)) as double).toStringAsFixed(1),
+                                                                            ((ratings.values.map((e) => e?[0] ?? 0).toList().reduce((a, b) => a + b) / (ratings.values.isEmpty ? 1 : ratings.values.length)) as double).toStringAsFixed(1),
                                                                             style:
                                                                                 TextStyle(
                                                                               fontSize: width * 0.2,
@@ -2192,7 +2197,7 @@ class _ProductPageState extends State<ProductPage> {
                       ),
 
                       // ADD RATING
-                      AddReview(),
+                      addAReview(),
                     ],
                   ),
                 ),
@@ -2358,8 +2363,8 @@ class _AllDiscountsWidgetState extends State<AllDiscountsWidget>
           ),
           child: Container(
             height: width * 0.66,
-            padding: EdgeInsets.all(4),
-            margin: EdgeInsets.all(4),
+            padding: const EdgeInsets.all(4),
+            margin: const EdgeInsets.all(4),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(8),
@@ -2372,7 +2377,7 @@ class _AllDiscountsWidgetState extends State<AllDiscountsWidget>
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text(
+                    const Text(
                       'Other Discounts From This Shop',
                       style: TextStyle(
                         fontWeight: FontWeight.w500,
@@ -2389,7 +2394,7 @@ class _AllDiscountsWidgetState extends State<AllDiscountsWidget>
                           ),
                         ),
                         SizedBox(width: width * 0.0125),
-                        Icon(FeatherIcons.chevronRight),
+                        const Icon(FeatherIcons.chevronRight),
                       ],
                     ),
                   ],
@@ -2451,7 +2456,7 @@ class _AllDiscountsWidgetState extends State<AllDiscountsWidget>
                                         );
                                       }
 
-                                      return Center(
+                                      return const Center(
                                         child: CircularProgressIndicator(),
                                       );
                                     }),
@@ -2471,7 +2476,7 @@ class _AllDiscountsWidgetState extends State<AllDiscountsWidget>
                                         );
                                       }
 
-                                      return Center(
+                                      return const Center(
                                         child: CircularProgressIndicator(),
                                       );
                                     }),

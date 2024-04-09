@@ -40,7 +40,7 @@ class _VendorPageState extends State<VendorPage> {
   Map<String, dynamic>? categories;
   Map<String, dynamic> products = {};
   String? productSort = 'Recently Added';
-  ScrollController _scrollController = ScrollController();
+  final ScrollController _scrollController = ScrollController();
   int _numProductsLoaded = 7;
 
   // INIT STATE
@@ -84,8 +84,8 @@ class _VendorPageState extends State<VendorPage> {
 
   // SET RECENT SHOP
   Future<void> setRecentShop() async {
-    await Timer(
-      Duration(seconds: 5),
+    Timer(
+      const Duration(seconds: 5),
       () async {
         await setRecentAndUpdate();
       },
@@ -199,7 +199,9 @@ class _VendorPageState extends State<VendorPage> {
     if (await canLaunchUrl(url)) {
       await launchUrl(url);
     } else {
-      mySnackBar('Some error occured', context);
+      if (mounted) {
+        mySnackBar('Some error occured', context);
+      }
     }
   }
 
@@ -213,13 +215,13 @@ class _VendorPageState extends State<VendorPage> {
         .where('vendorId', isEqualTo: widget.vendorId)
         .get();
 
-    brandSnap.docs.forEach((brandData) {
-      final imageUrl = brandData['imageUrl'] ?? null;
+    for (var brandData in brandSnap.docs) {
+      final imageUrl = brandData['imageUrl'];
 
       if (imageUrl != null) {
         imageUrls.add(imageUrl);
       }
-    });
+    }
 
     setState(() {
       brandImageUrls = imageUrls;
@@ -266,13 +268,13 @@ class _VendorPageState extends State<VendorPage> {
         .where('vendorId', isEqualTo: widget.vendorId)
         .get();
 
-    categoriesSnap.docs.forEach((categoryData) {
+    for (var categoryData in categoriesSnap.docs) {
       final id = categoryData['categoryId'];
       final name = categoryData['categoryName'];
       final imageUrl = categoryData['imageUrl'];
 
       category[id] = [name, imageUrl];
-    });
+    }
 
     setState(() {
       categories = category;
@@ -290,7 +292,7 @@ class _VendorPageState extends State<VendorPage> {
 
     Map<String, List<dynamic>> productsData = {};
 
-    productsSnap.docs.forEach((productData) {
+    for (var productData in productsSnap.docs) {
       final id = productData['productId'];
       final name = productData['productName'];
       final imageUrl = productData['images'][0];
@@ -300,12 +302,11 @@ class _VendorPageState extends State<VendorPage> {
       final views = productData['productViews'];
 
       productsData[id] = [name, imageUrl, price, ratings, datetime, views];
-    });
+    }
 
     setState(() {
       products = productsData;
     });
-    print("Products: $products");
   }
 
   // SORT PRODUCTS
@@ -372,13 +373,13 @@ class _VendorPageState extends State<VendorPage> {
         actions: [
           IconButton(
             onPressed: () {},
-            icon: Icon(FeatherIcons.share2),
+            icon: const Icon(FeatherIcons.share2),
             tooltip: "Share Shop",
           ),
         ],
       ),
       body: shopData == null || ownerData == null
-          ? Center(
+          ? const Center(
               child: CircularProgressIndicator(),
             )
           : SafeArea(
@@ -496,7 +497,7 @@ class _VendorPageState extends State<VendorPage> {
                                         onPressed: () async {
                                           await callVendor();
                                         },
-                                        icon: Icon(FeatherIcons.phone),
+                                        icon: const Icon(FeatherIcons.phone),
                                         tooltip:
                                             "Call - ${ownerData!['Phone Number']}",
                                       ),
@@ -505,7 +506,7 @@ class _VendorPageState extends State<VendorPage> {
                                 ],
                               ),
 
-                              Divider(),
+                              const Divider(),
 
                               // ADDRESS
                               Padding(
@@ -530,7 +531,7 @@ class _VendorPageState extends State<VendorPage> {
                                             fontWeight: FontWeight.w500,
                                           ),
                                         ),
-                                        Container(
+                                        SizedBox(
                                           width: width * 0.8,
                                           child: Text(
                                             shopData!['Address'],
@@ -540,7 +541,7 @@ class _VendorPageState extends State<VendorPage> {
                                     ),
                                     IconButton(
                                       onPressed: () {},
-                                      icon: Icon(FeatherIcons.mapPin),
+                                      icon: const Icon(FeatherIcons.mapPin),
                                       tooltip: "Locate on Maps",
                                     ),
                                   ],
@@ -550,7 +551,7 @@ class _VendorPageState extends State<VendorPage> {
                           ),
                         ),
 
-                        Divider(),
+                        const Divider(),
 
                         // BRAND
                         Padding(
@@ -581,8 +582,8 @@ class _VendorPageState extends State<VendorPage> {
                                       shrinkWrap: true,
                                       scrollDirection: Axis.horizontal,
                                       physics: brandImageUrls!.length > 4
-                                          ? AlwaysScrollableScrollPhysics()
-                                          : NeverScrollableScrollPhysics(),
+                                          ? const AlwaysScrollableScrollPhysics()
+                                          : const NeverScrollableScrollPhysics(),
                                       itemCount: brandImageUrls!.length,
                                       itemBuilder: ((context, index) {
                                         final imageUrl = brandImageUrls![index];
@@ -605,7 +606,7 @@ class _VendorPageState extends State<VendorPage> {
                                     ),
                                   ),
 
-                        Divider(),
+                        const Divider(),
 
                         // DISCOUNT
                         Padding(
@@ -630,7 +631,7 @@ class _VendorPageState extends State<VendorPage> {
                                 allDiscount: allDiscount!,
                               ),
 
-                        Divider(),
+                        const Divider(),
 
                         // CATEGORY
                         Padding(
@@ -661,9 +662,10 @@ class _VendorPageState extends State<VendorPage> {
                                     ),
                                     child: GridView.builder(
                                       shrinkWrap: true,
-                                      physics: NeverScrollableScrollPhysics(),
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
                                       gridDelegate:
-                                          SliverGridDelegateWithFixedCrossAxisCount(
+                                          const SliverGridDelegateWithFixedCrossAxisCount(
                                         crossAxisCount: 4,
                                         childAspectRatio: 1.125,
                                       ),
@@ -712,7 +714,7 @@ class _VendorPageState extends State<VendorPage> {
                                     ),
                                   ),
 
-                        Divider(),
+                        const Divider(),
 
                         // PRODUCT & FILTER
                         products.isEmpty
@@ -743,7 +745,7 @@ class _VendorPageState extends State<VendorPage> {
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: DropdownButton<String>(
-                                        underline: SizedBox(),
+                                        underline: const SizedBox(),
                                         dropdownColor: primary2,
                                         value: productSort,
                                         iconEnabledColor: primaryDark,
@@ -796,7 +798,7 @@ class _VendorPageState extends State<VendorPage> {
                                     getScreenHeight(width) * 0.1,
                                 child: ListView.builder(
                                   shrinkWrap: true,
-                                  physics: ClampingScrollPhysics(),
+                                  physics: const ClampingScrollPhysics(),
                                   itemCount:
                                       _numProductsLoaded > products.length
                                           ? products.length
@@ -828,12 +830,12 @@ class _VendorPageState extends State<VendorPage> {
                                       decoration: BoxDecoration(
                                         border: Border(
                                           top: index == 0
-                                              ? BorderSide(
+                                              ? const BorderSide(
                                                   color: darkGrey,
                                                   width: 0.25,
                                                 )
                                               : BorderSide.none,
-                                          bottom: BorderSide(
+                                          bottom: const BorderSide(
                                             color: darkGrey,
                                             width: 0.25,
                                           ),
@@ -859,7 +861,7 @@ class _VendorPageState extends State<VendorPage> {
                                                   fit: BoxFit.cover,
                                                 ),
                                               ),
-                                              SizedBox(height: 4),
+                                              const SizedBox(height: 4),
                                               rating == 0
                                                   ? Text(
                                                       'No Reviews',
@@ -885,11 +887,11 @@ class _VendorPageState extends State<VendorPage> {
                                                   ),
                                                 ),
                                               ),
-                                              SizedBox(height: 8),
+                                              const SizedBox(height: 8),
                                               Text(
                                                 price == ''
                                                     ? 'Rs. --'
-                                                    : 'Rs. ${price}',
+                                                    : 'Rs. $price',
                                                 style: TextStyle(
                                                   fontSize: width * 0.04,
                                                   fontWeight: FontWeight.w500,
@@ -1076,8 +1078,8 @@ class _DiscountsWidgetState extends State<DiscountsWidget>
           shrinkWrap: true,
           scrollDirection: Axis.horizontal,
           physics: widget.allDiscount.length > 3
-              ? AlwaysScrollableScrollPhysics()
-              : NeverScrollableScrollPhysics(),
+              ? const AlwaysScrollableScrollPhysics()
+              : const NeverScrollableScrollPhysics(),
           itemCount: widget.allDiscount.length,
           itemBuilder: ((context, index) {
             final currentDiscount = widget.allDiscount[index];
@@ -1097,13 +1099,15 @@ class _DiscountsWidgetState extends State<DiscountsWidget>
                 onTap: () async {
                   final productData = await getProductData(index);
                   if (products.isNotEmpty) {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => ProductPage(
-                          productData: productData,
+                    if (context.mounted) {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => ProductPage(
+                            productData: productData,
+                          ),
                         ),
-                      ),
-                    );
+                      );
+                    }
                   }
                 },
                 child: Container(
@@ -1145,7 +1149,7 @@ class _DiscountsWidgetState extends State<DiscountsWidget>
                                     padding: EdgeInsets.all(
                                       width * 0.00675,
                                     ),
-                                    decoration: BoxDecoration(
+                                    decoration: const BoxDecoration(
                                       color: Color.fromARGB(255, 255, 161, 154),
                                       borderRadius: BorderRadius.only(
                                         topLeft: Radius.circular(2),
@@ -1156,7 +1160,7 @@ class _DiscountsWidgetState extends State<DiscountsWidget>
                                       isPercent
                                           ? '$amount %'
                                           : 'Save Rs. $amount',
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         color: primaryDark,
                                         fontWeight: FontWeight.w500,
                                       ),
@@ -1166,7 +1170,7 @@ class _DiscountsWidgetState extends State<DiscountsWidget>
                               );
                             }
 
-                            return Center(
+                            return const Center(
                               child: CircularProgressIndicator(),
                             );
                           }),

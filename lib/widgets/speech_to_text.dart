@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:find_easy_user/utils/colors.dart';
@@ -111,7 +113,7 @@ class _SpeechToTextState extends State<SpeechToText> {
                   glowCount: 3,
                   glowRadiusFactor: 0.2,
                   glowColor: Theme.of(context).primaryColor,
-                  duration: Duration(milliseconds: 1750),
+                  duration: const Duration(milliseconds: 1750),
                   child: IconButton.filledTonal(
                     onPressed: () async {
                       await listen();
@@ -129,7 +131,7 @@ class _SpeechToTextState extends State<SpeechToText> {
                     onPressed: () async {
                       await done();
                     },
-                    icon: Icon(
+                    icon: const Icon(
                       FeatherIcons.check,
                     ),
                     tooltip: "Done",

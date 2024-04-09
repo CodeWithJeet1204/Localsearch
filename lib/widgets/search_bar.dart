@@ -29,7 +29,7 @@ class _MySearchBarState extends State<MySearchBar> {
   Future<void> listen() async {
     var result = await showDialog(
       context: context,
-      builder: ((context) => SpeechToText()),
+      builder: ((context) => const SpeechToText()),
     );
 
     if (result != null && result is String) {
@@ -42,13 +42,15 @@ class _MySearchBarState extends State<MySearchBar> {
     await addRecentSearch();
 
     if (searchController.text.isNotEmpty) {
-      Navigator.of(context).pop();
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: ((context) =>
-              SearchResultsPage(search: searchController.text)),
-        ),
-      );
+      if (mounted) {
+        Navigator.of(context).pop();
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: ((context) =>
+                SearchResultsPage(search: searchController.text)),
+          ),
+        );
+      }
     }
   }
 
@@ -96,7 +98,7 @@ class _MySearchBarState extends State<MySearchBar> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(100),
                 ),
-                child: Icon(
+                child: const Icon(
                   FeatherIcons.arrowLeft,
                 ),
               ),
@@ -209,7 +211,7 @@ class _MySearchBarState extends State<MySearchBar> {
                           onTap: () async {
                             await search();
                           },
-                          customBorder: RoundedRectangleBorder(
+                          customBorder: const RoundedRectangleBorder(
                             borderRadius: BorderRadius.only(
                               topLeft: Radius.circular(0),
                               bottomLeft: Radius.circular(0),
@@ -223,7 +225,7 @@ class _MySearchBarState extends State<MySearchBar> {
                               color: isSearchPressed
                                   ? primary2.withOpacity(0.95)
                                   : primary2.withOpacity(0.25),
-                              borderRadius: BorderRadius.only(
+                              borderRadius: const BorderRadius.only(
                                 topLeft: Radius.circular(0),
                                 bottomLeft: Radius.circular(0),
                                 bottomRight: Radius.circular(12),

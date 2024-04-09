@@ -44,7 +44,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
   Future<void> listen() async {
     var result = await showDialog(
       context: context,
-      builder: ((context) => SpeechToText()),
+      builder: ((context) => const SpeechToText()),
     );
 
     if (result != null && result is String) {
@@ -57,13 +57,15 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
     await addRecentSearch();
 
     if (searchController.text.isNotEmpty) {
-      Navigator.of(context).pop();
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: ((context) =>
-              SearchResultsPage(search: searchController.text)),
-        ),
-      );
+      if (mounted) {
+        Navigator.of(context).pop();
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: ((context) =>
+                SearchResultsPage(search: searchController.text)),
+          ),
+        );
+      }
     }
   }
 
@@ -99,7 +101,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
         .collection('Shops')
         .get();
 
-    shopSnap.docs.forEach((shopSnap) {
+    for (var shopSnap in shopSnap.docs) {
       final shopData = shopSnap.data();
 
       final String shopName = shopData['Name'].toString();
@@ -108,7 +110,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
       final String vendorId = shopSnap.id;
 
       allShops[shopName] = [address, imageUrl, vendorId];
-    });
+    }
 
     searchedShops.clear();
 
@@ -131,14 +133,13 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
       return a.key.compareTo(b.key);
     });
 
-    relevanceScores.forEach((entry) {
+    for (var entry in relevanceScores) {
       searchedShops[entry.key] = allShops[entry.key];
-    });
+    }
 
     setState(() {
       getShopsData = true;
     });
-    print(1);
   }
 
   // CALCULATE RELEVANCE (SHOPS)
@@ -211,8 +212,6 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
     setState(() {
       getProductsData = true;
     });
-
-    print("Products: $searchedProducts");
   }
 
   // CALCULATE RELEVANCE (PRODUCTS)
@@ -339,7 +338,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                               height: width * 0.2,
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(100)),
-                              child: Icon(
+                              child: const Icon(
                                 FeatherIcons.arrowLeft,
                               ),
                             ),
@@ -375,7 +374,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                     ),
                                     alignment: Alignment.center,
                                     child: Padding(
-                                      padding: EdgeInsets.only(
+                                      padding: const EdgeInsets.only(
                                           // top: width * 0.135,
                                           ),
                                       child: TextFormField(
@@ -460,7 +459,8 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                         onTap: () async {
                                           await search();
                                         },
-                                        customBorder: RoundedRectangleBorder(
+                                        customBorder:
+                                            const RoundedRectangleBorder(
                                           borderRadius: BorderRadius.only(
                                             topLeft: Radius.circular(0),
                                             bottomLeft: Radius.circular(0),
@@ -474,7 +474,8 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                             color: isSearchPressed
                                                 ? primary2.withOpacity(0.95)
                                                 : primary2.withOpacity(0.25),
-                                            borderRadius: BorderRadius.only(
+                                            borderRadius:
+                                                const BorderRadius.only(
                                               topLeft: Radius.circular(0),
                                               bottomLeft: Radius.circular(0),
                                               bottomRight: Radius.circular(12),
@@ -507,7 +508,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
 
                       // SHOP
                       !getShopsData
-                          ? Center(
+                          ? const Center(
                               child: CircularProgressIndicator(),
                             )
                           : Column(
@@ -551,14 +552,14 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                               ],
                                             ),
                                           ),
-                                          Divider(),
+                                          const Divider(),
                                         ],
                                       ),
 
                                 // SHOPS LIST
                                 searchedShops.isEmpty
                                     ? searchedProducts.isEmpty
-                                        ? Center(
+                                        ? const Center(
                                             child: Padding(
                                               padding: EdgeInsets.only(top: 40),
                                               child: Text(
@@ -570,7 +571,8 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                         : Container()
                                     : ListView.builder(
                                         shrinkWrap: true,
-                                        physics: NeverScrollableScrollPhysics(),
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
                                         itemCount: searchedShops.length > 3
                                             ? 3
                                             : searchedShops.length,
@@ -612,7 +614,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                               subtitle: Text(
                                                 searchedShops[currentShop][0],
                                               ),
-                                              trailing: Icon(
+                                              trailing: const Icon(
                                                 FeatherIcons.chevronRight,
                                                 color: primaryDark,
                                               ),
@@ -625,7 +627,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
 
                       // PRODUCT
                       !getProductsData
-                          ? Padding(
+                          ? const Padding(
                               padding: EdgeInsets.only(top: 40),
                               child: Center(
                                 child: CircularProgressIndicator(),
@@ -637,7 +639,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                               children: [
                                 // PRODUCTS
                                 searchedProducts.isEmpty
-                                    ? Center(
+                                    ? const Center(
                                         child: Padding(
                                           padding: EdgeInsets.only(top: 40),
                                           child: Text(
@@ -676,7 +678,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                             child: Text(
                                               searchedProducts.length
                                                   .toString(),
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                 fontWeight: FontWeight.w500,
                                               ),
                                             ),
@@ -689,7 +691,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                     ? Container()
                                     : GridView.builder(
                                         shrinkWrap: true,
-                                        physics: ClampingScrollPhysics(),
+                                        physics: const ClampingScrollPhysics(),
                                         gridDelegate:
                                             SliverGridDelegateWithFixedCrossAxisCount(
                                           crossAxisCount: 2,
@@ -704,7 +706,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                             ),
                                             builder: (context, snapshot) {
                                               if (snapshot.hasError) {
-                                                return Center(
+                                                return const Center(
                                                   child: Text(
                                                     'Something went wrong',
                                                   ),
@@ -739,17 +741,19 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                                           await getProductData(
                                                         productId,
                                                       );
-
-                                                      Navigator.of(context)
-                                                          .push(
-                                                        MaterialPageRoute(
-                                                          builder: ((context) =>
-                                                              ProductPage(
-                                                                productData:
-                                                                    productData,
-                                                              )),
-                                                        ),
-                                                      );
+                                                      if (context.mounted) {
+                                                        Navigator.of(context)
+                                                            .push(
+                                                          MaterialPageRoute(
+                                                            builder:
+                                                                ((context) =>
+                                                                    ProductPage(
+                                                                      productData:
+                                                                          productData,
+                                                                    )),
+                                                          ),
+                                                        );
+                                                      }
                                                     },
                                                     onDoubleTap: () async {
                                                       await showDialog(

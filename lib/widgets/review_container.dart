@@ -54,13 +54,13 @@ class _ReviewContainerState extends State<ReviewContainer> {
               ),
               Text(
                 "${widget.rating.toString()} ⭐",
-                style: TextStyle(
+                style: const TextStyle(
                   fontWeight: FontWeight.w600,
                 ),
               ),
             ],
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           SeeMoreText(
             widget.review,
             textStyle: TextStyle(

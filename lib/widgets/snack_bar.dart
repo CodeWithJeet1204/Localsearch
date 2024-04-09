@@ -7,12 +7,12 @@ void mySnackBar(String text, BuildContext context) {
     SnackBar(
       content: Text(
         text,
-        style: TextStyle(
+        style: const TextStyle(
           color: primaryDark,
         ),
       ),
       elevation: 2,
-      backgroundColor: Color.fromARGB(255, 240, 252, 255),
+      backgroundColor: const Color.fromARGB(255, 240, 252, 255),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
