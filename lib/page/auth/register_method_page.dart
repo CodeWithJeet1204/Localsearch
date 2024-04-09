@@ -431,7 +431,6 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                                     .update({
                                   "Name": null,
                                   'Views': null,
-                                  'Favorites': null,
                                   "GSTNumber": null,
                                   "Address": null,
                                   "Special Note": null,
@@ -707,7 +706,6 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                         //             .update({
                         //           "Name": null,
                         //           'Views': null,
-                        //           'Favorites': null,
                         //           "GSTNumber": null,
                         //           "Address": null,
                         //           "Special Note": null,

@@ -1,0 +1,1200 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:feather_icons/feather_icons.dart';
+import 'package:find_easy_user/page/main/product/product_page.dart';
+import 'package:find_easy_user/utils/colors.dart';
+import 'package:find_easy_user/widgets/snack_bar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+enum ProductSorting {
+  recentlyAdded,
+  highestRated,
+  mostViewed,
+  lowestPrice,
+  highestPrice,
+}
+
+class VendorPage extends StatefulWidget {
+  const VendorPage({
+    super.key,
+    required this.vendorId,
+  });
+
+  final String vendorId;
+
+  @override
+  State<VendorPage> createState() => _VendorPageState();
+}
+
+class _VendorPageState extends State<VendorPage> {
+  final auth = FirebaseAuth.instance;
+  final store = FirebaseFirestore.instance;
+  Map<String, dynamic>? shopData;
+  Map<String, dynamic>? ownerData;
+  bool isFollowing = false;
+  List? brandImageUrls;
+  List? allDiscount;
+  Map<String, dynamic>? categories;
+  Map<String, dynamic> products = {};
+  String? productSort = 'Recently Added';
+  ScrollController _scrollController = ScrollController();
+  int _numProductsLoaded = 7;
+
+  // INIT STATE
+  @override
+  void initState() {
+    getVendorInfo();
+    getIfFollowing();
+    getBrands();
+    getDiscounts();
+    getCategories();
+    getProducts();
+    sortProducts(ProductSorting.recentlyAdded);
+    super.initState();
+    _scrollController.addListener(_scrollListener);
+    setRecentShop();
+  }
+
+  // DISPOSE
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  // SCROLL LISTENER
+  void _scrollListener() {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      // Reached the end of the list, load more products
+      _loadMoreProducts();
+    }
+  }
+
+  // LOAD MORE PRODUCTS
+  void _loadMoreProducts() {
+    setState(() {
+      // Increment the number of products loaded by 7
+      _numProductsLoaded += 7;
+    });
+  }
+
+  // SET RECENT SHOP
+  Future<void> setRecentShop() async {
+    await Timer(
+      Duration(seconds: 5),
+      () async {
+        await setRecentAndUpdate();
+      },
+    );
+  }
+
+  // SET RECENT AND UPDATE
+  Future<void> setRecentAndUpdate() async {
+    await store.collection('Users').doc(auth.currentUser!.uid).update({
+      'recentShop': widget.vendorId,
+    });
+
+    final vendorSnap = await store
+        .collection('Business')
+        .doc('Owners')
+        .collection('Shops')
+        .doc(widget.vendorId)
+        .get();
+
+    final vendorData = vendorSnap.data()!;
+
+    int views = vendorData['Views'] ?? 0;
+
+    views = views + 1;
+
+    await store
+        .collection('Business')
+        .doc('Owners')
+        .collection('Shops')
+        .doc(widget.vendorId)
+        .update({
+      'Views': views,
+    });
+  }
+
+  // GET IF FOLLOWING
+  Future<void> getIfFollowing() async {
+    final userSnap =
+        await store.collection('Users').doc(auth.currentUser!.uid).get();
+
+    final userData = userSnap.data()!;
+
+    final following = userData['followedShops'];
+
+    setState(() {
+      if ((following as List).contains(widget.vendorId)) {
+        isFollowing = true;
+      } else {
+        isFollowing = false;
+      }
+    });
+  }
+
+  // GET VENDOR INFO
+  Future<void> getVendorInfo() async {
+    final shopSnap = await store
+        .collection('Business')
+        .doc('Owners')
+        .collection('Shops')
+        .doc(widget.vendorId)
+        .get();
+
+    final currentShopData = shopSnap.data()!;
+
+    setState(() {
+      shopData = currentShopData;
+    });
+
+    final ownerSnap = await store
+        .collection('Business')
+        .doc('Owners')
+        .collection('Users')
+        .doc(widget.vendorId)
+        .get();
+
+    final currentOwnerData = ownerSnap.data()!;
+
+    setState(() {
+      ownerData = currentOwnerData;
+    });
+  }
+
+  // FOLLOW SHOP
+  Future<void> followShop() async {
+    final userSnap =
+        await store.collection('Users').doc(auth.currentUser!.uid).get();
+
+    final userData = userSnap.data()!;
+
+    final followedShops = userData['followedShops'] as List;
+
+    if (followedShops.contains(widget.vendorId)) {
+      followedShops.remove(widget.vendorId);
+    } else {
+      followedShops.add(widget.vendorId);
+    }
+
+    await store.collection('Users').doc(auth.currentUser!.uid).update({
+      'followedShops': followedShops,
+    });
+
+    await getIfFollowing();
+  }
+
+  // CALL VENDOR
+  Future<void> callVendor() async {
+    final Uri url = Uri(
+      scheme: 'tel',
+      path: ownerData!['Phone Number'],
+    );
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url);
+    } else {
+      mySnackBar('Some error occured', context);
+    }
+  }
+
+  // GET BRANDS
+  Future<void> getBrands() async {
+    List imageUrls = [];
+    final brandSnap = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Brands')
+        .where('vendorId', isEqualTo: widget.vendorId)
+        .get();
+
+    brandSnap.docs.forEach((brandData) {
+      final imageUrl = brandData['imageUrl'] ?? null;
+
+      if (imageUrl != null) {
+        imageUrls.add(imageUrl);
+      }
+    });
+
+    setState(() {
+      brandImageUrls = imageUrls;
+    });
+  }
+
+  // GET DISCOUNTS
+  Future<void> getDiscounts() async {
+    final discountSnapshot = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Discounts')
+        .where('vendorId', isEqualTo: widget.vendorId)
+        .get();
+
+    List<Map<String, dynamic>> allDiscounts = [];
+
+    for (QueryDocumentSnapshot<Map<String, dynamic>> doc
+        in discountSnapshot.docs) {
+      final data = doc.data();
+
+      if ((data['discountEndDateTime'] as Timestamp)
+              .toDate()
+              .isAfter(DateTime.now()) &&
+          !(data['discountStartDateTime'] as Timestamp)
+              .toDate()
+              .isAfter(DateTime.now())) {
+        allDiscounts.add(data);
+      }
+    }
+
+    setState(() {
+      allDiscount = allDiscounts;
+    });
+  }
+
+  // GET CATEGORIES
+  Future<void> getCategories() async {
+    Map<String, List<String>> category = {};
+    final categoriesSnap = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Category')
+        .where('vendorId', isEqualTo: widget.vendorId)
+        .get();
+
+    categoriesSnap.docs.forEach((categoryData) {
+      final id = categoryData['categoryId'];
+      final name = categoryData['categoryName'];
+      final imageUrl = categoryData['imageUrl'];
+
+      category[id] = [name, imageUrl];
+    });
+
+    setState(() {
+      categories = category;
+    });
+  }
+
+  // GET PRODUCTS
+  Future<void> getProducts() async {
+    final productsSnap = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Products')
+        .where('vendorId', isEqualTo: widget.vendorId)
+        .get();
+
+    Map<String, List<dynamic>> productsData = {};
+
+    productsSnap.docs.forEach((productData) {
+      final id = productData['productId'];
+      final name = productData['productName'];
+      final imageUrl = productData['images'][0];
+      final price = productData['productPrice'];
+      final ratings = productData['ratings'];
+      final datetime = productData['datetime'];
+      final views = productData['productViews'];
+
+      productsData[id] = [name, imageUrl, price, ratings, datetime, views];
+    });
+
+    setState(() {
+      products = productsData;
+    });
+    print("Products: $products");
+  }
+
+  // SORT PRODUCTS
+  void sortProducts(ProductSorting sorting) {
+    setState(() {
+      switch (sorting) {
+        case ProductSorting.recentlyAdded:
+          products = Map.fromEntries(products.entries.toList()
+            ..sort((a, b) => (b.value[4] as Timestamp).compareTo(a.value[4])));
+          break;
+        case ProductSorting.highestRated:
+          products = Map.fromEntries(products.entries.toList()
+            ..sort((a, b) => calculateAverageRating(b.value[3])
+                .compareTo(calculateAverageRating(a.value[3]))));
+          break;
+        case ProductSorting.mostViewed:
+          products = Map.fromEntries(products.entries.toList()
+            ..sort((a, b) => (b.value[5] as int).compareTo(a.value[5])));
+          break;
+        case ProductSorting.lowestPrice:
+          products = Map.fromEntries(products.entries.toList()
+            ..sort((a, b) =>
+                double.parse(a.value[2]).compareTo(double.parse(b.value[2]))));
+          break;
+        case ProductSorting.highestPrice:
+          products = Map.fromEntries(products.entries.toList()
+            ..sort((a, b) =>
+                double.parse(b.value[2]).compareTo(double.parse(a.value[2]))));
+          break;
+      }
+    });
+  }
+
+  // CALCULATE AVERAGE RATINGS
+  double calculateAverageRating(Map<String, dynamic> ratings) {
+    if (ratings.isEmpty) return 0.0;
+
+    final allRatings = ratings.values.map((e) => e[0] as int).toList();
+
+    final sum = allRatings.reduce((value, element) => value + element);
+
+    final averageRating = sum / allRatings.length;
+
+    return averageRating;
+  }
+
+  // GET SCREEN HEIGHT
+  double getScreenHeight(double width) {
+    final mediaQuery = MediaQuery.of(context);
+    final screenHeight = mediaQuery.size.height;
+    final paddingTop = mediaQuery.padding.top;
+    final paddingBottom = mediaQuery.padding.bottom;
+    final searchBarHeight = width * 0.125;
+
+    final availableHeight =
+        screenHeight - paddingTop - paddingBottom - searchBarHeight;
+    return availableHeight;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        actions: [
+          IconButton(
+            onPressed: () {},
+            icon: Icon(FeatherIcons.share2),
+            tooltip: "Share Shop",
+          ),
+        ],
+      ),
+      body: shopData == null || ownerData == null
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : SafeArea(
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: MediaQuery.of(context).size.width * 0.00625,
+                ),
+                child: LayoutBuilder(builder: ((context, constraints) {
+                  final width = constraints.maxWidth;
+
+                  return SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // SHOP INFO
+                        Container(
+                          width: width,
+                          decoration: BoxDecoration(
+                            color: primary2.withOpacity(0.125),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: width * 0.0125,
+                            vertical: width * 0.0166,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // INFO
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    width: width * 0.575,
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        CircleAvatar(
+                                          radius: width * 0.09,
+                                          backgroundImage: NetworkImage(
+                                            shopData!['Image'],
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: EdgeInsets.only(
+                                            left: width * 0.0225,
+                                          ),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceAround,
+                                            children: [
+                                              Text(
+                                                shopData!['Name'],
+                                                style: TextStyle(
+                                                  fontSize: width * 0.055,
+                                                ),
+                                              ),
+                                              Text(
+                                                shopData!['Type'],
+                                                style: TextStyle(
+                                                  fontSize: width * 0.04,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () async {
+                                          await followShop();
+                                        },
+                                        child: Container(
+                                          width: width * 0.225,
+                                          height: 40,
+                                          alignment: Alignment.center,
+                                          decoration: BoxDecoration(
+                                            color:
+                                                isFollowing ? black : lightGrey,
+                                            border: Border.all(
+                                              color: isFollowing
+                                                  ? lightGrey
+                                                  : black,
+                                              width: 0.75,
+                                            ),
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                          child: Text(
+                                            isFollowing
+                                                ? 'Following'
+                                                : 'Follow',
+                                            style: TextStyle(
+                                              color:
+                                                  isFollowing ? white : black,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(width: width * 0.0125),
+                                      IconButton.filledTonal(
+                                        onPressed: () async {
+                                          await callVendor();
+                                        },
+                                        icon: Icon(FeatherIcons.phone),
+                                        tooltip:
+                                            "Call - ${ownerData!['Phone Number']}",
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+
+                              Divider(),
+
+                              // ADDRESS
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: width * 0.0125,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          ownerData!['Name'],
+                                          style: TextStyle(
+                                            fontSize: width * 0.04,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        Container(
+                                          width: width * 0.8,
+                                          child: Text(
+                                            shopData!['Address'],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    IconButton(
+                                      onPressed: () {},
+                                      icon: Icon(FeatherIcons.mapPin),
+                                      tooltip: "Locate on Maps",
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        Divider(),
+
+                        // BRAND
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            vertical: width * 0.01,
+                            horizontal: width * 0.0125,
+                          ),
+                          child: Text(
+                            'Brands',
+                            style: TextStyle(
+                              fontSize: width * 0.0425,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+
+                        // BRANDS
+                        brandImageUrls == null
+                            ? Container()
+                            : brandImageUrls!.isEmpty
+                                ? Container()
+                                : Container(
+                                    width: width,
+                                    height: width * 0.2,
+                                    margin: EdgeInsets.all(width * 0.00125),
+                                    padding: EdgeInsets.all(width * 0.00125),
+                                    child: ListView.builder(
+                                      shrinkWrap: true,
+                                      scrollDirection: Axis.horizontal,
+                                      physics: brandImageUrls!.length > 4
+                                          ? AlwaysScrollableScrollPhysics()
+                                          : NeverScrollableScrollPhysics(),
+                                      itemCount: brandImageUrls!.length,
+                                      itemBuilder: ((context, index) {
+                                        final imageUrl = brandImageUrls![index];
+
+                                        return Container(
+                                          width: width * 0.2,
+                                          margin: EdgeInsets.symmetric(
+                                            horizontal: width * 0.0125,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(4),
+                                            image: DecorationImage(
+                                              image: NetworkImage(imageUrl),
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                        );
+                                      }),
+                                    ),
+                                  ),
+
+                        Divider(),
+
+                        // DISCOUNT
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            vertical: width * 0.01,
+                            horizontal: width * 0.0125,
+                          ),
+                          child: Text(
+                            'Discounts',
+                            style: TextStyle(
+                              fontSize: width * 0.0425,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+
+                        // DISCOUNTS
+                        allDiscount == null
+                            ? Container()
+                            : DiscountsWidget(
+                                noOfDiscounts: allDiscount!.length,
+                                allDiscount: allDiscount!,
+                              ),
+
+                        Divider(),
+
+                        // CATEGORY
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            vertical: width * 0.01,
+                            horizontal: width * 0.0125,
+                          ),
+                          child: Text(
+                            'Categories',
+                            style: TextStyle(
+                              fontSize: width * 0.0425,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+
+                        // CATEGORIES
+                        categories == null
+                            ? Container()
+                            : categories!.isEmpty
+                                ? Container()
+                                : Container(
+                                    width: width,
+                                    height: 200,
+                                    margin: EdgeInsets.symmetric(
+                                      horizontal: width * 0.0125,
+                                      vertical: width * 0.0125,
+                                    ),
+                                    child: GridView.builder(
+                                      shrinkWrap: true,
+                                      physics: NeverScrollableScrollPhysics(),
+                                      gridDelegate:
+                                          SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 4,
+                                        childAspectRatio: 1.125,
+                                      ),
+                                      itemCount: categories!.length > 8
+                                          ? 8
+                                          : categories!.length,
+                                      itemBuilder: ((context, index) {
+                                        // final id =
+                                        //     categories!.keys.toList()[index];
+                                        final name = categories!.values
+                                            .toList()[index][0];
+                                        final imageUrl = categories!.values
+                                            .toList()[index][1];
+
+                                        return Container(
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                              width: 0.25,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              4,
+                                            ),
+                                          ),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              Image.network(
+                                                imageUrl,
+                                                width: width * 0.15,
+                                                height: width * 0.15,
+                                                fit: BoxFit.cover,
+                                              ),
+                                              Text(
+                                                name,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                  fontSize: width * 0.035,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      }),
+                                    ),
+                                  ),
+
+                        Divider(),
+
+                        // PRODUCT & FILTER
+                        products.isEmpty
+                            ? Container()
+                            : Padding(
+                                padding: EdgeInsets.symmetric(
+                                  vertical: width * 0.01,
+                                  horizontal: width * 0.0125,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Products',
+                                      style: TextStyle(
+                                        fontSize: width * 0.0425,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: width * 0.0125,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: primary3,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: DropdownButton<String>(
+                                        underline: SizedBox(),
+                                        dropdownColor: primary2,
+                                        value: productSort,
+                                        iconEnabledColor: primaryDark,
+                                        items: [
+                                          'Recently Added',
+                                          'Highest Rated',
+                                          'Most Viewed',
+                                          'Price - Highest to Lowest',
+                                          'Price - Lowest to Highest'
+                                        ]
+                                            .map(
+                                                (e) => DropdownMenuItem<String>(
+                                                      value: e,
+                                                      child: Text(e),
+                                                    ))
+                                            .toList(),
+                                        onChanged: (value) {
+                                          sortProducts(
+                                            value == 'Recently Added'
+                                                ? ProductSorting.recentlyAdded
+                                                : value == 'Highest Rated'
+                                                    ? ProductSorting
+                                                        .highestRated
+                                                    : value == 'Most Viewed'
+                                                        ? ProductSorting
+                                                            .mostViewed
+                                                        : value ==
+                                                                'Price - Highest to Lowest'
+                                                            ? ProductSorting
+                                                                .highestPrice
+                                                            : ProductSorting
+                                                                .lowestPrice,
+                                          );
+                                          setState(() {
+                                            productSort = value;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                        // PRODUCTS
+                        products.isEmpty
+                            ? Container()
+                            : SizedBox(
+                                width: width,
+                                height: getScreenHeight(width) -
+                                    getScreenHeight(width) * 0.1,
+                                child: ListView.builder(
+                                  shrinkWrap: true,
+                                  physics: ClampingScrollPhysics(),
+                                  itemCount:
+                                      _numProductsLoaded > products.length
+                                          ? products.length
+                                          : _numProductsLoaded,
+                                  itemBuilder: ((context, index) {
+                                    // final id =
+                                    //     products!.keys.toList()[index];
+                                    final name =
+                                        products.values.toList()[index][0];
+                                    final imageUrl =
+                                        products.values.toList()[index][1];
+                                    final price =
+                                        products.values.toList()[index][2];
+                                    final ratings =
+                                        products.values.toList()[index][3];
+                                    final rating =
+                                        calculateAverageRating(ratings);
+
+                                    return Container(
+                                      width: width,
+                                      // height: 150,
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: width * 0.0125,
+                                        vertical: width * 0.0125,
+                                      ),
+                                      margin: EdgeInsets.all(
+                                        width * 0.00625,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        border: Border(
+                                          top: index == 0
+                                              ? BorderSide(
+                                                  color: darkGrey,
+                                                  width: 0.25,
+                                                )
+                                              : BorderSide.none,
+                                          bottom: BorderSide(
+                                            color: darkGrey,
+                                            width: 0.25,
+                                          ),
+                                        ),
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                child: Image.network(
+                                                  imageUrl,
+                                                  width: width * 0.3,
+                                                  height: width * 0.3,
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              ),
+                                              SizedBox(height: 4),
+                                              rating == 0
+                                                  ? Text(
+                                                      'No Reviews',
+                                                      style: TextStyle(
+                                                        fontSize: width * 0.03,
+                                                      ),
+                                                    )
+                                                  : Text('$rating ⭐'),
+                                            ],
+                                          ),
+                                          Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              SizedBox(
+                                                width: width * 0.6,
+                                                child: Text(
+                                                  name,
+                                                  style: TextStyle(
+                                                    fontSize: width * 0.05,
+                                                  ),
+                                                ),
+                                              ),
+                                              SizedBox(height: 8),
+                                              Text(
+                                                price == ''
+                                                    ? 'Rs. --'
+                                                    : 'Rs. ${price}',
+                                                style: TextStyle(
+                                                  fontSize: width * 0.04,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }),
+                                ),
+                              ),
+                      ],
+                    ),
+                  );
+                })),
+              ),
+            ),
+    );
+  }
+}
+
+// DISCOUNTS WIDGET
+class DiscountsWidget extends StatefulWidget {
+  const DiscountsWidget({
+    super.key,
+    required this.noOfDiscounts,
+    required this.allDiscount,
+  });
+
+  final int noOfDiscounts;
+  final List allDiscount;
+
+  @override
+  State<DiscountsWidget> createState() => _DiscountsWidgetState();
+}
+
+class _DiscountsWidgetState extends State<DiscountsWidget>
+    with SingleTickerProviderStateMixin {
+  // late AnimationController animationController;
+  final store = FirebaseFirestore.instance;
+
+  // INIT STATE
+  @override
+  void initState() {
+    super.initState();
+
+    // animationController =
+    //     AnimationController(vsync: this, duration: Duration(seconds: 1));
+    // animationController
+    //   ..addStatusListener((status) {
+    //     if (status == AnimationStatus.completed)
+    //       animationController.forward(from: 0);
+    //   });
+    // animationController.addListener(() {
+    //   setState(() {});
+    // });
+    // animationController.forward();
+  }
+
+  // DISPOSE
+  @override
+  void dispose() {
+    // animationController.dispose();
+    super.dispose();
+  }
+
+  // GET NAME
+  Future<String> getName(
+    int index,
+    bool wantName, {
+    Map<String, dynamic>? wantProductData,
+  }) async {
+    final discountSnap = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Discounts')
+        .doc(widget.allDiscount[index]['discountId'])
+        .get();
+
+    final discountData = discountSnap.data()!;
+    final List products = discountData['products'];
+    final List categories = discountData['categories'];
+    final List brands = discountData['brands'];
+
+    // PRODUCT
+    if (products.isNotEmpty) {
+      final productId = products[0];
+
+      final productSnap = await store
+          .collection('Business')
+          .doc('Data')
+          .collection('Products')
+          .doc(productId)
+          .get();
+
+      final productData = productSnap.data()!;
+
+      final String name = productData['productName'];
+      final String imageUrl = productData['images'][0];
+
+      return wantName ? name : imageUrl;
+    }
+
+    // CATEGORY
+    if (categories.isNotEmpty) {
+      final categoryId = categories[0];
+
+      final categorySnap = await store
+          .collection('Business')
+          .doc('Data')
+          .collection('Category')
+          .doc(categoryId)
+          .get();
+
+      final categoryData = categorySnap.data()!;
+
+      final name = categoryData['categoryName'];
+      final imageUrl = categoryData['imageUrl'];
+
+      return wantName ? name : imageUrl;
+    }
+
+    // BRAND
+    if (brands.isNotEmpty) {
+      final brandId = brands[0];
+
+      final brandSnap = await store
+          .collection('Business')
+          .doc('Data')
+          .collection('Brands')
+          .doc(brandId)
+          .get();
+
+      final brandData = brandSnap.data()!;
+
+      final name = brandData['brandName'];
+      final imageUrl = brandData['imageUrl'];
+
+      return wantName ? name : imageUrl;
+    }
+    return '';
+  }
+
+  // GET PRODUCT DATA
+  Future<Map<String, dynamic>> getProductData(int index) async {
+    final discountSnap = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Discounts')
+        .doc(widget.allDiscount[index]['discountId'])
+        .get();
+
+    final discountData = discountSnap.data()!;
+    final List products = discountData['products'];
+
+    final productId = products[0];
+
+    final productSnap = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Products')
+        .doc(productId)
+        .get();
+
+    final productData = productSnap.data()!;
+
+    return productData;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: width * 0.00125,
+      ),
+      child: SizedBox(
+        width: width,
+        height: width * 0.35,
+        child: ListView.builder(
+          shrinkWrap: true,
+          scrollDirection: Axis.horizontal,
+          physics: widget.allDiscount.length > 3
+              ? AlwaysScrollableScrollPhysics()
+              : NeverScrollableScrollPhysics(),
+          itemCount: widget.allDiscount.length,
+          itemBuilder: ((context, index) {
+            final currentDiscount = widget.allDiscount[index];
+            final String? image = currentDiscount['discountImageUrl'];
+            final name = currentDiscount['discountName'];
+            // TODO: some mismatch in discount shown here, and the disocunt displayed when navigating to product
+            final amount = currentDiscount['discountAmount'];
+            final isPercent = currentDiscount['isPercent'];
+            final List products = currentDiscount['products'];
+            // final List categories = currentDiscount['categories'];
+            // final List brands = currentDiscount['brands'];
+            // final endData = currentDiscount['discountEndDateTime'];
+
+            return Padding(
+              padding: EdgeInsets.all(width * 0.0125),
+              child: GestureDetector(
+                onTap: () async {
+                  final productData = await getProductData(index);
+                  if (products.isNotEmpty) {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => ProductPage(
+                          productData: productData,
+                        ),
+                      ),
+                    );
+                  }
+                },
+                child: Container(
+                  width: width * 0.25,
+                  padding: EdgeInsets.all(
+                    width * 0.00325,
+                  ),
+                  decoration: BoxDecoration(
+                    color: white,
+                    border: Border.all(
+                      width: 0.125,
+                      color: black,
+                    ),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // IMAGE
+                      FutureBuilder(
+                          future: getName(index, false),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              return Stack(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(2),
+                                    child: Image.network(
+                                      image ??
+                                          snapshot.data ??
+                                          'https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/ProhibitionSign2.svg/800px-ProhibitionSign2.svg.png',
+                                      fit: BoxFit.cover,
+                                      width: width * 0.25,
+                                      height: width * 0.25,
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: EdgeInsets.all(
+                                      width * 0.00675,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Color.fromARGB(255, 255, 161, 154),
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(2),
+                                        bottomRight: Radius.circular(4),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      isPercent
+                                          ? '$amount %'
+                                          : 'Save Rs. $amount',
+                                      style: TextStyle(
+                                        color: primaryDark,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              );
+                            }
+
+                            return Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }),
+
+                      // NAME
+                      FutureBuilder(
+                          future: getName(index, true),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              return Text(
+                                snapshot.data ?? name,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: width * 0.04,
+                                ),
+                              );
+                            }
+
+                            return Container();
+                          }),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }),
+        ),
+      ),
+    );
+  }
+}

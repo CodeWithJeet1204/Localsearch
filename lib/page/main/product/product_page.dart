@@ -2,6 +2,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:find_easy_user/page/main/product/product_all_reviews_page.dart';
+import 'package:find_easy_user/page/main/vendor/vendor_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/image_view.dart';
 import 'package:find_easy_user/widgets/info_box.dart';
@@ -923,6 +924,13 @@ class _ProductPageState extends State<ProductPage> {
                             setState(() {
                               isVendorHold = true;
                             });
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: ((context) => VendorPage(
+                                      vendorId: data['vendorId'],
+                                    )),
+                              ),
+                            );
                           },
                           onTapUp: (details) {
                             setState(() {
