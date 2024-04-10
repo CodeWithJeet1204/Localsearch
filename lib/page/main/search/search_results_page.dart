@@ -3,7 +3,6 @@ import 'package:feather_icons/feather_icons.dart';
 import 'package:find_easy_user/page/main/product/product_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/product_quick_view.dart';
-import 'package:find_easy_user/widgets/search_bar.dart';
 import 'package:find_easy_user/widgets/speech_to_text.dart';
 import 'package:find_easy_user/widgets/text_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -35,10 +34,20 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
   // INIT STATE
   @override
   void initState() {
-    searchController.text = widget.search;
+    setSearch();
+    super.initState();
     getProducts();
     getShops();
-    super.initState();
+  }
+
+  // SET SEARCH
+  void setSearch() {
+    print("Search Controller: ${searchController.text}");
+    setState(() {
+      searchController.text = widget.search;
+    });
+    print("Widget Search: ${widget.search}");
+    print("Search Controller: ${searchController.text}");
   }
 
   // LISTEN
@@ -328,9 +337,186 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // SEARCH BAR
-                      MySearchBar(
-                        width: width,
-                        autoFocus: false,
+                      Padding(
+                        padding: EdgeInsets.only(
+                          bottom: width * 0.0125,
+                        ),
+                        child: Container(
+                          color: primary2.withOpacity(0.5),
+                          child: Row(
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: Container(
+                                  width: width * 0.1,
+                                  height: width * 0.1825,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(100),
+                                  ),
+                                  child: const Icon(
+                                    FeatherIcons.arrowLeft,
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                  vertical: width * 0.0125,
+                                ),
+                                child: Container(
+                                  width: width * 0.875,
+                                  height: width * 0.1825,
+                                  decoration: BoxDecoration(
+                                    color: primary,
+                                    border: Border.all(
+                                      color: primaryDark.withOpacity(0.75),
+                                    ),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Container(
+                                        width: width * 0.6125,
+                                        decoration: const BoxDecoration(
+                                          border: Border(
+                                            right: BorderSide(
+                                              width: 0.5,
+                                            ),
+                                          ),
+                                        ),
+                                        alignment: Alignment.center,
+                                        child: TextFormField(
+                                          autofillHints: const [],
+                                          autofocus: false,
+                                          minLines: 1,
+                                          maxLines: 1,
+                                          controller: searchController,
+                                          keyboardType: TextInputType.text,
+                                          textInputAction:
+                                              TextInputAction.search,
+                                          decoration: const InputDecoration(
+                                            hintText: 'Search',
+                                            hintStyle: TextStyle(
+                                              textBaseline:
+                                                  TextBaseline.alphabetic,
+                                            ),
+                                            border: OutlineInputBorder(
+                                              borderSide: BorderSide.none,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          InkWell(
+                                            onTapDown: (details) {
+                                              setState(() {
+                                                isMicPressed = true;
+                                              });
+                                            },
+                                            onTapUp: (details) {
+                                              setState(() {
+                                                isMicPressed = false;
+                                              });
+                                            },
+                                            onTapCancel: () {
+                                              setState(() {
+                                                isMicPressed = false;
+                                              });
+                                            },
+                                            onTap: () async {
+                                              await listen();
+                                            },
+                                            customBorder:
+                                                RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                            child: Container(
+                                              width: width * 0.125,
+                                              alignment: Alignment.center,
+                                              decoration: BoxDecoration(
+                                                color: isMicPressed
+                                                    ? primary2.withOpacity(0.95)
+                                                    : primary2
+                                                        .withOpacity(0.25),
+                                              ),
+                                              child: Icon(
+                                                FeatherIcons.mic,
+                                                size: width * 0.06,
+                                              ),
+                                            ),
+                                          ),
+                                          InkWell(
+                                            onTapDown: (details) {
+                                              setState(() {
+                                                isSearchPressed = true;
+                                              });
+                                            },
+                                            onTapUp: (details) {
+                                              setState(() {
+                                                isSearchPressed = false;
+                                              });
+                                            },
+                                            onTapCancel: () {
+                                              setState(() {
+                                                isSearchPressed = false;
+                                              });
+                                            },
+                                            onTap: () async {
+                                              await search();
+                                            },
+                                            customBorder:
+                                                const RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(0),
+                                                bottomLeft: Radius.circular(0),
+                                                bottomRight:
+                                                    Radius.circular(12),
+                                                topRight: Radius.circular(12),
+                                              ),
+                                            ),
+                                            child: Container(
+                                              width: width * 0.125,
+                                              decoration: BoxDecoration(
+                                                color: isSearchPressed
+                                                    ? primary2.withOpacity(0.95)
+                                                    : primary2
+                                                        .withOpacity(0.25),
+                                                borderRadius:
+                                                    const BorderRadius.only(
+                                                  topLeft: Radius.circular(0),
+                                                  bottomLeft:
+                                                      Radius.circular(0),
+                                                  bottomRight:
+                                                      Radius.circular(12),
+                                                  topRight: Radius.circular(12),
+                                                ),
+                                              ),
+                                              alignment: Alignment.center,
+                                              child: Icon(
+                                                FeatherIcons.search,
+                                                size: width * 0.06,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
 
                       // FILTERS

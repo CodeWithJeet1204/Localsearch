@@ -1,18 +1,17 @@
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:find_easy_user/page/main/product/product_page.dart';
 import 'package:find_easy_user/page/main/vendor/brand/all_brand_page.dart';
 import 'package:find_easy_user/page/main/vendor/brand/brand_page.dart';
 import 'package:find_easy_user/page/main/vendor/category/all_category_page.dart';
+import 'package:find_easy_user/page/main/vendor/category/category_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/image_show.dart';
 import 'package:find_easy_user/widgets/snack_bar.dart';
 import 'package:find_easy_user/widgets/text_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 enum ProductSorting {
@@ -42,7 +41,7 @@ class _VendorPageState extends State<VendorPage> {
   Map<String, dynamic>? ownerData;
   bool isFollowing = false;
   Map brands = {};
-  List? allDiscount;
+  List? allDiscounts;
   Map<String, dynamic>? categories;
   Map<String, dynamic> products = {};
   String? productSort = 'Recently Added';
@@ -243,7 +242,7 @@ class _VendorPageState extends State<VendorPage> {
         .where('vendorId', isEqualTo: widget.vendorId)
         .get();
 
-    List<Map<String, dynamic>> allDiscounts = [];
+    List<Map<String, dynamic>> allDiscount = [];
 
     for (QueryDocumentSnapshot<Map<String, dynamic>> doc
         in discountSnapshot.docs) {
@@ -255,12 +254,12 @@ class _VendorPageState extends State<VendorPage> {
           !(data['discountStartDateTime'] as Timestamp)
               .toDate()
               .isAfter(DateTime.now())) {
-        allDiscounts.add(data);
+        allDiscount.add(data);
       }
     }
 
     setState(() {
-      allDiscount = allDiscounts;
+      allDiscounts = allDiscount;
     });
   }
 
@@ -306,8 +305,17 @@ class _VendorPageState extends State<VendorPage> {
       final ratings = productData['ratings'];
       final datetime = productData['datetime'];
       final views = productData['productViews'];
+      final data = productData.data();
 
-      productsData[id] = [name, imageUrl, price, ratings, datetime, views];
+      productsData[id] = [
+        name,
+        imageUrl,
+        price,
+        ratings,
+        datetime,
+        views,
+        data,
+      ];
     }
 
     setState(() {
@@ -664,7 +672,7 @@ class _VendorPageState extends State<VendorPage> {
                         brands.isEmpty ? Container() : const Divider(),
 
                         // DISCOUNT
-                        allDiscount == null
+                        allDiscounts == null
                             ? Container()
                             : Padding(
                                 padding: EdgeInsets.symmetric(
@@ -681,14 +689,14 @@ class _VendorPageState extends State<VendorPage> {
                               ),
 
                         // DISCOUNTS
-                        allDiscount == null
+                        allDiscounts == null
                             ? Container()
                             : DiscountsWidget(
-                                noOfDiscounts: allDiscount!.length,
-                                allDiscount: allDiscount!,
+                                noOfDiscounts: allDiscounts!.length,
+                                allDiscount: allDiscounts!,
                               ),
 
-                        allDiscount == null ? Container() : const Divider(),
+                        allDiscounts == null ? Container() : const Divider(),
 
                         // CATEGORY
                         categories == null
@@ -759,41 +767,55 @@ class _VendorPageState extends State<VendorPage> {
                                           ? 8
                                           : categories!.length,
                                       itemBuilder: ((context, index) {
-                                        // final id =
-                                        //     categories!.keys.toList()[index];
+                                        final id =
+                                            categories!.keys.toList()[index];
                                         final name = categories!.values
                                             .toList()[index][0];
                                         final imageUrl = categories!.values
                                             .toList()[index][1];
 
-                                        return Container(
-                                          decoration: BoxDecoration(
-                                            border: Border.all(
-                                              width: 0.25,
-                                            ),
-                                            borderRadius: BorderRadius.circular(
-                                              4,
-                                            ),
-                                          ),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              Image.network(
-                                                imageUrl,
-                                                width: width * 0.15,
-                                                height: width * 0.15,
-                                                fit: BoxFit.cover,
+                                        return GestureDetector(
+                                          onTap: () {
+                                            Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                builder: ((context) =>
+                                                    CategoryPage(
+                                                      categoryId: id,
+                                                    )),
                                               ),
-                                              Text(
-                                                name,
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: TextStyle(
-                                                  fontSize: width * 0.035,
+                                            );
+                                          },
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              border: Border.all(
+                                                width: 0.25,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(
+                                                4,
+                                              ),
+                                            ),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                Image.network(
+                                                  imageUrl,
+                                                  width: width * 0.15,
+                                                  height: width * 0.15,
+                                                  fit: BoxFit.cover,
                                                 ),
-                                              ),
-                                            ],
+                                                Text(
+                                                  name,
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: TextStyle(
+                                                    fontSize: width * 0.035,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         );
                                       }),
@@ -894,8 +916,6 @@ class _VendorPageState extends State<VendorPage> {
                                           ? products.length
                                           : _numProductsLoaded,
                                   itemBuilder: ((context, index) {
-                                    // final id =
-                                    //     products!.keys.toList()[index];
                                     final name =
                                         products.values.toList()[index][0];
                                     final imageUrl =
@@ -904,92 +924,106 @@ class _VendorPageState extends State<VendorPage> {
                                         products.values.toList()[index][2];
                                     final ratings =
                                         products.values.toList()[index][3];
+                                    final productData =
+                                        products.values.toList()[index][6];
                                     final rating =
                                         calculateAverageRating(ratings);
 
-                                    return Container(
-                                      width: width,
-                                      // height: 150,
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: width * 0.0125,
-                                        vertical: width * 0.0125,
-                                      ),
-                                      margin: EdgeInsets.all(
-                                        width * 0.00625,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        border: Border(
-                                          top: index == 0
-                                              ? const BorderSide(
-                                                  color: darkGrey,
-                                                  width: 0.25,
-                                                )
-                                              : BorderSide.none,
-                                          bottom: const BorderSide(
-                                            color: darkGrey,
-                                            width: 0.25,
+                                    return GestureDetector(
+                                      onTap: () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: ((context) => ProductPage(
+                                                  productData: productData,
+                                                )),
+                                          ),
+                                        );
+                                      },
+                                      child: Container(
+                                        width: width,
+                                        // height: 150,
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: width * 0.0125,
+                                          vertical: width * 0.0125,
+                                        ),
+                                        margin: EdgeInsets.all(
+                                          width * 0.00625,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          border: Border(
+                                            top: index == 0
+                                                ? const BorderSide(
+                                                    color: darkGrey,
+                                                    width: 0.25,
+                                                  )
+                                                : BorderSide.none,
+                                            bottom: const BorderSide(
+                                              color: darkGrey,
+                                              width: 0.25,
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                                child: Image.network(
-                                                  imageUrl,
-                                                  width: width * 0.3,
-                                                  height: width * 0.3,
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 4),
-                                              rating == 0
-                                                  ? Text(
-                                                      'No Reviews',
-                                                      style: TextStyle(
-                                                        fontSize: width * 0.03,
-                                                      ),
-                                                    )
-                                                  : Text('$rating ⭐'),
-                                            ],
-                                          ),
-                                          Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              SizedBox(
-                                                width: width * 0.6,
-                                                child: Text(
-                                                  name,
-                                                  style: TextStyle(
-                                                    fontSize: width * 0.05,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                  child: Image.network(
+                                                    imageUrl,
+                                                    width: width * 0.3,
+                                                    height: width * 0.3,
+                                                    fit: BoxFit.cover,
                                                   ),
                                                 ),
-                                              ),
-                                              const SizedBox(height: 8),
-                                              Text(
-                                                price == ''
-                                                    ? 'Rs. --'
-                                                    : 'Rs. $price',
-                                                style: TextStyle(
-                                                  fontSize: width * 0.04,
-                                                  fontWeight: FontWeight.w500,
+                                                const SizedBox(height: 4),
+                                                rating == 0
+                                                    ? Text(
+                                                        'No Reviews',
+                                                        style: TextStyle(
+                                                          fontSize:
+                                                              width * 0.03,
+                                                        ),
+                                                      )
+                                                    : Text('$rating ⭐'),
+                                              ],
+                                            ),
+                                            Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                SizedBox(
+                                                  width: width * 0.6,
+                                                  child: Text(
+                                                    name,
+                                                    style: TextStyle(
+                                                      fontSize: width * 0.05,
+                                                    ),
+                                                  ),
                                                 ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
+                                                const SizedBox(height: 8),
+                                                Text(
+                                                  price == ''
+                                                      ? 'Rs. --'
+                                                      : 'Rs. $price',
+                                                  style: TextStyle(
+                                                    fontSize: width * 0.04,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     );
                                   }),
@@ -1153,6 +1187,40 @@ class _DiscountsWidgetState extends State<DiscountsWidget>
     return productData;
   }
 
+  // GET CATEGORY ID
+  Future<String> getCategoryId(int index) async {
+    final discountSnap = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Discounts')
+        .doc(widget.allDiscount[index]['discountId'])
+        .get();
+
+    final discountData = discountSnap.data()!;
+    final List categories = discountData['categories'];
+
+    final categoryId = categories[0];
+
+    return categoryId;
+  }
+
+  // GET BRAND ID
+  Future<String> getBrandId(int index) async {
+    final discountSnap = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Discounts')
+        .doc(widget.allDiscount[index]['discountId'])
+        .get();
+
+    final discountData = discountSnap.data()!;
+    final List brands = discountData['brands'];
+
+    final brandId = brands[0];
+
+    return brandId;
+  }
+
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
@@ -1173,22 +1241,23 @@ class _DiscountsWidgetState extends State<DiscountsWidget>
           itemCount: widget.allDiscount.length,
           itemBuilder: ((context, index) {
             final currentDiscount = widget.allDiscount[index];
-            final String? image = currentDiscount['discountImageUrl'];
+            // final String? image = currentDiscount['discountImageUrl'];
             final name = currentDiscount['discountName'];
             // TODO: some mismatch in discount shown here, and the disocunt displayed when navigating to product
+            // TODO: some mismatch in image shown here, and the image of category / brand
             final amount = currentDiscount['discountAmount'];
             final isPercent = currentDiscount['isPercent'];
             final List products = currentDiscount['products'];
-            // final List categories = currentDiscount['categories'];
-            // final List brands = currentDiscount['brands'];
-            // final endData = currentDiscount['discountEndDateTime'];
+            final List categories = currentDiscount['categories'];
+            final List brands = currentDiscount['brands'];
+            // final endDate = currentDiscount['discountEndDateTime'];
 
             return Padding(
               padding: EdgeInsets.all(width * 0.0125),
               child: GestureDetector(
                 onTap: () async {
-                  final productData = await getProductData(index);
                   if (products.isNotEmpty) {
+                    final productData = await getProductData(index);
                     if (context.mounted) {
                       Navigator.of(context).push(
                         MaterialPageRoute(
@@ -1198,13 +1267,31 @@ class _DiscountsWidgetState extends State<DiscountsWidget>
                         ),
                       );
                     }
+                  } else if (categories.isNotEmpty) {
+                    final categoryId = await getCategoryId(index);
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: ((context) => CategoryPage(
+                              categoryId: categoryId,
+                            )),
+                      ),
+                    );
+                  } else if (brands.isNotEmpty) {
+                    final brandId = await getBrandId(index);
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: ((context) => BrandPage(
+                              brandId: brandId,
+                            )),
+                      ),
+                    );
                   }
                 },
                 child: Container(
                   width: width * 0.25,
-                  padding: EdgeInsets.all(
-                    width * 0.00325,
-                  ),
+                  // padding: EdgeInsets.all(
+                  //   width * 0.00325,
+                  // ),
                   decoration: BoxDecoration(
                     color: white,
                     border: Border.all(
@@ -1227,8 +1314,7 @@ class _DiscountsWidgetState extends State<DiscountsWidget>
                                   ClipRRect(
                                     borderRadius: BorderRadius.circular(2),
                                     child: Image.network(
-                                      image ??
-                                          snapshot.data ??
+                                      snapshot.data ??
                                           'https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/ProhibitionSign2.svg/800px-ProhibitionSign2.svg.png',
                                       fit: BoxFit.cover,
                                       width: width * 0.25,
@@ -1240,18 +1326,21 @@ class _DiscountsWidgetState extends State<DiscountsWidget>
                                       width * 0.00675,
                                     ),
                                     decoration: const BoxDecoration(
-                                      color: Color.fromARGB(255, 255, 161, 154),
+                                      color: primary,
                                       borderRadius: BorderRadius.only(
                                         topLeft: Radius.circular(2),
                                         bottomRight: Radius.circular(4),
                                       ),
+                                      boxShadow: [
+                                        BoxShadow(),
+                                      ],
                                     ),
                                     child: Text(
                                       isPercent
                                           ? '$amount %'
                                           : 'Save Rs. $amount',
                                       style: const TextStyle(
-                                        color: primaryDark,
+                                        color: Color.fromARGB(255, 255, 30, 14),
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
@@ -1270,11 +1359,16 @@ class _DiscountsWidgetState extends State<DiscountsWidget>
                           future: getName(index, true),
                           builder: (context, snapshot) {
                             if (snapshot.hasData) {
-                              return Text(
-                                snapshot.data ?? name,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: width * 0.04,
+                              return Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: width * 0.00625,
+                                ),
+                                child: Text(
+                                  snapshot.data ?? name,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: width * 0.04,
+                                  ),
                                 ),
                               );
                             }

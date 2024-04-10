@@ -319,6 +319,16 @@ class _SearchPageState extends State<SearchPage> {
                                         await search(search: name);
                                       },
                                       child: Container(
+                                        decoration: BoxDecoration(
+                                          color: primary2.withOpacity(0.125),
+                                          border: Border.all(
+                                            width: 0.5,
+                                            color:
+                                                primaryDark.withOpacity(0.25),
+                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
                                         padding: EdgeInsets.only(
                                           left: width * 0.033,
                                           right: width * 0.015,
@@ -326,11 +336,6 @@ class _SearchPageState extends State<SearchPage> {
                                         margin: EdgeInsets.symmetric(
                                           horizontal: width * 0.0125,
                                           vertical: width * 0.0125,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: primary2.withOpacity(0.75),
-                                          borderRadius:
-                                              BorderRadius.circular(12),
                                         ),
                                         child: Row(
                                           mainAxisAlignment:
@@ -426,6 +431,14 @@ class _SearchPageState extends State<SearchPage> {
                                     await search(search: name);
                                   },
                                   child: Container(
+                                    decoration: BoxDecoration(
+                                      color: primary2.withOpacity(0.125),
+                                      border: Border.all(
+                                        width: 0.5,
+                                        color: primaryDark.withOpacity(0.25),
+                                      ),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
                                     padding: EdgeInsets.only(
                                       left: width * 0.033,
                                       right: width * 0.015,
@@ -435,10 +448,6 @@ class _SearchPageState extends State<SearchPage> {
                                     margin: EdgeInsets.symmetric(
                                       horizontal: width * 0.0125,
                                       vertical: width * 0.0125,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: primary2.withOpacity(0.75),
-                                      borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Row(
                                       mainAxisAlignment:
@@ -491,7 +500,7 @@ class _SearchPageState extends State<SearchPage> {
                         ? Container()
                         : SizedBox(
                             width: width,
-                            height: width * 0.45,
+                            height: width * 0.4125,
                             child: ListView.builder(
                               shrinkWrap: true,
                               scrollDirection: Axis.horizontal,
@@ -507,59 +516,57 @@ class _SearchPageState extends State<SearchPage> {
                                 final Map<String, dynamic> data =
                                     recentProducts!.values.toList()[index][2];
 
-                                return Padding(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: width * 0.0125,
-                                    vertical: width * 0.015,
-                                  ),
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: ((context) => ProductPage(
-                                                productData: data,
-                                              )),
-                                        ),
-                                      );
-                                    },
-                                    child: Container(
-                                      width: width * 0.3,
-                                      decoration: BoxDecoration(
-                                        color: primary2,
-                                        borderRadius: BorderRadius.circular(12),
+                                return GestureDetector(
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: ((context) => ProductPage(
+                                              productData: data,
+                                            )),
                                       ),
-                                      child: Padding(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: width * 0.0125,
-                                        ),
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceEvenly,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                              child: Image.network(
-                                                image,
-                                                fit: BoxFit.cover,
-                                                width: width * 0.225,
-                                                height: width * 0.25,
-                                              ),
-                                            ),
-                                            Text(
-                                              name,
-                                              overflow: TextOverflow.ellipsis,
-                                              maxLines: 1,
-                                              style: TextStyle(
-                                                fontSize: width * 0.05,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
+                                    );
+                                  },
+                                  child: Container(
+                                    width: width * 0.3,
+                                    decoration: BoxDecoration(
+                                      color: white,
+                                      border: Border.all(
+                                        width: 0.25,
                                       ),
+                                      borderRadius: BorderRadius.circular(2),
+                                    ),
+                                    padding: EdgeInsets.all(
+                                      width * 0.00625,
+                                    ),
+                                    margin: EdgeInsets.symmetric(
+                                      horizontal: width * 0.0125,
+                                      vertical: width * 0.0125,
+                                    ),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(2),
+                                          child: Image.network(
+                                            image,
+                                            fit: BoxFit.cover,
+                                            width: width * 0.3,
+                                            height: width * 0.3,
+                                          ),
+                                        ),
+                                        Text(
+                                          name,
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          style: TextStyle(
+                                            fontSize: width * 0.05,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 );

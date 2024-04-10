@@ -87,7 +87,7 @@ class _MySearchBarState extends State<MySearchBar> {
         bottom: width * 0.0125,
       ),
       child: Container(
-        color: primary2,
+        color: primary2.withOpacity(0.5),
         child: Row(
           children: [
             InkWell(
@@ -96,7 +96,7 @@ class _MySearchBarState extends State<MySearchBar> {
               },
               child: Container(
                 width: width * 0.1,
-                height: width * 0.2,
+                height: width * 0.1825,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(100),
                 ),
@@ -106,27 +106,25 @@ class _MySearchBarState extends State<MySearchBar> {
               ),
             ),
             Padding(
-              padding: EdgeInsets.only(
-                top: width * 0.025,
-                bottom: width * 0.0225,
-                right: width * 0.0125,
+              padding: EdgeInsets.symmetric(
+                vertical: width * 0.0125,
               ),
               child: Container(
                 width: width * 0.875,
-                height: width * 0.1875,
+                height: width * 0.1825,
                 decoration: BoxDecoration(
                   color: primary,
                   border: Border.all(
                     color: primaryDark.withOpacity(0.75),
                   ),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Container(
-                      width: width * 0.566,
+                      width: width * 0.6125,
                       decoration: const BoxDecoration(
                         border: Border(
                           right: BorderSide(
@@ -181,7 +179,7 @@ class _MySearchBarState extends State<MySearchBar> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Container(
-                            width: width * 0.15,
+                            width: width * 0.125,
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
                               color: isMicPressed
@@ -190,7 +188,7 @@ class _MySearchBarState extends State<MySearchBar> {
                             ),
                             child: Icon(
                               FeatherIcons.mic,
-                              size: width * 0.066,
+                              size: width * 0.06,
                             ),
                           ),
                         ),
@@ -222,7 +220,7 @@ class _MySearchBarState extends State<MySearchBar> {
                             ),
                           ),
                           child: Container(
-                            width: width * 0.15,
+                            width: width * 0.125,
                             decoration: BoxDecoration(
                               color: isSearchPressed
                                   ? primary2.withOpacity(0.95)
@@ -237,7 +235,7 @@ class _MySearchBarState extends State<MySearchBar> {
                             alignment: Alignment.center,
                             child: Icon(
                               FeatherIcons.search,
-                              size: width * 0.066,
+                              size: width * 0.06,
                             ),
                           ),
                         ),

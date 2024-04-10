@@ -1581,82 +1581,26 @@ class _ProductPageState extends State<ProductPage> {
                       ),
 
                       // PROPERTY 0
-                      propertyValue0.isEmpty ||
-                              propertyName0 == '' ||
-                              propertyNoOfAnswers0 != 3
-                          ? Container()
-                          : InfoBox(
-                              head: propertyName0,
-                              content: propertyValue0[0],
-                              noOfAnswers: propertyNoOfAnswers0,
-                              propertyValue: propertyValue0,
-                              width: width,
-                            ),
-
-                      // PROPERTY 1
-                      propertyValue1.isEmpty ||
-                              propertyName1 == '' ||
-                              propertyNoOfAnswers1 != 3
-                          ? Container()
-                          : InfoBox(
-                              head: propertyName1,
-                              content: propertyValue1[0],
-                              noOfAnswers: propertyNoOfAnswers1,
-                              propertyValue: propertyValue1,
-                              width: width,
-                            ),
-
-                      // PROPERTY 2
-                      propertyValue2.isEmpty ||
-                              propertyName2 == '' ||
-                              propertyNoOfAnswers2 != 3
-                          ? Container()
-                          : InfoBox(
-                              head: propertyName2,
-                              content: propertyValue2[0],
-                              noOfAnswers: propertyNoOfAnswers2,
-                              propertyValue: propertyValue2,
-                              width: width,
-                            ),
-
-                      // PROPERTY 3
-                      propertyValue3.isEmpty ||
-                              propertyName3 == '' ||
-                              propertyNoOfAnswers3 != 3
-                          ? Container()
-                          : InfoBox(
-                              head: propertyName3,
-                              content: propertyValue3[0],
-                              noOfAnswers: propertyNoOfAnswers3,
-                              propertyValue: propertyValue3,
-                              width: width,
-                            ),
-
-                      // PROPERTY 4
-                      propertyValue4.isEmpty ||
-                              propertyName4 == '' ||
-                              propertyNoOfAnswers4 != 3
-                          ? Container()
-                          : InfoBox(
-                              head: propertyName4,
-                              content: propertyValue4[0],
-                              noOfAnswers: propertyNoOfAnswers4,
-                              propertyValue: propertyValue4,
-                              width: width,
-                            ),
-
-                      // PROPERTY 5
-                      propertyValue5.isEmpty ||
-                              propertyName5 == '' ||
-                              propertyNoOfAnswers5 != 3
-                          ? Container()
-                          : InfoBox(
-                              head: propertyName5,
-                              content: propertyValue5[0],
-                              noOfAnswers: propertyNoOfAnswers5,
-                              propertyValue: propertyValue5,
-                              width: width,
-                            ),
+                      Properties(
+                          propertyValue0: propertyValue0,
+                          propertyName0: propertyName0,
+                          propertyNoOfAnswers0: propertyNoOfAnswers0,
+                          width: width,
+                          propertyValue1: propertyValue1,
+                          propertyName1: propertyName1,
+                          propertyNoOfAnswers1: propertyNoOfAnswers1,
+                          propertyValue2: propertyValue2,
+                          propertyName2: propertyName2,
+                          propertyNoOfAnswers2: propertyNoOfAnswers2,
+                          propertyValue3: propertyValue3,
+                          propertyName3: propertyName3,
+                          propertyNoOfAnswers3: propertyNoOfAnswers3,
+                          propertyValue4: propertyValue4,
+                          propertyName4: propertyName4,
+                          propertyNoOfAnswers4: propertyNoOfAnswers4,
+                          propertyValue5: propertyValue5,
+                          propertyName5: propertyName5,
+                          propertyNoOfAnswers5: propertyNoOfAnswers5),
 
                       // SERVICES
                       Center(
@@ -1816,14 +1760,9 @@ class _ProductPageState extends State<ProductPage> {
                       // OTHER VENDOR PRODUCTS
                       Container(
                         width: width,
-                        height: width * 0.6,
+                        height: width * 0.66,
                         decoration: BoxDecoration(
                           color: white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: lightGrey,
-                            width: 1,
-                          ),
                         ),
                         padding: EdgeInsets.only(
                           right: width * 0.02,
@@ -1837,10 +1776,8 @@ class _ProductPageState extends State<ProductPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Padding(
-                              padding: EdgeInsets.only(
-                                left: width * 0.025,
-                                right: width * 0.025,
-                                top: width * 0.0166,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: width * 0.025,
                               ),
                               child: const Text(
                                 'Other Products From This Shop',
@@ -1865,52 +1802,57 @@ class _ProductPageState extends State<ProductPage> {
                                       otherVendorProductsDatas[index]['images']
                                           [0];
 
-                                  return Padding(
-                                    padding: EdgeInsets.only(
-                                      left: width * 0.025,
-                                      right: width * 0.025,
-                                      top: width * 0.01,
-                                      bottom: width * 0.015,
-                                    ),
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: ((context) => ProductPage(
-                                                  productData: data,
-                                                )),
-                                          ),
-                                        );
-                                      },
-                                      child: Container(
-                                        width: width * 0.3,
-                                        height: width * 0.2,
-                                        decoration: BoxDecoration(
-                                          color: primary2,
-                                          borderRadius:
-                                              BorderRadius.circular(12),
+                                  return GestureDetector(
+                                    onTap: () {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: ((context) => ProductPage(
+                                                productData: data,
+                                              )),
                                         ),
-                                        child: Padding(
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: width * 0.025,
-                                            vertical: width * 0.0125,
+                                      );
+                                    },
+                                    child: Container(
+                                      width: width * 0.3,
+                                      height: width * 0.2,
+                                      decoration: BoxDecoration(
+                                        color: white,
+                                        border: Border.all(
+                                          width: 0.25,
+                                        ),
+                                        borderRadius: BorderRadius.circular(2),
+                                      ),
+                                      padding: EdgeInsets.all(
+                                        width * 0.00625,
+                                      ),
+                                      margin: EdgeInsets.only(
+                                        left: width * 0.025,
+                                        right: width * 0.025,
+                                        top: width * 0.01,
+                                        bottom: width * 0.015,
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(2),
+                                            child: Image.network(
+                                              image,
+                                              fit: BoxFit.cover,
+                                              width: width * 0.3,
+                                              height: width * 0.3,
+                                            ),
                                           ),
-                                          child: Column(
+                                          Column(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceAround,
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: [
-                                              ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                                child: Image.network(
-                                                  image,
-                                                  fit: BoxFit.cover,
-                                                  width: width * 0.25,
-                                                  height: width * 0.3,
-                                                ),
-                                              ),
                                               Text(
                                                 name,
                                                 overflow: TextOverflow.ellipsis,
@@ -1930,7 +1872,7 @@ class _ProductPageState extends State<ProductPage> {
                                               ),
                                             ],
                                           ),
-                                        ),
+                                        ],
                                       ),
                                     ),
                                   );
@@ -1949,11 +1891,6 @@ class _ProductPageState extends State<ProductPage> {
                         height: width * 0.6,
                         decoration: BoxDecoration(
                           color: white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: lightGrey,
-                            width: 1,
-                          ),
                         ),
                         padding: EdgeInsets.only(
                           right: width * 0.02,
@@ -1967,10 +1904,8 @@ class _ProductPageState extends State<ProductPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Padding(
-                              padding: EdgeInsets.only(
-                                left: width * 0.025,
-                                right: width * 0.025,
-                                top: width * 0.0166,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: width * 0.025,
                               ),
                               child: const Text(
                                 'Similar Products',
@@ -1994,72 +1929,84 @@ class _ProductPageState extends State<ProductPage> {
                                   final String image =
                                       similarProductsDatas[index]['images'][0];
 
-                                  return Padding(
-                                    padding: EdgeInsets.only(
-                                      left: width * 0.025,
-                                      right: width * 0.025,
-                                      top: width * 0.01,
-                                      bottom: width * 0.015,
-                                    ),
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: ((context) => ProductPage(
-                                                  productData: data,
-                                                )),
-                                          ),
-                                        );
-                                      },
-                                      child: Container(
-                                        width: width * 0.3,
-                                        height: width * 0.2,
-                                        decoration: BoxDecoration(
-                                          color: primary2,
-                                          borderRadius:
-                                              BorderRadius.circular(12),
+                                  return GestureDetector(
+                                    onTap: () {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: ((context) => ProductPage(
+                                                productData: data,
+                                              )),
                                         ),
-                                        child: Padding(
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: width * 0.025,
-                                            vertical: width * 0.0125,
-                                          ),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceAround,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                                child: Image.network(
-                                                  image,
-                                                  fit: BoxFit.cover,
-                                                  width: width * 0.25,
-                                                  height: width * 0.3,
-                                                ),
-                                              ),
-                                              Text(
-                                                name,
-                                                overflow: TextOverflow.ellipsis,
-                                                maxLines: 1,
-                                                style: TextStyle(
-                                                  fontSize: width * 0.05,
-                                                ),
-                                              ),
-                                              Text(
-                                                'Rs. $price',
-                                                overflow: TextOverflow.ellipsis,
-                                                maxLines: 1,
-                                                style: TextStyle(
-                                                  fontSize: width * 0.045,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
+                                      );
+                                    },
+                                    child: Container(
+                                      width: width * 0.3,
+                                      height: width * 0.2,
+                                      decoration: BoxDecoration(
+                                        color: white,
+                                        borderRadius: BorderRadius.circular(2),
+                                        border: Border.all(
+                                          width: 0.25,
                                         ),
+                                      ),
+                                      padding: EdgeInsets.all(
+                                        width * 0.00625,
+                                      ),
+                                      margin: EdgeInsets.only(
+                                        left: width * 0.025,
+                                        right: width * 0.025,
+                                        top: width * 0.01,
+                                        bottom: width * 0.015,
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(2),
+                                            child: Image.network(
+                                              image,
+                                              fit: BoxFit.cover,
+                                              width: width * 0.3,
+                                              height: width * 0.3,
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: width * 0.00625,
+                                            ),
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  name,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  maxLines: 1,
+                                                  style: TextStyle(
+                                                    fontSize: width * 0.05,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  'Rs. $price',
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  maxLines: 1,
+                                                  style: TextStyle(
+                                                    fontSize: width * 0.045,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   );
@@ -2262,6 +2209,138 @@ class _ProductPageState extends State<ProductPage> {
   }
 }
 
+// PROPERTIES
+class Properties extends StatelessWidget {
+  const Properties({
+    super.key,
+    required this.propertyValue0,
+    required this.propertyName0,
+    required this.propertyNoOfAnswers0,
+    required this.width,
+    required this.propertyValue1,
+    required this.propertyName1,
+    required this.propertyNoOfAnswers1,
+    required this.propertyValue2,
+    required this.propertyName2,
+    required this.propertyNoOfAnswers2,
+    required this.propertyValue3,
+    required this.propertyName3,
+    required this.propertyNoOfAnswers3,
+    required this.propertyValue4,
+    required this.propertyName4,
+    required this.propertyNoOfAnswers4,
+    required this.propertyValue5,
+    required this.propertyName5,
+    required this.propertyNoOfAnswers5,
+  });
+
+  final List propertyValue0;
+  final String propertyName0;
+  final int propertyNoOfAnswers0;
+  final double width;
+  final List propertyValue1;
+  final String propertyName1;
+  final int propertyNoOfAnswers1;
+  final List propertyValue2;
+  final String propertyName2;
+  final int propertyNoOfAnswers2;
+  final List propertyValue3;
+  final String propertyName3;
+  final int propertyNoOfAnswers3;
+  final List propertyValue4;
+  final String propertyName4;
+  final int propertyNoOfAnswers4;
+  final List propertyValue5;
+  final String propertyName5;
+  final int propertyNoOfAnswers5;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        propertyValue0.isEmpty ||
+                propertyName0 == '' ||
+                propertyNoOfAnswers0 != 3
+            ? Container()
+            : InfoBox(
+                head: propertyName0,
+                content: propertyValue0[0],
+                noOfAnswers: propertyNoOfAnswers0,
+                propertyValue: propertyValue0,
+                width: width,
+              ),
+
+        // PROPERTY 1
+        propertyValue1.isEmpty ||
+                propertyName1 == '' ||
+                propertyNoOfAnswers1 != 3
+            ? Container()
+            : InfoBox(
+                head: propertyName1,
+                content: propertyValue1[0],
+                noOfAnswers: propertyNoOfAnswers1,
+                propertyValue: propertyValue1,
+                width: width,
+              ),
+
+        // PROPERTY 2
+        propertyValue2.isEmpty ||
+                propertyName2 == '' ||
+                propertyNoOfAnswers2 != 3
+            ? Container()
+            : InfoBox(
+                head: propertyName2,
+                content: propertyValue2[0],
+                noOfAnswers: propertyNoOfAnswers2,
+                propertyValue: propertyValue2,
+                width: width,
+              ),
+
+        // PROPERTY 3
+        propertyValue3.isEmpty ||
+                propertyName3 == '' ||
+                propertyNoOfAnswers3 != 3
+            ? Container()
+            : InfoBox(
+                head: propertyName3,
+                content: propertyValue3[0],
+                noOfAnswers: propertyNoOfAnswers3,
+                propertyValue: propertyValue3,
+                width: width,
+              ),
+
+        // PROPERTY 4
+        propertyValue4.isEmpty ||
+                propertyName4 == '' ||
+                propertyNoOfAnswers4 != 3
+            ? Container()
+            : InfoBox(
+                head: propertyName4,
+                content: propertyValue4[0],
+                noOfAnswers: propertyNoOfAnswers4,
+                propertyValue: propertyValue4,
+                width: width,
+              ),
+
+        // PROPERTY 5
+        propertyValue5.isEmpty ||
+                propertyName5 == '' ||
+                propertyNoOfAnswers5 != 3
+            ? Container()
+            : InfoBox(
+                head: propertyName5,
+                content: propertyValue5[0],
+                noOfAnswers: propertyNoOfAnswers5,
+                propertyValue: propertyValue5,
+                width: width,
+              ),
+      ],
+    );
+  }
+}
+
+// DISCOUNTS
 class AllDiscountsWidget extends StatefulWidget {
   const AllDiscountsWidget({
     super.key,
@@ -2276,37 +2355,8 @@ class AllDiscountsWidget extends StatefulWidget {
   State<AllDiscountsWidget> createState() => _AllDiscountsWidgetState();
 }
 
-class _AllDiscountsWidgetState extends State<AllDiscountsWidget>
-    with SingleTickerProviderStateMixin {
-  // late AnimationController animationController;
+class _AllDiscountsWidgetState extends State<AllDiscountsWidget> {
   final store = FirebaseFirestore.instance;
-
-  // INIT STATE
-  @override
-  void initState() {
-    super.initState();
-
-    // animationController =
-    //     AnimationController(vsync: this, duration: Duration(seconds: 1));
-    // animationController
-    //   ..addStatusListener((status) {
-    //     if (status == AnimationStatus.completed)
-    //       animationController.forward(from: 0);
-    //   });
-
-    // animationController.addListener(() {
-    //   setState(() {});
-    // });
-
-    // animationController.forward();
-  }
-
-  // DISPOSE
-  @override
-  void dispose() {
-    // animationController.dispose();
-    super.dispose();
-  }
 
   // GET NAME
   Future<String> getName(int index, bool wantName) async {
@@ -2390,42 +2440,37 @@ class _AllDiscountsWidgetState extends State<AllDiscountsWidget>
         vertical: width * 0.0175,
         horizontal: width * 0.02,
       ),
-      child: InkWell(
-        onTap: () {},
-        splashColor: primary2,
-        customBorder: RoundedRectangleBorder(
+      child: Container(
+        width: width,
+        height: width * 0.66,
+        decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
+          gradient: SweepGradient(
+            startAngle: 0,
+            colors: [
+              Colors.pink.shade300,
+              Colors.deepOrange.shade200,
+              Colors.amber.shade300,
+              Colors.indigo.shade200,
+              Colors.indigo.shade300,
+            ],
+          ),
         ),
         child: Container(
-          width: width,
           height: width * 0.66,
+          padding: EdgeInsets.all(width * 0.0125),
+          margin: EdgeInsets.all(width * 0.0125),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            gradient: SweepGradient(
-              startAngle: 0,
-              colors: [
-                Colors.pink.shade300,
-                Colors.deepOrange.shade200,
-                Colors.amber.shade300,
-                Colors.indigo.shade200,
-                Colors.indigo.shade300,
-              ],
-              // transform: GradientRotation(animationController.value * 6),
-            ),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
           ),
-          child: Container(
-            height: width * 0.66,
-            padding: const EdgeInsets.all(4),
-            margin: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: width * 0.0125),
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -2435,124 +2480,120 @@ class _AllDiscountsWidgetState extends State<AllDiscountsWidget>
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          widget.noOfDiscounts.toString(),
-                          style: TextStyle(
-                            fontSize: width * 0.045,
-                          ),
-                        ),
-                        SizedBox(width: width * 0.0125),
-                        const Icon(FeatherIcons.chevronRight),
-                      ],
+                    Text(
+                      widget.noOfDiscounts.toString(),
+                      style: TextStyle(
+                        fontSize: width * 0.045,
+                      ),
                     ),
                   ],
                 ),
-                SizedBox(
-                  width: width,
-                  height: width * 0.5,
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    scrollDirection: Axis.horizontal,
-                    itemCount: widget.allDiscount.length,
-                    itemBuilder: ((context, index) {
-                      final currentDiscount = widget.allDiscount[index];
-                      final String? image = currentDiscount['discountImageUrl'];
-                      final name = currentDiscount['discountName'];
-                      final amount = currentDiscount['discountAmount'];
-                      final isPercent = currentDiscount['isPercent'];
-                      // final endData = currentDiscount['discountEndDateTime'];
+              ),
+              SizedBox(
+                width: width,
+                height: width * 0.5,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  scrollDirection: Axis.horizontal,
+                  itemCount: widget.allDiscount.length,
+                  itemBuilder: ((context, index) {
+                    final currentDiscount = widget.allDiscount[index];
+                    final String? image = currentDiscount['discountImageUrl'];
+                    final name = currentDiscount['discountName'];
+                    final amount = currentDiscount['discountAmount'];
+                    final isPercent = currentDiscount['isPercent'];
+                    // final endData = currentDiscount['discountEndDateTime'];
 
-                      return Padding(
-                        padding: EdgeInsets.only(
-                          left: width * 0.025,
-                          right: width * 0.025,
-                          top: width * 0.01,
-                          bottom: width * 0.015,
+                    return Container(
+                      width: width * 0.3,
+                      height: width * 0.45,
+                      decoration: BoxDecoration(
+                        color: white,
+                        border: Border.all(
+                          width: 0.25,
+                          color: black,
                         ),
-                        child: Container(
-                          width: width * 0.3,
-                          height: width * 0.45,
-                          decoration: BoxDecoration(
-                            color: primary2,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: width * 0.0125,
-                              vertical: width * 0.0125,
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // IMAGE
-                                FutureBuilder(
-                                    future: getName(index, false),
-                                    builder: (context, snapshot) {
-                                      if (snapshot.hasData) {
-                                        return ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                          child: Image.network(
-                                            image ??
-                                                snapshot.data ??
-                                                'https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/ProhibitionSign2.svg/800px-ProhibitionSign2.svg.png',
-                                            fit: BoxFit.cover,
-                                            width: width * 0.3,
-                                            height: width * 0.3,
-                                          ),
-                                        );
-                                      }
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                      padding: EdgeInsets.all(
+                        width * 0.003125,
+                      ),
+                      margin: EdgeInsets.only(
+                        left: width * 0.025,
+                        right: width * 0.025,
+                        top: width * 0.01,
+                        bottom: width * 0.015,
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // IMAGE
+                          FutureBuilder(
+                              future: getName(index, false),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  return ClipRRect(
+                                    borderRadius: BorderRadius.circular(2),
+                                    child: Image.network(
+                                      image ??
+                                          snapshot.data ??
+                                          'https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/ProhibitionSign2.svg/800px-ProhibitionSign2.svg.png',
+                                      fit: BoxFit.cover,
+                                      width: width * 0.3,
+                                      height: width * 0.3,
+                                    ),
+                                  );
+                                }
 
-                                      return const Center(
-                                        child: CircularProgressIndicator(),
+                                return const Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              }),
+
+                          // NAME
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              FutureBuilder(
+                                  future: getName(index, true),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.hasData) {
+                                      return Text(
+                                        snapshot.data ?? name,
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                          fontSize: width * 0.05,
+                                        ),
                                       );
-                                    }),
+                                    }
 
-                                //
-                                FutureBuilder(
-                                    future: getName(index, true),
-                                    builder: (context, snapshot) {
-                                      if (snapshot.hasData) {
-                                        return Text(
-                                          snapshot.data ?? name,
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 1,
-                                          style: TextStyle(
-                                            fontSize: width * 0.05,
-                                          ),
-                                        );
-                                      }
-
-                                      return const Center(
-                                        child: CircularProgressIndicator(),
-                                      );
-                                    }),
-                                Text(
-                                  isPercent
-                                      ? '$amount % off'
-                                      : 'Save Rs. $amount',
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                  style: TextStyle(
-                                    fontSize: width * 0.045,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                                    return const Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  }),
+                              Text(
+                                isPercent
+                                    ? '$amount % off'
+                                    : 'Save Rs. $amount',
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: TextStyle(
+                                  fontSize: width * 0.045,
+                                  fontWeight: FontWeight.w500,
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        ),
-                      );
-                    }),
-                  ),
+                        ],
+                      ),
+                    );
+                  }),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

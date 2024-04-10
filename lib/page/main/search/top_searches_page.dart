@@ -1,4 +1,5 @@
 import 'package:feather_icons/feather_icons.dart';
+import 'package:find_easy_user/page/main/search/search_results_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:flutter/material.dart';
 
@@ -41,6 +42,14 @@ class _TopSearchPageState extends State<TopSearchPage> {
                     final int number = widget.data.values.toList()[index];
 
                     return Container(
+                      decoration: BoxDecoration(
+                        color: primary2.withOpacity(0.125),
+                        border: Border.all(
+                          width: 0.5,
+                          color: primaryDark.withOpacity(0.25),
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                       padding: EdgeInsets.only(
                         left: width * 0.04,
                         right: width * 0.05,
@@ -50,10 +59,6 @@ class _TopSearchPageState extends State<TopSearchPage> {
                       margin: EdgeInsets.symmetric(
                         horizontal: width * 0.0125,
                         vertical: width * 0.0125,
-                      ),
-                      decoration: BoxDecoration(
-                        color: primary2.withOpacity(0.75),
-                        borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -90,7 +95,15 @@ class _TopSearchPageState extends State<TopSearchPage> {
                                 ),
                               ),
                               IconButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: ((context) => SearchResultsPage(
+                                            search: name,
+                                          )),
+                                    ),
+                                  );
+                                },
                                 icon: const Icon(FeatherIcons.search),
                                 tooltip: 'Search \'$name\'',
                               ),
