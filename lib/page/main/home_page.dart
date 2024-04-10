@@ -14,8 +14,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage>
-    with AutomaticKeepAliveClientMixin<HomePage> {
+class _HomePageState extends State<HomePage> {
   final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
   String recentShop = '';
@@ -98,7 +97,6 @@ class _HomePageState extends State<HomePage>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -396,8 +394,4 @@ class _HomePageState extends State<HomePage>
       ),
     );
   }
-
-  // KEEP ALIVE
-  @override
-  bool get wantKeepAlive => true;
 }

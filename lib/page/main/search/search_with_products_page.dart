@@ -15,8 +15,7 @@ class SearchWithProductsPage extends StatefulWidget {
   State<SearchWithProductsPage> createState() => _SearchWithProductsPageState();
 }
 
-class _SearchWithProductsPageState extends State<SearchWithProductsPage>
-    with AutomaticKeepAliveClientMixin<SearchWithProductsPage> {
+class _SearchWithProductsPageState extends State<SearchWithProductsPage> {
   final store = FirebaseFirestore.instance;
   final int noOfProducts = 20;
   final List<String> productIds = [];
@@ -95,8 +94,6 @@ class _SearchWithProductsPageState extends State<SearchWithProductsPage>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
-
     return !getData
         ? const Center(
             child: CircularProgressIndicator(),
@@ -283,8 +280,4 @@ class _SearchWithProductsPageState extends State<SearchWithProductsPage>
             ),
           );
   }
-
-  // KEEP ALIVE
-  @override
-  bool get wantKeepAlive => true;
 }

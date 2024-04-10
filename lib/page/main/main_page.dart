@@ -10,6 +10,7 @@ import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/snack_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -18,9 +19,11 @@ class MainPage extends StatefulWidget {
   State<MainPage> createState() => _MainPageState();
 }
 
-class _MainPageState extends State<MainPage> {
+class _MainPageState extends State<MainPage>
+    with AutomaticKeepAliveClientMixin<MainPage> {
   final auth = FirebaseAuth.instance.currentUser!;
   final store = FirebaseFirestore.instance;
+  late PageController pageController;
   int current = 0;
   Widget? detailsPage;
 
@@ -30,11 +33,23 @@ class _MainPageState extends State<MainPage> {
     const ProfilePage(),
   ];
 
+  // KEEP ALIVE
+  @override
+  bool get wantKeepAlive => true;
+
   // INIT STATE
   @override
   void initState() {
     fetchUserDetails();
     super.initState();
+    pageController = PageController();
+  }
+
+  // DISPOSE
+  @override
+  void dispose() {
+    pageController.dispose();
+    super.dispose();
   }
 
   // FETCH USER DETAILS
@@ -84,17 +99,31 @@ class _MainPageState extends State<MainPage> {
   }
 
   // CHANGE PAGE
-  void changePage(int value) {
+  void changePage(int index) {
     setState(() {
-      current = value;
+      current = index;
+    });
+    pageController.jumpToPage(index);
+  }
+
+  // ON PAGE CHANGED
+  void onPageChanged(int index) {
+    setState(() {
+      current = index;
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return detailsPage ??
         Scaffold(
-          body: items[current],
+          body: PageView(
+            children: items,
+            controller: pageController,
+            onPageChanged: onPageChanged,
+            physics: NeverScrollableScrollPhysics(),
+          ),
           bottomNavigationBar: BottomNavigationBar(
             elevation: 0,
             backgroundColor: white,

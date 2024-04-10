@@ -14,12 +14,13 @@ class ProfilePage extends StatefulWidget {
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage>
-    with AutomaticKeepAliveClientMixin<ProfilePage> {
+class _ProfilePageState extends State<ProfilePage> {
+  final auth = FirebaseAuth.instance;
+
   // LOG OUT
   Future<void> logOut(BuildContext context) async {
     try {
-      await FirebaseAuth.instance.signOut();
+      await auth.signOut();
 
       if (context.mounted) {
         Navigator.of(context).pushAndRemoveUntil(
@@ -38,8 +39,6 @@ class _ProfilePageState extends State<ProfilePage>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
-
     final userFuture = FirebaseFirestore.instance
         .collection('Users')
         .doc(FirebaseAuth.instance.currentUser!.uid)
@@ -171,8 +170,4 @@ class _ProfilePageState extends State<ProfilePage>
       ),
     );
   }
-
-  // KEEP ALIVE
-  @override
-  bool get wantKeepAlive => true;
 }
