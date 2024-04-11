@@ -1,6 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:find_easy_user/page/main/vendor/vendor_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +24,8 @@ class _ProductQuickViewState extends State<ProductQuickView> {
   String? name;
   String? price;
   List? images;
+  Map<String, dynamic>? ratings;
+  String? vendorId;
   String? vendorName;
   String? vendorImage;
   bool getData = false;
@@ -56,21 +59,24 @@ class _ProductQuickViewState extends State<ProductQuickView> {
         productData['productPrice'] == '' ? 'N/A' : productData['productPrice'];
     images = productData['images'] ?? [];
     vendorId = productData['vendorId'] ?? '';
+    ratings = productData['ratings'] ?? {};
 
     await getVendorInfo(vendorId!);
   }
 
   // GET VENDOR INFO
-  Future<void> getVendorInfo(String vendorId) async {
+  Future<void> getVendorInfo(String currentVendorId) async {
     final vendorSnap = await store
         .collection('Business')
         .doc('Owners')
         .collection('Shops')
-        .doc(vendorId)
+        .doc(currentVendorId)
         .get();
 
     final vendorData = vendorSnap.data()!;
 
+    print("Vendor Id: $currentVendorId");
+    vendorId = currentVendorId;
     vendorName = vendorData['Name'] ?? '';
     vendorImage = vendorData['Image'] ?? '';
 
@@ -213,12 +219,12 @@ class _ProductQuickViewState extends State<ProductQuickView> {
                       ),
                     ),
 
-                    Row(
+                    Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             // NAME
@@ -238,7 +244,30 @@ class _ProductQuickViewState extends State<ProductQuickView> {
                               ),
                             ),
 
-                            // PRICE
+                            // WISHLIST
+                            isWishListed == null
+                                ? Container()
+                                : IconButton(
+                                    onPressed: () async {
+                                      await wishlistProduct(widget.productId);
+                                    },
+                                    icon: Icon(
+                                      wishlist!
+                                          ? Icons.favorite
+                                          : Icons.favorite_border,
+                                      color: Colors.red,
+                                    ),
+                                    splashColor: Colors.red,
+                                    iconSize: width * 0.075,
+                                  ),
+                          ],
+                        ),
+
+                        // PRICE
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
                             Padding(
                               padding: const EdgeInsets.symmetric(vertical: 6),
                               child: Text(
@@ -249,47 +278,67 @@ class _ProductQuickViewState extends State<ProductQuickView> {
                                 ),
                               ),
                             ),
+
+                            // RATINGS
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Color.fromRGBO(
+                                  255,
+                                  92,
+                                  78,
+                                  1,
+                                ),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: width * 0.0125,
+                                vertical: width * 0.00625,
+                              ),
+                              margin: EdgeInsets.all(
+                                width * 0.00625,
+                              ),
+                              child: Text(
+                                '${(ratings as Map).isEmpty ? '--' : ((ratings!.values.map((e) => e?[0] ?? 0).toList().reduce((a, b) => a + b) / (ratings!.values.isEmpty ? 1 : ratings!.values.length)) as double).toStringAsFixed(1)} ⭐',
+                                style: TextStyle(
+                                  color: white,
+                                ),
+                              ),
+                            ),
                           ],
                         ),
-
-                        // WISHLIST
-                        isWishListed == null
-                            ? Container()
-                            : IconButton(
-                                onPressed: () async {
-                                  await wishlistProduct(widget.productId);
-                                },
-                                icon: Icon(
-                                  wishlist!
-                                      ? Icons.favorite
-                                      : Icons.favorite_border,
-                                  color: Colors.red,
-                                ),
-                                splashColor: Colors.red,
-                                iconSize: width * 0.075,
-                              ),
                       ],
                     ),
 
                     // VENDOR INFO
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 12),
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            backgroundImage: NetworkImage(vendorImage!),
-                            radius: width * 0.04,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 8),
-                            child: Text(
-                              vendorName!,
-                              style: TextStyle(
-                                fontSize: width * 0.045,
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: ((context) => VendorPage(
+                                    vendorId: vendorId!,
+                                  )),
+                            ),
+                          );
+                        },
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              backgroundImage: NetworkImage(vendorImage!),
+                              radius: width * 0.04,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 8),
+                              child: Text(
+                                vendorName!,
+                                style: TextStyle(
+                                  fontSize: width * 0.045,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ],

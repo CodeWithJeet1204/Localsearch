@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:find_easy_user/models/business_categories.dart';
+import 'package:find_easy_user/page/main/product/product_page.dart';
 import 'package:find_easy_user/page/main/search/search_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/text_button.dart';
@@ -21,6 +22,7 @@ class _HomePageState extends State<HomePage> {
   List<String> recentShopProducts = [];
   List<String> recentShopProductsImages = [];
   List<String> recentShopProductsNames = [];
+  List<Map<String, dynamic>> recentShopProductsData = [];
 
   List<int> numbers = [0, 1, 2, 3];
   List<int> reverseNumbers = [4, 5, 6, 7];
@@ -75,6 +77,7 @@ class _HomePageState extends State<HomePage> {
   Future<int> getRecentShopProductInfo(bool fromRecent) async {
     List<String> temporaryNameList = [];
     List<String> temporaryImageList = [];
+    List<Map<String, dynamic>> temporaryDataList = [];
     // ignore: avoid_function_literals_in_foreach_calls
     recentShopProducts.forEach((productId) async {
       final productData = await store
@@ -86,9 +89,11 @@ class _HomePageState extends State<HomePage> {
 
       temporaryNameList.add(productData['productName']);
       temporaryImageList.add(productData['images'][0]);
+      temporaryDataList.add(productData.data()!);
       setState(() {
         recentShopProductsNames = temporaryNameList;
         recentShopProductsImages = temporaryImageList;
+        recentShopProductsData = temporaryDataList;
       });
     });
 
@@ -162,6 +167,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ],
                     ),
+
                     // CATEGORIES BOX
                     Container(
                       width: width,
@@ -335,51 +341,63 @@ class _HomePageState extends State<HomePage> {
                           final String name = recentShopProductsNames[index];
                           final String image = recentShopProductsImages[index];
 
-                          return Container(
-                            width: width * 0.3,
-                            height: width * 0.2,
-                            decoration: BoxDecoration(
-                              color: white,
-                              border: Border.all(
-                                width: 0.25,
-                              ),
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                            padding: EdgeInsets.all(
-                              width * 0.00625,
-                            ),
-                            margin: EdgeInsets.all(
-                              width * 0.0125,
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(2),
-                                  child: Image.network(
-                                    image,
-                                    fit: BoxFit.cover,
-                                    width: width * 0.3,
-                                    height: width * 0.3,
-                                  ),
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: ((context) => ProductPage(
+                                        productData:
+                                            recentShopProductsData[index],
+                                      )),
                                 ),
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                    top: width * 0.00625,
-                                    left: width * 0.0125,
-                                  ),
-                                  child: Text(
-                                    name,
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 1,
-                                    style: TextStyle(
-                                      fontSize: width * 0.05,
-                                      fontWeight: FontWeight.w500,
+                              );
+                            },
+                            child: Container(
+                              width: width * 0.3,
+                              height: width * 0.2,
+                              decoration: BoxDecoration(
+                                color: white,
+                                border: Border.all(
+                                  width: 0.25,
+                                ),
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                              padding: EdgeInsets.all(
+                                width * 0.00625,
+                              ),
+                              margin: EdgeInsets.all(
+                                width * 0.0125,
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(2),
+                                    child: Image.network(
+                                      image,
+                                      fit: BoxFit.cover,
+                                      width: width * 0.3,
+                                      height: width * 0.3,
                                     ),
                                   ),
-                                ),
-                              ],
+                                  Padding(
+                                    padding: EdgeInsets.only(
+                                      top: width * 0.00625,
+                                      left: width * 0.0125,
+                                    ),
+                                    child: Text(
+                                      name,
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
+                                      style: TextStyle(
+                                        fontSize: width * 0.05,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           );
                         }),

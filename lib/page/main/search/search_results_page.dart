@@ -181,6 +181,8 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
       final String productPrice = productData['productPrice'].toString();
       final String productId = productData['productId'].toString();
       final String vendorId = productData['vendorId'].toString();
+      final Map<String, dynamic> ratings = productData['ratings'];
+      print("Ratings: $ratings");
 
       final vendorSnap = await store
           .collection('Business')
@@ -212,6 +214,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
           vendor,
           productId,
           relevanceScore,
+          ratings,
         ];
       }
     }
@@ -747,6 +750,9 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                               final productId = searchedProducts
                                                   .values
                                                   .toList()[index][3];
+                                              final ratings = searchedProducts
+                                                  .values
+                                                  .toList()[index][5];
 
                                               final price = searchedProducts[
                                                           currentProduct][1] ==
@@ -820,22 +826,69 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                                             CrossAxisAlignment
                                                                 .start,
                                                         children: [
-                                                          Center(
-                                                            child:
-                                                                Image.network(
-                                                              image,
-                                                              fit: BoxFit.cover,
-                                                              width: MediaQuery.of(
-                                                                          context)
-                                                                      .size
-                                                                      .width *
-                                                                  0.5,
-                                                              height: MediaQuery.of(
-                                                                          context)
-                                                                      .size
-                                                                      .width *
-                                                                  0.58,
-                                                            ),
+                                                          Stack(
+                                                            alignment: Alignment
+                                                                .topRight,
+                                                            children: [
+                                                              Center(
+                                                                child: Image
+                                                                    .network(
+                                                                  image,
+                                                                  fit: BoxFit
+                                                                      .cover,
+                                                                  width: MediaQuery.of(
+                                                                              context)
+                                                                          .size
+                                                                          .width *
+                                                                      0.5,
+                                                                  height: MediaQuery.of(
+                                                                              context)
+                                                                          .size
+                                                                          .width *
+                                                                      0.58,
+                                                                ),
+                                                              ),
+                                                              Container(
+                                                                decoration:
+                                                                    BoxDecoration(
+                                                                  color: Color
+                                                                      .fromRGBO(
+                                                                    255,
+                                                                    92,
+                                                                    78,
+                                                                    1,
+                                                                  ),
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                    4,
+                                                                  ),
+                                                                ),
+                                                                padding: EdgeInsets
+                                                                    .symmetric(
+                                                                  horizontal:
+                                                                      width *
+                                                                          0.0125,
+                                                                  vertical:
+                                                                      width *
+                                                                          0.00625,
+                                                                ),
+                                                                margin:
+                                                                    EdgeInsets
+                                                                        .all(
+                                                                  width *
+                                                                      0.00625,
+                                                                ),
+                                                                child: Text(
+                                                                  '${(ratings as Map).isEmpty ? '--' : ((ratings.values.map((e) => e?[0] ?? 0).toList().reduce((a, b) => a + b) / (ratings.values.isEmpty ? 1 : ratings.values.length)) as double).toStringAsFixed(1)} ⭐',
+                                                                  style:
+                                                                      TextStyle(
+                                                                    color:
+                                                                        white,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ],
                                                           ),
                                                           Row(
                                                             mainAxisAlignment:

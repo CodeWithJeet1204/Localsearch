@@ -458,25 +458,34 @@ class _VendorPageState extends State<VendorPage> {
                                           padding: EdgeInsets.only(
                                             left: width * 0.0225,
                                           ),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceAround,
-                                            children: [
-                                              Text(
-                                                shopData!['Name'],
-                                                style: TextStyle(
-                                                  fontSize: width * 0.055,
+                                          child: SizedBox(
+                                            width: width * 0.366,
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.spaceAround,
+                                              children: [
+                                                Text(
+                                                  shopData!['Name'],
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: TextStyle(
+                                                    fontSize: width * 0.055,
+                                                  ),
                                                 ),
-                                              ),
-                                              Text(
-                                                shopData!['Type'],
-                                                style: TextStyle(
-                                                  fontSize: width * 0.04,
+                                                Text(
+                                                  shopData!['Type'],
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: TextStyle(
+                                                    fontSize: width * 0.04,
+                                                  ),
                                                 ),
-                                              ),
-                                            ],
+                                              ],
+                                            ),
                                           ),
                                         ),
                                       ],
