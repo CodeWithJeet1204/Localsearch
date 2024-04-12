@@ -4,7 +4,7 @@ import 'package:find_easy_user/page/auth/login_page.dart';
 import 'package:find_easy_user/page/auth/register_details_page.dart';
 import 'package:find_easy_user/page/auth/verify/email_verify.dart';
 import 'package:find_easy_user/page/auth/verify/number_verify.dart';
-import 'package:find_easy_user/providers/sign_in_method_provider.dart';
+import 'package:find_easy_user/page/providers/sign_in_method_provider.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/utils/size.dart';
 import 'package:find_easy_user/widgets/button.dart';

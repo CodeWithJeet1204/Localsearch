@@ -12,6 +12,7 @@ import 'package:find_easy_user/widgets/snack_bar.dart';
 import 'package:find_easy_user/widgets/text_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 enum ProductSorting {
@@ -416,132 +417,169 @@ class _VendorPageState extends State<VendorPage> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           padding: EdgeInsets.symmetric(
-                            horizontal: width * 0.0125,
+                            horizontal: width * 0.00625,
                             vertical: width * 0.0166,
                           ),
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               // INFO
+                              GestureDetector(
+                                onTap: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: ((context) => ImageShow(
+                                          imageUrl: shopData!['Image'],
+                                          width: width,
+                                        )),
+                                  );
+                                },
+                                child: CircleAvatar(
+                                  radius: width * 0.1,
+                                  backgroundImage: NetworkImage(
+                                    shopData!['Image'],
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: width * 0.0225),
+                              SizedBox(
+                                width: width * 0.9,
+                                child: Text(
+                                  shopData!['Name'],
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: width * 0.055,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: width * 0.0225),
+                              Text(
+                                shopData!['Type'],
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: width * 0.04,
+                                ),
+                              ),
+                              SizedBox(height: width * 0.025),
                               Row(
                                 mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                    MainAxisAlignment.spaceAround,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  SizedBox(
-                                    width: width * 0.575,
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        GestureDetector(
-                                          onTap: () {
-                                            showDialog(
-                                              context: context,
-                                              builder: ((context) => ImageShow(
-                                                    imageUrl:
-                                                        shopData!['Image'],
-                                                    width: width,
-                                                  )),
-                                            );
-                                          },
-                                          child: CircleAvatar(
-                                            radius: width * 0.09,
-                                            backgroundImage: NetworkImage(
-                                              shopData!['Image'],
-                                            ),
-                                          ),
+                                  // FOLLOW
+                                  GestureDetector(
+                                    onTap: () async {
+                                      await followShop();
+                                    },
+                                    child: Container(
+                                      width: width * 0.4125,
+                                      height: 40,
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        color: isFollowing ? black : lightGrey,
+                                        border: Border.all(
+                                          color:
+                                              isFollowing ? lightGrey : black,
+                                          width: 0.75,
                                         ),
-                                        Padding(
-                                          padding: EdgeInsets.only(
-                                            left: width * 0.0225,
-                                          ),
-                                          child: SizedBox(
-                                            width: width * 0.366,
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.spaceAround,
-                                              children: [
-                                                Text(
-                                                  shopData!['Name'],
-                                                  maxLines: 1,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: TextStyle(
-                                                    fontSize: width * 0.055,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  shopData!['Type'],
-                                                  maxLines: 1,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: TextStyle(
-                                                    fontSize: width * 0.04,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Text(
+                                        isFollowing ? 'Following' : 'Follow',
+                                        style: TextStyle(
+                                          color: isFollowing ? white : black,
                                         ),
-                                      ],
+                                      ),
                                     ),
                                   ),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      GestureDetector(
-                                        onTap: () async {
-                                          await followShop();
-                                        },
-                                        child: Container(
-                                          width: width * 0.225,
-                                          height: 40,
-                                          alignment: Alignment.center,
-                                          decoration: BoxDecoration(
-                                            color:
-                                                isFollowing ? black : lightGrey,
-                                            border: Border.all(
-                                              color: isFollowing
-                                                  ? lightGrey
-                                                  : black,
-                                              width: 0.75,
-                                            ),
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                          ),
-                                          child: Text(
-                                            isFollowing
-                                                ? 'Following'
-                                                : 'Follow',
-                                            style: TextStyle(
-                                              color:
-                                                  isFollowing ? white : black,
-                                            ),
-                                          ),
+
+                                  // CALL
+                                  GestureDetector(
+                                    onTap: () async {
+                                      await callVendor();
+                                    },
+                                    child: Container(
+                                      width: width * 0.25,
+                                      height: 40,
+                                      alignment: Alignment.center,
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: width * 0.00625,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: primary2.withOpacity(0.5),
+                                        border: Border.all(
+                                          color: primaryDark.withOpacity(0.5),
+                                          width: 0.25,
                                         ),
+                                        borderRadius: BorderRadius.circular(12),
                                       ),
-                                      SizedBox(width: width * 0.0125),
-                                      IconButton.filledTonal(
-                                        onPressed: () async {
-                                          await callVendor();
-                                        },
-                                        icon: const Icon(FeatherIcons.phone),
-                                        tooltip:
-                                            "Call - ${ownerData!['Phone Number']}",
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceAround,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            'Call',
+                                            style: TextStyle(
+                                              color: primaryDark,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          Icon(FeatherIcons.phone),
+                                        ],
                                       ),
-                                    ],
+                                    ),
+                                  ),
+
+                                  // WHATSAPP
+                                  GestureDetector(
+                                    onTap: () async {
+                                      // whatsapp
+                                    },
+                                    child: Container(
+                                      width: width * 0.275,
+                                      height: 40,
+                                      alignment: Alignment.center,
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: width * 0.00625,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Color.fromRGBO(198, 255, 200, 1),
+                                        border: Border.all(
+                                          color: primaryDark.withOpacity(0.25),
+                                          width: 0.25,
+                                        ),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceAround,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            'Whatsapp',
+                                            style: TextStyle(
+                                              color: primaryDark,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          Icon(FeatherIcons.messageCircle),
+                                        ],
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
+                              SizedBox(height: width * 0.0225),
 
                               const Divider(),
+
+                              SizedBox(height: width * 0.0125),
 
                               // ADDRESS
                               Padding(
@@ -689,7 +727,7 @@ class _VendorPageState extends State<VendorPage> {
                                   horizontal: width * 0.0125,
                                 ),
                                 child: Text(
-                                  'Discounts',
+                                  'Offers',
                                   style: TextStyle(
                                     fontSize: width * 0.0425,
                                     fontWeight: FontWeight.w500,

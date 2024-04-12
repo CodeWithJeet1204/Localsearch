@@ -4,7 +4,7 @@ import 'package:find_easy_user/page/auth/login_page.dart';
 import 'package:find_easy_user/page/auth/register_details_page.dart';
 import 'package:find_easy_user/page/auth/verify/email_verify.dart';
 import 'package:find_easy_user/page/main/home_page.dart';
-import 'package:find_easy_user/page/main/profile_page.dart';
+import 'package:find_easy_user/page/main/profile/profile_page.dart';
 import 'package:find_easy_user/page/main/search/search_with_products_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/snack_bar.dart';
@@ -19,7 +19,7 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage>
-    with AutomaticKeepAliveClientMixin<MainPage> {
+    with AutomaticKeepAliveClientMixin {
   final auth = FirebaseAuth.instance.currentUser!;
   final store = FirebaseFirestore.instance;
   late PageController pageController;

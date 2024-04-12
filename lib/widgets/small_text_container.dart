@@ -25,14 +25,18 @@ class SmallTextContainer extends StatelessWidget {
         customBorder: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
-        splashColor: primary2,
+        splashColor: white,
         child: Container(
           width: width,
           height: width * 0.15,
           alignment: Alignment.centerLeft,
           decoration: BoxDecoration(
-            color: primary2.withOpacity(0.75),
-            borderRadius: BorderRadius.circular(4),
+            color: primary2.withOpacity(0.25),
+            border: Border.all(
+              width: 0.25,
+              color: primaryDark,
+            ),
+            borderRadius: BorderRadius.circular(8),
           ),
           child: Padding(
             padding: EdgeInsets.only(left: width * 0.05),

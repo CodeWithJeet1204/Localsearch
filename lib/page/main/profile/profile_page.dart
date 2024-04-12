@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:find_easy_user/page/auth/login_page.dart';
+import 'package:find_easy_user/page/main/profile/followed_shops_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/small_text_container.dart';
 import 'package:find_easy_user/widgets/snack_bar.dart';
@@ -81,7 +82,11 @@ class _ProfilePageState extends State<ProfilePage> {
                       vertical: width * 0.01125,
                     ),
                     decoration: BoxDecoration(
-                      color: primary2,
+                      color: primary2.withOpacity(0.5),
+                      border: Border.all(
+                        width: 0.5,
+                        color: primaryDark.withOpacity(0.5),
+                      ),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: FutureBuilder(
@@ -105,7 +110,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
                                   CircleAvatar(
-                                    radius: width * 0.1195,
+                                    radius: width * 0.1,
                                     backgroundColor: primary2,
                                     backgroundImage: NetworkImage(
                                       userData['Image'],
@@ -152,7 +157,13 @@ class _ProfilePageState extends State<ProfilePage> {
                   // FOLLOWED
                   SmallTextContainer(
                     text: 'Followed',
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: ((context) => FollowedShopsPage()),
+                        ),
+                      );
+                    },
                     width: width,
                   ),
 

@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:find_easy_user/page/main/main_page.dart';
-import 'package:find_easy_user/providers/sign_in_method_provider.dart';
+import 'package:find_easy_user/page/providers/sign_in_method_provider.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/button.dart';
 import 'package:find_easy_user/widgets/head_text.dart';
