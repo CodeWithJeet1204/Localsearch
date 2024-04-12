@@ -69,7 +69,9 @@ class _FollowedShopsPageState extends State<FollowedShopsPage> {
 
     shops.forEach((key, value) {
       final myType = value[3];
-      myTypes.add(myType);
+      if (!myTypes.contains(myType)) {
+        myTypes.add(myType);
+      }
     });
 
     setState(() {

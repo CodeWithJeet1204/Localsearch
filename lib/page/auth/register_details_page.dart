@@ -81,7 +81,7 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
       try {
         Reference ref = FirebaseStorage.instance
             .ref()
-            .child('Data/Products')
+            .child('Profile/Users')
             .child(const Uuid().v4());
         await ref.putFile(image).whenComplete(() async {
           await ref.getDownloadURL().then((value) {
@@ -92,10 +92,7 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
         });
       } catch (e) {
         if (mounted) {
-          mySnackBar(
-            e.toString(),
-            context,
-          );
+          mySnackBar(e.toString(), context);
         }
       }
     }

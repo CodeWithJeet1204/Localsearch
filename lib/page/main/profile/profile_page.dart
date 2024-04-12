@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:find_easy_user/page/auth/login_page.dart';
 import 'package:find_easy_user/page/main/profile/followed_shops_page.dart';
+import 'package:find_easy_user/page/main/profile/user_details_page.dart';
+import 'package:find_easy_user/page/main/profile/wishlist_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/small_text_container.dart';
 import 'package:find_easy_user/widgets/snack_bar.dart';
@@ -122,8 +124,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     child: SizedBox(
                                       width: width * 0.45,
                                       child: Text(
-                                        userData['Name']?.toUpperCase() ??
-                                            'N/A',
+                                        userData['Name'] ?? 'N/A',
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         textAlign: TextAlign.start,
@@ -138,11 +139,17 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ],
                               ),
                               IconButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: ((context) => UserDetailsPage()),
+                                    ),
+                                  );
+                                },
                                 icon: const Icon(
                                   FeatherIcons.settings,
                                 ),
-                                tooltip: "Edit Info",
+                                tooltip: "Your Info",
                               ),
                             ],
                           );
@@ -170,7 +177,13 @@ class _ProfilePageState extends State<ProfilePage> {
                   // WISHLIST
                   SmallTextContainer(
                     text: 'Wishlist',
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: ((context) => WishlistPage()),
+                        ),
+                      );
+                    },
                     width: width,
                   ),
                 ],
