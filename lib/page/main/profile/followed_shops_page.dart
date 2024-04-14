@@ -58,8 +58,6 @@ class _FollowedShopsPageState extends State<FollowedShopsPage> {
       shops = vendors;
     });
 
-    print("Shops: $shops");
-
     getShopTypes(shops);
   }
 
@@ -77,8 +75,6 @@ class _FollowedShopsPageState extends State<FollowedShopsPage> {
     setState(() {
       types = myTypes;
     });
-
-    print("Types: $types");
   }
 
   // REMOVE
@@ -96,7 +92,7 @@ class _FollowedShopsPageState extends State<FollowedShopsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Followed Shops"),
+        title: const Text("Followed Shops"),
       ),
       body: SafeArea(
         child: Padding(
@@ -175,7 +171,7 @@ class _FollowedShopsPageState extends State<FollowedShopsPage> {
                         width: width,
                         child: ListView.builder(
                           shrinkWrap: true,
-                          physics: ClampingScrollPhysics(),
+                          physics: const ClampingScrollPhysics(),
                           itemCount: currentShops.length,
                           itemBuilder: ((context, index) {
                             final id = currentShops.keys.toList()[index];
@@ -188,7 +184,7 @@ class _FollowedShopsPageState extends State<FollowedShopsPage> {
                             return Slidable(
                               endActionPane: ActionPane(
                                 extentRatio: 0.325,
-                                motion: StretchMotion(),
+                                motion: const StretchMotion(),
                                 children: [
                                   SlidableAction(
                                     onPressed: (context) async {
@@ -197,7 +193,7 @@ class _FollowedShopsPageState extends State<FollowedShopsPage> {
                                     backgroundColor: Colors.red,
                                     icon: FeatherIcons.trash,
                                     label: "Unfollow",
-                                    borderRadius: BorderRadius.only(
+                                    borderRadius: const BorderRadius.only(
                                       topRight: Radius.circular(12),
                                       bottomRight: Radius.circular(12),
                                     ),

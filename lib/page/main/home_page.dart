@@ -174,7 +174,8 @@ class _HomePageState extends State<HomePage> {
                           onPressed: () {
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: ((context) => AllShopTypesPage()),
+                                builder: ((context) =>
+                                    const AllShopTypesPage()),
                               ),
                             );
                           },

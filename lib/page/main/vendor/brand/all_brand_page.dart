@@ -36,18 +36,17 @@ class _AllBrandPageState extends State<AllBrandPage> {
         .where('vendorId', isEqualTo: widget.vendorId)
         .get();
 
-    brandsSnap.docs.forEach((brandData) {
+    for (var brandData in brandsSnap.docs) {
       final id = brandData['brandId'];
       final name = brandData['brandName'];
       final imageUrl = brandData['imageUrl'] ?? '';
 
       brand[id] = [name, imageUrl];
-    });
+    }
 
     setState(() {
       brands = brand;
     });
-    print("Brands: $brands");
   }
 
   @override
@@ -60,7 +59,7 @@ class _AllBrandPageState extends State<AllBrandPage> {
       ),
       body: GridView.builder(
         shrinkWrap: true,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
           childAspectRatio: 0.8,
         ),
@@ -100,7 +99,7 @@ class _AllBrandPageState extends State<AllBrandPage> {
                     name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontWeight: FontWeight.w500,
                     ),
                   ),

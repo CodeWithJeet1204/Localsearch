@@ -42,12 +42,9 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
 
   // SET SEARCH
   void setSearch() {
-    print("Search Controller: ${searchController.text}");
     setState(() {
       searchController.text = widget.search;
     });
-    print("Widget Search: ${widget.search}");
-    print("Search Controller: ${searchController.text}");
   }
 
   // LISTEN
@@ -182,7 +179,6 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
       final String productId = productData['productId'].toString();
       final String vendorId = productData['vendorId'].toString();
       final Map<String, dynamic> ratings = productData['ratings'];
-      print("Ratings: $ratings");
 
       final vendorSnap = await store
           .collection('Business')
@@ -851,7 +847,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                                               Container(
                                                                 decoration:
                                                                     BoxDecoration(
-                                                                  color: Color
+                                                                  color: const Color
                                                                       .fromRGBO(
                                                                     255,
                                                                     92,
@@ -882,7 +878,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                                                 child: Text(
                                                                   '${(ratings as Map).isEmpty ? '--' : ((ratings.values.map((e) => e?[0] ?? 0).toList().reduce((a, b) => a + b) / (ratings.values.isEmpty ? 1 : ratings.values.length)) as double).toStringAsFixed(1)} ⭐',
                                                                   style:
-                                                                      TextStyle(
+                                                                      const TextStyle(
                                                                     color:
                                                                         white,
                                                                   ),

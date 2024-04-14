@@ -20,7 +20,7 @@ class _ImageShowState extends State<ImageShow> {
     final width = widget.width;
 
     return Dialog(
-      shape: CircleBorder(),
+      shape: const CircleBorder(),
       child: InteractiveViewer(
         child: Container(
           width: width * 0.8,

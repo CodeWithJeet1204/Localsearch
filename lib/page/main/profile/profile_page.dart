@@ -142,7 +142,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                 onPressed: () {
                                   Navigator.of(context).push(
                                     MaterialPageRoute(
-                                      builder: ((context) => UserDetailsPage()),
+                                      builder: ((context) =>
+                                          const UserDetailsPage()),
                                     ),
                                   );
                                 },
@@ -167,7 +168,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     onPressed: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: ((context) => FollowedShopsPage()),
+                          builder: ((context) => const FollowedShopsPage()),
                         ),
                       );
                     },
@@ -180,7 +181,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     onPressed: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: ((context) => WishlistPage()),
+                          builder: ((context) => const WishlistPage()),
                         ),
                       );
                     },

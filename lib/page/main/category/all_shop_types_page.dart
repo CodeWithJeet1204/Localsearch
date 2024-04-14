@@ -16,7 +16,7 @@ class _AllShopTypesPageState extends State<AllShopTypesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('All Shop Types'),
+        title: const Text('All Shop Types'),
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(
@@ -51,8 +51,9 @@ class _AllShopTypesPageState extends State<AllShopTypesPage> {
                     width: width,
                     child: GridView.builder(
                       shrinkWrap: true,
-                      physics: ClampingScrollPhysics(),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      physics: const ClampingScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 3,
                         childAspectRatio: 1.125,
                       ),
@@ -102,7 +103,7 @@ class _AllShopTypesPageState extends State<AllShopTypesPage> {
                                         height: width * 0.15,
                                       ),
                                     ),
-                                    SizedBox(height: 8),
+                                    const SizedBox(height: 8),
                                     Text(
                                       name,
                                       overflow: TextOverflow.ellipsis,
@@ -118,7 +119,7 @@ class _AllShopTypesPageState extends State<AllShopTypesPage> {
                     ),
                   ),
 
-                  Divider(),
+                  const Divider(),
 
                   // HOME
                   Padding(
@@ -140,8 +141,9 @@ class _AllShopTypesPageState extends State<AllShopTypesPage> {
                     width: width,
                     child: GridView.builder(
                       shrinkWrap: true,
-                      physics: ClampingScrollPhysics(),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      physics: const ClampingScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 3,
                         childAspectRatio: 1.125,
                       ),
@@ -191,7 +193,7 @@ class _AllShopTypesPageState extends State<AllShopTypesPage> {
                                         height: width * 0.15,
                                       ),
                                     ),
-                                    SizedBox(height: 8),
+                                    const SizedBox(height: 8),
                                     Text(
                                       name,
                                       overflow: TextOverflow.ellipsis,

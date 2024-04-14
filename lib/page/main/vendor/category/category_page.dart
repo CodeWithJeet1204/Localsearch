@@ -64,7 +64,7 @@ class _CategoryPageState extends State<CategoryPage> {
         .where('categoryId', isEqualTo: widget.categoryId)
         .get();
 
-    productsSnap.docs.forEach((productData) {
+    for (var productData in productsSnap.docs) {
       final id = productData['productId'];
       final name = productData['productName'];
       final price = productData['productPrice'];
@@ -72,12 +72,11 @@ class _CategoryPageState extends State<CategoryPage> {
       final productsData = productData.data();
 
       product[id] = [name, price, imageUrl, productsData];
-    });
+    }
 
     setState(() {
       products = product;
     });
-    print("Products: $products");
   }
 
   // GET SCREEN HEIGHT
@@ -154,7 +153,7 @@ class _CategoryPageState extends State<CategoryPage> {
     return Scaffold(
       appBar: AppBar(),
       body: id == null || name == null || imageUrl == null || products == null
-          ? Center(
+          ? const Center(
               child: CircularProgressIndicator(),
             )
           : SafeArea(
@@ -200,7 +199,7 @@ class _CategoryPageState extends State<CategoryPage> {
                               ),
                             ],
                           ),
-                          Divider(),
+                          const Divider(),
                           products!.isEmpty
                               ? Container()
                               : SizedBox(
@@ -210,10 +209,10 @@ class _CategoryPageState extends State<CategoryPage> {
                                   child: GridView.builder(
                                     shrinkWrap: true,
                                     physics: products!.length <= 3
-                                        ? NeverScrollableScrollPhysics()
-                                        : ClampingScrollPhysics(),
+                                        ? const NeverScrollableScrollPhysics()
+                                        : const ClampingScrollPhysics(),
                                     gridDelegate:
-                                        SliverGridDelegateWithFixedCrossAxisCount(
+                                        const SliverGridDelegateWithFixedCrossAxisCount(
                                       crossAxisCount: 2,
                                       childAspectRatio: 0.75,
                                     ),
@@ -355,7 +354,7 @@ class _CategoryPageState extends State<CategoryPage> {
                                               );
                                             }
 
-                                            return Center(
+                                            return const Center(
                                               child:
                                                   CircularProgressIndicator(),
                                             );

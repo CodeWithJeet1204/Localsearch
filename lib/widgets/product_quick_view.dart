@@ -75,7 +75,6 @@ class _ProductQuickViewState extends State<ProductQuickView> {
 
     final vendorData = vendorSnap.data()!;
 
-    print("Vendor Id: $currentVendorId");
     vendorId = currentVendorId;
     vendorName = vendorData['Name'] ?? '';
     vendorImage = vendorData['Image'] ?? '';
@@ -282,7 +281,7 @@ class _ProductQuickViewState extends State<ProductQuickView> {
                             // RATINGS
                             Container(
                               decoration: BoxDecoration(
-                                color: Color.fromRGBO(
+                                color: const Color.fromRGBO(
                                   255,
                                   92,
                                   78,
@@ -299,7 +298,7 @@ class _ProductQuickViewState extends State<ProductQuickView> {
                               ),
                               child: Text(
                                 '${(ratings as Map).isEmpty ? '--' : ((ratings!.values.map((e) => e?[0] ?? 0).toList().reduce((a, b) => a + b) / (ratings!.values.isEmpty ? 1 : ratings!.values.length)) as double).toStringAsFixed(1)} ⭐',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: white,
                                 ),
                               ),

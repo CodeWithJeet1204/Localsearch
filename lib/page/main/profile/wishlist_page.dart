@@ -89,8 +89,6 @@ class _WishlistPageState extends State<WishlistPage> {
     setState(() {
       wishlists = wishlist;
     });
-
-    print("Wishlists: $wishlists");
   }
 
   // REMOVE
@@ -108,7 +106,7 @@ class _WishlistPageState extends State<WishlistPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Wishlist"),
+        title: const Text("Wishlist"),
       ),
       body: SafeArea(
         child: Padding(
@@ -179,7 +177,7 @@ class _WishlistPageState extends State<WishlistPage> {
                     ),
 
                     currentWishlists.isEmpty
-                        ? Center(
+                        ? const Center(
                             child: Text(
                               'No Products',
                             ),
@@ -193,7 +191,7 @@ class _WishlistPageState extends State<WishlistPage> {
                               width: width,
                               child: ListView.builder(
                                 shrinkWrap: true,
-                                physics: ClampingScrollPhysics(),
+                                physics: const ClampingScrollPhysics(),
                                 itemCount: currentWishlists.length,
                                 itemBuilder: ((context, index) {
                                   final id =
@@ -210,7 +208,7 @@ class _WishlistPageState extends State<WishlistPage> {
                                   return Slidable(
                                     endActionPane: ActionPane(
                                       extentRatio: 0.325,
-                                      motion: StretchMotion(),
+                                      motion: const StretchMotion(),
                                       children: [
                                         SlidableAction(
                                           onPressed: (context) async {
@@ -219,7 +217,7 @@ class _WishlistPageState extends State<WishlistPage> {
                                           backgroundColor: Colors.red,
                                           icon: FeatherIcons.trash,
                                           label: "Unfollow",
-                                          borderRadius: BorderRadius.only(
+                                          borderRadius: const BorderRadius.only(
                                             topRight: Radius.circular(12),
                                             bottomRight: Radius.circular(12),
                                           ),

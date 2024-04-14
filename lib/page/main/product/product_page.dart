@@ -302,16 +302,12 @@ class _ProductPageState extends State<ProductPage> {
 
   // GET CATEGORY IMAGE
   Future<void> getCategoryImage(String vendorType) async {
-    print("Vendor Type: $vendorType");
-    print("Category Type: ${widget.productData['categoryName']}");
     final categorySnap = await store
         .collection('Business')
         .doc('Special Categories')
         .collection(vendorType)
         .doc(widget.productData['categoryName'])
         .get();
-
-    print("Exists: ${categorySnap.exists}");
 
     if (categorySnap.exists) {
       final categoryData = categorySnap.data()!;
@@ -1789,7 +1785,7 @@ class _ProductPageState extends State<ProductPage> {
                       Container(
                         width: width,
                         height: width * 0.66,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           color: white,
                         ),
                         padding: EdgeInsets.only(
@@ -1917,7 +1913,7 @@ class _ProductPageState extends State<ProductPage> {
                       Container(
                         width: width,
                         height: width * 0.6,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           color: white,
                         ),
                         padding: EdgeInsets.only(

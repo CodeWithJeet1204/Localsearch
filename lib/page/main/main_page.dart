@@ -120,10 +120,10 @@ class _MainPageState extends State<MainPage>
     return detailsPage ??
         Scaffold(
           body: PageView(
-            children: items,
             controller: pageController,
             onPageChanged: onPageChanged,
-            physics: NeverScrollableScrollPhysics(),
+            physics: const NeverScrollableScrollPhysics(),
+            children: items,
           ),
           bottomNavigationBar: BottomNavigationBar(
             elevation: 0,

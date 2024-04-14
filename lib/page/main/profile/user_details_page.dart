@@ -81,12 +81,12 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
         setState(() {
           isChangingImage = false;
         });
-        if (context.mounted) {
+        if (mounted) {
           mySnackBar(e.toString(), context);
         }
       }
     } else {
-      if (context.mounted) {
+      if (mounted) {
         mySnackBar("Image not selected", context);
       }
     }
@@ -187,7 +187,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
         isSaving = false;
       });
     } catch (e) {
-      if (context.mounted) {
+      if (mounted) {
         mySnackBar(e.toString(), context);
       }
     }
@@ -482,9 +482,9 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                             height: width * 0.175,
                             decoration: BoxDecoration(
                               color: userData['gender'] == 'Male'
-                                  ? Color.fromARGB(255, 148, 207, 255)
+                                  ? const Color.fromARGB(255, 148, 207, 255)
                                   : userData['gender'] == 'Female'
-                                      ? Color.fromARGB(255, 255, 142, 180)
+                                      ? const Color.fromARGB(255, 255, 142, 180)
                                       : primary2.withOpacity(0.9),
                               borderRadius: BorderRadius.circular(12),
                             ),

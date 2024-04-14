@@ -36,18 +36,17 @@ class _AllCategoryPageState extends State<AllCategoryPage> {
         .where('vendorId', isEqualTo: widget.vendorId)
         .get();
 
-    categoriesSnap.docs.forEach((categoryData) {
+    for (var categoryData in categoriesSnap.docs) {
       final id = categoryData['categoryId'];
       final name = categoryData['categoryName'];
       final imageUrl = categoryData['imageUrl'] ?? '';
 
       category[id] = [name, imageUrl];
-    });
+    }
 
     setState(() {
       categories = category;
     });
-    print("Brands: $categories");
   }
 
   @override
@@ -60,7 +59,7 @@ class _AllCategoryPageState extends State<AllCategoryPage> {
       ),
       body: GridView.builder(
         shrinkWrap: true,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
           childAspectRatio: 0.8,
         ),
@@ -100,7 +99,7 @@ class _AllCategoryPageState extends State<AllCategoryPage> {
                     name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontWeight: FontWeight.w500,
                     ),
                   ),

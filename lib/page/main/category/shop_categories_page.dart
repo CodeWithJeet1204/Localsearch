@@ -35,15 +35,13 @@ class _ShopCategoriesPageState extends State<ShopCategoriesPage> {
           vertical: MediaQuery.of(context).size.width * 0.0166,
         ),
         child: GridView.builder(
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
           ),
           itemCount: currentShopCategories.length,
           itemBuilder: ((context, index) {
             final name = currentShopCategories.keys.toList()[index];
             final imageUrl = currentShopCategories.values.toList()[index];
-            print("Name: $name");
-            print("Image: $imageUrl");
 
             return Padding(
               padding: EdgeInsets.symmetric(
@@ -87,7 +85,7 @@ class _ShopCategoriesPageState extends State<ShopCategoriesPage> {
                             height: width * 0.33,
                           ),
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Text(
                           name,
                           overflow: TextOverflow.ellipsis,

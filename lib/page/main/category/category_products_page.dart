@@ -50,7 +50,7 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
         .where('categoryName', isEqualTo: widget.categoryName)
         .get();
 
-    productsSnap.docs.forEach((productData) {
+    for (var productData in productsSnap.docs) {
       final id = productData.id;
       final name = productData['productName'];
       final price = productData['productPrice'];
@@ -58,7 +58,7 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
       final ratings = productData['ratings'];
       final myProductData = productData.data();
       myProducts[id] = [name, price, imageUrl, ratings, myProductData];
-    });
+    }
 
     setState(() {
       products = myProducts;
@@ -79,7 +79,7 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
           vertical: MediaQuery.of(context).size.width * 0.0166,
         ),
         child: GridView.builder(
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
             childAspectRatio: 0.7,
           ),
@@ -90,8 +90,6 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
             final imageUrl = products.values.toList()[index][2];
             final ratings = products.values.toList()[index][3];
             final productData = products.values.toList()[index][4];
-            print("Name: $name");
-            print("Image: $imageUrl");
 
             return Padding(
               padding: EdgeInsets.symmetric(
@@ -144,7 +142,7 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
                             ),
                             Container(
                               decoration: BoxDecoration(
-                                color: Color.fromRGBO(
+                                color: const Color.fromRGBO(
                                   255,
                                   92,
                                   78,
@@ -161,27 +159,27 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
                               ),
                               child: Text(
                                 '${(ratings as Map).isEmpty ? '--' : ((ratings.values.map((e) => e?[0] ?? 0).toList().reduce((a, b) => a + b) / (ratings.values.isEmpty ? 1 : ratings.values.length)) as double).toStringAsFixed(1)} ⭐',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: white,
                                 ),
                               ),
                             ),
                           ],
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Text(
                           name,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         price == ''
                             ? Container()
                             : Text(
                                 'Rs. $price',
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),

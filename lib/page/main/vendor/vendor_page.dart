@@ -12,7 +12,6 @@ import 'package:find_easy_user/widgets/snack_bar.dart';
 import 'package:find_easy_user/widgets/text_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 enum ProductSorting {
@@ -231,7 +230,6 @@ class _VendorPageState extends State<VendorPage> {
     setState(() {
       brands = brand;
     });
-    print(brands);
   }
 
   // GET DISCOUNTS
@@ -516,7 +514,7 @@ class _VendorPageState extends State<VendorPage> {
                                         ),
                                         borderRadius: BorderRadius.circular(12),
                                       ),
-                                      child: Row(
+                                      child: const Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceAround,
                                         crossAxisAlignment:
@@ -548,14 +546,15 @@ class _VendorPageState extends State<VendorPage> {
                                         horizontal: width * 0.00625,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: Color.fromRGBO(198, 255, 200, 1),
+                                        color: const Color.fromRGBO(
+                                            198, 255, 200, 1),
                                         border: Border.all(
                                           color: primaryDark.withOpacity(0.25),
                                           width: 0.25,
                                         ),
                                         borderRadius: BorderRadius.circular(12),
                                       ),
-                                      child: Row(
+                                      child: const Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceAround,
                                         crossAxisAlignment:
@@ -1316,22 +1315,26 @@ class _DiscountsWidgetState extends State<DiscountsWidget>
                     }
                   } else if (categories.isNotEmpty) {
                     final categoryId = await getCategoryId(index);
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: ((context) => CategoryPage(
-                              categoryId: categoryId,
-                            )),
-                      ),
-                    );
+                    if (context.mounted) {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: ((context) => CategoryPage(
+                                categoryId: categoryId,
+                              )),
+                        ),
+                      );
+                    }
                   } else if (brands.isNotEmpty) {
                     final brandId = await getBrandId(index);
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: ((context) => BrandPage(
-                              brandId: brandId,
-                            )),
-                      ),
-                    );
+                    if (context.mounted) {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: ((context) => BrandPage(
+                                brandId: brandId,
+                              )),
+                        ),
+                      );
+                    }
                   }
                 },
                 child: Container(

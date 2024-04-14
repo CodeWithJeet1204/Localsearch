@@ -89,7 +89,7 @@ class _PostsPageState extends State<PostsPage> {
         productData;
 
     if (wantData != null) {
-      return productsData[isTextPost ? '$productId' : '$productId'];
+      return productsData[isTextPost ? productId : productId];
     } else {
       return null;
     }
@@ -121,10 +121,10 @@ class _PostsPageState extends State<PostsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Posts'),
+        title: const Text('Posts'),
       ),
       body: posts.isEmpty
-          ? Center(
+          ? const Center(
               child: CircularProgressIndicator(),
             )
           : SafeArea(
@@ -136,7 +136,7 @@ class _PostsPageState extends State<PostsPage> {
                   width: width,
                   child: ListView.builder(
                     shrinkWrap: true,
-                    physics: ClampingScrollPhysics(),
+                    physics: const ClampingScrollPhysics(),
                     itemCount: posts.length,
                     itemBuilder: ((context, index) {
                       final String id = posts.keys.toList()[index];
@@ -164,7 +164,7 @@ class _PostsPageState extends State<PostsPage> {
                         },
                         child: Container(
                           width: width,
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             border: Border(
                               left: BorderSide(
                                 width: 0.06125,
@@ -183,7 +183,7 @@ class _PostsPageState extends State<PostsPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              SizedBox(height: 4),
+                              const SizedBox(height: 4),
                               // VENDOR INFO
                               vendors.isEmpty
                                   ? Container()
@@ -219,7 +219,7 @@ class _PostsPageState extends State<PostsPage> {
                                               vendorName,
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                 fontWeight: FontWeight.w500,
                                               ),
                                             ),
@@ -237,7 +237,7 @@ class _PostsPageState extends State<PostsPage> {
                                         Container(
                                           width: width,
                                           height: width,
-                                          decoration: BoxDecoration(
+                                          decoration: const BoxDecoration(
                                             color: Color.fromARGB(
                                                 255, 237, 237, 237),
                                           ),
@@ -327,13 +327,13 @@ class _PostsPageState extends State<PostsPage> {
                                           overflow: isTextPost
                                               ? null
                                               : TextOverflow.ellipsis,
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                             fontWeight: FontWeight.w500,
                                           ),
                                         ),
                                       ),
                                     ),
-                              SizedBox(height: 4),
+                              const SizedBox(height: 4),
                             ],
                           ),
                         ),
