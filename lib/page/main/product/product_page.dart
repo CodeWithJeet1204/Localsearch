@@ -1,6 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
+import 'package:find_easy_user/page/main/category/category_products_page.dart';
 import 'package:find_easy_user/page/main/product/product_all_reviews_page.dart';
 import 'package:find_easy_user/page/main/vendor/vendor_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
@@ -40,6 +41,7 @@ class _ProductPageState extends State<ProductPage> {
   int _currentIndex = 0;
   bool isWishListed = false;
   String? vendorName;
+  String? vendorType;
   bool isVendorHold = false;
   bool? isDiscount;
   String? brandImageUrl;
@@ -65,7 +67,6 @@ class _ProductPageState extends State<ProductPage> {
     getIfDiscount();
     getIfWishlist(widget.productData['productId']);
     getBrandImage();
-    getCategoryImage();
     getAllDiscounts();
     getAverageRatings();
     checkIfReviewed();
@@ -175,7 +176,10 @@ class _ProductPageState extends State<ProductPage> {
 
     setState(() {
       vendorName = vendorData['Name'];
+      vendorType = vendorData['Type'];
     });
+
+    await getCategoryImage(vendorData['Type']);
   }
 
   // IF DISCOUNT
@@ -297,18 +301,22 @@ class _ProductPageState extends State<ProductPage> {
   }
 
   // GET CATEGORY IMAGE
-  Future<void> getCategoryImage() async {
+  Future<void> getCategoryImage(String vendorType) async {
+    print("Vendor Type: $vendorType");
+    print("Category Type: ${widget.productData['categoryName']}");
     final categorySnap = await store
         .collection('Business')
-        .doc('Data')
-        .collection('Category')
-        .doc(widget.productData['categoryId'])
+        .doc('Special Categories')
+        .collection(vendorType)
+        .doc(widget.productData['categoryName'])
         .get();
+
+    print("Exists: ${categorySnap.exists}");
 
     if (categorySnap.exists) {
       final categoryData = categorySnap.data()!;
 
-      final categoryImage = categoryData['imageUrl'];
+      final categoryImage = categoryData['specialCategoryImageUrl'];
 
       setState(() {
         categoryImageUrl = categoryImage;
@@ -1412,47 +1420,67 @@ class _ProductPageState extends State<ProductPage> {
                                 ],
                               ),
                               const SizedBox(height: 20),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  categoryImageUrl == null
-                                      ? Container()
-                                      : CircleAvatar(
-                                          backgroundImage:
-                                              NetworkImage(categoryImageUrl!),
-                                          backgroundColor: lightGrey,
-                                        ),
-                                  SizedBox(width: width * 0.0225),
-                                  Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        overflow: TextOverflow.ellipsis,
-                                        'Category',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w500,
-                                          color: primaryDark2,
-                                        ),
+                              GestureDetector(
+                                onTap: () {
+                                  if (vendorType == null) {
+                                    return mySnackBar(
+                                      'Some error occured',
+                                      context,
+                                    );
+                                  } else {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: ((context) =>
+                                            CategoryProductsPage(
+                                              categoryName: categoryName,
+                                              shopType: vendorType!,
+                                            )),
                                       ),
-                                      Text(
-                                        categoryName,
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 1,
-                                        style: TextStyle(
-                                          fontSize: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              0.05833,
-                                          fontWeight: FontWeight.w600,
-                                          color: primaryDark,
+                                    );
+                                  }
+                                },
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    categoryImageUrl == null
+                                        ? Container()
+                                        : CircleAvatar(
+                                            backgroundImage:
+                                                NetworkImage(categoryImageUrl!),
+                                            backgroundColor: lightGrey,
+                                          ),
+                                    SizedBox(width: width * 0.0225),
+                                    Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const Text(
+                                          overflow: TextOverflow.ellipsis,
+                                          'Category',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            color: primaryDark2,
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                        Text(
+                                          categoryName,
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          style: TextStyle(
+                                            fontSize: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.05833,
+                                            fontWeight: FontWeight.w600,
+                                            color: primaryDark,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),

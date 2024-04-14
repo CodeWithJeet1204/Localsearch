@@ -1,4 +1,5 @@
 import 'package:find_easy_user/models/shop_categories.dart';
+import 'package:find_easy_user/page/main/category/category_products_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -49,39 +50,51 @@ class _ShopCategoriesPageState extends State<ShopCategoriesPage> {
                 horizontal: width * 0.015,
                 vertical: width * 0.015,
               ),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: white,
-                  border: Border.all(
-                    color: primaryDark,
-                    width: 0.25,
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: ((context) => CategoryProductsPage(
+                            categoryName: name,
+                            shopType: widget.shopName,
+                          )),
+                    ),
+                  );
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: white,
+                    border: Border.all(
+                      color: primaryDark,
+                      width: 0.25,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: width * 0.0125,
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.network(
-                          imageUrl,
-                          fit: BoxFit.contain,
-                          width: width * 0.33,
-                          height: width * 0.33,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: width * 0.0125,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.network(
+                            imageUrl,
+                            fit: BoxFit.contain,
+                            width: width * 0.33,
+                            height: width * 0.33,
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        name,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                      ),
-                    ],
+                        SizedBox(height: 8),
+                        Text(
+                          name,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

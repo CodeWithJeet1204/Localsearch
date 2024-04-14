@@ -4,6 +4,7 @@ import 'package:find_easy_user/page/auth/login_page.dart';
 import 'package:find_easy_user/page/auth/register_details_page.dart';
 import 'package:find_easy_user/page/auth/verify/email_verify.dart';
 import 'package:find_easy_user/page/main/home_page.dart';
+import 'package:find_easy_user/page/main/post_page.dart';
 import 'package:find_easy_user/page/main/profile/profile_page.dart';
 import 'package:find_easy_user/page/main/search/search_with_products_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
@@ -27,6 +28,7 @@ class _MainPageState extends State<MainPage>
   Widget? detailsPage;
 
   List<Widget> items = [
+    const PostsPage(),
     const HomePage(),
     const SearchWithProductsPage(),
     const ProfilePage(),
@@ -143,6 +145,14 @@ class _MainPageState extends State<MainPage>
             currentIndex: current,
             onTap: changePage,
             items: const [
+              BottomNavigationBarItem(
+                icon: Icon(
+                  FeatherIcons.compass,
+                ),
+                activeIcon: Icon(FeatherIcons.compass),
+                label: "Posts",
+                tooltip: 'POSTS',
+              ),
               BottomNavigationBarItem(
                 icon: Icon(
                   FeatherIcons.home,

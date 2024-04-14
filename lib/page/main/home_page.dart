@@ -50,9 +50,13 @@ class _HomePageState extends State<HomePage> {
 
     final userData = userSnap.data()!;
 
-    setState(() {
-      recentShop = userData['recentShop'];
-    });
+    if (context.mounted) {
+      if (mounted) {
+        setState(() {
+          recentShop = userData['recentShop'];
+        });
+      }
+    }
 
     await getNoOfProductsOfRecentShop();
   }
@@ -92,11 +96,15 @@ class _HomePageState extends State<HomePage> {
       temporaryNameList.add(productData['productName']);
       temporaryImageList.add(productData['images'][0]);
       temporaryDataList.add(productData.data()!);
-      setState(() {
-        recentShopProductsNames = temporaryNameList;
-        recentShopProductsImages = temporaryImageList;
-        recentShopProductsData = temporaryDataList;
-      });
+      if (context.mounted) {
+        if (mounted) {
+          setState(() {
+            recentShopProductsNames = temporaryNameList;
+            recentShopProductsImages = temporaryImageList;
+            recentShopProductsData = temporaryDataList;
+          });
+        }
+      }
     });
 
     return recentShopProductsImages.length;
