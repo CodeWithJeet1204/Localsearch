@@ -23,8 +23,8 @@ class _PostsPageState extends State<PostsPage> {
   // INIT STATE
   @override
   void initState() {
-    getPosts();
     super.initState();
+    getPosts();
   }
 
   // GET POSTS
@@ -71,20 +71,12 @@ class _PostsPageState extends State<PostsPage> {
     setState(() {
       posts = myPosts;
     });
-
-    postsSnap.docs.forEach((postSnap) async {
-      final postData = postSnap.data();
-      final String productId = postData['postProductId'];
-      final String vendorId = postData['postVendorId'];
-      final bool isTextPost = postData['isTextPost'];
-      await getVendorInfo(vendorId);
-      await getPostProductData(productId, isTextPost);
-    });
-    print("Products Data 1: $productsData");
   }
 
-// GET POST PRODUCT DATA
-  Future<void> getPostProductData(String productId, bool isTextPost) async {
+  // GET POST PRODUCT DATA
+  Future<Map<String, dynamic>?> getPostProductData(
+      String productId, bool isTextPost,
+      {bool? wantData}) async {
     final productSnap = await store
         .collection('Business')
         .doc('Data')
@@ -95,6 +87,12 @@ class _PostsPageState extends State<PostsPage> {
     final productData = productSnap.data();
     productsData[isTextPost ? '${productId}text' : '${productId}image'] =
         productData;
+
+    if (wantData != null) {
+      return productsData[isTextPost ? '$productId' : '$productId'];
+    } else {
+      return null;
+    }
   }
 
   // GET VENDOR INFO
@@ -120,7 +118,6 @@ class _PostsPageState extends State<PostsPage> {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    print("Products Data 2: $productsData");
 
     return Scaffold(
       appBar: AppBar(
@@ -142,8 +139,7 @@ class _PostsPageState extends State<PostsPage> {
                     physics: ClampingScrollPhysics(),
                     itemCount: posts.length,
                     itemBuilder: ((context, index) {
-                      print("Products Data 3: $productsData");
-                      final String id = posts.keys.toList()[index][0];
+                      final String id = posts.keys.toList()[index];
 
                       final String name = posts.values.toList()[index][0];
                       final String price = posts.values.toList()[index][1];
@@ -155,15 +151,13 @@ class _PostsPageState extends State<PostsPage> {
                       final String vendorImageUrl =
                           vendors.isEmpty ? '' : vendors[vendorId][1];
                       final productData = productsData[id];
-                      print("Products Data Id: $productsData[id]");
 
                       return GestureDetector(
                         onTap: () {
-                          print("Product Data lalal: $productData");
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: ((context) => ProductPage(
-                                    productData: productData,
+                                    productData: productData!,
                                   )),
                             ),
                           );
