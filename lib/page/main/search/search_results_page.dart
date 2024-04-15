@@ -31,6 +31,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
   Map searchedProducts = {};
   bool getShopsData = false;
   bool getProductsData = false;
+  String? productSort = 'Recently Added';
 
   // INIT STATE
   @override
@@ -181,6 +182,8 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
       final String productId = productData['productId'].toString();
       final String vendorId = productData['vendorId'].toString();
       final Map<String, dynamic> ratings = productData['ratings'];
+      final Timestamp datetime = productData['datetime'];
+      final int views = productData['productViews'];
 
       final vendorSnap = await store
           .collection('Business')
@@ -208,11 +211,13 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
 
         searchedProducts[productName] = [
           imageUrl,
-          productPrice,
           vendor,
+          productPrice,
           productId,
           relevanceScore,
           ratings,
+          datetime,
+          views,
         ];
       }
     }
@@ -315,6 +320,50 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
     final productData = productsSnap.data()!;
 
     return productData;
+  }
+
+  // SORT PRODUCTS
+  void sortProducts(ProductSorting sorting) {
+    setState(() {
+      switch (sorting) {
+        case ProductSorting.recentlyAdded:
+          searchedProducts = Map.fromEntries(searchedProducts.entries.toList()
+            ..sort((a, b) => (b.value[6] as Timestamp).compareTo(a.value[6])));
+          break;
+        case ProductSorting.highestRated:
+          searchedProducts = Map.fromEntries(searchedProducts.entries.toList()
+            ..sort((a, b) => calculateAverageRating(b.value[5])
+                .compareTo(calculateAverageRating(a.value[5]))));
+          break;
+        case ProductSorting.mostViewed:
+          searchedProducts = Map.fromEntries(searchedProducts.entries.toList()
+            ..sort((a, b) => (b.value[7] as int).compareTo(a.value[7])));
+          break;
+        case ProductSorting.lowestPrice:
+          searchedProducts = Map.fromEntries(searchedProducts.entries.toList()
+            ..sort((a, b) =>
+                double.parse(a.value[2]).compareTo(double.parse(b.value[2]))));
+          break;
+        case ProductSorting.highestPrice:
+          searchedProducts = Map.fromEntries(searchedProducts.entries.toList()
+            ..sort((a, b) =>
+                double.parse(b.value[2]).compareTo(double.parse(a.value[2]))));
+          break;
+      }
+    });
+  }
+
+  // CALCULATE AVERAGE RATINGS
+  double calculateAverageRating(Map<String, dynamic> ratings) {
+    if (ratings.isEmpty) return 0.0;
+
+    final allRatings = ratings.values.map((e) => e[0] as int).toList();
+
+    final sum = allRatings.reduce((value, element) => value + element);
+
+    final averageRating = sum / allRatings.length;
+
+    return averageRating;
   }
 
   @override
@@ -730,17 +779,74 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                       ),
                                     )
                                   : Padding(
-                                      padding: EdgeInsets.only(
-                                        left: width * 0.0225,
-                                        right: width * 0.0225,
-                                        bottom: width * 0.0225,
-                                      ),
-                                      child: Text(
-                                        'Products',
-                                        style: TextStyle(
-                                          color: primaryDark.withOpacity(0.8),
-                                          fontSize: width * 0.04,
-                                        ),
+                                      padding: EdgeInsets.all(width * 0.0225),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            'Products',
+                                            style: TextStyle(
+                                              color:
+                                                  primaryDark.withOpacity(0.8),
+                                              fontSize: width * 0.04,
+                                            ),
+                                          ),
+                                          Container(
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: width * 0.0125,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: primary3,
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                            child: DropdownButton<String>(
+                                              underline: const SizedBox(),
+                                              dropdownColor: primary2,
+                                              value: productSort,
+                                              iconEnabledColor: primaryDark,
+                                              items: [
+                                                'Recently Added',
+                                                'Highest Rated',
+                                                'Most Viewed',
+                                                'Price - Highest to Lowest',
+                                                'Price - Lowest to Highest'
+                                              ]
+                                                  .map((e) =>
+                                                      DropdownMenuItem<String>(
+                                                        value: e,
+                                                        child: Text(e),
+                                                      ))
+                                                  .toList(),
+                                              onChanged: (value) {
+                                                sortProducts(
+                                                  value == 'Recently Added'
+                                                      ? ProductSorting
+                                                          .recentlyAdded
+                                                      : value == 'Highest Rated'
+                                                          ? ProductSorting
+                                                              .highestRated
+                                                          : value ==
+                                                                  'Most Viewed'
+                                                              ? ProductSorting
+                                                                  .mostViewed
+                                                              : value ==
+                                                                      'Price - Highest to Lowest'
+                                                                  ? ProductSorting
+                                                                      .highestPrice
+                                                                  : ProductSorting
+                                                                      .lowestPrice,
+                                                );
+                                                setState(() {
+                                                  productSort = value;
+                                                });
+                                              },
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
 
@@ -843,245 +949,231 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                             final productId = searchedProducts
                                                 .values
                                                 .toList()[index][3];
+
                                             final ratings = searchedProducts
                                                 .values
                                                 .toList()[index][5];
 
                                             final price = searchedProducts[
-                                                        currentProduct][1] ==
+                                                        currentProduct][2] ==
                                                     ''
                                                 ? 'N/A'
-                                                : 'Rs. ${searchedProducts[currentProduct][1]}';
+                                                : 'Rs. ${searchedProducts[currentProduct][2]}';
                                             final isWishListed =
                                                 snapshot.data ?? false;
 
-                                            return Builder(
-                                              builder: (context) {
-                                                return GestureDetector(
-                                                  onTap: () async {
-                                                    final productData =
-                                                        await getProductData(
-                                                      productId,
-                                                    );
-                                                    if (context.mounted) {
-                                                      Navigator.of(context)
-                                                          .push(
-                                                        MaterialPageRoute(
-                                                          builder: ((context) =>
-                                                              ProductPage(
-                                                                productData:
-                                                                    productData,
-                                                              )),
-                                                        ),
-                                                      );
-                                                    }
-                                                  },
-                                                  onDoubleTap: () async {
-                                                    await showDialog(
-                                                      context: context,
+                                            return GestureDetector(
+                                              onTap: () async {
+                                                final productData =
+                                                    await getProductData(
+                                                  productId,
+                                                );
+                                                if (context.mounted) {
+                                                  Navigator.of(context).push(
+                                                    MaterialPageRoute(
                                                       builder: ((context) =>
-                                                          ProductQuickView(
-                                                            productId:
-                                                                productId,
+                                                          ProductPage(
+                                                            productData:
+                                                                productData,
                                                           )),
-                                                    );
-                                                  },
-                                                  onLongPress: () async {
-                                                    await showDialog(
-                                                      context: context,
-                                                      builder: ((context) =>
-                                                          ProductQuickView(
-                                                            productId:
-                                                                productId,
-                                                          )),
-                                                    );
-                                                  },
-                                                  child: Container(
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.white,
-                                                      border: Border.all(
-                                                        width: 0.25,
-                                                        color: Colors.grey
-                                                            .withOpacity(
-                                                          0.25,
-                                                        ),
-                                                      ),
                                                     ),
-                                                    padding: EdgeInsets.all(
-                                                      MediaQuery.of(context)
-                                                              .size
-                                                              .width *
-                                                          0.0125,
+                                                  );
+                                                }
+                                              },
+                                              onDoubleTap: () async {
+                                                await showDialog(
+                                                  context: context,
+                                                  builder: ((context) =>
+                                                      ProductQuickView(
+                                                        productId: productId,
+                                                      )),
+                                                );
+                                              },
+                                              onLongPress: () async {
+                                                await showDialog(
+                                                  context: context,
+                                                  builder: ((context) =>
+                                                      ProductQuickView(
+                                                        productId: productId,
+                                                      )),
+                                                );
+                                              },
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  border: Border.all(
+                                                    width: 0.25,
+                                                    color:
+                                                        Colors.grey.withOpacity(
+                                                      0.25,
                                                     ),
-                                                    child: Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
+                                                  ),
+                                                ),
+                                                padding: EdgeInsets.all(
+                                                  MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.0125,
+                                                ),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Stack(
+                                                      alignment:
+                                                          Alignment.topRight,
                                                       children: [
-                                                        Stack(
-                                                          alignment: Alignment
-                                                              .topRight,
-                                                          children: [
-                                                            Center(
-                                                              child:
-                                                                  Image.network(
-                                                                image,
-                                                                fit: BoxFit
-                                                                    .cover,
-                                                                width: MediaQuery.of(
-                                                                            context)
-                                                                        .size
-                                                                        .width *
-                                                                    0.5,
-                                                                height: MediaQuery.of(
-                                                                            context)
-                                                                        .size
-                                                                        .width *
-                                                                    0.58,
-                                                              ),
-                                                            ),
-                                                            Container(
-                                                              decoration:
-                                                                  BoxDecoration(
-                                                                color: const Color
-                                                                    .fromRGBO(
-                                                                  255,
-                                                                  92,
-                                                                  78,
-                                                                  1,
-                                                                ),
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                  4,
-                                                                ),
-                                                              ),
-                                                              padding: EdgeInsets
-                                                                  .symmetric(
-                                                                horizontal:
-                                                                    width *
-                                                                        0.0125,
-                                                                vertical:
-                                                                    width *
-                                                                        0.00625,
-                                                              ),
-                                                              margin: EdgeInsets
-                                                                  .all(
-                                                                width * 0.00625,
-                                                              ),
-                                                              child: Text(
-                                                                '${(ratings as Map).isEmpty ? '--' : ((ratings.values.map((e) => e?[0] ?? 0).toList().reduce((a, b) => a + b) / (ratings.values.isEmpty ? 1 : ratings.values.length)) as double).toStringAsFixed(1)} ⭐',
-                                                                style:
-                                                                    const TextStyle(
-                                                                  color: white,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ],
+                                                        Center(
+                                                          child: Image.network(
+                                                            image,
+                                                            fit: BoxFit.cover,
+                                                            width: MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .width *
+                                                                0.5,
+                                                            height: MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .width *
+                                                                0.58,
+                                                          ),
                                                         ),
-                                                        Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .spaceBetween,
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .center,
-                                                          children: [
-                                                            Column(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .spaceAround,
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .start,
-                                                              children: [
-                                                                Padding(
-                                                                  padding:
-                                                                      EdgeInsets
-                                                                          .only(
-                                                                    left: MediaQuery.of(context)
-                                                                            .size
-                                                                            .width *
-                                                                        0.00625,
-                                                                    right: MediaQuery.of(context)
-                                                                            .size
-                                                                            .width *
-                                                                        0.00625,
-                                                                    top: MediaQuery.of(context)
-                                                                            .size
-                                                                            .width *
-                                                                        0.0225,
-                                                                  ),
-                                                                  child:
-                                                                      SizedBox(
-                                                                    width:
-                                                                        width *
-                                                                            0.3,
-                                                                    child: Text(
-                                                                      currentProduct,
-                                                                      maxLines:
-                                                                          1,
-                                                                      overflow:
-                                                                          TextOverflow
-                                                                              .ellipsis,
-                                                                      style:
-                                                                          TextStyle(
-                                                                        fontSize:
-                                                                            width *
-                                                                                0.0575,
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                                Padding(
-                                                                  padding:
-                                                                      EdgeInsets
-                                                                          .symmetric(
-                                                                    horizontal: MediaQuery.of(context)
-                                                                            .size
-                                                                            .width *
-                                                                        0.0125,
-                                                                  ),
-                                                                  child: Text(
-                                                                    price,
-                                                                    style:
-                                                                        TextStyle(
-                                                                      fontSize:
-                                                                          width *
-                                                                              0.05,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w500,
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              ],
+                                                        Container(
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            color: const Color
+                                                                .fromRGBO(
+                                                              255,
+                                                              92,
+                                                              78,
+                                                              1,
                                                             ),
-                                                            IconButton(
-                                                              onPressed:
-                                                                  () async {
-                                                                await wishlistProduct(
-                                                                    productId);
-                                                              },
-                                                              icon: Icon(
-                                                                isWishListed
-                                                                    ? Icons
-                                                                        .favorite
-                                                                    : Icons
-                                                                        .favorite_border,
-                                                                color:
-                                                                    Colors.red,
-                                                              ),
-                                                              splashColor:
-                                                                  Colors.red,
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                              4,
                                                             ),
-                                                          ],
+                                                          ),
+                                                          padding: EdgeInsets
+                                                              .symmetric(
+                                                            horizontal:
+                                                                width * 0.0125,
+                                                            vertical:
+                                                                width * 0.00625,
+                                                          ),
+                                                          margin:
+                                                              EdgeInsets.all(
+                                                            width * 0.00625,
+                                                          ),
+                                                          child: Text(
+                                                            '${(ratings as Map).isEmpty ? '--' : ((ratings.values.map((e) => e?[0] ?? 0).toList().reduce((a, b) => a + b) / (ratings.values.isEmpty ? 1 : ratings.values.length)) as double).toStringAsFixed(1)} ⭐',
+                                                            style:
+                                                                const TextStyle(
+                                                              color: white,
+                                                            ),
+                                                          ),
                                                         ),
                                                       ],
                                                     ),
-                                                  ),
-                                                );
-                                              },
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        Column(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceAround,
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Padding(
+                                                              padding:
+                                                                  EdgeInsets
+                                                                      .only(
+                                                                left: MediaQuery.of(
+                                                                            context)
+                                                                        .size
+                                                                        .width *
+                                                                    0.00625,
+                                                                right: MediaQuery.of(
+                                                                            context)
+                                                                        .size
+                                                                        .width *
+                                                                    0.00625,
+                                                                top: MediaQuery.of(
+                                                                            context)
+                                                                        .size
+                                                                        .width *
+                                                                    0.0225,
+                                                              ),
+                                                              child: SizedBox(
+                                                                width:
+                                                                    width * 0.3,
+                                                                child: Text(
+                                                                  currentProduct,
+                                                                  maxLines: 1,
+                                                                  overflow:
+                                                                      TextOverflow
+                                                                          .ellipsis,
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontSize:
+                                                                        width *
+                                                                            0.0575,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            Padding(
+                                                              padding: EdgeInsets
+                                                                  .symmetric(
+                                                                horizontal: MediaQuery.of(
+                                                                            context)
+                                                                        .size
+                                                                        .width *
+                                                                    0.0125,
+                                                              ),
+                                                              child: Text(
+                                                                price,
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontSize:
+                                                                      width *
+                                                                          0.05,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w500,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        IconButton(
+                                                          onPressed: () async {
+                                                            await wishlistProduct(
+                                                                productId);
+                                                          },
+                                                          icon: Icon(
+                                                            isWishListed
+                                                                ? Icons.favorite
+                                                                : Icons
+                                                                    .favorite_border,
+                                                            color: Colors.red,
+                                                          ),
+                                                          splashColor:
+                                                              Colors.red,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
                                             );
                                           },
                                         );

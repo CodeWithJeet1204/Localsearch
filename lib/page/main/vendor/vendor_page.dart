@@ -74,7 +74,6 @@ class _VendorPageState extends State<VendorPage> {
   void _scrollListener() {
     if (_scrollController.position.pixels ==
         _scrollController.position.maxScrollExtent) {
-      // Reached the end of the list, load more products
       _loadMoreProducts();
     }
   }
@@ -82,7 +81,6 @@ class _VendorPageState extends State<VendorPage> {
   // LOAD MORE PRODUCTS
   void _loadMoreProducts() {
     setState(() {
-      // Increment the number of products loaded by 7
       _numProductsLoaded += 7;
     });
   }
