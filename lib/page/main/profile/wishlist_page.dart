@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:find_easy_user/page/main/product/product_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
+import 'package:find_easy_user/widgets/skeleton_container.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -19,6 +20,7 @@ class _WishlistPageState extends State<WishlistPage> {
   Map<String, List<dynamic>> wishlists = {};
   String? selectedCategory;
   List categories = ['Pens'];
+  bool getData = false;
 
   // INIT STATE
   @override
@@ -100,6 +102,7 @@ class _WishlistPageState extends State<WishlistPage> {
 
     setState(() {
       wishlists = wishlist;
+      getData = true;
     });
   }
 
@@ -121,182 +124,229 @@ class _WishlistPageState extends State<WishlistPage> {
         title: const Text("Wishlist"),
       ),
       body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: MediaQuery.of(context).size.width * 0.00625,
-          ),
-          child: LayoutBuilder(
-            builder: ((context, constraints) {
-              final width = constraints.maxWidth;
-              final currentWishlists = selectedCategory == null
-                  ? wishlists
-                  : Map.fromEntries(
-                      wishlists.entries
-                          .where((entry) => entry.value[3] == selectedCategory),
-                    );
-
-              return SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // CATEGORY CHIPS
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: width * 0.0125,
-                        vertical: width * 0.00625,
-                      ),
-                      child: SizedBox(
-                        width: width,
-                        height: 40,
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          scrollDirection: Axis.horizontal,
-                          itemCount: categories.length,
-                          itemBuilder: ((context, index) {
-                            final category = categories[index];
-
-                            return Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: width * 0.01,
-                              ),
-                              child: ActionChip(
-                                label: Text(
-                                  category,
-                                  style: TextStyle(
-                                    color: selectedCategory == category
-                                        ? white
-                                        : primaryDark,
-                                  ),
-                                ),
-                                tooltip: "See $category",
-                                onPressed: () {
-                                  setState(() {
-                                    if (selectedCategory == category) {
-                                      selectedCategory = null;
-                                    } else {
-                                      selectedCategory = category;
-                                    }
-                                  });
-                                },
-                                backgroundColor: selectedCategory == category
-                                    ? primaryDark
-                                    : primary2,
-                              ),
-                            );
-                          }),
-                        ),
-                      ),
+        child: !getData
+            ? Column(
+                children: [
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.width * 0.175,
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: 4,
+                      scrollDirection: Axis.horizontal,
+                      itemBuilder: ((context, index) {
+                        return Padding(
+                          padding: EdgeInsets.all(8),
+                          child: SkeletonContainer(
+                            width: MediaQuery.of(context).size.width * 0.3,
+                            height: 40,
+                          ),
+                        );
+                      }),
                     ),
+                  ),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: 4,
+                      itemBuilder: ((context, index) {
+                        return Padding(
+                          padding: EdgeInsets.all(8),
+                          child: SkeletonContainer(
+                            width: MediaQuery.of(context).size.width,
+                            height: 80,
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
+                ],
+              )
+            : Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: MediaQuery.of(context).size.width * 0.00625,
+                ),
+                child: LayoutBuilder(
+                  builder: ((context, constraints) {
+                    final width = constraints.maxWidth;
+                    final currentWishlists = selectedCategory == null
+                        ? wishlists
+                        : Map.fromEntries(
+                            wishlists.entries.where(
+                                (entry) => entry.value[3] == selectedCategory),
+                          );
 
-                    currentWishlists.isEmpty
-                        ? const Center(
-                            child: Text(
-                              'No Products',
-                            ),
-                          )
-                        : Padding(
+                    return SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // CATEGORY CHIPS
+                          Padding(
                             padding: EdgeInsets.symmetric(
                               horizontal: width * 0.0125,
-                              vertical: width * 0.0125,
+                              vertical: width * 0.00625,
                             ),
                             child: SizedBox(
                               width: width,
+                              height: 40,
                               child: ListView.builder(
                                 shrinkWrap: true,
-                                physics: const ClampingScrollPhysics(),
-                                itemCount: currentWishlists.length,
+                                scrollDirection: Axis.horizontal,
+                                itemCount: categories.length,
                                 itemBuilder: ((context, index) {
-                                  final id =
-                                      currentWishlists.keys.toList()[index];
-                                  final name = currentWishlists.values
-                                      .toList()[index][0];
-                                  final imageUrl = currentWishlists.values
-                                      .toList()[index][1];
-                                  final price = currentWishlists.values
-                                      .toList()[index][2];
-                                  final data = currentWishlists.values
-                                      .toList()[index][4];
+                                  final category = categories[index];
 
-                                  return Slidable(
-                                    endActionPane: ActionPane(
-                                      extentRatio: 0.325,
-                                      motion: const StretchMotion(),
-                                      children: [
-                                        SlidableAction(
-                                          onPressed: (context) async {
-                                            await remove(id);
-                                          },
-                                          backgroundColor: Colors.red,
-                                          icon: FeatherIcons.trash,
-                                          label: "Unfollow",
-                                          borderRadius: const BorderRadius.only(
-                                            topRight: Radius.circular(12),
-                                            bottomRight: Radius.circular(12),
-                                          ),
-                                        ),
-                                      ],
+                                  return Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: width * 0.01,
                                     ),
-                                    child: Padding(
-                                      padding: EdgeInsets.symmetric(
-                                        vertical: width * 0.0125,
-                                      ),
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                              builder: ((context) =>
-                                                  ProductPage(
-                                                    productData: data,
-                                                  )),
-                                            ),
-                                          );
-                                        },
-                                        child: ListTile(
-                                          splashColor: white,
-                                          visualDensity:
-                                              VisualDensity.comfortable,
-                                          tileColor: primary2.withOpacity(0.5),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                          ),
-                                          leading: CircleAvatar(
-                                            backgroundColor: primary2,
-                                            backgroundImage:
-                                                NetworkImage(imageUrl),
-                                          ),
-                                          title: Text(
-                                            name,
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                          subtitle: Text(
-                                            price == '' ? 'N/A' : 'Rs. $price',
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                          titleTextStyle: TextStyle(
-                                            color: primaryDark,
-                                            fontSize: width * 0.0475,
-                                          ),
-                                          subtitleTextStyle: TextStyle(
-                                            color: primaryDark2,
-                                            fontSize: width * 0.04,
-                                          ),
+                                    child: ActionChip(
+                                      label: Text(
+                                        category,
+                                        style: TextStyle(
+                                          color: selectedCategory == category
+                                              ? white
+                                              : primaryDark,
                                         ),
                                       ),
+                                      tooltip: "See $category",
+                                      onPressed: () {
+                                        setState(() {
+                                          if (selectedCategory == category) {
+                                            selectedCategory = null;
+                                          } else {
+                                            selectedCategory = category;
+                                          }
+                                        });
+                                      },
+                                      backgroundColor:
+                                          selectedCategory == category
+                                              ? primaryDark
+                                              : primary2,
                                     ),
                                   );
                                 }),
                               ),
                             ),
                           ),
-                  ],
+
+                          currentWishlists.isEmpty
+                              ? const Center(
+                                  child: Text(
+                                    'No Products',
+                                  ),
+                                )
+                              : Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: width * 0.0125,
+                                    vertical: width * 0.0125,
+                                  ),
+                                  child: SizedBox(
+                                    width: width,
+                                    child: ListView.builder(
+                                      shrinkWrap: true,
+                                      physics: const ClampingScrollPhysics(),
+                                      itemCount: currentWishlists.length,
+                                      itemBuilder: ((context, index) {
+                                        final id = currentWishlists.keys
+                                            .toList()[index];
+                                        final name = currentWishlists.values
+                                            .toList()[index][0];
+                                        final imageUrl = currentWishlists.values
+                                            .toList()[index][1];
+                                        final price = currentWishlists.values
+                                            .toList()[index][2];
+                                        final data = currentWishlists.values
+                                            .toList()[index][4];
+
+                                        return Slidable(
+                                          endActionPane: ActionPane(
+                                            extentRatio: 0.325,
+                                            motion: const StretchMotion(),
+                                            children: [
+                                              SlidableAction(
+                                                onPressed: (context) async {
+                                                  await remove(id);
+                                                },
+                                                backgroundColor: Colors.red,
+                                                icon: FeatherIcons.trash,
+                                                label: "Unfollow",
+                                                borderRadius:
+                                                    const BorderRadius.only(
+                                                  topRight: Radius.circular(12),
+                                                  bottomRight:
+                                                      Radius.circular(12),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          child: Padding(
+                                            padding: EdgeInsets.symmetric(
+                                              vertical: width * 0.0125,
+                                            ),
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                    builder: ((context) =>
+                                                        ProductPage(
+                                                          productData: data,
+                                                        )),
+                                                  ),
+                                                );
+                                              },
+                                              child: ListTile(
+                                                splashColor: white,
+                                                visualDensity:
+                                                    VisualDensity.comfortable,
+                                                tileColor:
+                                                    primary2.withOpacity(0.5),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                ),
+                                                leading: CircleAvatar(
+                                                  backgroundColor: primary2,
+                                                  backgroundImage:
+                                                      NetworkImage(imageUrl),
+                                                ),
+                                                title: Text(
+                                                  name,
+                                                  maxLines: 2,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                                subtitle: Text(
+                                                  price == ''
+                                                      ? 'N/A'
+                                                      : 'Rs. $price',
+                                                  maxLines: 2,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                                titleTextStyle: TextStyle(
+                                                  color: primaryDark,
+                                                  fontSize: width * 0.0475,
+                                                ),
+                                                subtitleTextStyle: TextStyle(
+                                                  color: primaryDark2,
+                                                  fontSize: width * 0.04,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      }),
+                                    ),
+                                  ),
+                                ),
+                        ],
+                      ),
+                    );
+                  }),
                 ),
-              );
-            }),
-          ),
-        ),
+              ),
       ),
     );
   }

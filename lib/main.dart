@@ -1,5 +1,4 @@
 // ignore_for_file: avoid_print
-
 import 'package:find_easy_user/firebase_options.dart';
 import 'package:find_easy_user/page/auth/login_page.dart';
 import 'package:find_easy_user/page/auth/register_method_page.dart';

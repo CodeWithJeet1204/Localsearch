@@ -1,8 +1,10 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:feather_icons/feather_icons.dart';
 import 'package:find_easy_user/page/main/product/product_page.dart';
 import 'package:find_easy_user/page/main/vendor/vendor_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
+import 'package:find_easy_user/widgets/post_skeleton_container.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -124,8 +126,21 @@ class _PostsPageState extends State<PostsPage> {
         title: const Text('Posts'),
       ),
       body: posts.isEmpty
-          ? const Center(
-              child: CircularProgressIndicator(),
+          ? SizedBox(
+              width: MediaQuery.of(context).size.width,
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: 4,
+                itemBuilder: ((context, index) {
+                  return Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: PostSkeletonContainer(
+                      width: width,
+                      height: width * 1.25,
+                    ),
+                  );
+                }),
+              ),
             )
           : SafeArea(
               child: RefreshIndicator(
@@ -197,42 +212,62 @@ class _PostsPageState extends State<PostsPage> {
                                     : Padding(
                                         padding: EdgeInsets.symmetric(
                                           horizontal: width * 0.0125,
-                                          vertical: width * 0.0125,
                                         ),
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                builder: ((context) =>
-                                                    VendorPage(
-                                                      vendorId: vendorId,
-                                                    )),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            GestureDetector(
+                                              onTap: () {
+                                                Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                    builder: ((context) =>
+                                                        VendorPage(
+                                                          vendorId: vendorId,
+                                                        )),
+                                                  ),
+                                                );
+                                              },
+                                              child: Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                children: [
+                                                  CircleAvatar(
+                                                    radius: width * 0.04,
+                                                    backgroundColor: primary2,
+                                                    backgroundImage:
+                                                        NetworkImage(
+                                                      vendorImageUrl,
+                                                    ),
+                                                  ),
+                                                  SizedBox(
+                                                    width: width * 0.0125,
+                                                  ),
+                                                  Text(
+                                                    vendorName,
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
-                                            );
-                                          },
-                                          child: Row(
-                                            // mainAxisAlignment: MainAxis,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              CircleAvatar(
-                                                radius: width * 0.04,
-                                                backgroundColor: primary2,
-                                                backgroundImage: NetworkImage(
-                                                  vendorImageUrl,
-                                                ),
+                                            ),
+
+                                            // SHARE
+                                            IconButton(
+                                              onPressed: () {},
+                                              icon: Icon(
+                                                FeatherIcons.share2,
                                               ),
-                                              SizedBox(width: width * 0.0125),
-                                              Text(
-                                                vendorName,
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
+                                              tooltip: "Share Product",
+                                            ),
+                                          ],
                                         ),
                                       ),
 

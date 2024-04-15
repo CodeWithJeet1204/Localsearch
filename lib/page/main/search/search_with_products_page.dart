@@ -4,6 +4,7 @@ import 'package:find_easy_user/page/main/product/product_page.dart';
 import 'package:find_easy_user/page/main/search/search_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/product_quick_view.dart';
+import 'package:find_easy_user/widgets/skeleton_container.dart';
 import 'package:find_easy_user/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -94,12 +95,44 @@ class _SearchWithProductsPageState extends State<SearchWithProductsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return !getData
-        ? const Center(
-            child: CircularProgressIndicator(),
-          )
-        : Scaffold(
-            body: SafeArea(
+    return Scaffold(
+      body: !getData
+          ? SafeArea(
+              child: Padding(
+                padding:
+                    EdgeInsets.all(MediaQuery.of(context).size.width * 0.025),
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: GridView.custom(
+                    shrinkWrap: true,
+                    physics: const ClampingScrollPhysics(),
+                    gridDelegate: SliverQuiltedGridDelegate(
+                      crossAxisCount: 4,
+                      mainAxisSpacing: 4,
+                      crossAxisSpacing: 4,
+                      repeatPattern: QuiltedGridRepeatPattern.inverted,
+                      pattern: [
+                        const QuiltedGridTile(2, 2),
+                        const QuiltedGridTile(1, 1),
+                        const QuiltedGridTile(1, 1),
+                        const QuiltedGridTile(1, 1),
+                        const QuiltedGridTile(1, 1),
+                      ],
+                    ),
+                    childrenDelegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        return SkeletonContainer(
+                          width: MediaQuery.of(context).size.width,
+                          height: MediaQuery.of(context).size.width,
+                        );
+                      },
+                      childCount: 20,
+                    ),
+                  ),
+                ),
+              ),
+            )
+          : SafeArea(
               child: Padding(
                 padding: EdgeInsets.symmetric(
                   horizontal: MediaQuery.of(context).size.width * 0.0225,
@@ -128,8 +161,6 @@ class _SearchWithProductsPageState extends State<SearchWithProductsPage> {
                             customBorder: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            splashFactory:
-                                InkSparkle.constantTurbulenceSeedSplashFactory,
                             child: Container(
                               width: width,
                               height: width * 0.15,
@@ -192,6 +223,7 @@ class _SearchWithProductsPageState extends State<SearchWithProductsPage> {
                                 ],
                               ),
                               childrenDelegate: SliverChildBuilderDelegate(
+                                childCount: productIds.length,
                                 (context, index) {
                                   final productId = productIds[index];
                                   final productImageUrl =
@@ -267,7 +299,6 @@ class _SearchWithProductsPageState extends State<SearchWithProductsPage> {
                                         return Container();
                                       });
                                 },
-                                childCount: productIds.length,
                               ),
                             ),
                           ),
@@ -278,6 +309,6 @@ class _SearchWithProductsPageState extends State<SearchWithProductsPage> {
                 })),
               ),
             ),
-          );
+    );
   }
 }

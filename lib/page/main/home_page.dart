@@ -7,6 +7,7 @@ import 'package:find_easy_user/page/main/product/product_page.dart';
 import 'package:find_easy_user/page/main/search/search_page.dart';
 import 'package:find_easy_user/page/main/vendor/vendor_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
+import 'package:find_easy_user/widgets/skeleton_container.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -27,6 +28,9 @@ class _HomePageState extends State<HomePage> {
   List<Map<String, dynamic>> recentShopProductsData = [];
   Map<String, dynamic> wishlist = {};
   Map<String, dynamic> followedShops = {};
+  bool getRecentData = false;
+  bool getWishlistData = false;
+  bool getFollowedData = false;
 
   List<int> numbers = [0, 1, 2, 3];
   List<int> reverseNumbers = [4, 5, 6, 7];
@@ -80,11 +84,11 @@ class _HomePageState extends State<HomePage> {
       }
     }
 
-    await getRecentShopProductInfo(false);
+    await getRecentShopProductInfo();
   }
 
   // GET RECENT SHOP PRODUCT INFO
-  Future<int> getRecentShopProductInfo(bool fromRecent) async {
+  Future<int> getRecentShopProductInfo() async {
     List<String> temporaryNameList = [];
     List<String> temporaryImageList = [];
     List<Map<String, dynamic>> temporaryDataList = [];
@@ -109,6 +113,10 @@ class _HomePageState extends State<HomePage> {
           });
         }
       }
+    });
+
+    setState(() {
+      getRecentData = true;
     });
 
     return recentShopProductsImages.length;
@@ -142,6 +150,7 @@ class _HomePageState extends State<HomePage> {
 
     setState(() {
       wishlist = myWishlist;
+      getWishlistData = true;
     });
   }
 
@@ -173,6 +182,7 @@ class _HomePageState extends State<HomePage> {
 
     setState(() {
       followedShops = myFollowedShops;
+      getFollowedData = true;
     });
   }
 
@@ -466,309 +476,457 @@ class _HomePageState extends State<HomePage> {
                     // CONTINUE
                     recentShop == ''
                         ? Container()
-                        : Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: width * 0.025,
-                              vertical: width * 0.025,
-                            ),
-                            child: Text(
-                              'Continue Shopping',
-                              style: TextStyle(
-                                color: primaryDark,
-                                fontSize: width * 0.07,
-                                fontWeight: FontWeight.w500,
+                        : !getRecentData
+                            ? Padding(
+                                padding: EdgeInsets.all(width * 0.0225),
+                                child: SkeletonContainer(
+                                  width: width * 0.6,
+                                  height: 32,
+                                ),
+                              )
+                            : Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: width * 0.025,
+                                  vertical: width * 0.025,
+                                ),
+                                child: Text(
+                                  'Continue Shopping',
+                                  style: TextStyle(
+                                    color: primaryDark,
+                                    fontSize: width * 0.07,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
 
                     // CONTINUE PRODUCTS
                     recentShop == ''
                         ? Container()
-                        : SizedBox(
-                            width: width,
-                            height: width * 0.425,
-                            child: ListView.builder(
-                              shrinkWrap: true,
-                              scrollDirection: Axis.horizontal,
-                              itemCount: recentShopProductsImages.length > 4
-                                  ? 4
-                                  : recentShopProductsImages.length,
-                              itemBuilder: ((context, index) {
-                                final String name =
-                                    recentShopProductsNames[index];
-                                final String image =
-                                    recentShopProductsImages[index];
-
-                                return GestureDetector(
-                                  onTap: () {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: ((context) => ProductPage(
-                                              productData:
-                                                  recentShopProductsData[index],
-                                            )),
+                        : !getRecentData
+                            ? SizedBox(
+                                width: width,
+                                height: width * 0.425,
+                                child: ListView.builder(
+                                  shrinkWrap: true,
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: 4,
+                                  itemBuilder: ((context, index) {
+                                    return Padding(
+                                      padding: EdgeInsets.all(width * 0.0225),
+                                      child: Container(
+                                        width: width * 0.28,
+                                        height: width * 0.4,
+                                        decoration: BoxDecoration(
+                                          color: lightGrey,
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceAround,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            SkeletonContainer(
+                                              width: width * 0.25,
+                                              height: width * 0.275,
+                                            ),
+                                            SkeletonContainer(
+                                              width: width * 0.225,
+                                              height: width * 0.033,
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     );
-                                  },
-                                  child: Container(
-                                    width: width * 0.3,
-                                    height: width * 0.2,
-                                    decoration: BoxDecoration(
-                                      color: white,
-                                      border: Border.all(
-                                        width: 0.25,
-                                      ),
-                                      borderRadius: BorderRadius.circular(2),
-                                    ),
-                                    padding: EdgeInsets.all(
-                                      width * 0.00625,
-                                    ),
-                                    margin: EdgeInsets.all(
-                                      width * 0.0125,
-                                    ),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        ClipRRect(
+                                  }),
+                                ),
+                              )
+                            : SizedBox(
+                                width: width,
+                                height: width * 0.425,
+                                child: ListView.builder(
+                                  shrinkWrap: true,
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: recentShopProductsImages.length > 4
+                                      ? 4
+                                      : recentShopProductsImages.length,
+                                  itemBuilder: ((context, index) {
+                                    final String name =
+                                        recentShopProductsNames[index];
+                                    final String image =
+                                        recentShopProductsImages[index];
+
+                                    return GestureDetector(
+                                      onTap: () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: ((context) => ProductPage(
+                                                  productData:
+                                                      recentShopProductsData[
+                                                          index],
+                                                )),
+                                          ),
+                                        );
+                                      },
+                                      child: Container(
+                                        width: width * 0.3,
+                                        height: width * 0.2,
+                                        decoration: BoxDecoration(
+                                          color: white,
+                                          border: Border.all(
+                                            width: 0.25,
+                                          ),
                                           borderRadius:
                                               BorderRadius.circular(2),
-                                          child: Image.network(
-                                            image,
-                                            fit: BoxFit.cover,
-                                            width: width * 0.3,
-                                            height: width * 0.3,
-                                          ),
                                         ),
-                                        Padding(
-                                          padding: EdgeInsets.only(
-                                            top: width * 0.00625,
-                                            left: width * 0.0125,
-                                          ),
-                                          child: Text(
-                                            name,
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
-                                            style: TextStyle(
-                                              fontSize: width * 0.05,
-                                              fontWeight: FontWeight.w500,
+                                        padding: EdgeInsets.all(
+                                          width * 0.00625,
+                                        ),
+                                        margin: EdgeInsets.all(
+                                          width * 0.0125,
+                                        ),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(2),
+                                              child: Image.network(
+                                                image,
+                                                fit: BoxFit.cover,
+                                                width: width * 0.3,
+                                                height: width * 0.3,
+                                              ),
                                             ),
-                                          ),
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                top: width * 0.00625,
+                                                left: width * 0.0125,
+                                              ),
+                                              child: Text(
+                                                name,
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                                style: TextStyle(
+                                                  fontSize: width * 0.05,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              }),
-                            ),
-                          ),
+                                      ),
+                                    );
+                                  }),
+                                ),
+                              ),
 
                     // WISHLIST
                     wishlist.isEmpty
                         ? Container()
-                        : Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: width * 0.025,
-                              vertical: width * 0.025,
-                            ),
-                            child: Text(
-                              'Your Wishlists ❤️',
-                              style: TextStyle(
-                                color: primaryDark,
-                                fontSize: width * 0.07,
-                                fontWeight: FontWeight.w500,
+                        : !getWishlistData
+                            ? Padding(
+                                padding: EdgeInsets.all(width * 0.0225),
+                                child: SkeletonContainer(
+                                  width: width * 0.6,
+                                  height: 32,
+                                ),
+                              )
+                            : Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: width * 0.025,
+                                  vertical: width * 0.025,
+                                ),
+                                child: Text(
+                                  'Your Wishlists ❤️',
+                                  style: TextStyle(
+                                    color: primaryDark,
+                                    fontSize: width * 0.07,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
 
                     // WISHLIST PRODUCTS
                     wishlist.isEmpty
                         ? Container()
-                        : SizedBox(
-                            width: width,
-                            height: width * 0.425,
-                            child: ListView.builder(
-                              shrinkWrap: true,
-                              scrollDirection: Axis.horizontal,
-                              itemCount:
-                                  wishlist.length > 4 ? 4 : wishlist.length,
-                              itemBuilder: ((context, index) {
-                                final String name =
-                                    wishlist.values.toList()[index][0];
-                                final String imageUrl =
-                                    wishlist.values.toList()[index][1];
-                                final Map<String, dynamic> productData =
-                                    wishlist.values.toList()[index][2];
-
-                                return GestureDetector(
-                                  onTap: () {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: ((context) => ProductPage(
-                                              productData: productData,
-                                            )),
+                        : !getWishlistData
+                            ? SizedBox(
+                                width: width,
+                                height: width * 0.425,
+                                child: ListView.builder(
+                                  shrinkWrap: true,
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: 4,
+                                  itemBuilder: ((context, index) {
+                                    return Padding(
+                                      padding: EdgeInsets.all(width * 0.0225),
+                                      child: Container(
+                                        width: width * 0.28,
+                                        height: width * 0.4,
+                                        decoration: BoxDecoration(
+                                          color: lightGrey,
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceAround,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            SkeletonContainer(
+                                              width: width * 0.25,
+                                              height: width * 0.275,
+                                            ),
+                                            SkeletonContainer(
+                                              width: width * 0.225,
+                                              height: width * 0.033,
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     );
-                                  },
-                                  child: Container(
-                                    width: width * 0.3,
-                                    height: width * 0.2,
-                                    decoration: BoxDecoration(
-                                      color: white,
-                                      border: Border.all(
-                                        width: 0.25,
-                                      ),
-                                      borderRadius: BorderRadius.circular(2),
-                                    ),
-                                    padding: EdgeInsets.all(
-                                      width * 0.00625,
-                                    ),
-                                    margin: EdgeInsets.all(
-                                      width * 0.0125,
-                                    ),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        ClipRRect(
+                                  }),
+                                ),
+                              )
+                            : SizedBox(
+                                width: width,
+                                height: width * 0.425,
+                                child: ListView.builder(
+                                  shrinkWrap: true,
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount:
+                                      wishlist.length > 4 ? 4 : wishlist.length,
+                                  itemBuilder: ((context, index) {
+                                    final String name =
+                                        wishlist.values.toList()[index][0];
+                                    final String imageUrl =
+                                        wishlist.values.toList()[index][1];
+                                    final Map<String, dynamic> productData =
+                                        wishlist.values.toList()[index][2];
+
+                                    return GestureDetector(
+                                      onTap: () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: ((context) => ProductPage(
+                                                  productData: productData,
+                                                )),
+                                          ),
+                                        );
+                                      },
+                                      child: Container(
+                                        width: width * 0.3,
+                                        height: width * 0.2,
+                                        decoration: BoxDecoration(
+                                          color: white,
+                                          border: Border.all(
+                                            width: 0.25,
+                                          ),
                                           borderRadius:
                                               BorderRadius.circular(2),
-                                          child: Image.network(
-                                            imageUrl,
-                                            fit: BoxFit.cover,
-                                            width: width * 0.3,
-                                            height: width * 0.3,
-                                          ),
                                         ),
-                                        Padding(
-                                          padding: EdgeInsets.only(
-                                            top: width * 0.00625,
-                                            left: width * 0.0125,
-                                          ),
-                                          child: Text(
-                                            name,
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
-                                            style: TextStyle(
-                                              fontSize: width * 0.05,
-                                              fontWeight: FontWeight.w500,
+                                        padding: EdgeInsets.all(
+                                          width * 0.00625,
+                                        ),
+                                        margin: EdgeInsets.all(
+                                          width * 0.0125,
+                                        ),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(2),
+                                              child: Image.network(
+                                                imageUrl,
+                                                fit: BoxFit.cover,
+                                                width: width * 0.3,
+                                                height: width * 0.3,
+                                              ),
                                             ),
-                                          ),
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                top: width * 0.00625,
+                                                left: width * 0.0125,
+                                              ),
+                                              child: Text(
+                                                name,
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                                style: TextStyle(
+                                                  fontSize: width * 0.05,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              }),
-                            ),
-                          ),
+                                      ),
+                                    );
+                                  }),
+                                ),
+                              ),
 
                     // FOLLOWED
                     followedShops.isEmpty
                         ? Container()
-                        : Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: width * 0.025,
-                              vertical: width * 0.025,
-                            ),
-                            child: Text(
-                              'Followed Shops',
-                              style: TextStyle(
-                                color: primaryDark,
-                                fontSize: width * 0.07,
-                                fontWeight: FontWeight.w500,
+                        : !getFollowedData
+                            ? Padding(
+                                padding: EdgeInsets.all(width * 0.0225),
+                                child: SkeletonContainer(
+                                  width: width * 0.6,
+                                  height: 32,
+                                ),
+                              )
+                            : Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: width * 0.025,
+                                  vertical: width * 0.025,
+                                ),
+                                child: Text(
+                                  'Followed Shops',
+                                  style: TextStyle(
+                                    color: primaryDark,
+                                    fontSize: width * 0.07,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
 
                     // FOLLOWED SHOPS
                     followedShops.isEmpty
                         ? Container()
-                        : SizedBox(
-                            width: width,
-                            height: width * 0.425,
-                            child: ListView.builder(
-                              shrinkWrap: true,
-                              scrollDirection: Axis.horizontal,
-                              itemCount: followedShops.length > 4
-                                  ? 4
-                                  : followedShops.length,
-                              itemBuilder: ((context, index) {
-                                final String vendorId =
-                                    followedShops.keys.toList()[index];
-                                final String name =
-                                    followedShops.values.toList()[index][0];
-                                final String imageUrl =
-                                    followedShops.values.toList()[index][1];
-
-                                return GestureDetector(
-                                  onTap: () {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: ((context) => VendorPage(
-                                              vendorId: vendorId,
-                                            )),
+                        : !getFollowedData
+                            ? SizedBox(
+                                width: width,
+                                height: width * 0.425,
+                                child: ListView.builder(
+                                  shrinkWrap: true,
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: 4,
+                                  itemBuilder: ((context, index) {
+                                    return Padding(
+                                      padding: EdgeInsets.all(width * 0.0225),
+                                      child: Container(
+                                        width: width * 0.28,
+                                        height: width * 0.4,
+                                        decoration: BoxDecoration(
+                                          color: lightGrey,
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceAround,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            SkeletonContainer(
+                                              width: width * 0.25,
+                                              height: width * 0.275,
+                                            ),
+                                            SkeletonContainer(
+                                              width: width * 0.225,
+                                              height: width * 0.033,
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     );
-                                  },
-                                  child: Container(
-                                    width: width * 0.3,
-                                    height: width * 0.2,
-                                    decoration: BoxDecoration(
-                                      color: white,
-                                      border: Border.all(
-                                        width: 0.25,
-                                      ),
-                                      borderRadius: BorderRadius.circular(2),
-                                    ),
-                                    padding: EdgeInsets.all(
-                                      width * 0.00625,
-                                    ),
-                                    margin: EdgeInsets.all(
-                                      width * 0.0125,
-                                    ),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        ClipRRect(
+                                  }),
+                                ),
+                              )
+                            : SizedBox(
+                                width: width,
+                                height: width * 0.425,
+                                child: ListView.builder(
+                                  shrinkWrap: true,
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: followedShops.length > 4
+                                      ? 4
+                                      : followedShops.length,
+                                  itemBuilder: ((context, index) {
+                                    final String vendorId =
+                                        followedShops.keys.toList()[index];
+                                    final String name =
+                                        followedShops.values.toList()[index][0];
+                                    final String imageUrl =
+                                        followedShops.values.toList()[index][1];
+
+                                    return GestureDetector(
+                                      onTap: () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: ((context) => VendorPage(
+                                                  vendorId: vendorId,
+                                                )),
+                                          ),
+                                        );
+                                      },
+                                      child: Container(
+                                        width: width * 0.3,
+                                        height: width * 0.2,
+                                        decoration: BoxDecoration(
+                                          color: white,
+                                          border: Border.all(
+                                            width: 0.25,
+                                          ),
                                           borderRadius:
                                               BorderRadius.circular(2),
-                                          child: Image.network(
-                                            imageUrl,
-                                            fit: BoxFit.cover,
-                                            width: width * 0.3,
-                                            height: width * 0.3,
-                                          ),
                                         ),
-                                        Padding(
-                                          padding: EdgeInsets.only(
-                                            top: width * 0.00625,
-                                            left: width * 0.0125,
-                                          ),
-                                          child: Text(
-                                            name,
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
-                                            style: TextStyle(
-                                              fontSize: width * 0.05,
-                                              fontWeight: FontWeight.w500,
+                                        padding: EdgeInsets.all(
+                                          width * 0.00625,
+                                        ),
+                                        margin: EdgeInsets.all(
+                                          width * 0.0125,
+                                        ),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(2),
+                                              child: Image.network(
+                                                imageUrl,
+                                                fit: BoxFit.cover,
+                                                width: width * 0.3,
+                                                height: width * 0.3,
+                                              ),
                                             ),
-                                          ),
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                top: width * 0.00625,
+                                                left: width * 0.0125,
+                                              ),
+                                              child: Text(
+                                                name,
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                                style: TextStyle(
+                                                  fontSize: width * 0.05,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              }),
-                            ),
-                          ),
+                                      ),
+                                    );
+                                  }),
+                                ),
+                              ),
                   ],
                 ),
               );
