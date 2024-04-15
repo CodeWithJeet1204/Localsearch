@@ -23,8 +23,7 @@ class _MainPageState extends State<MainPage>
     with AutomaticKeepAliveClientMixin {
   final auth = FirebaseAuth.instance.currentUser!;
   final store = FirebaseFirestore.instance;
-  late PageController pageController;
-  int current = 0;
+  int current = 1;
   Widget? detailsPage;
 
   List<Widget> items = [
@@ -43,14 +42,6 @@ class _MainPageState extends State<MainPage>
   void initState() {
     fetchUserDetails();
     super.initState();
-    pageController = PageController();
-  }
-
-  // DISPOSE
-  @override
-  void dispose() {
-    pageController.dispose();
-    super.dispose();
   }
 
   // FETCH USER DETAILS
@@ -101,14 +92,6 @@ class _MainPageState extends State<MainPage>
 
   // CHANGE PAGE
   void changePage(int index) {
-    setState(() {
-      current = index;
-    });
-    pageController.jumpToPage(index);
-  }
-
-  // ON PAGE CHANGED
-  void onPageChanged(int index) {
     setState(() {
       current = index;
     });

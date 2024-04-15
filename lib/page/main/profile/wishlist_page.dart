@@ -51,18 +51,30 @@ class _WishlistPageState extends State<WishlistPage> {
         final imageUrl = productData['images'][0] as String;
         final price = productData['productPrice'] as String;
         final categoryId = productData['categoryId'] as String;
+        final vendorId = productData['vendorId'];
+
+        final vendorSnap = await store
+            .collection('Business')
+            .doc('Owners')
+            .collection('Shops')
+            .doc(vendorId)
+            .get();
+
+        final vendorData = vendorSnap.data()!;
+
+        final String shopType = vendorData['Type'];
 
         if (categoryId != '0') {
           final categorySnap = await store
               .collection('Business')
-              .doc('Data')
-              .collection('Category')
+              .doc('Special Categories')
+              .collection(shopType)
               .doc(categoryId)
               .get();
 
           final categoryData = categorySnap.data()!;
 
-          final categoryName = categoryData['categoryName'];
+          final categoryName = categoryData['specialCategoryName'];
 
           if (!categories.contains(categoryName)) {
             categories.add(categoryName);

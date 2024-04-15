@@ -63,7 +63,6 @@ class _ProfilePageState extends State<ProfilePage> {
       body: Padding(
         padding: EdgeInsets.symmetric(
           horizontal: MediaQuery.of(context).size.width * 0.0225,
-          vertical: MediaQuery.of(context).size.width * 0.0166,
         ),
         child: LayoutBuilder(
           builder: ((context, constraints) {

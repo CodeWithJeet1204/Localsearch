@@ -1569,12 +1569,12 @@ class _ProductPageState extends State<ProductPage> {
                       // BRAND & CATEGORY
                       Padding(
                         padding: EdgeInsets.symmetric(
-                          vertical: MediaQuery.of(context).size.width * 0.0175,
-                          horizontal: MediaQuery.of(context).size.width * 0.02,
+                          vertical: width * 0.0175,
+                          horizontal: width * 0.02,
                         ),
                         child: Container(
                           padding: EdgeInsets.all(
-                            MediaQuery.of(context).size.width * 0.0125,
+                            width * 0.0125,
                           ),
                           decoration: BoxDecoration(
                             color: primary2.withOpacity(0.0125),

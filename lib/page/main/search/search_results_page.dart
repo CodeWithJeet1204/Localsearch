@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:find_easy_user/page/main/product/product_page.dart';
+import 'package:find_easy_user/page/main/vendor/vendor_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/product_quick_view.dart';
 import 'package:find_easy_user/widgets/speech_to_text.dart';
@@ -111,23 +112,24 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
     for (var shopSnap in shopSnap.docs) {
       final shopData = shopSnap.data();
 
-      final String shopName = shopData['Name'].toString();
+      final String name = shopData['Name'];
       final String imageUrl = shopData['Image'];
       final String address = shopData['Address'];
       final String vendorId = shopSnap.id;
 
-      allShops[vendorId] = [address, imageUrl, shopName];
+      allShops[vendorId] = [name, imageUrl, address];
     }
 
     searchedShops.clear();
 
     List<MapEntry<String, int>> relevanceScores = [];
     allShops.forEach((key, value) {
-      if (key
+      if (value[0]
           .toString()
           .toLowerCase()
           .startsWith(widget.search.toLowerCase())) {
-        int relevance = calculateRelevance(key, widget.search.toLowerCase());
+        int relevance =
+            calculateRelevance(value[0], widget.search.toLowerCase());
         relevanceScores.add(MapEntry(key, relevance));
       }
     });
@@ -547,29 +549,13 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                               horizontal: width * 0.0225,
                                               vertical: width * 0.000725,
                                             ),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              children: [
-                                                Text(
-                                                  'Shops',
-                                                  style: TextStyle(
-                                                    color: primaryDark
-                                                        .withOpacity(0.8),
-                                                    fontSize: width * 0.04,
-                                                  ),
-                                                ),
-                                                searchedShops.length > 3
-                                                    ? MyTextButton(
-                                                        onPressed: () {},
-                                                        text: "See All",
-                                                        textColor: primaryDark,
-                                                      )
-                                                    : Container(),
-                                              ],
+                                            child: Text(
+                                              'Shops',
+                                              style: TextStyle(
+                                                color: primaryDark
+                                                    .withOpacity(0.8),
+                                                fontSize: width * 0.04,
+                                              ),
                                             ),
                                           ),
                                           const Divider(),
@@ -607,7 +593,14 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                             ),
                                             child: ListTile(
                                               onTap: () {
-                                                // Navigator.of(context).push(MaterialPageRoute(builder: ((context) => VendorPage(vendorId: vendorId))))
+                                                Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                    builder: ((context) =>
+                                                        VendorPage(
+                                                          vendorId: currentShop,
+                                                        )),
+                                                  ),
+                                                );
                                               },
                                               splashColor: white,
                                               tileColor:
@@ -628,13 +621,13 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                                 radius: width * 0.0575,
                                               ),
                                               title: Text(
-                                                currentShop,
+                                                searchedShops[currentShop][0],
                                                 style: TextStyle(
                                                   fontSize: width * 0.06125,
                                                 ),
                                               ),
                                               subtitle: Text(
-                                                searchedShops[currentShop][0],
+                                                searchedShops[currentShop][2],
                                               ),
                                               trailing: const Icon(
                                                 FeatherIcons.chevronRight,

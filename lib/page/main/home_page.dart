@@ -5,8 +5,8 @@ import 'package:find_easy_user/page/main/category/all_shop_types_page.dart';
 import 'package:find_easy_user/page/main/category/shop_categories_page.dart';
 import 'package:find_easy_user/page/main/product/product_page.dart';
 import 'package:find_easy_user/page/main/search/search_page.dart';
+import 'package:find_easy_user/page/main/vendor/vendor_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
-import 'package:find_easy_user/widgets/text_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -25,6 +25,8 @@ class _HomePageState extends State<HomePage> {
   List<String> recentShopProductsImages = [];
   List<String> recentShopProductsNames = [];
   List<Map<String, dynamic>> recentShopProductsData = [];
+  Map<String, dynamic> wishlist = {};
+  Map<String, dynamic> followedShops = {};
 
   List<int> numbers = [0, 1, 2, 3];
   List<int> reverseNumbers = [4, 5, 6, 7];
@@ -32,8 +34,10 @@ class _HomePageState extends State<HomePage> {
   // INIT STATE
   @override
   void initState() {
-    super.initState();
     getRecentShop();
+    getWishlist();
+    getFollowedShops();
+    super.initState();
   }
 
   // DID CHANGE DEPENDENCIES
@@ -110,6 +114,68 @@ class _HomePageState extends State<HomePage> {
     return recentShopProductsImages.length;
   }
 
+  // GET WISHLIST
+  Future<void> getWishlist() async {
+    Map<String, List> myWishlist = {};
+    final userSnap =
+        await store.collection('Users').doc(auth.currentUser!.uid).get();
+
+    final userData = userSnap.data()!;
+
+    final List wishlists = userData['wishlists'];
+
+    wishlists.forEach((productId) async {
+      final productSnap = await store
+          .collection('Business')
+          .doc('Data')
+          .collection('Products')
+          .doc(productId)
+          .get();
+
+      final productData = productSnap.data()!;
+
+      final String name = productData['productName'];
+      final String imageUrl = productData['images'][0];
+
+      myWishlist[productId] = [name, imageUrl, productData];
+    });
+
+    setState(() {
+      wishlist = myWishlist;
+    });
+  }
+
+  // GET FOLLOWED SHOPS
+  Future<void> getFollowedShops() async {
+    Map<String, List> myFollowedShops = {};
+    final userSnap =
+        await store.collection('Users').doc(auth.currentUser!.uid).get();
+
+    final userData = userSnap.data()!;
+
+    final List followedShop = userData['followedShops'];
+
+    followedShop.forEach((vendorId) async {
+      final vendorSnap = await store
+          .collection('Business')
+          .doc('Owners')
+          .collection('Shops')
+          .doc(vendorId)
+          .get();
+
+      final vendorData = vendorSnap.data()!;
+
+      final String name = vendorData['Name'];
+      final String imageUrl = vendorData['Image'];
+
+      myFollowedShops[vendorId] = [name, imageUrl];
+    });
+
+    setState(() {
+      followedShops = myFollowedShops;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -117,7 +183,6 @@ class _HomePageState extends State<HomePage> {
         child: Padding(
           padding: EdgeInsets.symmetric(
             horizontal: MediaQuery.of(context).size.width * 0.0125,
-            vertical: MediaQuery.of(context).size.width * 0.0166,
           ),
           child: LayoutBuilder(
             builder: ((context, constraints) {
@@ -170,18 +235,18 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         ),
-                        MyTextButton(
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: ((context) =>
-                                    const AllShopTypesPage()),
-                              ),
-                            );
-                          },
-                          text: 'See All',
-                          textColor: primaryDark2,
-                        ),
+                        // MyTextButton(
+                        //   onPressed: () {
+                        //     Navigator.of(context).push(
+                        //       MaterialPageRoute(
+                        //         builder: ((context) =>
+                        //             const AllShopTypesPage()),
+                        //       ),
+                        //     );
+                        //   },
+                        //   text: 'See All',
+                        //   textColor: primaryDark2,
+                        // ),
                       ],
                     ),
 
@@ -274,85 +339,134 @@ class _HomePageState extends State<HomePage> {
                               }),
                             ),
                           ),
-                          SizedBox(
-                            width: width,
-                            height: width * 0.3,
-                            child: ListView.builder(
-                              shrinkWrap: true,
-                              scrollDirection: Axis.horizontal,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: 4,
-                              itemBuilder: ((context, index) {
-                                final String name =
-                                    businessCategories[reverseNumbers[index]]
-                                        [0];
-                                final String imageUrl =
-                                    businessCategories[reverseNumbers[index]]
-                                        [1];
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                width: width * 0.725,
+                                height: width * 0.3,
+                                child: ListView.builder(
+                                  shrinkWrap: true,
+                                  scrollDirection: Axis.horizontal,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: 3,
+                                  itemBuilder: ((context, index) {
+                                    final String name = businessCategories[
+                                        reverseNumbers[index]][0];
+                                    final String imageUrl = businessCategories[
+                                        reverseNumbers[index]][1];
 
-                                return Padding(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: width * 0.025,
-                                    vertical: width * 0.015,
-                                  ),
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: ((context) =>
-                                              ShopCategoriesPage(
-                                                shopName: name,
-                                              )),
-                                        ),
-                                      );
-                                    },
-                                    child: Container(
-                                      width: width * 0.2,
-                                      height: width * 0.25,
-                                      decoration: BoxDecoration(
-                                        color: white,
-                                        borderRadius: BorderRadius.circular(12),
+                                    return Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: width * 0.025,
+                                        vertical: width * 0.015,
                                       ),
-                                      child: Padding(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: width * 0.0125,
-                                        ),
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceAround,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                              child: Image.network(
-                                                imageUrl,
-                                                height: width * 0.175,
-                                                fit: BoxFit.cover,
-                                              ),
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: ((context) =>
+                                                  ShopCategoriesPage(
+                                                    shopName: name,
+                                                  )),
                                             ),
-                                            Text(
-                                              name,
-                                              overflow: TextOverflow.ellipsis,
-                                              maxLines: 1,
+                                          );
+                                        },
+                                        child: Container(
+                                          width: width * 0.2,
+                                          height: width * 0.25,
+                                          decoration: BoxDecoration(
+                                            color: white,
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                          child: Padding(
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: width * 0.0125,
                                             ),
-                                          ],
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.spaceAround,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                  child: Image.network(
+                                                    imageUrl,
+                                                    height: width * 0.175,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  name,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  maxLines: 1,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
                                         ),
                                       ),
+                                    );
+                                  }),
+                                ),
+                              ),
+
+                              // SEE ALL
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: ((context) =>
+                                          const AllShopTypesPage()),
                                     ),
+                                  );
+                                },
+                                child: Container(
+                                  width: width * 0.225,
+                                  height: width * 0.25,
+                                  decoration: BoxDecoration(
+                                    color: primary2.withOpacity(0.125),
+                                    border: Border.all(
+                                      width: 0.125,
+                                      color: primaryDark,
+                                    ),
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
-                                );
-                              }),
-                            ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        FeatherIcons.grid,
+                                        color: primaryDark,
+                                      ),
+                                      SizedBox(height: 8),
+                                      Text(
+                                        "See All",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
                     ),
 
                     // CONTINUE
-                    recentShop != ''
-                        ? Padding(
+                    recentShop == ''
+                        ? Container()
+                        : Padding(
                             padding: EdgeInsets.symmetric(
                               horizontal: width * 0.025,
                               vertical: width * 0.025,
@@ -365,85 +479,296 @@ class _HomePageState extends State<HomePage> {
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
-                          )
-                        : Container(),
+                          ),
 
                     // CONTINUE PRODUCTS
-                    SizedBox(
-                      width: width,
-                      height: width * 0.425,
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        scrollDirection: Axis.horizontal,
-                        itemCount: recentShopProductsImages.length > 4
-                            ? 4
-                            : recentShopProductsImages.length,
-                        itemBuilder: ((context, index) {
-                          final String name = recentShopProductsNames[index];
-                          final String image = recentShopProductsImages[index];
+                    recentShop == ''
+                        ? Container()
+                        : SizedBox(
+                            width: width,
+                            height: width * 0.425,
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              scrollDirection: Axis.horizontal,
+                              itemCount: recentShopProductsImages.length > 4
+                                  ? 4
+                                  : recentShopProductsImages.length,
+                              itemBuilder: ((context, index) {
+                                final String name =
+                                    recentShopProductsNames[index];
+                                final String image =
+                                    recentShopProductsImages[index];
 
-                          return GestureDetector(
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: ((context) => ProductPage(
-                                        productData:
-                                            recentShopProductsData[index],
-                                      )),
-                                ),
-                              );
-                            },
-                            child: Container(
-                              width: width * 0.3,
-                              height: width * 0.2,
-                              decoration: BoxDecoration(
-                                color: white,
-                                border: Border.all(
-                                  width: 0.25,
-                                ),
-                                borderRadius: BorderRadius.circular(2),
-                              ),
-                              padding: EdgeInsets.all(
-                                width * 0.00625,
-                              ),
-                              margin: EdgeInsets.all(
-                                width * 0.0125,
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(2),
-                                    child: Image.network(
-                                      image,
-                                      fit: BoxFit.cover,
-                                      width: width * 0.3,
-                                      height: width * 0.3,
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.only(
-                                      top: width * 0.00625,
-                                      left: width * 0.0125,
-                                    ),
-                                    child: Text(
-                                      name,
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
-                                      style: TextStyle(
-                                        fontSize: width * 0.05,
-                                        fontWeight: FontWeight.w500,
+                                return GestureDetector(
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: ((context) => ProductPage(
+                                              productData:
+                                                  recentShopProductsData[index],
+                                            )),
                                       ),
+                                    );
+                                  },
+                                  child: Container(
+                                    width: width * 0.3,
+                                    height: width * 0.2,
+                                    decoration: BoxDecoration(
+                                      color: white,
+                                      border: Border.all(
+                                        width: 0.25,
+                                      ),
+                                      borderRadius: BorderRadius.circular(2),
+                                    ),
+                                    padding: EdgeInsets.all(
+                                      width * 0.00625,
+                                    ),
+                                    margin: EdgeInsets.all(
+                                      width * 0.0125,
+                                    ),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(2),
+                                          child: Image.network(
+                                            image,
+                                            fit: BoxFit.cover,
+                                            width: width * 0.3,
+                                            height: width * 0.3,
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: EdgeInsets.only(
+                                            top: width * 0.00625,
+                                            left: width * 0.0125,
+                                          ),
+                                          child: Text(
+                                            name,
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                            style: TextStyle(
+                                              fontSize: width * 0.05,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                ],
+                                );
+                              }),
+                            ),
+                          ),
+
+                    // WISHLIST
+                    wishlist.isEmpty
+                        ? Container()
+                        : Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: width * 0.025,
+                              vertical: width * 0.025,
+                            ),
+                            child: Text(
+                              'Your Wishlists ❤️',
+                              style: TextStyle(
+                                color: primaryDark,
+                                fontSize: width * 0.07,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
-                          );
-                        }),
-                      ),
-                    ),
+                          ),
+
+                    // WISHLIST PRODUCTS
+                    wishlist.isEmpty
+                        ? Container()
+                        : SizedBox(
+                            width: width,
+                            height: width * 0.425,
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              scrollDirection: Axis.horizontal,
+                              itemCount:
+                                  wishlist.length > 4 ? 4 : wishlist.length,
+                              itemBuilder: ((context, index) {
+                                final String name =
+                                    wishlist.values.toList()[index][0];
+                                final String imageUrl =
+                                    wishlist.values.toList()[index][1];
+                                final Map<String, dynamic> productData =
+                                    wishlist.values.toList()[index][2];
+
+                                return GestureDetector(
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: ((context) => ProductPage(
+                                              productData: productData,
+                                            )),
+                                      ),
+                                    );
+                                  },
+                                  child: Container(
+                                    width: width * 0.3,
+                                    height: width * 0.2,
+                                    decoration: BoxDecoration(
+                                      color: white,
+                                      border: Border.all(
+                                        width: 0.25,
+                                      ),
+                                      borderRadius: BorderRadius.circular(2),
+                                    ),
+                                    padding: EdgeInsets.all(
+                                      width * 0.00625,
+                                    ),
+                                    margin: EdgeInsets.all(
+                                      width * 0.0125,
+                                    ),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(2),
+                                          child: Image.network(
+                                            imageUrl,
+                                            fit: BoxFit.cover,
+                                            width: width * 0.3,
+                                            height: width * 0.3,
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: EdgeInsets.only(
+                                            top: width * 0.00625,
+                                            left: width * 0.0125,
+                                          ),
+                                          child: Text(
+                                            name,
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                            style: TextStyle(
+                                              fontSize: width * 0.05,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }),
+                            ),
+                          ),
+
+                    // FOLLOWED
+                    followedShops.isEmpty
+                        ? Container()
+                        : Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: width * 0.025,
+                              vertical: width * 0.025,
+                            ),
+                            child: Text(
+                              'Followed Shops',
+                              style: TextStyle(
+                                color: primaryDark,
+                                fontSize: width * 0.07,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+
+                    // FOLLOWED SHOPS
+                    followedShops.isEmpty
+                        ? Container()
+                        : SizedBox(
+                            width: width,
+                            height: width * 0.425,
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              scrollDirection: Axis.horizontal,
+                              itemCount: followedShops.length > 4
+                                  ? 4
+                                  : followedShops.length,
+                              itemBuilder: ((context, index) {
+                                final String vendorId =
+                                    followedShops.keys.toList()[index];
+                                final String name =
+                                    followedShops.values.toList()[index][0];
+                                final String imageUrl =
+                                    followedShops.values.toList()[index][1];
+
+                                return GestureDetector(
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: ((context) => VendorPage(
+                                              vendorId: vendorId,
+                                            )),
+                                      ),
+                                    );
+                                  },
+                                  child: Container(
+                                    width: width * 0.3,
+                                    height: width * 0.2,
+                                    decoration: BoxDecoration(
+                                      color: white,
+                                      border: Border.all(
+                                        width: 0.25,
+                                      ),
+                                      borderRadius: BorderRadius.circular(2),
+                                    ),
+                                    padding: EdgeInsets.all(
+                                      width * 0.00625,
+                                    ),
+                                    margin: EdgeInsets.all(
+                                      width * 0.0125,
+                                    ),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(2),
+                                          child: Image.network(
+                                            imageUrl,
+                                            fit: BoxFit.cover,
+                                            width: width * 0.3,
+                                            height: width * 0.3,
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: EdgeInsets.only(
+                                            top: width * 0.00625,
+                                            left: width * 0.0125,
+                                          ),
+                                          child: Text(
+                                            name,
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                            style: TextStyle(
+                                              fontSize: width * 0.05,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }),
+                            ),
+                          ),
                   ],
                 ),
               );
