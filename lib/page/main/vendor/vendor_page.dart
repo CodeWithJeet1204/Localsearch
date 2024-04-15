@@ -89,7 +89,7 @@ class _VendorPageState extends State<VendorPage> {
 
   // SET RECENT SHOP
   Future<void> setRecentShop() async {
-    Timer(
+    await Timer(
       const Duration(seconds: 5),
       () async {
         await setRecentAndUpdate();
@@ -190,6 +190,32 @@ class _VendorPageState extends State<VendorPage> {
 
     await store.collection('Users').doc(auth.currentUser!.uid).update({
       'followedShops': followedShops,
+    });
+
+    final vendorSnap = await store
+        .collection('Business')
+        .doc('Owners')
+        .collection('Shops')
+        .doc(widget.vendorId)
+        .get();
+
+    final vendorData = vendorSnap.data()!;
+
+    List followers = vendorData['Followers'];
+
+    if (followers.contains(auth.currentUser!.uid)) {
+      followers.remove(auth.currentUser!.uid);
+    } else {
+      followers.add(auth.currentUser!.uid);
+    }
+
+    await store
+        .collection('Business')
+        .doc('Owners')
+        .collection('Shops')
+        .doc(widget.vendorId)
+        .update({
+      'Followers': followers,
     });
 
     await getIfFollowing();

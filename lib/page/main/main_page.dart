@@ -119,11 +119,9 @@ class _MainPageState extends State<MainPage>
     super.build(context);
     return detailsPage ??
         Scaffold(
-          body: PageView(
-            controller: pageController,
-            onPageChanged: onPageChanged,
-            physics: const NeverScrollableScrollPhysics(),
+          body: IndexedStack(
             children: items,
+            index: current,
           ),
           bottomNavigationBar: BottomNavigationBar(
             elevation: 0,

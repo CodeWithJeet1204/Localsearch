@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
@@ -44,6 +45,8 @@ class _ProductPageState extends State<ProductPage> {
   String? vendorType;
   bool isVendorHold = false;
   bool? isDiscount;
+  int likes = 0;
+  bool isLiked = false;
   String? brandImageUrl;
   String? categoryImageUrl;
   List? allDiscount;
@@ -66,6 +69,7 @@ class _ProductPageState extends State<ProductPage> {
     getVendorInfo();
     getIfDiscount();
     getIfWishlist(widget.productData['productId']);
+    getIfLiked();
     getBrandImage();
     getAllDiscounts();
     getAverageRatings();
@@ -77,6 +81,57 @@ class _ProductPageState extends State<ProductPage> {
     );
     getProductsFromVendor();
     super.initState();
+    addProductView();
+  }
+
+  // ADD PRODUCT VIEW
+  Future<void> addProductView() async {
+    await Timer(Duration(seconds: 5), () async {
+      final productSnap = await store
+          .collection('Business')
+          .doc('Data')
+          .collection('Products')
+          .doc(widget.productData['productId'])
+          .get();
+
+      final productData = productSnap.data()!;
+
+      int views = productData['productViews'] ?? 0;
+      List viewsTimestamps = productData['productViewsTimestamp'];
+      views = views + 1;
+      viewsTimestamps.add(DateTime.now());
+
+      await store
+          .collection('Business')
+          .doc('Data')
+          .collection('Products')
+          .doc(widget.productData['productId'])
+          .update({
+        'productViews': views,
+        'productViewsTimestamp': viewsTimestamps,
+      });
+
+      final userSnap =
+          await store.collection('Users').doc(auth.currentUser!.uid).get();
+
+      final userData = userSnap.data()!;
+
+      List recentProducts = userData['recentProducts'];
+
+      final productId = widget.productData['productId'];
+
+      recentProducts.remove(productId);
+
+      recentProducts.insert(0, productId);
+
+      if (recentProducts.length > 4) {
+        recentProducts.removeRange(4, recentProducts.length);
+      }
+
+      await store.collection('Users').doc(auth.currentUser!.uid).update({
+        'recentProducts': recentProducts,
+      });
+    });
   }
 
   // ADD RECENT SEARCH
@@ -278,6 +333,64 @@ class _ProductPageState extends State<ProductPage> {
     setState(() {
       allDiscount = allDiscounts;
     });
+  }
+
+  // GET IF LIKED
+  Future<void> getIfLiked() async {
+    final productSnap = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Products')
+        .doc(widget.productData['productId'])
+        .get();
+
+    final productData = productSnap.data()!;
+
+    List likesId = productData['productLikesId'];
+
+    setState(() {
+      likes = likesId.length;
+      if (likesId.contains(auth.currentUser!.uid)) {
+        isLiked = true;
+      } else {
+        isLiked = false;
+      }
+    });
+  }
+
+  // LIKE PRODUCT
+  Future<void> likeProduct() async {
+    final productSnap = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Products')
+        .doc(widget.productData['productId'])
+        .get();
+
+    final productData = productSnap.data()!;
+
+    int likes = productData['productLikes'];
+    List likesId = productData['productLikesId'];
+
+    if (likesId.contains(auth.currentUser!.uid)) {
+      likes = likes - 1;
+      likesId.remove(auth.currentUser!.uid);
+    } else {
+      likes = likes + 1;
+      likesId.add(auth.currentUser!.uid);
+    }
+
+    await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Products')
+        .doc(widget.productData['productId'])
+        .update({
+      'productLikes': likes,
+      'productLikesId': likesId,
+    });
+
+    await getIfLiked();
   }
 
   // GET BRAND IMAGE
@@ -1292,39 +1405,137 @@ class _ProductPageState extends State<ProductPage> {
 
                       // AVAILABLE
                       !isAvailable
-                          ? Padding(
-                              padding: EdgeInsets.symmetric(
-                                vertical: width * 0.0175,
-                                horizontal: width * 0.02,
-                              ),
-                              child: Text(
-                                'OUT OF STOCK',
-                                style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: width * 0.05,
-                                  fontWeight: FontWeight.w600,
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: width * 0.0175,
+                                    horizontal: width * 0.02,
+                                  ),
+                                  child: Text(
+                                    'OUT OF STOCK',
+                                    style: TextStyle(
+                                      color: Colors.red,
+                                      fontSize: width * 0.05,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
                                 ),
-                              ),
+
+                                // LIKES
+                                GestureDetector(
+                                  onTap: () async {
+                                    await likeProduct();
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.all(width * 0.0225),
+                                    margin: EdgeInsets.symmetric(
+                                      vertical: width * 0.0175,
+                                      horizontal: width * 0.02,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: isLiked
+                                          ? Color.fromRGBO(228, 228, 228, 1)
+                                          : white,
+                                      border: Border.all(
+                                        width: 1,
+                                        color: isLiked
+                                            ? white
+                                            : Color.fromRGBO(228, 228, 228, 1),
+                                      ),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      children: [
+                                        Text(
+                                          likes.toString(),
+                                          style: TextStyle(),
+                                        ),
+                                        SizedBox(width: width * 0.0225),
+                                        Icon(
+                                          isLiked
+                                              ? Icons.thumb_up
+                                              : Icons.thumb_up_outlined,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
                             )
                           : Container(),
 
-                      // DELIVERY
-                      // TODO: It will depend upon range of delivery
-                      deliveryAvailable
-                          ? Padding(
-                              padding: EdgeInsets.symmetric(
-                                vertical: width * 0.0175,
-                                horizontal: width * 0.02,
-                              ),
-                              child: const Text(
-                                'Delivery Available',
-                                style: TextStyle(
-                                  color: Colors.green,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            )
-                          : Container(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          // DELIVERY
+                          // TODO: It will depend upon range of delivery
+                          deliveryAvailable
+                              ? Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: width * 0.0175,
+                                    horizontal: width * 0.02,
+                                  ),
+                                  child: const Text(
+                                    'Delivery Available',
+                                    style: TextStyle(
+                                      color: Colors.green,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                )
+                              : Container(),
+
+                          // LIKES
+                          isAvailable
+                              ? GestureDetector(
+                                  onTap: () async {
+                                    await likeProduct();
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.all(width * 0.0225),
+                                    margin: EdgeInsets.symmetric(
+                                      vertical: width * 0.0175,
+                                      horizontal: width * 0.02,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: isLiked
+                                          ? Color.fromRGBO(228, 228, 228, 1)
+                                          : white,
+                                      border: Border.all(
+                                        width: 1,
+                                        color: isLiked
+                                            ? white
+                                            : Color.fromRGBO(228, 228, 228, 1),
+                                      ),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      children: [
+                                        Text(
+                                          likes.toString(),
+                                          style: TextStyle(),
+                                        ),
+                                        SizedBox(width: width * 0.0225),
+                                        Icon(
+                                          isLiked
+                                              ? Icons.thumb_up
+                                              : Icons.thumb_up_outlined,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                )
+                              : Container(),
+                        ],
+                      ),
 
                       // DESCRIPTION
                       Padding(
