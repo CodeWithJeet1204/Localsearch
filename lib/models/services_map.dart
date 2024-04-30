@@ -1,0 +1,201 @@
+Map<String, Map<String, List<String>>> servicesMap = {
+  'Home': {
+    'Kitchen Services': [
+      'Cooking Traditional Meals',
+      'Dishwashing',
+      'Kitchen Cleaning',
+      'Grocery Shopping',
+      'Meal Preparation',
+    ],
+    'Bedroom Services': [
+      'Bed Making',
+      'Laundry',
+      'Closet Organization',
+      'Dusting',
+    ],
+    'Bathroom Services': [
+      'Toilet Cleaning',
+      'Shower Cleaning',
+      'Sink Cleaning',
+      'Mirror Cleaning',
+      'Toiletry Restocking',
+    ],
+    'Living Room Services': [
+      'Dusting',
+      'Vacuuming',
+      'Carpet Cleaning',
+      'Furniture Polishing',
+      'Electronics Maintenance',
+    ],
+    'Outdoor Services': [
+      'Lawn Mowing',
+      'Gardening',
+      'Weeding',
+      'Exterior Cleaning',
+      'Terrace/Garden Maintenance',
+    ],
+  },
+  'Office': {
+    'Workspace Services': [
+      'Desk Organization',
+      'Surface Cleaning',
+      'Keyboard Cleaning',
+      'Document Management',
+      'Office Supplies Replenishment',
+    ],
+    'Meeting Rooms Services': [
+      'Meeting Preparation',
+      'Audio-Visual Setup',
+      'Whiteboard Cleaning',
+      'Furniture Arrangement',
+    ],
+    'Reception Area Services': [
+      'Front Desk Organization',
+      'Waiting Area Maintenance',
+      'Reading Material Management',
+      'Refreshment Setup',
+    ],
+    'Common Areas Services': [
+      'Lobby Cleaning',
+      'Floor Sweeping',
+      'Trash Disposal',
+      'Signage Maintenance',
+    ],
+    'Workplace Wellness Services': [
+      'Ergonomic Setup',
+      'Stress Relief Activities',
+      'Fitness Classes',
+      'Safety Training',
+    ],
+  },
+  'Outdoor': {
+    'Lawn and Garden Services': [
+      'Lawn Care',
+      'Garden Maintenance',
+      'Pruning',
+      'Weeding',
+      'Terrace/Garden Maintenance',
+    ],
+    'Exterior Home Services': [
+      'Exterior Cleaning',
+      'Window Washing',
+      'Roof and Gutter Maintenance',
+      'Painting Touch-ups',
+      'Exterior Fixture Maintenance',
+    ],
+    'Pool and Spa Services': [
+      'Pool Cleaning',
+      'Chemical Balancing',
+      'Spa Maintenance',
+      'Basic Repairs',
+    ],
+    'Pest Control Services': [
+      'General Pest Control',
+      'Mosquito Control',
+      'Rodent Prevention',
+      'Wildlife Deterrence',
+    ],
+    'Outdoor Event Services': [
+      'Event Setup',
+      'Decoration Arrangement',
+      'Food and Beverage Setup',
+      'Cleanup Assistance',
+    ],
+  },
+  'Retail Stores': {
+    'Grocery Stores': [
+      'Shopping',
+      'Fruit and Vegetable Selection',
+      'Dairy Pickup',
+      'Spice Selection',
+    ],
+    'Clothing Stores': [
+      'Clothing Selection',
+      'Accessories Shopping',
+      'Fitting Room Try-Ons',
+      'Footwear Selection',
+    ],
+    'Electronics Stores': [
+      'Electronics Selection',
+      'Device Setup',
+      'Home Appliance Maintenance',
+      'Basic Troubleshooting',
+    ],
+    'Home Improvement Stores': [
+      'Tool Selection',
+      'Paint and Wallpaper Shopping',
+      'Basic Home Repairs',
+      'Lighting Fixture Replacement',
+    ],
+    'Department Stores': [
+      'General Shopping',
+      'Toy Selection',
+      'Home Goods Shopping',
+      'Electronics Purchase',
+    ],
+  },
+  'Educational Institutes': {
+    'Schools': [
+      'Homework Completion',
+      'Extracurricular Participation',
+      'Library Usage',
+      'Student Organization Involvement',
+    ],
+    'Colleges and Universities': [
+      'Class Attendance',
+      'Homework Submission',
+      'Library Research',
+      'Study Group Participation',
+    ],
+    'Vocational Institutes': [
+      'Trade Skill Development',
+      'Technical Training',
+      'Certification Preparation',
+      'Job Search Assistance',
+    ],
+    'Language Schools': [
+      'Language Learning',
+      'Language Practice',
+      'Language Exam Preparation',
+      'Language Immersion Programs',
+    ],
+    'Online Learning Platforms': [
+      'Online Course Completion',
+      'Self-Study',
+      'Skill Development',
+      'Certification Preparation',
+    ],
+  },
+  'Religious Places': {
+    'Temples': [
+      'Prayer Attendance',
+      'Scripture Reading',
+      'Community Events Participation',
+      'Volunteering',
+    ],
+    'Mosques': [
+      'Prayer Attendance',
+      'Quranic Studies',
+      'Community Outreach Participation',
+      'Volunteering',
+    ],
+    'Churches': [
+      'Worship Attendance',
+      'Bible Study Participation',
+      'Community Service Involvement',
+      'Volunteering',
+    ],
+    'Gurdwaras': [
+      'Worship Attendance',
+      'Langar Seva',
+      'Community Engagement',
+      'Volunteering',
+    ],
+    'Synagogues': [
+      'Worship Attendance',
+      'Torah Study Participation',
+      'Community Engagement',
+      'Volunteering',
+    ],
+  }
+};

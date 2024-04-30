@@ -3,10 +3,10 @@ import 'package:feather_icons/feather_icons.dart';
 import 'package:find_easy_user/page/auth/login_page.dart';
 import 'package:find_easy_user/page/auth/register_details_page.dart';
 import 'package:find_easy_user/page/auth/verify/email_verify.dart';
-import 'package:find_easy_user/page/main/home_page.dart';
+import 'package:find_easy_user/page/main/product_home_page.dart';
 import 'package:find_easy_user/page/main/post_page.dart';
 import 'package:find_easy_user/page/main/profile/profile_page.dart';
-import 'package:find_easy_user/page/main/search/search_with_products_page.dart';
+import 'package:find_easy_user/page/main/services/services_home_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/snack_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -23,13 +23,14 @@ class _MainPageState extends State<MainPage>
     with AutomaticKeepAliveClientMixin {
   final auth = FirebaseAuth.instance.currentUser!;
   final store = FirebaseFirestore.instance;
-  int current = 1;
+  int current = 2;
   Widget? detailsPage;
 
   List<Widget> items = [
     const PostsPage(),
-    const HomePage(),
-    const SearchWithProductsPage(),
+    const ProductHomePage(),
+    ServicesHomePage(),
+    // const SearchWithProductsPage(),
     const ProfilePage(),
   ];
 
@@ -139,15 +140,23 @@ class _MainPageState extends State<MainPage>
                   FeatherIcons.home,
                 ),
                 activeIcon: Icon(FeatherIcons.home),
-                label: "Home",
-                tooltip: 'HOME',
+                label: "Products",
+                tooltip: 'PRODUCTS',
               ),
               BottomNavigationBarItem(
-                icon: Icon(FeatherIcons.search),
-                activeIcon: Icon(FeatherIcons.search),
-                label: "Search",
-                tooltip: 'SEARCH',
+                icon: Icon(
+                  Icons.handyman_outlined,
+                ),
+                activeIcon: Icon(Icons.handyman_outlined),
+                label: "Services",
+                tooltip: 'SERVICES',
               ),
+              // BottomNavigationBarItem(
+              //   icon: Icon(FeatherIcons.search),
+              //   activeIcon: Icon(FeatherIcons.search),
+              //   label: "Search",
+              //   tooltip: 'SEARCH',
+              // ),
               BottomNavigationBarItem(
                 icon: Icon(FeatherIcons.user),
                 activeIcon: Icon(FeatherIcons.user),
