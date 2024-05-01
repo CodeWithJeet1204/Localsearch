@@ -1,6 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:find_easy_user/models/services_image_map.dart';
+import 'package:find_easy_user/models/services_map.dart';
+import 'package:find_easy_user/page/main/services/services_sub_category_page.dart';
+import 'package:find_easy_user/page/main/services/services_place_page.dart';
+import 'package:find_easy_user/page/main/services/services_category_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/name_container.dart';
 import 'package:find_easy_user/widgets/speech_to_text.dart';
@@ -114,6 +118,19 @@ class _ServicesSearchPageState extends State<ServicesSearchPage> {
     }
   }
 
+  // GET PLACE
+  String getPlace(String category) {
+    String myPlaceKey = '';
+    servicesMap.forEach((placeKey, placeValue) {
+      placeValue.forEach((categoryKey, categoryValue) {
+        if (categoryKey == category) {
+          myPlaceKey = placeKey;
+        }
+      });
+    });
+    return myPlaceKey;
+  }
+
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
@@ -128,6 +145,7 @@ class _ServicesSearchPageState extends State<ServicesSearchPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // SEARCH BAR
                       Padding(
                         padding: EdgeInsets.only(
                           bottom: width * 0.0125,
@@ -309,6 +327,8 @@ class _ServicesSearchPageState extends State<ServicesSearchPage> {
                           ),
                         ),
                       ),
+
+                      // NOTHING
                       Center(
                         child: Text('Nothing'),
                       ),
@@ -323,6 +343,7 @@ class _ServicesSearchPageState extends State<ServicesSearchPage> {
                     child: SingleChildScrollView(
                       child: Column(
                         children: [
+                          // SEARCH BAR
                           Padding(
                             padding: EdgeInsets.only(
                               bottom: width * 0.0125,
@@ -544,7 +565,16 @@ class _ServicesSearchPageState extends State<ServicesSearchPage> {
                                           return NameContainer(
                                             text: name,
                                             imageUrl: imageUrl!,
-                                            onTap: () {},
+                                            onTap: () {
+                                              Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                  builder: ((context) =>
+                                                      ServicesPlacePage(
+                                                        place: name,
+                                                      )),
+                                                ),
+                                              );
+                                            },
                                             width: width,
                                           );
                                         }),
@@ -581,17 +611,22 @@ class _ServicesSearchPageState extends State<ServicesSearchPage> {
                                           final name = categories[index];
                                           final imageUrl =
                                               categoryImageMap[name];
-                                          if (imageUrl == null) {
-                                            print("Name: $name");
-                                            print(
-                                              "Contains: ${categoryImageMap.containsKey(name)}",
-                                            );
-                                          }
+                                          final place = getPlace(name);
 
                                           return NameContainer(
                                             text: name,
                                             imageUrl: imageUrl!,
-                                            onTap: () {},
+                                            onTap: () {
+                                              Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                  builder: ((context) =>
+                                                      ServicesCategoryPage(
+                                                        place: place,
+                                                        category: name,
+                                                      )),
+                                                ),
+                                              );
+                                            },
                                             width: width,
                                           );
                                         }),
@@ -632,7 +667,16 @@ class _ServicesSearchPageState extends State<ServicesSearchPage> {
                                           return NameContainer(
                                             text: name,
                                             imageUrl: imageUrl!,
-                                            onTap: () {},
+                                            onTap: () {
+                                              Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                  builder: ((context) =>
+                                                      ServicesSubCategoryPage(
+                                                        subCategory: name,
+                                                      )),
+                                                ),
+                                              );
+                                            },
                                             width: width,
                                           );
                                         }),

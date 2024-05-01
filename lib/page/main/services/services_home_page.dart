@@ -1,6 +1,6 @@
 import 'package:feather_icons/feather_icons.dart';
 import 'package:find_easy_user/models/services_image_map.dart';
-import 'package:find_easy_user/page/main/services/services_category_page.dart';
+import 'package:find_easy_user/page/main/services/services_place_page.dart';
 import 'package:find_easy_user/page/main/services/services_search_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/name_container.dart';
@@ -24,7 +24,7 @@ class _ServicesHomePageState extends State<ServicesHomePage> {
   void navigateTo(String text) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: ((context) => ServicesCategoryPage(
+        builder: ((context) => ServicesPlacePage(
               place: text,
             )),
       ),

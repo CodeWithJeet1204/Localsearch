@@ -1,29 +1,27 @@
 import 'package:find_easy_user/models/services_image_map.dart';
 import 'package:find_easy_user/models/services_map.dart';
-import 'package:find_easy_user/page/main/services/services_sub_category_page.dart';
+import 'package:find_easy_user/page/main/services/services_category_page.dart';
 import 'package:find_easy_user/widgets/name_container.dart';
 import 'package:flutter/material.dart';
 
-class ServicesCategoryPage extends StatefulWidget {
-  const ServicesCategoryPage({
+class ServicesPlacePage extends StatefulWidget {
+  const ServicesPlacePage({
     super.key,
     required this.place,
-    required this.category,
   });
 
   final String place;
-  final String category;
 
   @override
-  State<ServicesCategoryPage> createState() => _ServicesCategoryPageState();
+  State<ServicesPlacePage> createState() => _ServicesPlacePageState();
 }
 
-class _ServicesCategoryPageState extends State<ServicesCategoryPage> {
+class _ServicesPlacePageState extends State<ServicesPlacePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.category),
+        title: Text(widget.place),
       ),
       body: Padding(
         padding: EdgeInsets.all(
@@ -38,10 +36,10 @@ class _ServicesCategoryPageState extends State<ServicesCategoryPage> {
               crossAxisCount: 2,
               childAspectRatio: 16 / 9,
             ),
-            itemCount: servicesMap[widget.place]![widget.category]!.length,
+            itemCount: servicesMap[widget.place]!.length,
             itemBuilder: ((context, index) {
-              final name = servicesMap[widget.place]![widget.category]![index];
-              final imageUrl = subCategoryImageMap[name]!;
+              final name = servicesMap[widget.place]!.keys.toList()[index];
+              final imageUrl = categoryImageMap[name]!;
 
               return NameContainer(
                 text: name,
@@ -49,8 +47,9 @@ class _ServicesCategoryPageState extends State<ServicesCategoryPage> {
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: ((context) => ServicesSubCategoryPage(
-                            subCategory: name,
+                      builder: ((context) => ServicesCategoryPage(
+                            place: widget.place,
+                            category: name,
                           )),
                     ),
                   );

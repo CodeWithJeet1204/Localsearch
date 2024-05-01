@@ -31,8 +31,6 @@ Map<String, Map<String, List<String>>> servicesMap = {
       'Lawn Mowing',
       'Gardening',
       'Weeding',
-      'Exterior Cleaning',
-      'Terrace/Garden Maintenance',
     ],
   },
   'Office': {
@@ -73,7 +71,6 @@ Map<String, Map<String, List<String>>> servicesMap = {
       'Lawn Care',
       'Garden Maintenance',
       'Pruning',
-      'Weeding',
       'Terrace/Garden Maintenance',
     ],
     'Exterior Home Services': [
@@ -180,15 +177,15 @@ Map<String, Map<String, List<String>>> servicesMap = {
       'Volunteering',
     ],
     'Churches': [
-      'Worship Attendance',
+      'Worshipping Attendance',
       'Bible Study Participation',
       'Community Service Involvement',
       'Volunteering',
     ],
     'Gurdwaras': [
-      'Worship Attendance',
+      'Attendance',
       'Langar Seva',
-      'Community Engagement',
+      'Communities Engagement',
       'Volunteering',
     ],
     'Synagogues': [
