@@ -576,32 +576,30 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                     scrollDirection: Axis.horizontal,
                                     itemCount: 4,
                                     itemBuilder: ((context, index) {
-                                      return Padding(
-                                        padding: EdgeInsets.all(width * 0.0225),
-                                        child: Container(
-                                          width: width * 0.28,
-                                          height: width * 0.4,
-                                          decoration: BoxDecoration(
-                                            color: lightGrey,
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                          ),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceAround,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              SkeletonContainer(
-                                                width: width * 0.25,
-                                                height: width * 0.275,
-                                              ),
-                                              SkeletonContainer(
-                                                width: width * 0.225,
-                                                height: width * 0.033,
-                                              ),
-                                            ],
-                                          ),
+                                      return Container(
+                                        width: width * 0.28,
+                                        height: width * 0.4,
+                                        decoration: BoxDecoration(
+                                          color: lightGrey,
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                        margin: EdgeInsets.all(width * 0.0225),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceAround,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            SkeletonContainer(
+                                              width: width * 0.25,
+                                              height: width * 0.275,
+                                            ),
+                                            SkeletonContainer(
+                                              width: width * 0.225,
+                                              height: width * 0.033,
+                                            ),
+                                          ],
                                         ),
                                       );
                                     }),
@@ -620,7 +618,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                     itemBuilder: ((context, index) {
                                       final String name =
                                           recentShopProductsNames[index];
-                                      final String image =
+                                      final String imageUrl =
                                           recentShopProductsImages[index];
 
                                       return GestureDetector(
@@ -663,7 +661,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                                 borderRadius:
                                                     BorderRadius.circular(2),
                                                 child: Image.network(
-                                                  image,
+                                                  imageUrl,
                                                   fit: BoxFit.cover,
                                                   width: width * 0.3,
                                                   height: width * 0.3,

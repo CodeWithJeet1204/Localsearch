@@ -3,6 +3,7 @@ import 'package:feather_icons/feather_icons.dart';
 import 'package:find_easy_user/page/auth/login_page.dart';
 import 'package:find_easy_user/page/auth/register_details_page.dart';
 import 'package:find_easy_user/page/auth/verify/email_verify.dart';
+import 'package:find_easy_user/page/main/events/events_home_page.dart';
 import 'package:find_easy_user/page/main/product_home_page.dart';
 import 'package:find_easy_user/page/main/post_page.dart';
 import 'package:find_easy_user/page/main/profile/profile_page.dart';
@@ -23,14 +24,14 @@ class _MainPageState extends State<MainPage>
     with AutomaticKeepAliveClientMixin {
   final auth = FirebaseAuth.instance.currentUser!;
   final store = FirebaseFirestore.instance;
-  int current = 2;
+  int current = 3;
   Widget? detailsPage;
 
   List<Widget> items = [
     const PostsPage(),
     const ProductHomePage(),
     ServicesHomePage(),
-    // const SearchWithProductsPage(),
+    const EventsHomePage(),
     const ProfilePage(),
   ];
 
@@ -151,12 +152,12 @@ class _MainPageState extends State<MainPage>
                 label: "Services",
                 tooltip: 'SERVICES',
               ),
-              // BottomNavigationBarItem(
-              //   icon: Icon(FeatherIcons.search),
-              //   activeIcon: Icon(FeatherIcons.search),
-              //   label: "Search",
-              //   tooltip: 'SEARCH',
-              // ),
+              BottomNavigationBarItem(
+                icon: Icon(FeatherIcons.calendar),
+                activeIcon: Icon(FeatherIcons.calendar),
+                label: "Events",
+                tooltip: 'EVENTS',
+              ),
               BottomNavigationBarItem(
                 icon: Icon(FeatherIcons.user),
                 activeIcon: Icon(FeatherIcons.user),

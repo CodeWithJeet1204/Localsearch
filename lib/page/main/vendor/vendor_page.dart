@@ -14,7 +14,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-enum ProductSorting {
+enum EventSorting {
   recentlyAdded,
   highestRated,
   mostViewed,
@@ -57,7 +57,7 @@ class _VendorPageState extends State<VendorPage> {
     getDiscounts();
     getCategories();
     getProducts();
-    sortProducts(ProductSorting.recentlyAdded);
+    sortProducts(EventSorting.recentlyAdded);
     super.initState();
     _scrollController.addListener(_scrollListener);
     setRecentShop();
@@ -347,28 +347,28 @@ class _VendorPageState extends State<VendorPage> {
   }
 
   // SORT PRODUCTS
-  void sortProducts(ProductSorting sorting) {
+  void sortProducts(EventSorting sorting) {
     setState(() {
       switch (sorting) {
-        case ProductSorting.recentlyAdded:
+        case EventSorting.recentlyAdded:
           products = Map.fromEntries(products.entries.toList()
             ..sort((a, b) => (b.value[4] as Timestamp).compareTo(a.value[4])));
           break;
-        case ProductSorting.highestRated:
+        case EventSorting.highestRated:
           products = Map.fromEntries(products.entries.toList()
             ..sort((a, b) => calculateAverageRating(b.value[3])
                 .compareTo(calculateAverageRating(a.value[3]))));
           break;
-        case ProductSorting.mostViewed:
+        case EventSorting.mostViewed:
           products = Map.fromEntries(products.entries.toList()
             ..sort((a, b) => (b.value[5] as int).compareTo(a.value[5])));
           break;
-        case ProductSorting.lowestPrice:
+        case EventSorting.lowestPrice:
           products = Map.fromEntries(products.entries.toList()
             ..sort((a, b) =>
                 double.parse(a.value[2]).compareTo(double.parse(b.value[2]))));
           break;
-        case ProductSorting.highestPrice:
+        case EventSorting.highestPrice:
           products = Map.fromEntries(products.entries.toList()
             ..sort((a, b) =>
                 double.parse(b.value[2]).compareTo(double.parse(a.value[2]))));
@@ -947,18 +947,17 @@ class _VendorPageState extends State<VendorPage> {
                                         onChanged: (value) {
                                           sortProducts(
                                             value == 'Recently Added'
-                                                ? ProductSorting.recentlyAdded
+                                                ? EventSorting.recentlyAdded
                                                 : value == 'Highest Rated'
-                                                    ? ProductSorting
-                                                        .highestRated
+                                                    ? EventSorting.highestRated
                                                     : value == 'Most Viewed'
-                                                        ? ProductSorting
+                                                        ? EventSorting
                                                             .mostViewed
                                                         : value ==
                                                                 'Price - Highest to Lowest'
-                                                            ? ProductSorting
+                                                            ? EventSorting
                                                                 .highestPrice
-                                                            : ProductSorting
+                                                            : EventSorting
                                                                 .lowestPrice,
                                           );
                                           setState(() {

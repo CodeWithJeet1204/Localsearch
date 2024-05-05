@@ -9,8 +9,8 @@ import 'package:find_easy_user/widgets/speech_to_text.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class SearchResultsPage extends StatefulWidget {
-  const SearchResultsPage({
+class EventsSearchResultsPage extends StatefulWidget {
+  const EventsSearchResultsPage({
     super.key,
     required this.search,
   });
@@ -18,27 +18,28 @@ class SearchResultsPage extends StatefulWidget {
   final String search;
 
   @override
-  State<SearchResultsPage> createState() => _SearchResultsPageState();
+  State<EventsSearchResultsPage> createState() =>
+      _EventsSearchResultsPageState();
 }
 
-class _SearchResultsPageState extends State<SearchResultsPage> {
+class _EventsSearchResultsPageState extends State<EventsSearchResultsPage> {
   final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
   final searchController = TextEditingController();
   bool isMicPressed = false;
   bool isSearchPressed = false;
   Map searchedShops = {};
-  Map searchedProducts = {};
+  Map searchedEvents = {};
   bool getShopsData = false;
-  bool getProductsData = false;
-  String? productSort = 'Recently Added';
+  bool getEventsData = false;
+  String? eventSort = 'Recently Added';
 
   // INIT STATE
   @override
   void initState() {
     setSearch();
     super.initState();
-    getProducts();
+    getEvents();
     getShops();
   }
 
@@ -71,7 +72,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: ((context) =>
-                SearchResultsPage(search: searchController.text)),
+                EventsSearchResultsPage(search: searchController.text)),
           ),
         );
       }
@@ -164,26 +165,26 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
     return count;
   }
 
-  // GET PRODUCTS
-  Future<void> getProducts() async {
-    final productsSnap = await store
+  // GET EVENTS
+  Future<void> getEvents() async {
+    final eventsSnap = await store
         .collection('Business')
         .doc('Data')
         .collection('Products')
         .get();
 
-    for (var productSnap in productsSnap.docs) {
-      final productData = productSnap.data();
+    for (var eventSnap in eventsSnap.docs) {
+      final eventData = eventSnap.data();
 
-      final String productName = productData['productName'].toString();
-      final List tags = productData['Tags'];
-      final String imageUrl = productData['images'][0].toString();
-      final String productPrice = productData['productPrice'].toString();
-      final String productId = productData['productId'].toString();
-      final String vendorId = productData['vendorId'].toString();
-      final Map<String, dynamic> ratings = productData['ratings'];
-      final Timestamp datetime = productData['datetime'];
-      final int views = productData['productViews'];
+      final String eventName = eventData['productName'].toString();
+      final List tags = eventData['Tags'];
+      final String imageUrl = eventData['images'][0].toString();
+      final String productPrice = eventData['productPrice'].toString();
+      final String eventId = eventData['productId'].toString();
+      final String vendorId = eventData['vendorId'].toString();
+      final Map<String, dynamic> ratings = eventData['ratings'];
+      final Timestamp datetime = eventData['datetime'];
+      final int views = eventData['productViews'];
 
       final vendorSnap = await store
           .collection('Business')
@@ -196,24 +197,24 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
 
       final String vendor = vendorData['Name'];
 
-      final productNameLower = productName.toLowerCase();
+      final eventNameLower = eventName.toLowerCase();
       final searchLower = widget.search.toLowerCase();
 
-      if (productNameLower.contains(searchLower) ||
+      if (eventNameLower.contains(searchLower) ||
           tags.any(
               (tag) => tag.toString().toLowerCase().contains(searchLower))) {
         int relevanceScore = calculateRelevanceScore(
-          productNameLower,
+          eventNameLower,
           searchLower,
           tags,
           searchLower,
         );
 
-        searchedProducts[productName] = [
+        searchedEvents[eventName] = [
           imageUrl,
           vendor,
           productPrice,
-          productId,
+          eventId,
           relevanceScore,
           ratings,
           datetime,
@@ -222,22 +223,22 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
       }
     }
 
-    searchedProducts = Map.fromEntries(searchedProducts.entries.toList()
+    searchedEvents = Map.fromEntries(searchedEvents.entries.toList()
       ..sort((a, b) => b.value[4].compareTo(a.value[4])));
 
     setState(() {
-      getProductsData = true;
+      getEventsData = true;
     });
   }
 
-  // CALCULATE RELEVANCE (PRODUCTS)
+  // CALCULATE RELEVANCE (EVENTS)
   int calculateRelevanceScore(
-      String productName, String searchKeyword, List tags, String searchLower) {
+      String eventName, String searchKeyword, List tags, String searchLower) {
     int score = 0;
 
-    for (int i = 0; i < productName.length; i++) {
-      if (i < searchKeyword.length && productName[i] == searchKeyword[i]) {
-        score += (productName.length - i) * 3;
+    for (int i = 0; i < eventName.length; i++) {
+      if (i < searchKeyword.length && eventName[i] == searchKeyword[i]) {
+        score += (eventName.length - i) * 3;
       } else {
         break;
       }
@@ -253,7 +254,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
   }
 
   // GET IF WISHLIST
-  Stream<bool> getIfWishlist(String productId) {
+  Stream<bool> getIfWishlist(String eventId) {
     return store
         .collection('Users')
         .doc(auth.currentUser!.uid)
@@ -262,7 +263,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
       final userData = userSnap.data()!;
       final userWishlist = userData['wishlists'] as List;
 
-      return userWishlist.contains(productId);
+      return userWishlist.contains(eventId);
     });
   }
 
@@ -308,44 +309,44 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
     });
   }
 
-  // GET PRODUCT DATA
-  Future<Map<String, dynamic>> getProductData(String productId) async {
-    final productsSnap = await store
+  // GET EVENT DATA
+  Future<Map<String, dynamic>> getEventData(String eventId) async {
+    final eventsSnap = await store
         .collection('Business')
         .doc('Data')
         .collection('Products')
-        .doc(productId)
+        .doc(eventId)
         .get();
 
-    final productData = productsSnap.data()!;
+    final eventData = eventsSnap.data()!;
 
-    return productData;
+    return eventData;
   }
 
-  // SORT PRODUCTS
-  void sortProducts(EventSorting sorting) {
+  // SORT EVENTS
+  void sortEvents(EventSorting sorting) {
     setState(() {
       switch (sorting) {
         case EventSorting.recentlyAdded:
-          searchedProducts = Map.fromEntries(searchedProducts.entries.toList()
+          searchedEvents = Map.fromEntries(searchedEvents.entries.toList()
             ..sort((a, b) => (b.value[6] as Timestamp).compareTo(a.value[6])));
           break;
         case EventSorting.highestRated:
-          searchedProducts = Map.fromEntries(searchedProducts.entries.toList()
+          searchedEvents = Map.fromEntries(searchedEvents.entries.toList()
             ..sort((a, b) => calculateAverageRating(b.value[5])
                 .compareTo(calculateAverageRating(a.value[5]))));
           break;
         case EventSorting.mostViewed:
-          searchedProducts = Map.fromEntries(searchedProducts.entries.toList()
+          searchedEvents = Map.fromEntries(searchedEvents.entries.toList()
             ..sort((a, b) => (b.value[7] as int).compareTo(a.value[7])));
           break;
         case EventSorting.lowestPrice:
-          searchedProducts = Map.fromEntries(searchedProducts.entries.toList()
+          searchedEvents = Map.fromEntries(searchedEvents.entries.toList()
             ..sort((a, b) =>
                 double.parse(a.value[2]).compareTo(double.parse(b.value[2]))));
           break;
         case EventSorting.highestPrice:
-          searchedProducts = Map.fromEntries(searchedProducts.entries.toList()
+          searchedEvents = Map.fromEntries(searchedEvents.entries.toList()
             ..sort((a, b) =>
                 double.parse(b.value[2]).compareTo(double.parse(a.value[2]))));
           break;
@@ -681,7 +682,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                   ),
                                 )
                               : searchedShops.isEmpty
-                                  ? searchedProducts.isEmpty
+                                  ? searchedEvents.isEmpty
                                       ? const Center(
                                           child: Padding(
                                             padding: EdgeInsets.only(top: 40),
@@ -757,23 +758,23 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                         ],
                       ),
 
-                      // PRODUCT
+                      // EVENT
                       Column(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // PRODUCTS
-                          !getProductsData
+                          // EVENTS
+                          !getEventsData
                               ? SkeletonContainer(
                                   width: width * 0.2,
                                   height: 20,
                                 )
-                              : searchedProducts.isEmpty
+                              : searchedEvents.isEmpty
                                   ? const Center(
                                       child: Padding(
                                         padding: EdgeInsets.only(top: 40),
                                         child: Text(
-                                          'No Products Found',
+                                          'No Events Found',
                                           textAlign: TextAlign.center,
                                         ),
                                       ),
@@ -787,7 +788,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                             CrossAxisAlignment.center,
                                         children: [
                                           Text(
-                                            'Products',
+                                            'Events',
                                             style: TextStyle(
                                               color:
                                                   primaryDark.withOpacity(0.8),
@@ -806,7 +807,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                             child: DropdownButton<String>(
                                               underline: const SizedBox(),
                                               dropdownColor: primary2,
-                                              value: productSort,
+                                              value: eventSort,
                                               iconEnabledColor: primaryDark,
                                               items: [
                                                 'Recently Added',
@@ -822,7 +823,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                                       ))
                                                   .toList(),
                                               onChanged: (value) {
-                                                sortProducts(
+                                                sortEvents(
                                                   value == 'Recently Added'
                                                       ? EventSorting
                                                           .recentlyAdded
@@ -841,7 +842,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                                                       .lowestPrice,
                                                 );
                                                 setState(() {
-                                                  productSort = value;
+                                                  eventSort = value;
                                                 });
                                               },
                                             ),
@@ -850,8 +851,8 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                       ),
                                     ),
 
-                          // PRODUCTS LIST
-                          !getProductsData
+                          // EVENTS LIST
+                          !getEventsData
                               ? SizedBox(
                                   width: width,
                                   child: GridView.builder(
@@ -911,7 +912,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                     }),
                                   ),
                                 )
-                              : searchedProducts.isEmpty
+                              : searchedEvents.isEmpty
                                   ? Container()
                                   : GridView.builder(
                                       shrinkWrap: true,
@@ -921,11 +922,11 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                         crossAxisCount: 2,
                                         childAspectRatio: width * 0.6 / width,
                                       ),
-                                      itemCount: searchedProducts.length,
+                                      itemCount: searchedEvents.length,
                                       itemBuilder: ((context, index) {
                                         return StreamBuilder<bool>(
                                           stream: getIfWishlist(
-                                            searchedProducts.values
+                                            searchedEvents.values
                                                 .toList()[index][3],
                                           ),
                                           builder: (context, snapshot) {
@@ -937,36 +938,35 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                               );
                                             }
 
-                                            final currentProduct =
-                                                searchedProducts.keys
-                                                    .toList()[index]
-                                                    .toString();
+                                            final currentEvent = searchedEvents
+                                                .keys
+                                                .toList()[index]
+                                                .toString();
 
                                             final image =
-                                                searchedProducts[currentProduct]
-                                                    [0];
+                                                searchedEvents[currentEvent][0];
 
-                                            final productId = searchedProducts
+                                            final eventId = searchedEvents
                                                 .values
                                                 .toList()[index][3];
 
-                                            final ratings = searchedProducts
+                                            final ratings = searchedEvents
                                                 .values
                                                 .toList()[index][5];
 
-                                            final price = searchedProducts[
-                                                        currentProduct][2] ==
+                                            final price = searchedEvents[
+                                                        currentEvent][2] ==
                                                     ''
                                                 ? 'N/A'
-                                                : 'Rs. ${searchedProducts[currentProduct][2]}';
+                                                : 'Rs. ${searchedEvents[currentEvent][2]}';
                                             final isWishListed =
                                                 snapshot.data ?? false;
 
                                             return GestureDetector(
                                               onTap: () async {
                                                 final productData =
-                                                    await getProductData(
-                                                  productId,
+                                                    await getEventData(
+                                                  eventId,
                                                 );
                                                 if (context.mounted) {
                                                   Navigator.of(context).push(
@@ -985,7 +985,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                                   context: context,
                                                   builder: ((context) =>
                                                       ProductQuickView(
-                                                        productId: productId,
+                                                        productId: eventId,
                                                       )),
                                                 );
                                               },
@@ -994,7 +994,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                                   context: context,
                                                   builder: ((context) =>
                                                       ProductQuickView(
-                                                        productId: productId,
+                                                        productId: eventId,
                                                       )),
                                                 );
                                               },
@@ -1116,7 +1116,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                                                 width:
                                                                     width * 0.3,
                                                                 child: Text(
-                                                                  currentProduct,
+                                                                  currentEvent,
                                                                   maxLines: 1,
                                                                   overflow:
                                                                       TextOverflow
@@ -1157,7 +1157,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                                         IconButton(
                                                           onPressed: () async {
                                                             await wishlistProduct(
-                                                                productId);
+                                                                eventId);
                                                           },
                                                           icon: Icon(
                                                             isWishListed
