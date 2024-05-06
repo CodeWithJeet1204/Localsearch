@@ -560,7 +560,21 @@ class _VendorPageState extends State<VendorPage> {
                                   // WHATSAPP
                                   GestureDetector(
                                     onTap: () async {
-                                      // whatsapp
+                                      final String phoneNumber =
+                                          shopData!['Phone Number'];
+                                      final String message =
+                                          'Hey, I found you on Find Easy\n';
+                                      final url =
+                                          'https://wa.me/$phoneNumber?text=$message';
+
+                                      if (await canLaunchUrl(Uri.parse(url))) {
+                                        await launchUrl(Uri.parse(url));
+                                      } else {
+                                        mySnackBar(
+                                          'Something went Wrong',
+                                          context,
+                                        );
+                                      }
                                     },
                                     child: Container(
                                       width: width * 0.275,
@@ -571,7 +585,11 @@ class _VendorPageState extends State<VendorPage> {
                                       ),
                                       decoration: BoxDecoration(
                                         color: const Color.fromRGBO(
-                                            198, 255, 200, 1),
+                                          198,
+                                          255,
+                                          200,
+                                          1,
+                                        ),
                                         border: Border.all(
                                           color: primaryDark.withOpacity(0.25),
                                           width: 0.25,

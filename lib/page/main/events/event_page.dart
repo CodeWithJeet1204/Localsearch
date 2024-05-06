@@ -5,6 +5,7 @@ import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/image_view.dart';
 import 'package:find_easy_user/widgets/see_more_text.dart';
 import 'package:find_easy_user/widgets/snack_bar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -23,6 +24,7 @@ class EventPage extends StatefulWidget {
 }
 
 class _EventPageState extends State<EventPage> {
+  final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
   Map<String, dynamic> event = {};
   int _currentIndex = 0;
@@ -66,10 +68,89 @@ class _EventPageState extends State<EventPage> {
     return format.format(time);
   }
 
+  // GET IF WISHLIST
+  Stream<bool> getIfWishlist() {
+    return store
+        .collection('Users')
+        .doc(auth.currentUser!.uid)
+        .snapshots()
+        .map((userSnap) {
+      final userData = userSnap.data()!;
+      final userWishlist = userData['wishlistEvents'] as List;
+
+      return userWishlist.contains(widget.eventId);
+    });
+  }
+
+  // WISHLIST EVENT
+  Future<void> wishlistEvent() async {
+    final userSnap =
+        await store.collection('Users').doc(auth.currentUser!.uid).get();
+
+    final userData = userSnap.data()!;
+    List<dynamic> userWishlist = userData['wishlistEvents'] as List<dynamic>;
+
+    bool alreadyInWishlist = userWishlist.contains(widget.eventId);
+
+    if (!alreadyInWishlist) {
+      userWishlist.add(widget.eventId);
+    } else {
+      userWishlist.remove(widget.eventId);
+    }
+
+    await store.collection('Users').doc(auth.currentUser!.uid).update({
+      'wishlistEvents': userWishlist,
+    });
+
+    final eventSnap = await store.collection('Event').doc(widget.eventId).get();
+
+    final eventData = eventSnap.data()!;
+
+    int noOfWishList = eventData['wishlists'] ?? 0;
+
+    if (!alreadyInWishlist) {
+      noOfWishList++;
+    } else {
+      noOfWishList--;
+    }
+
+    await store.collection('Event').doc(widget.eventId).update({
+      'wishlists': noOfWishList,
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        actions: [
+          StreamBuilder(
+            stream: getIfWishlist(),
+            builder: ((context, snapshot) {
+              if (snapshot.hasError) {
+                return Container();
+              }
+
+              if (snapshot.hasData) {
+                final isWishlist = snapshot.data!;
+
+                return IconButton(
+                  onPressed: () async {
+                    await wishlistEvent();
+                  },
+                  icon: Icon(
+                    isWishlist ? Icons.favorite : Icons.favorite_outline,
+                    color: Colors.red,
+                  ),
+                  tooltip: isWishlist ? "WISHLISTED" : "WISHLIST",
+                );
+              }
+
+              return Container();
+            }),
+          ),
+        ],
+      ),
       body: !isData
           ? Center(
               child: CircularProgressIndicator(),

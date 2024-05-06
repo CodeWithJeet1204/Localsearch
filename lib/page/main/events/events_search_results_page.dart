@@ -1,9 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
-import 'package:find_easy_user/page/main/product/product_page.dart';
-import 'package:find_easy_user/page/main/vendor/vendor_page.dart';
+import 'package:find_easy_user/page/main/events/event_page.dart';
+import 'package:find_easy_user/page/main/events/events_organizer_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
-import 'package:find_easy_user/widgets/product_quick_view.dart';
 import 'package:find_easy_user/widgets/skeleton_container.dart';
 import 'package:find_easy_user/widgets/speech_to_text.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -28,19 +27,22 @@ class _EventsSearchResultsPageState extends State<EventsSearchResultsPage> {
   final searchController = TextEditingController();
   bool isMicPressed = false;
   bool isSearchPressed = false;
-  Map searchedShops = {};
   Map searchedEvents = {};
-  bool getShopsData = false;
-  bool getEventsData = false;
-  String? eventSort = 'Recently Added';
+  Map allSearchedEvents = {};
+  Map searchedOrganizers = {};
+  List eventCategories = [];
+  bool isOrganizersData = false;
+  bool isEventsData = false;
+  bool isEventCategoriesData = false;
+  String? selectedEventCategory;
 
   // INIT STATE
   @override
   void initState() {
     setSearch();
-    super.initState();
     getEvents();
-    getShops();
+    getOrganizers();
+    super.initState();
   }
 
   // SET SEARCH
@@ -64,8 +66,6 @@ class _EventsSearchResultsPageState extends State<EventsSearchResultsPage> {
 
   // SEARCH
   Future<void> search() async {
-    await addRecentSearch();
-
     if (searchController.text.isNotEmpty) {
       if (mounted) {
         Navigator.of(context).pop();
@@ -79,59 +79,148 @@ class _EventsSearchResultsPageState extends State<EventsSearchResultsPage> {
     }
   }
 
-  // ADD RECENT SEARCH
-  Future<void> addRecentSearch() async {
-    final userSnap =
-        await store.collection('Users').doc(auth.currentUser!.uid).get();
+  // GET EVENTS
+  Future<void> getEvents() async {
+    Map<String, dynamic> mySearchedEvents = {};
 
-    final userData = userSnap.data()!;
+    final eventsSnap = await store.collection('Event').get();
 
-    final recent = userData['recentSearches'] as List;
+    for (var myEventData in eventsSnap.docs) {
+      final eventData = myEventData.data();
 
-    if (recent.contains(searchController.text)) {
-      recent.remove(searchController.text);
+      final String eventId = eventData['eventId'];
+      final String eventName = eventData['eventName'];
+      final String imageUrl = eventData['imageUrl'][0];
+      final String type = eventData['eventType'];
+      final Timestamp startDate = eventData['startDate'];
+      final Timestamp endDate = eventData['endDate'];
+      final String organizerId = eventData['organizerId'];
+      final String organizerName = eventData['organizerName'];
+      print("Event Name: $eventName");
+
+      final eventNameLower = eventName.toLowerCase();
+      final searchLower = widget.search.toLowerCase();
+      print("Event name lower: $eventNameLower");
+      print("search lower: $searchLower");
+      print(eventNameLower.contains(searchLower));
+      print(endDate.toDate());
+      print(DateTime.now());
+      print(endDate.toDate().isAfter(DateTime.now()));
+
+      if (eventNameLower.contains(searchLower) &&
+          endDate.toDate().isAfter(DateTime.now())) {
+        print(123);
+        int relevanceScore = calculateRelevanceScore(
+          eventNameLower,
+          searchLower,
+        );
+
+        mySearchedEvents[eventName] = [
+          imageUrl,
+          organizerId,
+          organizerName,
+          eventId,
+          relevanceScore,
+          type,
+          startDate,
+          endDate,
+        ];
+      }
     }
 
-    if (searchController.text.isNotEmpty) {
-      recent.insert(0, searchController.text);
-    }
+    mySearchedEvents = Map.fromEntries(mySearchedEvents.entries.toList()
+      ..sort((a, b) => b.value[4].compareTo(a.value[4])));
 
-    await store.collection('Users').doc(auth.currentUser!.uid).update({
-      'recentSearches': recent,
+    setState(() {
+      searchedEvents = mySearchedEvents;
+      allSearchedEvents = mySearchedEvents;
+      isEventsData = true;
+    });
+
+    getEventCategories(mySearchedEvents);
+  }
+
+  // GET EVENT CATEGORIES
+  void getEventCategories(Map<dynamic, dynamic> events) {
+    List myEventCategories = [];
+    events.values.forEach((event) {
+      final type = event[5];
+
+      if (!myEventCategories.contains(type)) {
+        myEventCategories.add(type);
+      }
+    });
+
+    setState(() {
+      eventCategories = myEventCategories;
+      isEventCategoriesData = true;
     });
   }
 
-  // GET SHOPS
-  Future<void> getShops() async {
-    var allShops = {};
+  // GET TYPE EVENT
+  void getTypeEvent(String? type) {
+    Map<String, dynamic> filteredEvents = {};
+    setState(() {
+      searchedEvents = allSearchedEvents;
+    });
 
-    final shopSnap = await store
-        .collection('Business')
-        .doc('Owners')
-        .collection('Shops')
-        .get();
+    if (type != null) {
+      searchedEvents.forEach((eventName, eventDetails) {
+        if (eventDetails[5] == type) {
+          filteredEvents[eventName] = eventDetails;
+        }
+      });
 
-    for (var shopSnap in shopSnap.docs) {
-      final shopData = shopSnap.data();
+      setState(() {
+        searchedEvents = filteredEvents;
+      });
+    }
+  }
 
-      final String name = shopData['Name'];
-      final String imageUrl = shopData['Image'];
-      final String address = shopData['Address'];
-      final String vendorId = shopSnap.id;
+  // CALCULATE RELEVANCE (EVENTS)
+  int calculateRelevanceScore(String eventName, String searchKeyword) {
+    int score = 0;
 
-      allShops[vendorId] = [name, imageUrl, address];
+    for (int i = 0; i < eventName.length; i++) {
+      if (i < searchKeyword.length && eventName[i] == searchKeyword[i]) {
+        score += (eventName.length - i) * 3;
+      } else {
+        break;
+      }
     }
 
-    searchedShops.clear();
+    return score;
+  }
+
+  // GET ORGANIZERS
+  Future<void> getOrganizers() async {
+    Map<String, dynamic> allOrganizers = {};
+
+    final organizerSnap = await store.collection('Events').get();
+
+    for (var organizerSnap in organizerSnap.docs) {
+      final organizerData = organizerSnap.data();
+
+      final String name = organizerData['Name'];
+      final String imageUrl = organizerData['Image'];
+      final String address = organizerData['Address'];
+      final String organizerId = organizerSnap.id;
+
+      allOrganizers[organizerId] = {
+        'name': name,
+        'imageUrl': imageUrl,
+        'address': address,
+        'id': organizerId,
+      };
+    }
 
     List<MapEntry<String, int>> relevanceScores = [];
-    allShops.forEach((key, value) {
-      if (value[0]
-          .toString()
-          .toLowerCase()
-          .startsWith(widget.search.toLowerCase())) {
-        int relevance =
-            calculateRelevance(value[0], widget.search.toLowerCase());
+
+    allOrganizers.forEach((key, value) {
+      String organizerName = value['name'];
+      if (organizerName.toLowerCase().startsWith(widget.search.toLowerCase())) {
+        int relevance = calculateOrganizerRelevance(
+            organizerName, widget.search.toLowerCase());
         relevanceScores.add(MapEntry(key, relevance));
       }
     });
@@ -144,113 +233,28 @@ class _EventsSearchResultsPageState extends State<EventsSearchResultsPage> {
       return a.key.compareTo(b.key);
     });
 
+    Map<String, dynamic> filteredOrganizers = {};
+
     for (var entry in relevanceScores) {
-      searchedShops[entry.key] = allShops[entry.key];
+      filteredOrganizers[entry.key] = allOrganizers[entry.key];
     }
 
     setState(() {
-      getShopsData = true;
+      searchedOrganizers = filteredOrganizers;
+      isOrganizersData = true;
     });
   }
 
-  // CALCULATE RELEVANCE (SHOPS)
-  int calculateRelevance(String shopName, String searchKeyword) {
+  // CALCULATE RELEVANCE (ORGANIZERS)
+  int calculateOrganizerRelevance(String organizerName, String searchKeyword) {
     int count = 0;
-    for (int i = 0; i <= shopName.length - searchKeyword.length; i++) {
-      if (shopName.substring(i, i + searchKeyword.length).toLowerCase() ==
+    for (int i = 0; i <= organizerName.length - searchKeyword.length; i++) {
+      if (organizerName.substring(i, i + searchKeyword.length).toLowerCase() ==
           searchKeyword) {
         count++;
       }
     }
     return count;
-  }
-
-  // GET EVENTS
-  Future<void> getEvents() async {
-    final eventsSnap = await store
-        .collection('Business')
-        .doc('Data')
-        .collection('Products')
-        .get();
-
-    for (var eventSnap in eventsSnap.docs) {
-      final eventData = eventSnap.data();
-
-      final String eventName = eventData['productName'].toString();
-      final List tags = eventData['Tags'];
-      final String imageUrl = eventData['images'][0].toString();
-      final String productPrice = eventData['productPrice'].toString();
-      final String eventId = eventData['productId'].toString();
-      final String vendorId = eventData['vendorId'].toString();
-      final Map<String, dynamic> ratings = eventData['ratings'];
-      final Timestamp datetime = eventData['datetime'];
-      final int views = eventData['productViews'];
-
-      final vendorSnap = await store
-          .collection('Business')
-          .doc('Owners')
-          .collection('Shops')
-          .doc(vendorId)
-          .get();
-
-      final vendorData = vendorSnap.data()!;
-
-      final String vendor = vendorData['Name'];
-
-      final eventNameLower = eventName.toLowerCase();
-      final searchLower = widget.search.toLowerCase();
-
-      if (eventNameLower.contains(searchLower) ||
-          tags.any(
-              (tag) => tag.toString().toLowerCase().contains(searchLower))) {
-        int relevanceScore = calculateRelevanceScore(
-          eventNameLower,
-          searchLower,
-          tags,
-          searchLower,
-        );
-
-        searchedEvents[eventName] = [
-          imageUrl,
-          vendor,
-          productPrice,
-          eventId,
-          relevanceScore,
-          ratings,
-          datetime,
-          views,
-        ];
-      }
-    }
-
-    searchedEvents = Map.fromEntries(searchedEvents.entries.toList()
-      ..sort((a, b) => b.value[4].compareTo(a.value[4])));
-
-    setState(() {
-      getEventsData = true;
-    });
-  }
-
-  // CALCULATE RELEVANCE (EVENTS)
-  int calculateRelevanceScore(
-      String eventName, String searchKeyword, List tags, String searchLower) {
-    int score = 0;
-
-    for (int i = 0; i < eventName.length; i++) {
-      if (i < searchKeyword.length && eventName[i] == searchKeyword[i]) {
-        score += (eventName.length - i) * 3;
-      } else {
-        break;
-      }
-    }
-
-    for (var tag in tags) {
-      if (tag.toString().toLowerCase().contains(searchLower)) {
-        score += 1;
-      }
-    }
-
-    return score;
   }
 
   // GET IF WISHLIST
@@ -261,42 +265,37 @@ class _EventsSearchResultsPageState extends State<EventsSearchResultsPage> {
         .snapshots()
         .map((userSnap) {
       final userData = userSnap.data()!;
-      final userWishlist = userData['wishlists'] as List;
+      final userWishlist = userData['wishlistEvents'] as List;
 
       return userWishlist.contains(eventId);
     });
   }
 
-  // WISHLIST PRODUCT
-  Future<void> wishlistProduct(String productId) async {
+  // WISHLIST EVENT
+  Future<void> wishlistEvent(String eventId) async {
     final userSnap =
         await store.collection('Users').doc(auth.currentUser!.uid).get();
 
     final userData = userSnap.data()!;
-    List<dynamic> userWishlist = userData['wishlists'] as List<dynamic>;
+    List<dynamic> userWishlist = userData['wishlistEvents'] as List<dynamic>;
 
-    bool alreadyInWishlist = userWishlist.contains(productId);
+    bool alreadyInWishlist = userWishlist.contains(eventId);
 
     if (!alreadyInWishlist) {
-      userWishlist.add(productId);
+      userWishlist.add(eventId);
     } else {
-      userWishlist.remove(productId);
+      userWishlist.remove(eventId);
     }
 
     await store.collection('Users').doc(auth.currentUser!.uid).update({
-      'wishlists': userWishlist,
+      'wishlistEvents': userWishlist,
     });
 
-    final productDoc = store
-        .collection('Business')
-        .doc('Data')
-        .collection('Products')
-        .doc(productId);
+    final eventSnap = await store.collection('Event').doc(eventId).get();
 
-    final productSnap = await productDoc.get();
-    final productData = productSnap.data()!;
+    final eventData = eventSnap.data()!;
 
-    int noOfWishList = productData['productWishlist'] ?? 0;
+    int noOfWishList = eventData['wishlists'] ?? 0;
 
     if (!alreadyInWishlist) {
       noOfWishList++;
@@ -304,67 +303,9 @@ class _EventsSearchResultsPageState extends State<EventsSearchResultsPage> {
       noOfWishList--;
     }
 
-    await productDoc.update({
-      'productWishlist': noOfWishList,
+    await store.collection('Event').doc(eventId).update({
+      'wishlists': noOfWishList,
     });
-  }
-
-  // GET EVENT DATA
-  Future<Map<String, dynamic>> getEventData(String eventId) async {
-    final eventsSnap = await store
-        .collection('Business')
-        .doc('Data')
-        .collection('Products')
-        .doc(eventId)
-        .get();
-
-    final eventData = eventsSnap.data()!;
-
-    return eventData;
-  }
-
-  // SORT EVENTS
-  void sortEvents(EventSorting sorting) {
-    setState(() {
-      switch (sorting) {
-        case EventSorting.recentlyAdded:
-          searchedEvents = Map.fromEntries(searchedEvents.entries.toList()
-            ..sort((a, b) => (b.value[6] as Timestamp).compareTo(a.value[6])));
-          break;
-        case EventSorting.highestRated:
-          searchedEvents = Map.fromEntries(searchedEvents.entries.toList()
-            ..sort((a, b) => calculateAverageRating(b.value[5])
-                .compareTo(calculateAverageRating(a.value[5]))));
-          break;
-        case EventSorting.mostViewed:
-          searchedEvents = Map.fromEntries(searchedEvents.entries.toList()
-            ..sort((a, b) => (b.value[7] as int).compareTo(a.value[7])));
-          break;
-        case EventSorting.lowestPrice:
-          searchedEvents = Map.fromEntries(searchedEvents.entries.toList()
-            ..sort((a, b) =>
-                double.parse(a.value[2]).compareTo(double.parse(b.value[2]))));
-          break;
-        case EventSorting.highestPrice:
-          searchedEvents = Map.fromEntries(searchedEvents.entries.toList()
-            ..sort((a, b) =>
-                double.parse(b.value[2]).compareTo(double.parse(a.value[2]))));
-          break;
-      }
-    });
-  }
-
-  // CALCULATE AVERAGE RATINGS
-  double calculateAverageRating(Map<String, dynamic> ratings) {
-    if (ratings.isEmpty) return 0.0;
-
-    final allRatings = ratings.values.map((e) => e[0] as int).toList();
-
-    final sum = allRatings.reduce((value, element) => value + element);
-
-    final averageRating = sum / allRatings.length;
-
-    return averageRating;
   }
 
   @override
@@ -570,193 +511,170 @@ class _EventsSearchResultsPageState extends State<EventsSearchResultsPage> {
                         ),
                       ),
 
-                      // FILTERS
-                      // ListView.builder(
-                      //   scrollDirection: Axis.horizontal,
-                      //   itemCount: 4,
-                      //   itemBuilder: ((context, index) {
-                      //   }),
-                      // ),
+                      searchedOrganizers.isEmpty
+                          ? Container()
+                          : Padding(
+                              padding: EdgeInsets.all(width * 0.0225),
+                              child: Text(
+                                'Organizers',
+                                style: TextStyle(
+                                  color: primaryDark.withOpacity(0.8),
+                                  fontSize: width * 0.04,
+                                ),
+                              ),
+                            ),
 
-                      // SHOP
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // SHOPS
-                          !getShopsData
-                              ? SkeletonContainer(
-                                  width: width * 0.2,
-                                  height: 20,
-                                )
-                              : searchedShops.isEmpty
-                                  ? Container()
-                                  : Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Padding(
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: width * 0.0225,
-                                            vertical: width * 0.000725,
-                                          ),
-                                          child: Text(
-                                            'Shops',
-                                            style: TextStyle(
-                                              color:
-                                                  primaryDark.withOpacity(0.8),
-                                              fontSize: width * 0.04,
-                                            ),
-                                          ),
-                                        ),
-                                        const Divider(),
-                                      ],
+                      // ORGANIZERS LIST
+                      !isOrganizersData
+                          ? SizedBox(
+                              width: width,
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: 2,
+                                itemBuilder: ((context, index) {
+                                  return Container(
+                                    width: width,
+                                    height: width * 0.225,
+                                    decoration: BoxDecoration(
+                                      color: lightGrey,
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
-
-                          // SHOPS LIST
-                          !getShopsData
-                              ? SizedBox(
-                                  width: width,
-                                  child: ListView.builder(
-                                    shrinkWrap: true,
-                                    itemCount: 2,
-                                    itemBuilder: ((context, index) {
-                                      return Container(
-                                        width: width,
-                                        height: width * 0.225,
-                                        decoration: BoxDecoration(
-                                          color: lightGrey,
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                        ),
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: width * 0.0225,
-                                        ),
-                                        margin: EdgeInsets.all(
-                                          width * 0.0125,
-                                        ),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: width * 0.0225,
+                                    ),
+                                    margin: EdgeInsets.all(
+                                      width * 0.0125,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Row(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.center,
                                           children: [
-                                            Row(
+                                            SkeletonContainer(
+                                              width: width * 0.15,
+                                              height: width * 0.15,
+                                            ),
+                                            SizedBox(
+                                              width: width * 0.0225,
+                                            ),
+                                            Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.spaceEvenly,
                                               crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
+                                                  CrossAxisAlignment.start,
                                               children: [
                                                 SkeletonContainer(
-                                                  width: width * 0.15,
-                                                  height: width * 0.15,
+                                                  width: width * 0.33,
+                                                  height: 20,
                                                 ),
-                                                SizedBox(
-                                                  width: width * 0.0225,
-                                                ),
-                                                Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceEvenly,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    SkeletonContainer(
-                                                      width: width * 0.33,
-                                                      height: 20,
-                                                    ),
-                                                    SkeletonContainer(
-                                                      width: width * 0.2,
-                                                      height: 12,
-                                                    ),
-                                                  ],
+                                                SkeletonContainer(
+                                                  width: width * 0.2,
+                                                  height: 12,
                                                 ),
                                               ],
                                             ),
-                                            SkeletonContainer(
-                                              width: width * 0.075,
-                                              height: width * 0.075,
-                                            ),
                                           ],
+                                        ),
+                                        SkeletonContainer(
+                                          width: width * 0.075,
+                                          height: width * 0.075,
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }),
+                              ),
+                            )
+                          : searchedOrganizers.isEmpty
+                              ? const Center(
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 8),
+                                    child: Text(
+                                      'No Organizers Found',
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                )
+                              : SizedBox(
+                                  width: width,
+                                  child: ListView.builder(
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    itemCount: searchedOrganizers.length > 3
+                                        ? 3
+                                        : searchedOrganizers.length,
+                                    itemBuilder: ((context, index) {
+                                      final currentOrganizer =
+                                          searchedOrganizers.keys
+                                              .toList()[index];
+
+                                      return Padding(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: width * 0.0125,
+                                          vertical: width * 0.00625,
+                                        ),
+                                        child: ListTile(
+                                          onTap: () {
+                                            Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                builder: ((context) =>
+                                                    EventsOrganizerPage(
+                                                      organizerId:
+                                                          searchedOrganizers[
+                                                                  currentOrganizer]
+                                                              ['id'],
+                                                    )),
+                                              ),
+                                            );
+                                          },
+                                          splashColor: white,
+                                          tileColor:
+                                              primary2.withOpacity(0.125),
+                                          contentPadding: EdgeInsets.symmetric(
+                                            vertical: width * 0.0125,
+                                            horizontal: width * 0.025,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                          leading: CircleAvatar(
+                                            backgroundImage: NetworkImage(
+                                              searchedOrganizers[
+                                                  currentOrganizer]['imageUrl'],
+                                            ),
+                                            radius: width * 0.0575,
+                                          ),
+                                          title: Text(
+                                            searchedOrganizers[currentOrganizer]
+                                                ['name'],
+                                            style: TextStyle(
+                                              fontSize: width * 0.06125,
+                                            ),
+                                          ),
+                                          subtitle: Text(
+                                            searchedOrganizers[currentOrganizer]
+                                                ['address'],
+                                          ),
+                                          trailing: const Icon(
+                                            FeatherIcons.chevronRight,
+                                            color: primaryDark,
+                                          ),
                                         ),
                                       );
                                     }),
                                   ),
-                                )
-                              : searchedShops.isEmpty
-                                  ? searchedEvents.isEmpty
-                                      ? const Center(
-                                          child: Padding(
-                                            padding: EdgeInsets.only(top: 40),
-                                            child: Text(
-                                              'No Shops Found',
-                                              textAlign: TextAlign.center,
-                                            ),
-                                          ),
-                                        )
-                                      : Container()
-                                  : ListView.builder(
-                                      shrinkWrap: true,
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      itemCount: searchedShops.length > 3
-                                          ? 3
-                                          : searchedShops.length,
-                                      itemBuilder: ((context, index) {
-                                        final currentShop =
-                                            searchedShops.keys.toList()[index];
+                                ),
 
-                                        return Padding(
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: width * 0.0125,
-                                            vertical: width * 0.00625,
-                                          ),
-                                          child: ListTile(
-                                            onTap: () {
-                                              Navigator.of(context).push(
-                                                MaterialPageRoute(
-                                                  builder: ((context) =>
-                                                      VendorPage(
-                                                        vendorId: currentShop,
-                                                      )),
-                                                ),
-                                              );
-                                            },
-                                            splashColor: white,
-                                            tileColor:
-                                                primary2.withOpacity(0.125),
-                                            contentPadding:
-                                                EdgeInsets.symmetric(
-                                              vertical: width * 0.0125,
-                                              horizontal: width * 0.025,
-                                            ),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
-                                            leading: CircleAvatar(
-                                              backgroundImage: NetworkImage(
-                                                searchedShops[currentShop][1],
-                                              ),
-                                              radius: width * 0.0575,
-                                            ),
-                                            title: Text(
-                                              searchedShops[currentShop][0],
-                                              style: TextStyle(
-                                                fontSize: width * 0.06125,
-                                              ),
-                                            ),
-                                            subtitle: Text(
-                                              searchedShops[currentShop][2],
-                                            ),
-                                            trailing: const Icon(
-                                              FeatherIcons.chevronRight,
-                                              color: primaryDark,
-                                            ),
-                                          ),
-                                        );
-                                      }),
-                                    ),
-                        ],
-                      ),
+                      searchedOrganizers.isNotEmpty && searchedEvents.isNotEmpty
+                          ? Divider()
+                          : Container(),
 
                       // EVENT
                       Column(
@@ -764,7 +682,7 @@ class _EventsSearchResultsPageState extends State<EventsSearchResultsPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // EVENTS
-                          !getEventsData
+                          !isEventsData
                               ? SkeletonContainer(
                                   width: width * 0.2,
                                   height: 20,
@@ -781,78 +699,66 @@ class _EventsSearchResultsPageState extends State<EventsSearchResultsPage> {
                                     )
                                   : Padding(
                                       padding: EdgeInsets.all(width * 0.0225),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            'Events',
-                                            style: TextStyle(
-                                              color:
-                                                  primaryDark.withOpacity(0.8),
-                                              fontSize: width * 0.04,
-                                            ),
-                                          ),
-                                          Container(
-                                            padding: EdgeInsets.symmetric(
-                                              horizontal: width * 0.0125,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: primary3,
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
-                                            child: DropdownButton<String>(
-                                              underline: const SizedBox(),
-                                              dropdownColor: primary2,
-                                              value: eventSort,
-                                              iconEnabledColor: primaryDark,
-                                              items: [
-                                                'Recently Added',
-                                                'Highest Rated',
-                                                'Most Viewed',
-                                                'Price - Highest to Lowest',
-                                                'Price - Lowest to Highest'
-                                              ]
-                                                  .map((e) =>
-                                                      DropdownMenuItem<String>(
-                                                        value: e,
-                                                        child: Text(e),
-                                                      ))
-                                                  .toList(),
-                                              onChanged: (value) {
-                                                sortEvents(
-                                                  value == 'Recently Added'
-                                                      ? EventSorting
-                                                          .recentlyAdded
-                                                      : value == 'Highest Rated'
-                                                          ? EventSorting
-                                                              .highestRated
-                                                          : value ==
-                                                                  'Most Viewed'
-                                                              ? EventSorting
-                                                                  .mostViewed
-                                                              : value ==
-                                                                      'Price - Highest to Lowest'
-                                                                  ? EventSorting
-                                                                      .highestPrice
-                                                                  : EventSorting
-                                                                      .lowestPrice,
-                                                );
-                                                setState(() {
-                                                  eventSort = value;
-                                                });
-                                              },
-                                            ),
-                                          ),
-                                        ],
+                                      child: Text(
+                                        'Events',
+                                        style: TextStyle(
+                                          color: primaryDark.withOpacity(0.8),
+                                          fontSize: width * 0.04,
+                                        ),
                                       ),
                                     ),
 
+                          // FILTERS
+                          eventCategories.length < 2
+                              ? Container()
+                              : SizedBox(
+                                  width: width,
+                                  height: 50,
+                                  child: ListView.builder(
+                                    shrinkWrap: true,
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: eventCategories.length,
+                                    itemBuilder: ((context, index) {
+                                      final name = eventCategories[index];
+
+                                      return Padding(
+                                        padding: EdgeInsets.all(width * 0.0125),
+                                        child: ActionChip(
+                                          label: Text(
+                                            name,
+                                            style: TextStyle(
+                                              color:
+                                                  selectedEventCategory == name
+                                                      ? white
+                                                      : primaryDark,
+                                            ),
+                                          ),
+                                          tooltip: "Select $name",
+                                          onPressed: () {
+                                            setState(() {
+                                              if (selectedEventCategory ==
+                                                  name) {
+                                                selectedEventCategory = null;
+                                              } else {
+                                                selectedEventCategory = name;
+                                              }
+                                            });
+                                            print(
+                                                "Selected Category: $selectedEventCategory");
+                                            getTypeEvent(selectedEventCategory);
+                                          },
+                                          backgroundColor:
+                                              selectedEventCategory == name
+                                                  ? primaryDark
+                                                  : primary2,
+                                        ),
+                                      );
+                                    }),
+                                  ),
+                                ),
+
                           // EVENTS LIST
-                          !getEventsData
+                          !isEventsData
                               ? SizedBox(
                                   width: width,
                                   child: GridView.builder(
@@ -950,52 +856,24 @@ class _EventsSearchResultsPageState extends State<EventsSearchResultsPage> {
                                                 .values
                                                 .toList()[index][3];
 
-                                            final ratings = searchedEvents
-                                                .values
-                                                .toList()[index][5];
-
                                             final price = searchedEvents[
                                                         currentEvent][2] ==
                                                     ''
                                                 ? 'N/A'
-                                                : 'Rs. ${searchedEvents[currentEvent][2]}';
+                                                : searchedEvents[currentEvent]
+                                                    [2];
                                             final isWishListed =
                                                 snapshot.data ?? false;
 
                                             return GestureDetector(
-                                              onTap: () async {
-                                                final productData =
-                                                    await getEventData(
-                                                  eventId,
-                                                );
-                                                if (context.mounted) {
-                                                  Navigator.of(context).push(
-                                                    MaterialPageRoute(
-                                                      builder: ((context) =>
-                                                          ProductPage(
-                                                            productData:
-                                                                productData,
-                                                          )),
-                                                    ),
-                                                  );
-                                                }
-                                              },
-                                              onDoubleTap: () async {
-                                                await showDialog(
-                                                  context: context,
-                                                  builder: ((context) =>
-                                                      ProductQuickView(
-                                                        productId: eventId,
-                                                      )),
-                                                );
-                                              },
-                                              onLongPress: () async {
-                                                await showDialog(
-                                                  context: context,
-                                                  builder: ((context) =>
-                                                      ProductQuickView(
-                                                        productId: eventId,
-                                                      )),
+                                              onTap: () {
+                                                Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                    builder: ((context) =>
+                                                        EventPage(
+                                                          eventId: eventId,
+                                                        )),
+                                                  ),
                                                 );
                                               },
                                               child: Container(
@@ -1019,62 +897,21 @@ class _EventsSearchResultsPageState extends State<EventsSearchResultsPage> {
                                                   crossAxisAlignment:
                                                       CrossAxisAlignment.start,
                                                   children: [
-                                                    Stack(
-                                                      alignment:
-                                                          Alignment.topRight,
-                                                      children: [
-                                                        Center(
-                                                          child: Image.network(
-                                                            image,
-                                                            fit: BoxFit.cover,
-                                                            width: MediaQuery.of(
-                                                                        context)
-                                                                    .size
-                                                                    .width *
-                                                                0.5,
-                                                            height: MediaQuery.of(
-                                                                        context)
-                                                                    .size
-                                                                    .width *
-                                                                0.58,
-                                                          ),
-                                                        ),
-                                                        Container(
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: const Color
-                                                                .fromRGBO(
-                                                              255,
-                                                              92,
-                                                              78,
-                                                              1,
-                                                            ),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                              4,
-                                                            ),
-                                                          ),
-                                                          padding: EdgeInsets
-                                                              .symmetric(
-                                                            horizontal:
-                                                                width * 0.0125,
-                                                            vertical:
-                                                                width * 0.00625,
-                                                          ),
-                                                          margin:
-                                                              EdgeInsets.all(
-                                                            width * 0.00625,
-                                                          ),
-                                                          child: Text(
-                                                            '${(ratings as Map).isEmpty ? '--' : ((ratings.values.map((e) => e?[0] ?? 0).toList().reduce((a, b) => a + b) / (ratings.values.isEmpty ? 1 : ratings.values.length)) as double).toStringAsFixed(1)} ⭐',
-                                                            style:
-                                                                const TextStyle(
-                                                              color: white,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ],
+                                                    Center(
+                                                      child: Image.network(
+                                                        image,
+                                                        fit: BoxFit.cover,
+                                                        width: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .width *
+                                                            0.5,
+                                                        height: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .width *
+                                                            0.58,
+                                                      ),
                                                     ),
                                                     Row(
                                                       mainAxisAlignment:
@@ -1156,7 +993,7 @@ class _EventsSearchResultsPageState extends State<EventsSearchResultsPage> {
                                                         ),
                                                         IconButton(
                                                           onPressed: () async {
-                                                            await wishlistProduct(
+                                                            await wishlistEvent(
                                                                 eventId);
                                                           },
                                                           icon: Icon(

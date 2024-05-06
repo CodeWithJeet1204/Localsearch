@@ -41,6 +41,7 @@ void main() async {
 }
 
 // TODO: CHANGE images to imageUrl (product)
+// TODO: Add no of events organized for organizer & events deleted after 3 months, but no of events same
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

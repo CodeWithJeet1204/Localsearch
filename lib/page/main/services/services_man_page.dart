@@ -350,7 +350,21 @@ class _ServicesManPageState extends State<ServicesManPage> {
                               // WHATSAPP
                               GestureDetector(
                                 onTap: () async {
-                                  // whatsapp
+                                  final String phoneNumber =
+                                      servicemanData['Phone Number'];
+                                  final String message =
+                                      'Hey, I found you on Find Easy\n';
+                                  final url =
+                                      'https://wa.me/$phoneNumber?text=$message';
+
+                                  if (await canLaunchUrl(Uri.parse(url))) {
+                                    await launchUrl(Uri.parse(url));
+                                  } else {
+                                    mySnackBar(
+                                      'Something went Wrong',
+                                      context,
+                                    );
+                                  }
                                 },
                                 child: Container(
                                   width: width * 0.45,
