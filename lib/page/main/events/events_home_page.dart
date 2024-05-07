@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:find_easy_user/models/events_categories.dart';
+import 'package:find_easy_user/page/main/events/all_event_types_page.dart';
 import 'package:find_easy_user/page/main/events/event_page.dart';
 import 'package:find_easy_user/page/main/events/events_organizer_page.dart';
 import 'package:find_easy_user/page/main/events/events_search_results_page.dart';
@@ -388,52 +389,205 @@ class _EventsHomePageState extends State<EventsHomePage> {
                         ),
 
                         // EVENT CATEGORIES
-                        SizedBox(
+                        Container(
                           width: width,
-                          height: 90,
-                          child: ListView.builder(
-                            shrinkWrap: true,
-                            scrollDirection: Axis.horizontal,
-                            physics: ClampingScrollPhysics(),
-                            itemCount: 8,
-                            itemBuilder: ((context, index) {
-                              final name = eventCategories.keys.toList()[index];
-                              final imageUrl =
-                                  eventCategories.values.toList()[index];
+                          height: width * 0.65,
+                          decoration: BoxDecoration(
+                            color: white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: lightGrey,
+                              width: 1,
+                            ),
+                          ),
+                          padding: EdgeInsets.only(
+                            right: width * 0.02,
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                width: width,
+                                height: width * 0.3,
+                                child: ListView.builder(
+                                  shrinkWrap: true,
+                                  scrollDirection: Axis.horizontal,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: 4,
+                                  itemBuilder: ((context, index) {
+                                    final String name =
+                                        eventCategories.keys.toList()[index];
+                                    final String imageUrl =
+                                        eventCategories.values.toList()[index];
 
-                              return Container(
-                                width: 70,
-                                height: 70,
-                                margin: EdgeInsets.symmetric(
-                                  horizontal: width * 0.0125,
+                                    return Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: width * 0.025,
+                                        vertical: width * 0.015,
+                                      ),
+                                      child: GestureDetector(
+                                        onTap: () {},
+                                        child: Container(
+                                          width: width * 0.2,
+                                          height: width * 0.25,
+                                          decoration: BoxDecoration(
+                                            color: white,
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                          child: Padding(
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: width * 0.0125,
+                                            ),
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.spaceAround,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                  child: Image.network(
+                                                    imageUrl,
+                                                    fit: BoxFit.cover,
+                                                    height: width * 0.175,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  name,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  maxLines: 1,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }),
                                 ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(8),
-                                      child: Image.network(
-                                        imageUrl,
-                                        width: 50,
-                                        height: 50,
-                                        fit: BoxFit.cover,
+                              ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    width: width * 0.725,
+                                    height: width * 0.3,
+                                    child: ListView.builder(
+                                      shrinkWrap: true,
+                                      scrollDirection: Axis.horizontal,
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      itemCount: 3,
+                                      itemBuilder: ((context, index) {
+                                        final String name = eventCategories.keys
+                                            .toList()[index + 4];
+                                        final String imageUrl = eventCategories
+                                            .values
+                                            .toList()[index + 4];
+
+                                        return Padding(
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: width * 0.025,
+                                            vertical: width * 0.015,
+                                          ),
+                                          child: GestureDetector(
+                                            onTap: () {},
+                                            child: Container(
+                                              width: width * 0.2,
+                                              height: width * 0.25,
+                                              decoration: BoxDecoration(
+                                                color: white,
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              child: Padding(
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: width * 0.0125,
+                                                ),
+                                                child: Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceAround,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  children: [
+                                                    ClipRRect(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              12),
+                                                      child: Image.network(
+                                                        imageUrl,
+                                                        height: width * 0.175,
+                                                        fit: BoxFit.cover,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      name,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      maxLines: 1,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      }),
+                                    ),
+                                  ),
+
+                                  // SEE ALL
+                                  GestureDetector(
+                                    onTap: () {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: ((context) =>
+                                              AllEventsTypePage()),
+                                        ),
+                                      );
+                                    },
+                                    child: Container(
+                                      width: width * 0.225,
+                                      height: width * 0.25,
+                                      decoration: BoxDecoration(
+                                        color: primary2.withOpacity(0.125),
+                                        border: Border.all(
+                                          width: 0.125,
+                                          color: primaryDark,
+                                        ),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            FeatherIcons.grid,
+                                            color: primaryDark,
+                                          ),
+                                          SizedBox(height: 8),
+                                          Text(
+                                            "See All",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          )
+                                        ],
                                       ),
                                     ),
-                                    SizedBox(height: 10),
-                                    Text(
-                                      name,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontSize: width * 0.033,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                         ),
 

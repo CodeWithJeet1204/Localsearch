@@ -32,7 +32,6 @@ class _SearchWithProductsPageState extends State<SearchWithProductsPage> {
   }
 
   // GET PRODUCTS
-  // TODO: Add Lazy loading to increase no of viewable products when scrolling
   Future<Map<String, dynamic>?>? getProducts({String? productId}) async {
     final QuerySnapshot productSnap = await store
         .collection('Business')

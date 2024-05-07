@@ -2,11 +2,16 @@ Map<String, String> eventCategories = {
   'Conference': 'https://hatrabbits.com/wp-content/uploads/2017/01/random.jpg',
   'Seminars':
       'https://i.redd.it/i-got-bored-so-i-decided-to-draw-a-random-image-on-the-v0-4ig97vv85vjb1.png?width=1280&format=png&auto=webp&s=7177756d1f393b6e093596d06e1ba539f723264b',
-  'Workshops': '',
-  'Trade Shows/Exhibitions': '',
-  'Networking Events': '',
-  'Product Launches': '',
-  'Corporate Meetings': '',
+  'Workshops':
+      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRj5DxPo8nYQff7_JqenCpnVrTcIlswz77UHmDpG-vEzw&s',
+  'Trade Shows/Exhibitions':
+      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJ3JN-NIjBWpN2iiqKlBt4e_9xrpsk8rifM3w6iGntEw&s',
+  'Networking Events':
+      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrYOxVvjmV8HbOgZrMwB8Un0qrEzm5xVq-WVpmJBbAIA&s',
+  'Product Launches':
+      'https://live.staticflickr.com/3938/15374337148_5da467f58a_b.jpg',
+  'Corporate Meetings':
+      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPlU41r6DhfIyJU3kncZxwOr3IQ-inwEk6AxuvwVy0Dg&s',
   'Party': '',
   'Weddings': '',
   'Receptions': '',

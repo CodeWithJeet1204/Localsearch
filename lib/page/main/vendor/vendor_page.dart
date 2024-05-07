@@ -1330,8 +1330,6 @@ class _DiscountsWidgetState extends State<DiscountsWidget>
             final currentDiscount = widget.allDiscount[index];
             // final String? image = currentDiscount['discountImageUrl'];
             final name = currentDiscount['discountName'];
-            // TODO: some mismatch in discount shown here, and the disocunt displayed when navigating to product
-            // TODO: some mismatch in image shown here, and the image of category / brand
             final amount = currentDiscount['discountAmount'];
             final isPercent = currentDiscount['isPercent'];
             final List products = currentDiscount['products'];
