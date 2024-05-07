@@ -35,8 +35,8 @@ class _ServicesCategoryPageState extends State<ServicesCategoryPage> {
             shrinkWrap: true,
             physics: ClampingScrollPhysics(),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 16 / 9,
+              crossAxisCount: 1,
+              childAspectRatio: 25 / 9,
             ),
             itemCount: servicesMap[widget.place]![widget.category]!.length,
             itemBuilder: ((context, index) {

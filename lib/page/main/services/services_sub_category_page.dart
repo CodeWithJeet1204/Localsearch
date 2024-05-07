@@ -75,52 +75,56 @@ class _ServicesSubCategoryPageState extends State<ServicesSubCategoryPage> {
           ? Center(
               child: CircularProgressIndicator(),
             )
-          : SafeArea(
-              child: Padding(
-                padding: EdgeInsets.all(
-                  width * 0.006125,
-                ),
-                child: SizedBox(
-                  width: width,
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    physics: ClampingScrollPhysics(),
-                    itemCount: serviceman.length,
-                    itemBuilder: ((context, index) {
-                      final id = serviceman.keys.toList()[index];
-                      final name = serviceman.values.toList()[index][0];
-                      final imageUrl = serviceman.values.toList()[index][1];
+          : serviceman.isEmpty
+              ? Center(
+                  child: Text('No One Available'),
+                )
+              : SafeArea(
+                  child: Padding(
+                    padding: EdgeInsets.all(
+                      width * 0.006125,
+                    ),
+                    child: SizedBox(
+                      width: width,
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        physics: ClampingScrollPhysics(),
+                        itemCount: serviceman.length,
+                        itemBuilder: ((context, index) {
+                          final id = serviceman.keys.toList()[index];
+                          final name = serviceman.values.toList()[index][0];
+                          final imageUrl = serviceman.values.toList()[index][1];
 
-                      return Padding(
-                        padding: EdgeInsets.all(width * 0.0125),
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundImage: NetworkImage(imageUrl),
-                          ),
-                          title: Text(name),
-                          onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: ((context) => ServicesManPage(
-                                      id: id,
-                                    )),
+                          return Padding(
+                            padding: EdgeInsets.all(width * 0.0125),
+                            child: ListTile(
+                              leading: CircleAvatar(
+                                backgroundImage: NetworkImage(imageUrl),
                               ),
-                            );
-                          },
-                          trailing: Icon(
-                            FeatherIcons.chevronRight,
-                            size: width * 0.066,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                      );
-                    }),
+                              title: Text(name),
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: ((context) => ServicesManPage(
+                                          id: id,
+                                        )),
+                                  ),
+                                );
+                              },
+                              trailing: Icon(
+                                FeatherIcons.chevronRight,
+                                size: width * 0.066,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          );
+                        }),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
     );
   }
 }

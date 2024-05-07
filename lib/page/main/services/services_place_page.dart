@@ -33,8 +33,8 @@ class _ServicesPlacePageState extends State<ServicesPlacePage> {
             shrinkWrap: true,
             physics: ClampingScrollPhysics(),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 16 / 9,
+              crossAxisCount: 1,
+              childAspectRatio: 25 / 9,
             ),
             itemCount: servicesMap[widget.place]!.length,
             itemBuilder: ((context, index) {

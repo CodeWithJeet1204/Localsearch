@@ -25,8 +25,6 @@ class _NameContainerState extends State<NameContainer> {
     return GestureDetector(
       onTap: widget.onTap,
       child: Container(
-        width: widget.width * 0.466,
-        height: 100,
         decoration: BoxDecoration(
           color: white,
           border: Border.all(
@@ -37,7 +35,7 @@ class _NameContainerState extends State<NameContainer> {
           image: DecorationImage(
             image: NetworkImage(widget.imageUrl),
             fit: BoxFit.cover,
-            opacity: 0.25,
+            opacity: 0.33,
           ),
         ),
         padding: EdgeInsets.symmetric(
@@ -51,7 +49,7 @@ class _NameContainerState extends State<NameContainer> {
             style: TextStyle(
               color: primaryDark,
               fontWeight: FontWeight.w500,
-              fontSize: widget.width * 0.06,
+              fontSize: widget.width * 0.066,
             ),
           ),
         ),
