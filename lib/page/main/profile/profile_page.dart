@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:find_easy_user/page/auth/login_page.dart';
-import 'package:find_easy_user/page/main/profile/followed_shops_page.dart';
+import 'package:find_easy_user/page/main/profile/followed_page.dart';
 import 'package:find_easy_user/page/main/profile/user_details_page.dart';
 import 'package:find_easy_user/page/main/profile/wishlist_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
@@ -167,7 +167,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     onPressed: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: ((context) => const FollowedShopsPage()),
+                          builder: ((context) => const FollowedPage()),
                         ),
                       );
                     },

@@ -24,7 +24,7 @@ class _MainPageState extends State<MainPage>
     with AutomaticKeepAliveClientMixin {
   final auth = FirebaseAuth.instance.currentUser!;
   final store = FirebaseFirestore.instance;
-  int current = 3;
+  int current = 4;
   Widget? detailsPage;
 
   List<Widget> items = [

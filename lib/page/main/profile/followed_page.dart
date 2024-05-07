@@ -1,39 +1,39 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:find_easy_user/page/main/events/event_page.dart';
-import 'package:find_easy_user/page/main/product/product_page.dart';
+import 'package:feather_icons/feather_icons.dart';
+import 'package:find_easy_user/page/main/vendor/vendor_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/skeleton_container.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
-class WishlistPage extends StatefulWidget {
-  const WishlistPage({super.key});
+class FollowedPage extends StatefulWidget {
+  const FollowedPage({super.key});
 
   @override
-  State<WishlistPage> createState() => _WishlistPageState();
+  State<FollowedPage> createState() => _FollowedPageState();
 }
 
-class _WishlistPageState extends State<WishlistPage>
+class _FollowedPageState extends State<FollowedPage>
     with TickerProviderStateMixin {
   final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
-  Map<String, List<dynamic>> wishlistProducts = {};
-  Map<String, Map<String, dynamic>> events = {};
-  List types = [];
-  String? selectedCategory;
-  String? selectedType;
-  List categories = ['Pens'];
-  bool getProductsData = false;
-  bool getEventsData = false;
+  Map<String, List<String>> shops = {};
+  Map<String, List<String>> organizers = {};
+  List<String> shopTypes = [];
+  List<String> organizerTypes = [];
+  String? selectedShopType;
+  String? selectedOrganizerType;
+  bool isShopsData = false;
+  bool isOrganizersData = false;
   late TabController tabController;
   late int currentIndex;
 
   // INIT STATE
   @override
   void initState() {
-    getProductWishlist();
-    getEventWishlist();
+    getShops();
+    getOrganizers();
     super.initState();
     tabController = TabController(
       length: 2,
@@ -47,164 +47,136 @@ class _WishlistPageState extends State<WishlistPage>
     );
   }
 
-  // GET PRODUCT WISHLIST
-  Future<void> getProductWishlist() async {
-    Map<String, List<dynamic>> wishlist = {};
+  // GET SHOPS
+  Future<void> getShops() async {
+    Map<String, List<String>> vendors = {};
 
     final userSnap =
         await store.collection('Users').doc(auth.currentUser!.uid).get();
     final userData = userSnap.data()!;
-    final myWishlists = userData['wishlists'] as List;
+    final myFollowedShops = userData['followedShops'] as List;
 
-    await Future.forEach(myWishlists, (productId) async {
-      final productSnap = await store
+    await Future.forEach(myFollowedShops, (vendorId) async {
+      final vendorSnap = await store
           .collection('Business')
-          .doc('Data')
-          .collection('Products')
-          .doc(productId)
+          .doc('Owners')
+          .collection('Shops')
+          .doc(vendorId)
           .get();
 
-      if (productSnap.exists) {
-        final productData = productSnap.data()!;
-        final id = productId as String;
-        final name = productData['productName'] as String;
-        final imageUrl = productData['images'][0] as String;
-        final price = productData['productPrice'] as String;
-        final categoryId = productData['categoryId'] as String;
-        final vendorId = productData['vendorId'];
-
-        final vendorSnap = await store
-            .collection('Business')
-            .doc('Owners')
-            .collection('Shops')
-            .doc(vendorId)
-            .get();
-
+      if (vendorSnap.exists) {
         final vendorData = vendorSnap.data()!;
+        final id = vendorId as String;
+        final name = vendorData['Name'] as String;
+        final imageUrl = vendorData['Image'] as String;
+        final address = vendorData['Address'] as String;
+        final type = vendorData['Type'] as String;
 
-        final String shopType = vendorData['Type'];
-
-        if (categoryId != '0') {
-          final categorySnap = await store
-              .collection('Business')
-              .doc('Special Categories')
-              .collection(shopType)
-              .doc(categoryId)
-              .get();
-
-          final categoryData = categorySnap.data()!;
-
-          final categoryName = categoryData['specialCategoryName'];
-
-          if (!categories.contains(categoryName)) {
-            categories.add(categoryName);
-          }
-          wishlist[id] = [
-            name,
-            imageUrl,
-            price,
-            categoryName,
-            productData,
-          ];
-        } else {
-          wishlist[id] = [
-            name,
-            imageUrl,
-            price,
-            '0',
-            productData,
-          ];
-        }
+        vendors[id] = [name, imageUrl, address, type];
       } else {
-        myWishlists.remove(productId);
+        myFollowedShops.remove(vendorId);
 
         await store.collection('Users').doc(auth.currentUser!.uid).update({
-          'wishlists': myWishlists,
+          'followedShops': myFollowedShops,
         });
       }
     });
 
     setState(() {
-      wishlistProducts = wishlist;
-      getProductsData = true;
+      shops = vendors;
+    });
+
+    getShopTypes(shops);
+  }
+
+  // GET SHOP TYPES
+  void getShopTypes(Map<String, List<String>> shops) {
+    List<String> myTypes = ['Electronics'];
+
+    shops.forEach((key, value) {
+      final myType = value[3];
+      if (!myTypes.contains(myType)) {
+        myTypes.add(myType);
+      }
+    });
+
+    setState(() {
+      shopTypes = myTypes;
+      isShopsData = true;
     });
   }
 
-  // GET EVENT WISHLIST
-  Future<void> getEventWishlist() async {
-    Map<String, Map<String, dynamic>> myEvents = {};
-    List myTypes = ['Conference'];
+  // GET ORGANIZERS
+  Future<void> getOrganizers() async {
+    Map<String, List<String>> myOrganizers = {};
+
     final userSnap =
         await store.collection('Users').doc(auth.currentUser!.uid).get();
-
     final userData = userSnap.data()!;
 
-    final List wishlistEvents = userData['wishlistEvents'];
+    final myFollowedOrganizers = userData['followedOrganizers'] as List;
 
-    wishlistEvents.forEach((eventId) async {
-      final eventSnap = await store.collection('Event').doc(eventId).get();
+    await Future.forEach(myFollowedOrganizers, (organizerId) async {
+      final organizerSnap =
+          await store.collection('Events').doc(organizerId).get();
 
-      if (eventSnap.exists) {
-        final eventData = eventSnap.data()!;
+      if (organizerSnap.exists) {
+        final organizerData = organizerSnap.data()!;
+        final id = organizerId as String;
+        final name = organizerData['Name'] as String;
+        final imageUrl = organizerData['Image'] as String;
+        final type = organizerData['Type'] as String;
 
-        if ((eventData['endDate'] as Timestamp)
-            .toDate()
-            .isAfter(DateTime.now())) {
-          myEvents[eventId] = eventData;
-
-          if (!myTypes.contains(eventData['eventType'])) {
-            myTypes.add(eventData['eventType']);
-          }
-        } else {
-          wishlistEvents.remove(eventId);
-
-          await store.collection('Users').doc(auth.currentUser!.uid).update({
-            'wishlistEvents': wishlistEvents,
-          });
-        }
+        myOrganizers[id] = [name, imageUrl, type];
       } else {
-        wishlistEvents.remove(eventId);
+        myFollowedOrganizers.remove(organizerId);
 
         await store.collection('Users').doc(auth.currentUser!.uid).update({
-          'wishlistEvents': wishlistEvents,
+          'followedOrganizers': myFollowedOrganizers,
         });
       }
     });
 
     setState(() {
-      events = myEvents;
-      types = myTypes;
-      getEventsData = true;
+      organizers = myOrganizers;
+    });
+
+    getOrganizerTypes(organizers);
+  }
+
+  // GET ORGANIZER TYPES
+  void getOrganizerTypes(Map<String, List<String>> organizers) {
+    List<String> myTypes = ['Conference'];
+
+    organizers.forEach((key, value) {
+      final myType = value[2];
+      if (!myTypes.contains(myType)) {
+        myTypes.add(myType);
+      }
+    });
+
+    setState(() {
+      organizerTypes = myTypes;
+      isOrganizersData = true;
     });
   }
 
   // REMOVE
-  Future<void> remove(String id, bool isEvent) async {
-    if (isEvent) {
-      events.removeWhere((key, value) => key == id);
+  Future<void> remove(String id) async {
+    shops.removeWhere((key, value) => key == id);
 
-      await store.collection('Users').doc(auth.currentUser!.uid).update({
-        'wishlistEvents': events.keys.toList(),
-      });
-    } else {
-      wishlistProducts.removeWhere((key, value) => key == id);
+    await store.collection('Users').doc(auth.currentUser!.uid).update({
+      'followedShops': shops.keys.toList(),
+    });
 
-      await store.collection('Users').doc(auth.currentUser!.uid).update({
-        'wishlists': wishlistProducts.keys.toList(),
-      });
-    }
-
-    await getProductWishlist();
+    await getShops();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          "Wishlist",
-          overflow: TextOverflow.ellipsis,
-        ),
+        title: const Text("Followed"),
         forceMaterialTransparency: true,
         bottom: PreferredSize(
           preferredSize: Size(
@@ -249,10 +221,10 @@ class _WishlistPageState extends State<WishlistPage>
             },
             tabs: const [
               Tab(
-                text: "Products",
+                text: "Shops",
               ),
               Tab(
-                text: "Events",
+                text: "Organizers",
               ),
             ],
           ),
@@ -263,8 +235,8 @@ class _WishlistPageState extends State<WishlistPage>
           controller: tabController,
           physics: NeverScrollableScrollPhysics(),
           children: [
-            // PRODUCTS
-            !getProductsData
+            // SHOPS
+            !isShopsData
                 ? Column(
                     children: [
                       SizedBox(
@@ -310,19 +282,19 @@ class _WishlistPageState extends State<WishlistPage>
                     child: LayoutBuilder(
                       builder: ((context, constraints) {
                         final width = constraints.maxWidth;
-                        final currentWishlists = selectedCategory == null
-                            ? wishlistProducts
+                        final currentShops = selectedShopType == null
+                            ? shops
                             : Map.fromEntries(
-                                wishlistProducts.entries.where((entry) =>
-                                    entry.value[3] == selectedCategory),
+                                shops.entries.where((entry) =>
+                                    entry.value[3] == selectedShopType),
                               );
 
                         return SingleChildScrollView(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // CATEGORY CHIPS
-                              categories.length < 2
+                              // SHOP TYPE CHIPS
+                              shopTypes.length < 2
                                   ? Container()
                                   : Padding(
                                       padding: EdgeInsets.symmetric(
@@ -335,9 +307,9 @@ class _WishlistPageState extends State<WishlistPage>
                                         child: ListView.builder(
                                           shrinkWrap: true,
                                           scrollDirection: Axis.horizontal,
-                                          itemCount: categories.length,
+                                          itemCount: shopTypes.length,
                                           itemBuilder: ((context, index) {
-                                            final category = categories[index];
+                                            final type = shopTypes[index];
 
                                             return Padding(
                                               padding: EdgeInsets.symmetric(
@@ -345,28 +317,27 @@ class _WishlistPageState extends State<WishlistPage>
                                               ),
                                               child: ActionChip(
                                                 label: Text(
-                                                  category,
+                                                  type,
                                                   style: TextStyle(
-                                                    color: selectedCategory ==
-                                                            category
-                                                        ? white
-                                                        : primaryDark,
+                                                    color:
+                                                        selectedShopType == type
+                                                            ? white
+                                                            : primaryDark,
                                                   ),
                                                 ),
-                                                tooltip: "See $category",
+                                                tooltip: "See $type",
                                                 onPressed: () {
                                                   setState(() {
-                                                    if (selectedCategory ==
-                                                        category) {
-                                                      selectedCategory = null;
+                                                    if (selectedShopType ==
+                                                        type) {
+                                                      selectedShopType = null;
                                                     } else {
-                                                      selectedCategory =
-                                                          category;
+                                                      selectedShopType = type;
                                                     }
                                                   });
                                                 },
                                                 backgroundColor:
-                                                    selectedCategory == category
+                                                    selectedShopType == type
                                                         ? primaryDark
                                                         : primary2,
                                               ),
@@ -376,12 +347,12 @@ class _WishlistPageState extends State<WishlistPage>
                                       ),
                                     ),
 
-                              currentWishlists.isEmpty
+                              currentShops.isEmpty
                                   ? const SizedBox(
                                       height: 80,
                                       child: Center(
                                         child: Text(
-                                          'No Products',
+                                          'No Shops',
                                         ),
                                       ),
                                     )
@@ -396,20 +367,16 @@ class _WishlistPageState extends State<WishlistPage>
                                           shrinkWrap: true,
                                           physics:
                                               const ClampingScrollPhysics(),
-                                          itemCount: currentWishlists.length,
+                                          itemCount: currentShops.length,
                                           itemBuilder: ((context, index) {
-                                            final id = currentWishlists.keys
+                                            final id = currentShops.keys
                                                 .toList()[index];
-                                            final name = currentWishlists.values
+                                            final name = currentShops.values
                                                 .toList()[index][0];
-                                            final imageUrl = currentWishlists
-                                                .values
+                                            final imageUrl = currentShops.values
                                                 .toList()[index][1];
-                                            final price = currentWishlists
-                                                .values
+                                            final address = currentShops.values
                                                 .toList()[index][2];
-                                            final data = currentWishlists.values
-                                                .toList()[index][4];
 
                                             return Slidable(
                                               endActionPane: ActionPane(
@@ -418,12 +385,11 @@ class _WishlistPageState extends State<WishlistPage>
                                                 children: [
                                                   SlidableAction(
                                                     onPressed: (context) async {
-                                                      await remove(id, false);
+                                                      await remove(id);
                                                     },
                                                     backgroundColor: Colors.red,
-                                                    icon: Icons
-                                                        .heart_broken_outlined,
-                                                    label: "Remove",
+                                                    icon: FeatherIcons.trash,
+                                                    label: "Unfollow",
                                                     borderRadius:
                                                         const BorderRadius.only(
                                                       topRight:
@@ -434,62 +400,42 @@ class _WishlistPageState extends State<WishlistPage>
                                                   ),
                                                 ],
                                               ),
-                                              child: Padding(
-                                                padding: EdgeInsets.symmetric(
-                                                  vertical: width * 0.0125,
-                                                ),
-                                                child: GestureDetector(
-                                                  onTap: () {
-                                                    Navigator.of(context).push(
-                                                      MaterialPageRoute(
-                                                        builder: ((context) =>
-                                                            ProductPage(
-                                                              productData: data,
-                                                            )),
-                                                      ),
-                                                    );
-                                                  },
-                                                  child: ListTile(
-                                                    splashColor: white,
-                                                    visualDensity: VisualDensity
-                                                        .comfortable,
-                                                    tileColor: primary2
-                                                        .withOpacity(0.5),
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              12),
+                                              child: GestureDetector(
+                                                onTap: () {
+                                                  Navigator.of(context).push(
+                                                    MaterialPageRoute(
+                                                      builder: ((context) =>
+                                                          VendorPage(
+                                                            vendorId: id,
+                                                          )),
                                                     ),
-                                                    leading: CircleAvatar(
-                                                      backgroundColor: primary2,
-                                                      backgroundImage:
-                                                          NetworkImage(
-                                                              imageUrl),
-                                                    ),
-                                                    title: Text(
-                                                      name,
-                                                      maxLines: 2,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                    ),
-                                                    subtitle: Text(
-                                                      price == ''
-                                                          ? 'N/A'
-                                                          : 'Rs. $price',
-                                                      maxLines: 2,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                    ),
-                                                    titleTextStyle: TextStyle(
-                                                      color: primaryDark,
-                                                      fontSize: width * 0.0475,
-                                                    ),
-                                                    subtitleTextStyle:
-                                                        TextStyle(
-                                                      color: primaryDark2,
-                                                      fontSize: width * 0.04,
-                                                    ),
+                                                  );
+                                                },
+                                                child: ListTile(
+                                                  splashColor: white,
+                                                  visualDensity:
+                                                      VisualDensity.comfortable,
+                                                  tileColor:
+                                                      primary2.withOpacity(0.5),
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            12),
+                                                  ),
+                                                  leading: CircleAvatar(
+                                                    backgroundColor: primary2,
+                                                    backgroundImage:
+                                                        NetworkImage(imageUrl),
+                                                  ),
+                                                  title: Text(name),
+                                                  subtitle: Text(address),
+                                                  titleTextStyle: TextStyle(
+                                                    color: primaryDark,
+                                                    fontSize: width * 0.0475,
+                                                  ),
+                                                  subtitleTextStyle: TextStyle(
+                                                    color: primaryDark2,
+                                                    fontSize: width * 0.04,
                                                   ),
                                                 ),
                                               ),
@@ -505,8 +451,8 @@ class _WishlistPageState extends State<WishlistPage>
                     ),
                   ),
 
-            // EVENTS
-            !getEventsData
+            // ORGANIZERS
+            !isOrganizersData
                 ? Column(
                     children: [
                       SizedBox(
@@ -552,21 +498,19 @@ class _WishlistPageState extends State<WishlistPage>
                     child: LayoutBuilder(
                       builder: ((context, constraints) {
                         final width = constraints.maxWidth;
-                        final currentWishlists = selectedType == null
-                            ? events
+                        final currentOrganizers = selectedOrganizerType == null
+                            ? organizers
                             : Map.fromEntries(
-                                events.entries.where(
-                                  (entry) =>
-                                      entry.value['eventType'] == selectedType,
-                                ),
+                                organizers.entries.where((entry) =>
+                                    entry.value[2] == selectedOrganizerType),
                               );
 
                         return SingleChildScrollView(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // TYPE CHIPS
-                              types.length < 2
+                              // ORGANIZER TYPE CHIPS
+                              organizerTypes.length < 2
                                   ? Container()
                                   : Padding(
                                       padding: EdgeInsets.symmetric(
@@ -579,9 +523,9 @@ class _WishlistPageState extends State<WishlistPage>
                                         child: ListView.builder(
                                           shrinkWrap: true,
                                           scrollDirection: Axis.horizontal,
-                                          itemCount: types.length,
+                                          itemCount: organizerTypes.length,
                                           itemBuilder: ((context, index) {
-                                            final type = types[index];
+                                            final type = organizerTypes[index];
 
                                             return Padding(
                                               padding: EdgeInsets.symmetric(
@@ -591,29 +535,29 @@ class _WishlistPageState extends State<WishlistPage>
                                                 label: Text(
                                                   type,
                                                   style: TextStyle(
-                                                    color: selectedType == type
-                                                        ? white
-                                                        : primaryDark,
+                                                    color:
+                                                        selectedOrganizerType ==
+                                                                type
+                                                            ? white
+                                                            : primaryDark,
                                                   ),
                                                 ),
                                                 tooltip: "See $type",
                                                 onPressed: () {
-                                                  int previousIndex =
-                                                      currentIndex;
                                                   setState(() {
-                                                    if (selectedType == type) {
-                                                      selectedType = null;
+                                                    if (selectedOrganizerType ==
+                                                        type) {
+                                                      selectedOrganizerType =
+                                                          null;
                                                     } else {
-                                                      selectedType = type;
+                                                      selectedOrganizerType =
+                                                          type;
                                                     }
-                                                  });
-                                                  setState(() {
-                                                    tabController.index =
-                                                        previousIndex;
                                                   });
                                                 },
                                                 backgroundColor:
-                                                    selectedType == type
+                                                    selectedOrganizerType ==
+                                                            type
                                                         ? primaryDark
                                                         : primary2,
                                               ),
@@ -623,12 +567,12 @@ class _WishlistPageState extends State<WishlistPage>
                                       ),
                                     ),
 
-                              currentWishlists.isEmpty
+                              currentOrganizers.isEmpty
                                   ? const SizedBox(
                                       height: 80,
                                       child: Center(
                                         child: Text(
-                                          'No Events',
+                                          'No Organizers',
                                         ),
                                       ),
                                     )
@@ -643,19 +587,19 @@ class _WishlistPageState extends State<WishlistPage>
                                           shrinkWrap: true,
                                           physics:
                                               const ClampingScrollPhysics(),
-                                          itemCount: currentWishlists.length,
+                                          itemCount: currentOrganizers.length,
                                           itemBuilder: ((context, index) {
-                                            final id = currentWishlists.keys
+                                            final id = currentOrganizers.keys
                                                 .toList()[index];
-                                            final name = currentWishlists.values
-                                                .toList()[index]['eventName'];
-                                            final imageUrl = currentWishlists
+                                            final name = currentOrganizers
                                                 .values
-                                                .toList()[index]['imageUrl'][0];
-                                            final organizer = currentWishlists
-                                                    .values
-                                                    .toList()[index]
-                                                ['organizerName'];
+                                                .toList()[index][0];
+                                            final imageUrl = currentOrganizers
+                                                .values
+                                                .toList()[index][1];
+                                            final address = currentOrganizers
+                                                .values
+                                                .toList()[index][2];
 
                                             return Slidable(
                                               endActionPane: ActionPane(
@@ -664,12 +608,11 @@ class _WishlistPageState extends State<WishlistPage>
                                                 children: [
                                                   SlidableAction(
                                                     onPressed: (context) async {
-                                                      await remove(id, true);
+                                                      await remove(id);
                                                     },
                                                     backgroundColor: Colors.red,
-                                                    icon: Icons
-                                                        .heart_broken_outlined,
-                                                    label: "Remove",
+                                                    icon: FeatherIcons.trash,
+                                                    label: "Unfollow",
                                                     borderRadius:
                                                         const BorderRadius.only(
                                                       topRight:
@@ -680,62 +623,42 @@ class _WishlistPageState extends State<WishlistPage>
                                                   ),
                                                 ],
                                               ),
-                                              child: Padding(
-                                                padding: EdgeInsets.symmetric(
-                                                  vertical: width * 0.0125,
-                                                ),
-                                                child: GestureDetector(
-                                                  onTap: () {
-                                                    Navigator.of(context).push(
-                                                      MaterialPageRoute(
-                                                        builder: ((context) =>
-                                                            EventPage(
-                                                              eventId: id,
-                                                            )),
-                                                      ),
-                                                    );
-                                                  },
-                                                  child: ListTile(
-                                                    splashColor: white,
-                                                    visualDensity: VisualDensity
-                                                        .comfortable,
-                                                    tileColor: primary2
-                                                        .withOpacity(0.5),
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              12),
+                                              child: GestureDetector(
+                                                onTap: () {
+                                                  Navigator.of(context).push(
+                                                    MaterialPageRoute(
+                                                      builder: ((context) =>
+                                                          VendorPage(
+                                                            vendorId: id,
+                                                          )),
                                                     ),
-                                                    leading: CircleAvatar(
-                                                      backgroundColor: primary2,
-                                                      backgroundImage:
-                                                          NetworkImage(
-                                                              imageUrl),
-                                                    ),
-                                                    title: Text(
-                                                      name,
-                                                      maxLines: 2,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                    ),
-                                                    subtitle: Text(
-                                                      organizer == ''
-                                                          ? 'N/A'
-                                                          : organizer,
-                                                      maxLines: 2,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                    ),
-                                                    titleTextStyle: TextStyle(
-                                                      color: primaryDark,
-                                                      fontSize: width * 0.0475,
-                                                    ),
-                                                    subtitleTextStyle:
-                                                        TextStyle(
-                                                      color: primaryDark2,
-                                                      fontSize: width * 0.04,
-                                                    ),
+                                                  );
+                                                },
+                                                child: ListTile(
+                                                  splashColor: white,
+                                                  visualDensity:
+                                                      VisualDensity.comfortable,
+                                                  tileColor:
+                                                      primary2.withOpacity(0.5),
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            12),
+                                                  ),
+                                                  leading: CircleAvatar(
+                                                    backgroundColor: primary2,
+                                                    backgroundImage:
+                                                        NetworkImage(imageUrl),
+                                                  ),
+                                                  title: Text(name),
+                                                  subtitle: Text(address),
+                                                  titleTextStyle: TextStyle(
+                                                    color: primaryDark,
+                                                    fontSize: width * 0.0475,
+                                                  ),
+                                                  subtitleTextStyle: TextStyle(
+                                                    color: primaryDark2,
+                                                    fontSize: width * 0.04,
                                                   ),
                                                 ),
                                               ),
