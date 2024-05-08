@@ -2618,7 +2618,7 @@ class _AllDiscountsWidgetState extends State<AllDiscountsWidget> {
 
     final discountData = discountSnap.data()!;
     final List products = discountData['products'];
-    final List categories = discountData['categories'];
+    // final List categories = discountData['categories'];
     final List brands = discountData['brands'];
 
     // PRODUCT
@@ -2641,23 +2641,23 @@ class _AllDiscountsWidgetState extends State<AllDiscountsWidget> {
     }
 
     // CATEGORY
-    if (categories.isNotEmpty) {
-      final categoryId = categories[0];
+    // if (categories.isNotEmpty) {
+    //   final categoryId = categories[0];
 
-      final categorySnap = await store
-          .collection('Business')
-          .doc('Data')
-          .collection('Category')
-          .doc(categoryId)
-          .get();
+    //   final categorySnap = await store
+    //       .collection('Business')
+    //       .doc('Data')
+    //       .collection('Category')
+    //       .doc(categoryId)
+    //       .get();
 
-      final categoryData = categorySnap.data()!;
+    //   final categoryData = categorySnap.data()!;
 
-      final name = categoryData['categoryName'];
-      final imageUrl = categoryData['imageUrl'];
+    //   final name = categoryData['categoryName'];
+    //   final imageUrl = categoryData['imageUrl'];
 
-      return wantName ? name : imageUrl;
-    }
+    //   return wantName ? name : imageUrl;
+    // }
 
     // BRAND
     if (brands.isNotEmpty) {

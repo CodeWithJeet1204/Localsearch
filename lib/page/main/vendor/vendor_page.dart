@@ -42,7 +42,7 @@ class _VendorPageState extends State<VendorPage> {
   bool isFollowing = false;
   Map brands = {};
   List? allDiscounts;
-  Map<String, dynamic>? categories;
+  Map<String, String>? categories;
   Map<String, dynamic> products = {};
   String? productSort = 'Recently Added';
   final ScrollController _scrollController = ScrollController();
@@ -55,7 +55,6 @@ class _VendorPageState extends State<VendorPage> {
     getIfFollowing();
     getBrands();
     getDiscounts();
-    getCategories();
     getProducts();
     sortProducts(EventSorting.recentlyAdded);
     super.initState();
@@ -169,6 +168,10 @@ class _VendorPageState extends State<VendorPage> {
     setState(() {
       ownerData = currentOwnerData;
     });
+    print("Owner1: $ownerData");
+    print("Shop1: $shopData");
+
+    await getCategories();
   }
 
   // FOLLOW SHOP
@@ -288,20 +291,25 @@ class _VendorPageState extends State<VendorPage> {
 
   // GET CATEGORIES
   Future<void> getCategories() async {
-    Map<String, List<String>> category = {};
+    Map<String, String> category = {};
+    print("Owner2: $ownerData");
+    print("Shop2: $shopData");
     final categoriesSnap = await store
         .collection('Business')
-        .doc('Data')
-        .collection('Category')
-        .where('vendorId', isEqualTo: widget.vendorId)
+        .doc('Special Categories')
+        .collection(shopData!['Type'])
         .get();
 
-    for (var categoryData in categoriesSnap.docs) {
-      final id = categoryData['categoryId'];
-      final name = categoryData['categoryName'];
-      final imageUrl = categoryData['imageUrl'];
+    print(categoriesSnap.docs.length);
 
-      category[id] = [name, imageUrl];
+    for (var categoryData in categoriesSnap.docs) {
+      final List vendorIds = categoryData['vendorIds'];
+      if (vendorIds.contains(widget.vendorId)) {
+        final name = categoryData['specialCategoryName'] as String;
+        final imageUrl = categoryData['specialCategoryImageUrl'] as String;
+
+        category[name] = imageUrl;
+      }
     }
 
     setState(() {
@@ -447,8 +455,8 @@ class _VendorPageState extends State<VendorPage> {
                             children: [
                               // INFO
                               GestureDetector(
-                                onTap: () {
-                                  showDialog(
+                                onTap: () async {
+                                  await showDialog(
                                     context: context,
                                     builder: ((context) => ImageShow(
                                           imageUrl: shopData!['Image'],
@@ -561,7 +569,7 @@ class _VendorPageState extends State<VendorPage> {
                                   GestureDetector(
                                     onTap: () async {
                                       final String phoneNumber =
-                                          shopData!['Phone Number'];
+                                          ownerData!['Phone Number'];
                                       final String message =
                                           'Hey, I found you on Find Easy\n';
                                       final url =
@@ -654,7 +662,22 @@ class _VendorPageState extends State<VendorPage> {
                                       ],
                                     ),
                                     IconButton(
-                                      onPressed: () {},
+                                      onPressed: () async {
+                                        String encodedAddress = Uri.encodeFull(
+                                            shopData!['Address']);
+
+                                        Uri mapsUrl = Uri.parse(
+                                            'https://www.google.com/maps/search/?api=1&query=$encodedAddress');
+
+                                        if (await canLaunchUrl(mapsUrl)) {
+                                          await launchUrl(mapsUrl);
+                                        } else {
+                                          mySnackBar(
+                                            'Something went Wrong',
+                                            context,
+                                          );
+                                        }
+                                      },
                                       icon: const Icon(FeatherIcons.mapPin),
                                       tooltip: "Locate on Maps",
                                     ),
@@ -760,7 +783,7 @@ class _VendorPageState extends State<VendorPage> {
                         brands.isEmpty ? Container() : const Divider(),
 
                         // DISCOUNT
-                        allDiscounts == null
+                        allDiscounts == null || allDiscounts!.isEmpty
                             ? Container()
                             : Padding(
                                 padding: EdgeInsets.symmetric(
@@ -777,138 +800,120 @@ class _VendorPageState extends State<VendorPage> {
                               ),
 
                         // DISCOUNTS
-                        allDiscounts == null
+                        allDiscounts == null || allDiscounts!.isEmpty
                             ? Container()
                             : DiscountsWidget(
                                 noOfDiscounts: allDiscounts!.length,
                                 allDiscount: allDiscounts!,
+                                vendorType: shopData!['Type'],
                               ),
 
-                        allDiscounts == null ? Container() : const Divider(),
+                        allDiscounts == null || allDiscounts!.isEmpty
+                            ? Container()
+                            : const Divider(),
 
                         // CATEGORY
-                        categories == null
+                        categories == null || categories!.isEmpty
                             ? Container()
-                            : categories!.isEmpty
-                                ? Container()
-                                : Padding(
-                                    padding: EdgeInsets.symmetric(
-                                      vertical: width * 0.01,
-                                      horizontal: width * 0.0125,
+                            : Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: width * 0.0225,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Categories',
+                                      style: TextStyle(
+                                        fontSize: width * 0.0425,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          'Categories',
-                                          style: TextStyle(
-                                            fontSize: width * 0.0425,
-                                            fontWeight: FontWeight.w500,
+                                    categories!.length <= 8
+                                        ? Container()
+                                        : MyTextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                  builder: ((context) =>
+                                                      AllCategoryPage(
+                                                        vendorId:
+                                                            widget.vendorId,
+                                                      )),
+                                                ),
+                                              );
+                                            },
+                                            text: 'See All',
+                                            textColor: primaryDark,
                                           ),
-                                        ),
-                                        categories!.length <= 8
-                                            ? Container()
-                                            : MyTextButton(
-                                                onPressed: () {
-                                                  Navigator.of(context).push(
-                                                    MaterialPageRoute(
-                                                      builder: ((context) =>
-                                                          AllCategoryPage(
-                                                            vendorId:
-                                                                widget.vendorId,
-                                                          )),
-                                                    ),
-                                                  );
-                                                },
-                                                text: 'See All',
-                                                textColor: primaryDark,
-                                              ),
-                                      ],
-                                    ),
-                                  ),
+                                  ],
+                                ),
+                              ),
 
                         // CATEGORIES
-                        categories == null
+                        categories == null || categories!.isEmpty
                             ? Container()
-                            : categories!.isEmpty
-                                ? Container()
-                                : Container(
-                                    width: width,
-                                    height: 200,
-                                    margin: EdgeInsets.symmetric(
-                                      horizontal: width * 0.0125,
-                                      vertical: width * 0.0125,
-                                    ),
-                                    child: GridView.builder(
-                                      shrinkWrap: true,
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      gridDelegate:
-                                          const SliverGridDelegateWithFixedCrossAxisCount(
-                                        crossAxisCount: 4,
-                                        childAspectRatio: 1.125,
-                                      ),
-                                      itemCount: categories!.length > 8
-                                          ? 8
-                                          : categories!.length,
-                                      itemBuilder: ((context, index) {
-                                        final id =
-                                            categories!.keys.toList()[index];
-                                        final name = categories!.values
-                                            .toList()[index][0];
-                                        final imageUrl = categories!.values
-                                            .toList()[index][1];
+                            : Container(
+                                width: width,
+                                margin: EdgeInsets.symmetric(
+                                  horizontal: width * 0.0125,
+                                ),
+                                child: GridView.builder(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  gridDelegate:
+                                      const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 4,
+                                    childAspectRatio: 0.875,
+                                  ),
+                                  itemCount: categories!.length > 8
+                                      ? 8
+                                      : categories!.length,
+                                  itemBuilder: ((context, index) {
+                                    final name =
+                                        categories!.keys.toList()[index];
+                                    final imageUrl =
+                                        categories!.values.toList()[index];
 
-                                        return GestureDetector(
-                                          onTap: () {
-                                            Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                builder: ((context) =>
-                                                    CategoryPage(
-                                                      categoryId: id,
-                                                    )),
-                                              ),
-                                            );
-                                          },
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              border: Border.all(
-                                                width: 0.25,
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(
-                                                4,
-                                              ),
-                                            ),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              children: [
-                                                Image.network(
-                                                  imageUrl,
-                                                  width: width * 0.15,
-                                                  height: width * 0.15,
-                                                  fit: BoxFit.cover,
-                                                ),
-                                                Text(
-                                                  name,
-                                                  maxLines: 1,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: TextStyle(
-                                                    fontSize: width * 0.035,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
+                                    return GestureDetector(
+                                      onTap: () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: ((context) => CategoryPage(
+                                                  categoryName: name,
+                                                  vendorType: shopData!['Type'],
+                                                )),
                                           ),
                                         );
-                                      }),
-                                    ),
-                                  ),
+                                      },
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceAround,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Image.network(
+                                            imageUrl,
+                                            width: width * 0.175,
+                                            height: width * 0.175,
+                                            fit: BoxFit.cover,
+                                          ),
+                                          Text(
+                                            name,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                              fontSize: width * 0.035,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }),
+                                ),
+                              ),
 
                         categories == null
                             ? Container()
@@ -1132,10 +1137,12 @@ class DiscountsWidget extends StatefulWidget {
     super.key,
     required this.noOfDiscounts,
     required this.allDiscount,
+    required this.vendorType,
   });
 
   final int noOfDiscounts;
   final List allDiscount;
+  final String vendorType;
 
   @override
   State<DiscountsWidget> createState() => _DiscountsWidgetState();
@@ -1143,33 +1150,7 @@ class DiscountsWidget extends StatefulWidget {
 
 class _DiscountsWidgetState extends State<DiscountsWidget>
     with SingleTickerProviderStateMixin {
-  // late AnimationController animationController;
   final store = FirebaseFirestore.instance;
-
-  // INIT STATE
-  @override
-  void initState() {
-    super.initState();
-
-    // animationController =
-    //     AnimationController(vsync: this, duration: Duration(seconds: 1));
-    // animationController
-    //   ..addStatusListener((status) {
-    //     if (status == AnimationStatus.completed)
-    //       animationController.forward(from: 0);
-    //   });
-    // animationController.addListener(() {
-    //   setState(() {});
-    // });
-    // animationController.forward();
-  }
-
-  // DISPOSE
-  @override
-  void dispose() {
-    // animationController.dispose();
-    super.dispose();
-  }
 
   // GET NAME
   Future<String> getName(
@@ -1186,7 +1167,7 @@ class _DiscountsWidgetState extends State<DiscountsWidget>
 
     final discountData = discountSnap.data()!;
     final List products = discountData['products'];
-    final List categories = discountData['categories'];
+    // final List categories = discountData['categories'];
     final List brands = discountData['brands'];
 
     // PRODUCT
@@ -1209,23 +1190,23 @@ class _DiscountsWidgetState extends State<DiscountsWidget>
     }
 
     // CATEGORY
-    if (categories.isNotEmpty) {
-      final categoryId = categories[0];
+    // if (categories.isNotEmpty) {
+    //   final categoryId = categories[0];
 
-      final categorySnap = await store
-          .collection('Business')
-          .doc('Data')
-          .collection('Category')
-          .doc(categoryId)
-          .get();
+    //   final categorySnap = await store
+    //       .collection('Business')
+    //       .doc('Data')
+    //       .collection('Category')
+    //       .doc(categoryId)
+    //       .get();
 
-      final categoryData = categorySnap.data()!;
+    //   final categoryData = categorySnap.data()!;
 
-      final name = categoryData['categoryName'];
-      final imageUrl = categoryData['imageUrl'];
+    //   final name = categoryData['categoryName'];
+    //   final imageUrl = categoryData['imageUrl'];
 
-      return wantName ? name : imageUrl;
-    }
+    //   return wantName ? name : imageUrl;
+    // }
 
     // BRAND
     if (brands.isNotEmpty) {
@@ -1358,7 +1339,8 @@ class _DiscountsWidgetState extends State<DiscountsWidget>
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: ((context) => CategoryPage(
-                                categoryId: categoryId,
+                                categoryName: categoryId,
+                                vendorType: widget.vendorType,
                               )),
                         ),
                       );

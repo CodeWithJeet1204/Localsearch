@@ -8,10 +8,12 @@ import 'package:flutter/material.dart';
 class CategoryPage extends StatefulWidget {
   const CategoryPage({
     super.key,
-    required this.categoryId,
+    required this.categoryName,
+    required this.vendorType,
   });
 
-  final String categoryId;
+  final String categoryName;
+  final String vendorType;
 
   @override
   State<CategoryPage> createState() => _CategoryPageState();
@@ -20,7 +22,6 @@ class CategoryPage extends StatefulWidget {
 class _CategoryPageState extends State<CategoryPage> {
   final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
-  String? id;
   String? name;
   String? imageUrl;
   Map? products;
@@ -37,18 +38,16 @@ class _CategoryPageState extends State<CategoryPage> {
   Future<void> getData() async {
     final categorySnap = await store
         .collection('Business')
-        .doc('Data')
-        .collection('Category')
-        .doc(widget.categoryId)
+        .doc('Special Categories')
+        .collection(widget.vendorType)
+        .doc(widget.categoryName)
         .get();
 
     final categoryData = categorySnap.data()!;
-    final categoryId = categoryData['categoryId'];
-    final categoryName = categoryData['categoryName'];
-    final categoryImageUrl = categoryData['imageUrl'];
+    final categoryName = categoryData['specialCategoryName'];
+    final categoryImageUrl = categoryData['specialCategoryImageUrl'];
 
     setState(() {
-      id = categoryId;
       name = categoryName;
       imageUrl = categoryImageUrl;
     });
@@ -61,7 +60,7 @@ class _CategoryPageState extends State<CategoryPage> {
         .collection('Business')
         .doc('Data')
         .collection('Products')
-        .where('categoryId', isEqualTo: widget.categoryId)
+        .where('categoryId', isEqualTo: widget.categoryName)
         .get();
 
     for (var productData in productsSnap.docs) {
@@ -152,7 +151,7 @@ class _CategoryPageState extends State<CategoryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      body: id == null || name == null || imageUrl == null || products == null
+      body: name == null || imageUrl == null || products == null
           ? const Center(
               child: CircularProgressIndicator(),
             )
@@ -173,8 +172,8 @@ class _CategoryPageState extends State<CategoryPage> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               GestureDetector(
-                                onTap: () {
-                                  showDialog(
+                                onTap: () async {
+                                  await showDialog(
                                     context: context,
                                     builder: ((context) => ImageShow(
                                           imageUrl: imageUrl!,
@@ -201,7 +200,12 @@ class _CategoryPageState extends State<CategoryPage> {
                           ),
                           const Divider(),
                           products!.isEmpty
-                              ? Container()
+                              ? SizedBox(
+                                  height: 80,
+                                  child: Center(
+                                    child: Text('No Products'),
+                                  ),
+                                )
                               : SizedBox(
                                   width: width,
                                   height:
