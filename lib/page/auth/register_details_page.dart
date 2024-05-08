@@ -19,6 +19,8 @@ class RegisterDetailsPage extends StatefulWidget {
   State<RegisterDetailsPage> createState() => _RegisterDetailsPageState();
 }
 
+// TODO: ADDRESS WITH GOOGLE MAPS
+
 class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
   final registerDetailsKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
@@ -30,8 +32,8 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
   String? selectedGender;
 
   // SHOW INFO DIALOG
-  void showInfoDialog() {
-    showDialog(
+  Future<void> showInfoDialog() async {
+    await showDialog(
       context: context,
       builder: ((context) {
         return const Dialog(
@@ -140,6 +142,8 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                                 autofillHints: const [AutofillHints.email],
                                 autofocus: false,
                                 controller: emailController,
+                                onTapOutside: (event) =>
+                                    FocusScope.of(context).unfocus(),
                                 keyboardType: TextInputType.emailAddress,
                                 decoration: InputDecoration(
                                   border: OutlineInputBorder(
@@ -257,7 +261,9 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         IconButton(
-                          onPressed: showInfoDialog,
+                          onPressed: () async {
+                            await showInfoDialog();
+                          },
                           icon: const Icon(
                             Icons.info_outline_rounded,
                             size: 20,

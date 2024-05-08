@@ -8,8 +8,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
-// TODO: ADDRESS WITH GOOGLE MAPS
-
 class UserDetailsPage extends StatefulWidget {
   const UserDetailsPage({super.key});
 
@@ -193,6 +191,8 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                 ? TextField(
                                     autofocus: true,
                                     controller: nameController,
+                                    onTapOutside: (event) =>
+                                        FocusScope.of(context).unfocus(),
                                     decoration: InputDecoration(
                                       hintText: "Change Name",
                                       border: OutlineInputBorder(
@@ -210,7 +210,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                         child: SizedBox(
                                           width: width * 0.725,
                                           child: AutoSizeText(
-                                            userData['Name'] ?? 'N/A',
+                                            userData['Name'] ?? 'Name N/A',
                                             overflow: TextOverflow.ellipsis,
                                             maxLines: 1,
                                             style: TextStyle(
@@ -252,6 +252,8 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                 ? TextField(
                                     autofocus: true,
                                     controller: numberController,
+                                    onTapOutside: (event) =>
+                                        FocusScope.of(context).unfocus(),
                                     decoration: InputDecoration(
                                       hintText: "Change Number",
                                       border: OutlineInputBorder(
@@ -270,7 +272,8 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                         child: SizedBox(
                                           width: width * 0.725,
                                           child: AutoSizeText(
-                                            userData['Phone Number'] ?? 'N/A',
+                                            userData['Phone Number'] ??
+                                                'Phone Number N/A',
                                             overflow: TextOverflow.ellipsis,
                                             maxLines: 1,
                                             style: TextStyle(
@@ -316,7 +319,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                   child: SizedBox(
                                     width: width * 0.725,
                                     child: AutoSizeText(
-                                      userData['Email'] ?? 'N/A',
+                                      userData['Email'] ?? 'Email N/A',
                                       overflow: TextOverflow.ellipsis,
                                       maxLines: 1,
                                       style: TextStyle(
@@ -338,7 +341,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                               color: userData['gender'] == 'Male'
                                   ? const Color.fromARGB(255, 148, 207, 255)
                                   : userData['gender'] == 'Female'
-                                      ? const Color.fromARGB(255, 255, 142, 180)
+                                      ? Color.fromARGB(255, 255, 200, 218)
                                       : primary2.withOpacity(0.9),
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -351,7 +354,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                 width: width * 0.725,
                                 height: width * 0.175,
                                 child: Text(
-                                  userData['gender'] ?? 'N/A',
+                                  userData['gender'] ?? 'Gender N/A',
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 1,
                                   textAlign: TextAlign.left,

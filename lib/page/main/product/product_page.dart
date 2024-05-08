@@ -62,6 +62,8 @@ class _ProductPageState extends State<ProductPage> {
   bool similarProductsAdded = false;
   List<Map<String, dynamic>> otherVendorProductsDatas = [];
   bool otherVendorProductsAdded = false;
+  double? distance;
+  // TODO: CALCULATE DISTANCE
 
   // INIT STATE
   @override
@@ -929,6 +931,8 @@ class _ProductPageState extends State<ProductPage> {
                               maxLength: 500,
                               minLines: 1,
                               maxLines: 10,
+                              onTapOutside: (event) =>
+                                  FocusScope.of(context).unfocus(),
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
@@ -965,7 +969,6 @@ class _ProductPageState extends State<ProductPage> {
     final String description = data['productDescription'];
     final String brand = data['productBrand'];
     final List images = data['images'];
-    // final String categoryId = data['categoryId'];
     final String categoryName = data['categoryName'];
     final Map<String, dynamic> ratings = data['ratings'];
 
@@ -997,7 +1000,7 @@ class _ProductPageState extends State<ProductPage> {
     final bool cardOffersAvailable = data['cardOffersAvailable'];
     final bool codAvailable = data['codAvailable'];
     final bool deliveryAvailable = data['deliveryAvailable'];
-    final int? deliveryRange = data['deliveryRange'];
+    final double? deliveryRange = data['deliveryRange'];
     final bool giftWrapAvailable = data['giftWrapAvailable'];
     final bool gstInvoiceAvailable = data['gstInvoiceAvailable'];
     final bool refundAvailable = data['refundAvailable'];
@@ -1469,26 +1472,37 @@ class _ProductPageState extends State<ProductPage> {
                             )
                           : Container(),
 
+                      // DELIVERY
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          // DELIVERY
-                          // TODO: It will depend upon range of delivery
                           deliveryAvailable
-                              ? Padding(
-                                  padding: EdgeInsets.symmetric(
-                                    vertical: width * 0.0175,
-                                    horizontal: width * 0.02,
-                                  ),
-                                  child: const Text(
-                                    'Delivery Available',
-                                    style: TextStyle(
-                                      color: Colors.green,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                )
+                              ? distance != null
+                                  ? deliveryRange != null
+                                      ? Padding(
+                                          padding: EdgeInsets.symmetric(
+                                            vertical: width * 0.0175,
+                                            horizontal: width * 0.02,
+                                          ),
+                                          child: Text(
+                                            distance! < deliveryRange * 0.9
+                                                ? 'Delivery Available'
+                                                : distance! >
+                                                            deliveryRange *
+                                                                0.9 &&
+                                                        distance! <
+                                                            deliveryRange * 1.1
+                                                    ? 'Delivery Maybe Available'
+                                                    : 'Delivery Not Available',
+                                            style: TextStyle(
+                                              color: Colors.green,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        )
+                                      : Container()
+                                  : Container()
                               : Container(),
 
                           // LIKES

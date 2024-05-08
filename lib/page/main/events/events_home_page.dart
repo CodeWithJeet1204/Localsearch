@@ -272,12 +272,17 @@ class _EventsHomePageState extends State<EventsHomePage> {
                                       ),
                                     ),
                                     alignment: Alignment.center,
-                                    child: TextFormField(
+                                    child: TextField(
                                       minLines: 1,
                                       maxLines: 1,
                                       controller: searchController,
+                                      onTapOutside: (event) =>
+                                          FocusScope.of(context).unfocus(),
                                       keyboardType: TextInputType.text,
                                       textInputAction: TextInputAction.search,
+                                      onSubmitted: (value) async {
+                                        await search();
+                                      },
                                       decoration: const InputDecoration(
                                         hintText: 'Search',
                                         hintStyle: TextStyle(

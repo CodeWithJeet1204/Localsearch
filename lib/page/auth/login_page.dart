@@ -318,6 +318,8 @@ class _LoginPageState extends State<LoginPage> {
                                       keyboardType: TextInputType.number,
                                       maxLines: 1,
                                       minLines: 1,
+                                      onTapOutside: (event) =>
+                                          FocusScope.of(context).unfocus(),
                                       decoration: InputDecoration(
                                         prefixText: '+91 ',
                                         border: OutlineInputBorder(

@@ -382,12 +382,12 @@ class _EventsSearchResultsPageState extends State<EventsSearchResultsPage> {
                                         ),
                                         alignment: Alignment.center,
                                         child: TextFormField(
-                                          autofillHints: const [],
-                                          autofocus: false,
                                           minLines: 1,
                                           maxLines: 1,
                                           controller: searchController,
                                           keyboardType: TextInputType.text,
+                                          onTapOutside: (event) =>
+                                              FocusScope.of(context).unfocus(),
                                           textInputAction:
                                               TextInputAction.search,
                                           decoration: const InputDecoration(

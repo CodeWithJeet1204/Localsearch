@@ -199,12 +199,12 @@ class _ServicesSearchPageState extends State<ServicesSearchPage> {
                                         ),
                                         alignment: Alignment.center,
                                         child: TextFormField(
-                                          autofillHints: const [],
-                                          autofocus: false,
                                           minLines: 1,
                                           maxLines: 1,
                                           controller: searchController,
                                           keyboardType: TextInputType.text,
+                                          onTapOutside: (event) =>
+                                              FocusScope.of(context).unfocus(),
                                           textInputAction:
                                               TextInputAction.search,
                                           decoration: const InputDecoration(
@@ -329,8 +329,11 @@ class _ServicesSearchPageState extends State<ServicesSearchPage> {
                       ),
 
                       // NOTHING
-                      Center(
-                        child: Text('Nothing'),
+                      SizedBox(
+                        height: 80,
+                        child: Center(
+                          child: Text('No One Available'),
+                        ),
                       ),
                     ],
                   ),
@@ -399,12 +402,13 @@ class _ServicesSearchPageState extends State<ServicesSearchPage> {
                                             ),
                                             alignment: Alignment.center,
                                             child: TextFormField(
-                                              autofillHints: const [],
-                                              autofocus: false,
                                               minLines: 1,
                                               maxLines: 1,
                                               controller: searchController,
                                               keyboardType: TextInputType.text,
+                                              onTapOutside: (event) =>
+                                                  FocusScope.of(context)
+                                                      .unfocus(),
                                               textInputAction:
                                                   TextInputAction.search,
                                               decoration: const InputDecoration(

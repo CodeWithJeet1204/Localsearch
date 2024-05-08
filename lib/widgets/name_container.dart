@@ -25,6 +25,8 @@ class _NameContainerState extends State<NameContainer> {
     return GestureDetector(
       onTap: widget.onTap,
       child: Container(
+        width: widget.width * 0.475,
+        height: 100,
         decoration: BoxDecoration(
           color: white,
           border: Border.all(

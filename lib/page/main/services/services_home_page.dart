@@ -129,6 +129,12 @@ class _ServicesHomePageState extends State<ServicesHomePage> {
                               return TextField(
                                 controller: controller,
                                 focusNode: focusNode,
+                                textInputAction: TextInputAction.search,
+                                onTapOutside: (event) =>
+                                    FocusScope.of(context).unfocus(),
+                                onSubmitted: (value) async {
+                                  await search();
+                                },
                                 decoration: InputDecoration(
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.only(
@@ -149,44 +155,6 @@ class _ServicesHomePageState extends State<ServicesHomePage> {
                                 title: Text(value.toString()),
                               );
                             },
-                          ),
-                        ),
-                        InkWell(
-                          onTapDown: (details) {
-                            setState(() {
-                              isMicPressed = true;
-                            });
-                          },
-                          onTapUp: (details) {
-                            setState(() {
-                              isMicPressed = false;
-                            });
-                          },
-                          onTapCancel: () {
-                            setState(() {
-                              isMicPressed = false;
-                            });
-                          },
-                          onTap: () async {
-                            await listen();
-                          },
-                          customBorder: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          splashColor: Colors.transparent,
-                          child: Container(
-                            width: width * 0.125,
-                            height: 60,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: isMicPressed
-                                  ? primary2.withOpacity(0.95)
-                                  : primary2.withOpacity(0.25),
-                            ),
-                            child: Icon(
-                              FeatherIcons.mic,
-                              size: width * 0.06,
-                            ),
                           ),
                         ),
                         InkWell(
@@ -218,8 +186,8 @@ class _ServicesHomePageState extends State<ServicesHomePage> {
                             ),
                           ),
                           child: Container(
+                            width: width * 0.175,
                             height: 60,
-                            width: width * 0.125,
                             decoration: BoxDecoration(
                               color: isSearchPressed
                                   ? primary2.withOpacity(0.95)

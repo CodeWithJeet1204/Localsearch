@@ -133,14 +133,18 @@ class _MySearchBarState extends State<MySearchBar> {
                         ),
                       ),
                       alignment: Alignment.center,
-                      child: TextFormField(
-                        autofillHints: const [],
+                      child: TextField(
                         autofocus: widget.autoFocus,
                         minLines: 1,
                         maxLines: 1,
                         controller: searchController,
                         keyboardType: TextInputType.text,
+                        onTapOutside: (event) =>
+                            FocusScope.of(context).unfocus(),
                         textInputAction: TextInputAction.search,
+                        onSubmitted: (value) async {
+                          await search();
+                        },
                         decoration: const InputDecoration(
                           hintText: 'Search',
                           hintStyle: TextStyle(
