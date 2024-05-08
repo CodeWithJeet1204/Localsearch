@@ -1,17 +1,12 @@
-import 'dart:io';
-
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/button.dart';
-import 'package:find_easy_user/widgets/image_pick_dialog.dart';
 import 'package:find_easy_user/widgets/snack_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 
 // TODO: ADDRESS WITH GOOGLE MAPS
 
@@ -39,57 +34,6 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
     nameController.dispose();
     numberController.dispose();
     super.dispose();
-  }
-
-  // CHANGE USER IMAGE
-  void changeImage(String previousUrl) async {
-    XFile? im = await showImagePickDialog(context);
-    String? userPhotoUrl;
-    if (im != null) {
-      try {
-        setState(() {
-          isChangingImage = true;
-        });
-        await storage.refFromURL(previousUrl).delete();
-
-        Map<String, dynamic> updatedUserImage = {
-          "Image": im.path,
-        };
-        Reference ref = FirebaseStorage.instance
-            .ref()
-            .child('Profile/Users')
-            .child(auth.currentUser!.uid);
-        await ref
-            .putFile(File(updatedUserImage['Image']!))
-            .whenComplete(() async {
-          await ref.getDownloadURL().then((value) {
-            userPhotoUrl = value;
-          });
-        });
-        updatedUserImage = {
-          "Image": userPhotoUrl,
-        };
-        await FirebaseFirestore.instance
-            .collection('Users')
-            .doc(FirebaseAuth.instance.currentUser!.uid)
-            .update(updatedUserImage);
-
-        setState(() {
-          isChangingImage = false;
-        });
-      } catch (e) {
-        setState(() {
-          isChangingImage = false;
-        });
-        if (mounted) {
-          mySnackBar(e.toString(), context);
-        }
-      }
-    } else {
-      if (mounted) {
-        mySnackBar("Image not selected", context);
-      }
-    }
   }
 
   // SAVE
@@ -193,50 +137,6 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
     }
   }
 
-  // SHOW IMAGE
-  void showImage() {
-    final imageStream = FirebaseFirestore.instance
-        .collection('Users')
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .snapshots();
-
-    showDialog(
-      barrierDismissible: true,
-      context: context,
-      builder: ((context) {
-        return StreamBuilder(
-            stream: imageStream,
-            builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                return const Center(
-                  child: Text(
-                    overflow: TextOverflow.ellipsis,
-                    'Something went wrong',
-                  ),
-                );
-              }
-
-              if (snapshot.hasData) {
-                final userData = snapshot.data!;
-                return Dialog(
-                  elevation: 20,
-                  child: InteractiveViewer(
-                    child: Image.network(
-                      userData['Image'],
-                    ),
-                  ),
-                );
-              }
-              return const Center(
-                child: CircularProgressIndicator(
-                  color: primaryDark,
-                ),
-              );
-            });
-      }),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final userStream = FirebaseFirestore.instance
@@ -278,52 +178,6 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           SizedBox(height: width * 0.1111125),
-                          isChangingImage
-                              ? Container(
-                                  width: width * 0.3,
-                                  height: width * 0.3,
-                                  decoration: BoxDecoration(
-                                    color: primary,
-                                    borderRadius: BorderRadius.circular(100),
-                                  ),
-                                  child: const Center(
-                                    child: CircularProgressIndicator(
-                                      color: primaryDark,
-                                    ),
-                                  ),
-                                )
-                              : Stack(
-                                  alignment: Alignment.bottomRight,
-                                  children: [
-                                    GestureDetector(
-                                      onTap: showImage,
-                                      child: CircleAvatar(
-                                        radius: width * 0.15,
-                                        backgroundImage:
-                                            CachedNetworkImageProvider(
-                                          userData['Image'] ??
-                                              'https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/ProhibitionSign2.svg/800px-ProhibitionSign2.svg.png',
-                                        ),
-                                        backgroundColor: primary2,
-                                      ),
-                                    ),
-                                    Positioned(
-                                      right: -(width * 0.0015),
-                                      bottom: -(width * 0.0015),
-                                      child: IconButton.filledTonal(
-                                        onPressed: () {
-                                          changeImage(userData['Image']);
-                                        },
-                                        icon: Icon(
-                                          FeatherIcons.camera,
-                                          size: width * 0.1,
-                                        ),
-                                        tooltip: "Change Photo",
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                          const SizedBox(height: 14),
 
                           // NAME
                           Container(

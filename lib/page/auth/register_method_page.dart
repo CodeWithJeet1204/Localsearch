@@ -73,7 +73,6 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                 .set({
               'uid': FirebaseAuth.instance.currentUser!.uid,
               'Email': emailController.text.toString(),
-              'Image': null,
               'Name': null,
               'Phone Number': null,
               'recentShop': '',
@@ -99,8 +98,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
           setState(() {
             isEmailRegistering = false;
           });
-          if (FirebaseAuth.instance.currentUser!.email != null ||
-              FirebaseAuth.instance.currentUser!.email != null) {
+          if (FirebaseAuth.instance.currentUser!.email != null) {
             SystemChannels.textInput.invokeMethod('TextInput.hide');
             if (context.mounted) {
               if (mounted) {
@@ -166,7 +164,6 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
       try {
         setState(() {
           isPhoneRegistering = true;
-          phoneText = "Please Wait";
         });
 
         await FirebaseAuth.instance.verifyPhoneNumber(
@@ -196,7 +193,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                 isPhoneRegistering = false;
                 phoneText = "SIGNUP";
               });
-              SystemChannels.textInput.invokeMethod('TextInput.hide');
+              signInMethodProvider.chooseNumber();
               Navigator.of(context).pop();
               Navigator.of(context).push(
                 MaterialPageRoute(
@@ -220,12 +217,6 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                 );
               }
             });
-
-        // Register with Phone
-        signInMethodProvider.chooseNumber();
-        setState(() {
-          isPhoneRegistering = true;
-        });
       } catch (e) {
         setState(() {
           isPhoneRegistering = false;
@@ -238,13 +229,80 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
           );
         }
       }
-    } else {}
+    }
+  }
+
+  // REGISTER WITH GOOGLE
+  Future<void> registerWithGoogle(
+      SignInMethodProvider signInMethodProvider, FirebaseAuth _auth) async {
+    setState(() {
+      isGoogleRegistering = true;
+      googleText = "PLEASE WAIT";
+    });
+    try {
+      await AuthMethods().signInWithGoogle(context);
+      await _auth.currentUser!.reload();
+      if (FirebaseAuth.instance.currentUser != null) {
+        await FirebaseFirestore.instance
+            .collection('Users')
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .set({
+          'uid': FirebaseAuth.instance.currentUser!.uid,
+          'Email': emailController.text.toString(),
+          'Name': null,
+          'Phone Number': null,
+          'recentShop': '',
+          'followedShops': [],
+          'followedOrganizers': [],
+          'wishlists': [],
+          'wishlistEvents': [],
+          'likedProducts': [],
+          'recentSearches': [],
+          'recentProducts': [],
+        });
+
+        signInMethodProvider.chooseGoogle();
+
+        setState(() {
+          isGoogleRegistering = false;
+        });
+        SystemChannels.textInput.invokeMethod('TextInput.hide');
+        if (context.mounted) {
+          if (mounted) {
+            Navigator.of(context).pop();
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => const RegisterDetailsPage(),
+              ),
+            );
+          }
+        }
+      } else {
+        if (context.mounted) {
+          mySnackBar(
+            "Some error occured\nTry signing with email / phone number",
+            context,
+          );
+        }
+      }
+      setState(() {
+        isGoogleRegistering = false;
+      });
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        isGoogleRegistering = false;
+      });
+      if (context.mounted) {
+        mySnackBar(
+          e.toString(),
+          context,
+        );
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // ignore: no_leading_underscores_for_local_identifiers
-    final FirebaseAuth _auth = FirebaseAuth.instance;
     final signInMethodProvider = Provider.of<SignInMethodProvider>(context);
     final double width = MediaQuery.of(context).size.width;
 
@@ -397,85 +455,12 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                         const SizedBox(height: 16),
 
                         // GOOGLE
-                        // TODO: MISTAKE: creates business account to be fixed
                         GestureDetector(
                           onTap: () async {
-                            setState(() {
-                              isGoogleRegistering = true;
-                              googleText = "PLEASE WAIT";
-                            });
-                            try {
-                              // Sign In With Google
-                              signInMethodProvider.chooseGoogle();
-                              await AuthMethods().signInWithGoogle(context);
-                              await _auth.currentUser!.reload();
-                              if (FirebaseAuth.instance.currentUser != null) {
-                                await FirebaseFirestore.instance
-                                    .collection('Business')
-                                    .doc('Owners')
-                                    .collection('Users')
-                                    .doc(_auth.currentUser!.uid)
-                                    .set({
-                                  "Email":
-                                      FirebaseAuth.instance.currentUser!.email,
-                                  "Name": FirebaseAuth
-                                      .instance.currentUser!.displayName,
-                                  "uid": FirebaseAuth.instance.currentUser!.uid,
-                                  'Image': null,
-                                  'Phone Number': null,
-                                });
-
-                                await FirebaseFirestore.instance
-                                    .collection('Business')
-                                    .doc('Owners')
-                                    .collection('Shops')
-                                    .doc(_auth.currentUser!.uid)
-                                    .update({
-                                  "Name": null,
-                                  'Views': null,
-                                  "GSTNumber": null,
-                                  "Address": null,
-                                  "Special Note": null,
-                                  "Industry": null,
-                                  "Image": null,
-                                  "Type": null,
-                                  'MembershipName': null,
-                                  'MembershipDuration': null,
-                                  'MembershipTime': null,
-                                });
-
-                                // SystemChannels.textInput.invokeMethod('TextInput.hide');
-                                if (context.mounted) {
-                                  Navigator.of(context).pop();
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: ((context) =>
-                                          const RegisterDetailsPage()),
-                                    ),
-                                  );
-                                }
-                              } else {
-                                if (context.mounted) {
-                                  mySnackBar(
-                                    "Some error occured\nTry signing with email / phone number",
-                                    context,
-                                  );
-                                }
-                              }
-                              setState(() {
-                                isGoogleRegistering = false;
-                              });
-                            } on FirebaseAuthException catch (e) {
-                              setState(() {
-                                isGoogleRegistering = false;
-                              });
-                              if (context.mounted) {
-                                mySnackBar(
-                                  e.toString(),
-                                  context,
-                                );
-                              }
-                            }
+                            await registerWithGoogle(
+                              signInMethodProvider,
+                              FirebaseAuth.instance,
+                            );
                           },
                           child: Container(
                             margin: EdgeInsets.fromLTRB(
@@ -640,7 +625,6 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                               key: registerNumberFormKey,
                               child: Column(
                                 children: [
-                                  // TODO: Add circle animation to show that number is getting verified
                                   MyTextFormField(
                                     hintText: "Phone Number",
                                     controller: phoneController,

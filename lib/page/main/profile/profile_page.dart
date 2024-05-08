@@ -110,13 +110,6 @@ class _ProfilePageState extends State<ProfilePage> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                  CircleAvatar(
-                                    radius: width * 0.1,
-                                    backgroundColor: primary2,
-                                    backgroundImage: NetworkImage(
-                                      userData['Image'],
-                                    ),
-                                  ),
                                   Padding(
                                     padding:
                                         EdgeInsets.only(left: width * 0.05),

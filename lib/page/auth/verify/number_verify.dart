@@ -58,7 +58,6 @@ class _NumberVerifyPageState extends State<NumberVerifyPage> {
             'Phone Number': '+91 ${widget.phoneNumber}',
             'numberVerified': false,
             'Email': null,
-            'Image': null,
             'Name': null,
             'recentShop': null,
             'followedShops': [],

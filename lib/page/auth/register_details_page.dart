@@ -1,20 +1,14 @@
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:find_easy_user/page/main/main_page.dart';
 import 'package:find_easy_user/page/providers/sign_in_method_provider.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/button.dart';
 import 'package:find_easy_user/widgets/head_text.dart';
-import 'package:find_easy_user/widgets/image_pick_dialog.dart';
 import 'package:find_easy_user/widgets/snack_bar.dart';
 import 'package:find_easy_user/widgets/text_form_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:uuid/uuid.dart';
 
 class RegisterDetailsPage extends StatefulWidget {
   const RegisterDetailsPage({
@@ -34,24 +28,6 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
   final cityController = TextEditingController();
   bool isSaving = false;
   String? selectedGender;
-  bool isImageSelected = false;
-  File? _image;
-  String? _imageDownloadUrl;
-
-  // SELECT IMAGE
-  void selectImage() async {
-    XFile? im = await showImagePickDialog(context);
-    if (im == null) {
-      setState(() {
-        isImageSelected = false;
-      });
-    } else {
-      setState(() {
-        _image = File(im.path);
-        isImageSelected = true;
-      });
-    }
-  }
 
   // SHOW INFO DIALOG
   void showInfoDialog() {
@@ -75,36 +51,12 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
     );
   }
 
-  // UPLOAD IMAGE
-  Future<void> uploadImage(File? image) async {
-    if (image != null) {
-      try {
-        Reference ref = FirebaseStorage.instance
-            .ref()
-            .child('Profile/Users')
-            .child(const Uuid().v4());
-        await ref.putFile(image).whenComplete(() async {
-          await ref.getDownloadURL().then((value) {
-            setState(() {
-              _imageDownloadUrl = value;
-            });
-          });
-        });
-      } catch (e) {
-        if (mounted) {
-          mySnackBar(e.toString(), context);
-        }
-      }
-    }
-  }
-
   // SAVE
   Future<void> save(SignInMethodProvider signInMethodProvider) async {
     if (selectedGender != null) {
       setState(() {
         isSaving = true;
       });
-      await uploadImage(_image);
 
       try {
         FirebaseAuth.instance.currentUser!.email == null
@@ -112,8 +64,6 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                 .collection('Users')
                 .doc(FirebaseAuth.instance.currentUser!.uid)
                 .update({
-                'Image': _imageDownloadUrl ??
-                    'https://storage.needpix.com/rsynced_images/blank-profile-picture-973460_1280.png',
                 'Name': nameController.text,
                 'Email': emailController.text,
                 'gender': selectedGender,
@@ -122,8 +72,6 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                 .collection('Users')
                 .doc(FirebaseAuth.instance.currentUser!.uid)
                 .update({
-                'Image': _imageDownloadUrl ??
-                    'https://storage.needpix.com/rsynced_images/blank-profile-picture-973460_1280.png',
                 'Name': nameController.text,
                 'Phone Number': '+91${phoneController.text}',
                 'gender': selectedGender,
@@ -159,8 +107,6 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: LayoutBuilder(
           builder: ((context, constraints) {
-            final double width = constraints.maxWidth;
-
             return SingleChildScrollView(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -172,38 +118,6 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                     text: "USER\nDETAILS",
                   ),
                   const SizedBox(height: 40),
-
-                  // IMAGE
-                  isImageSelected
-                      ? Stack(
-                          alignment: Alignment.bottomRight,
-                          children: [
-                            // IMAGE NOT CHOSEN
-                            CircleAvatar(
-                              radius: width * 0.14,
-                              backgroundImage: FileImage(_image!),
-                            ),
-                            IconButton.filledTonal(
-                              icon: const Icon(Icons.camera_alt_outlined),
-                              iconSize: width * 0.09,
-                              tooltip: "Change User Picture",
-                              onPressed: selectImage,
-                              color: primaryDark,
-                            ),
-                          ],
-                        )
-                      // IMAGE CHOSEN
-                      : CircleAvatar(
-                          radius: 50,
-                          child: IconButton(
-                            icon: const Icon(
-                              Icons.camera_alt_outlined,
-                              size: 60,
-                            ),
-                            onPressed: selectImage,
-                          ),
-                        ),
-                  const SizedBox(height: 12),
 
                   // FORM
                   Form(

@@ -70,7 +70,7 @@ class _MainPageState extends State<MainPage>
 
       final userData = userSnap.data()!;
 
-      if (userData['Name'] == null || userData['Image'] == null) {
+      if (userData['Name'] == null || userData['Email'] == null) {
         setState(() {
           detailsPage = const RegisterDetailsPage();
         });
