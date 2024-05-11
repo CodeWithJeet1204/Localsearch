@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:find_easy_user/models/services_image_map.dart';
 import 'package:find_easy_user/models/services_map.dart';
+import 'package:find_easy_user/page/main/services/services_previous_work_images_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/snack_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -24,8 +25,9 @@ class ServicesManPage extends StatefulWidget {
 class _ServicesManPageState extends State<ServicesManPage> {
   final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
-  Map<String, dynamic> allServiceManSubCategories = {};
   Map<String, dynamic> servicemanData = {};
+  Map<String, dynamic> previousWorkImages = {};
+  Map<String, dynamic> allServiceManSubCategories = {};
   Map<String, dynamic> subCategories = {};
   List categories = [];
   List places = [];
@@ -51,6 +53,16 @@ class _ServicesManPageState extends State<ServicesManPage> {
     setState(() {
       servicemanData = myServicemanData;
     });
+
+    getPreviousWorkImages(myServicemanData);
+  }
+
+  void getPreviousWorkImages(Map<String, dynamic> data) {
+    final Map<String, dynamic> myPreviousWorkImages = data['workImages'];
+
+    setState(() {
+      previousWorkImages = myPreviousWorkImages;
+    });
   }
 
   // GET SUB CATEGORIES
@@ -63,7 +75,7 @@ class _ServicesManPageState extends State<ServicesManPage> {
     final Map<String, dynamic> mySubCategories =
         myServicemanData['SubCategory'];
 
-    print("SubCategories: $mySubCategories");
+    print('SubCategories: $mySubCategories');
 
     setState(() {
       allServiceManSubCategories = mySubCategories;
@@ -182,7 +194,7 @@ class _ServicesManPageState extends State<ServicesManPage> {
           placeMap.forEach((category, subCategoryList) {
             if (category == selectedCategory) {
               subCategoryList.forEach((subCategory) {
-                print("SubCategory: $subCategory");
+                print('SubCategory: $subCategory');
                 if (subCategoryName == subCategory) {
                   print('abc');
                   filteredSubCategories[subCategory] =
@@ -406,6 +418,54 @@ class _ServicesManPageState extends State<ServicesManPage> {
                       ),
                     ),
 
+                    previousWorkImages.isEmpty ? Container() : Divider(),
+
+                    previousWorkImages.isEmpty
+                        ? Container()
+                        : Padding(
+                            padding: EdgeInsets.all(width * 0.0125),
+                            child: InkWell(
+                              onTap: () {
+                                print(previousWorkImages);
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: ((context) =>
+                                        ServicesPreviousWorkImagesPage(
+                                          imagesData: previousWorkImages,
+                                        )),
+                                  ),
+                                );
+                              },
+                              splashColor: white,
+                              customBorder: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Container(
+                                width: width,
+                                decoration: BoxDecoration(
+                                  color: primary2.withOpacity(0.5),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                padding: EdgeInsets.all(width * 0.045),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'See Previous Work',
+                                      style: TextStyle(
+                                        fontSize: width * 0.05,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Icon(FeatherIcons.chevronRight),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+
                     Divider(),
 
                     // PLACES CHIPS
@@ -433,7 +493,7 @@ class _ServicesManPageState extends State<ServicesManPage> {
                                       : primaryDark,
                                 ),
                               ),
-                              tooltip: "See $place",
+                              tooltip: 'See $place',
                               onPressed: () {
                                 setState(() {
                                   if (selectedPlace == place) {
@@ -484,7 +544,7 @@ class _ServicesManPageState extends State<ServicesManPage> {
                                       : primaryDark,
                                 ),
                               ),
-                              tooltip: "See $category",
+                              tooltip: 'See $category',
                               onPressed: categories.length <= 1 &&
                                       selectedCategory == category
                                   ? () {}

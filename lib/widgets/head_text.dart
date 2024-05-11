@@ -11,9 +11,9 @@ class HeadText extends StatelessWidget {
 
   String textFormat(String text) {
     int length = text.length;
-    String formattedText = "";
+    String formattedText = '';
     for (var i = 0; i < length; i++) {
-      formattedText += "${text[i]} ";
+      formattedText += '${text[i]} ';
     }
     return formattedText;
   }
@@ -24,7 +24,7 @@ class HeadText extends StatelessWidget {
       textFormat(text),
       textAlign: TextAlign.center,
       style: GoogleFonts.josefinSans(
-        fontSize: text == "MEMBERSHIPS" ? 28 : 32,
+        fontSize: text == 'MEMBERSHIPS' ? 28 : 32,
         color: primaryDark,
         fontWeight: FontWeight.bold,
       ),

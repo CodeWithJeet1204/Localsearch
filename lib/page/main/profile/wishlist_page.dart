@@ -142,7 +142,7 @@ class _WishlistPageState extends State<WishlistPage>
     final List wishlistEvents = userData['wishlistEvents'];
 
     wishlistEvents.forEach((eventId) async {
-      final eventSnap = await store.collection('Event').doc(eventId).get();
+      final eventSnap = await store.collection('Events').doc(eventId).get();
 
       if (eventSnap.exists) {
         final eventData = eventSnap.data()!;
@@ -202,7 +202,7 @@ class _WishlistPageState extends State<WishlistPage>
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          "Wishlist",
+          'Wishlist',
           overflow: TextOverflow.ellipsis,
         ),
         forceMaterialTransparency: true,
@@ -249,10 +249,10 @@ class _WishlistPageState extends State<WishlistPage>
             },
             tabs: const [
               Tab(
-                text: "Products",
+                text: 'Products',
               ),
               Tab(
-                text: "Events",
+                text: 'Events',
               ),
             ],
           ),
@@ -353,7 +353,7 @@ class _WishlistPageState extends State<WishlistPage>
                                                         : primaryDark,
                                                   ),
                                                 ),
-                                                tooltip: "See $category",
+                                                tooltip: 'See $category',
                                                 onPressed: () {
                                                   setState(() {
                                                     if (selectedCategory ==
@@ -423,7 +423,7 @@ class _WishlistPageState extends State<WishlistPage>
                                                     backgroundColor: Colors.red,
                                                     icon: Icons
                                                         .heart_broken_outlined,
-                                                    label: "Remove",
+                                                    label: 'Remove',
                                                     borderRadius:
                                                         const BorderRadius.only(
                                                       topRight:
@@ -596,7 +596,7 @@ class _WishlistPageState extends State<WishlistPage>
                                                         : primaryDark,
                                                   ),
                                                 ),
-                                                tooltip: "See $type",
+                                                tooltip: 'See $type',
                                                 onPressed: () {
                                                   int previousIndex =
                                                       currentIndex;
@@ -669,7 +669,7 @@ class _WishlistPageState extends State<WishlistPage>
                                                     backgroundColor: Colors.red,
                                                     icon: Icons
                                                         .heart_broken_outlined,
-                                                    label: "Remove",
+                                                    label: 'Remove',
                                                     borderRadius:
                                                         const BorderRadius.only(
                                                       topRight:

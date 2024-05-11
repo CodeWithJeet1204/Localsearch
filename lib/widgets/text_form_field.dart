@@ -102,17 +102,17 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
               validator: (value) {
                 if (value != null) {
                   if (value.isNotEmpty) {
-                    if (widget.hintText == "Email") {
+                    if (widget.hintText == 'Email') {
                       if (!value.contains('@') || !value.contains('.co')) {
                         return 'Invalid email';
                       }
-                    } else if (widget.hintText == "Phone Number") {
+                    } else if (widget.hintText == 'Phone Number') {
                       if (value.length != 10) {
                         return 'Phone No. should be  10 chars long';
                       }
                     }
                   } else {
-                    return "Pls enter ${widget.hintText}";
+                    return 'Pls enter ${widget.hintText}';
                   }
                 }
                 return null;

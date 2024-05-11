@@ -117,7 +117,7 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                   // USER DETAILS HEADTEXT
                   const SizedBox(height: 80),
                   const HeadText(
-                    text: "USER\nDETAILS",
+                    text: 'USER\nDETAILS',
                   ),
                   const SizedBox(height: 40),
 
@@ -128,7 +128,7 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                       children: [
                         // NAME
                         MyTextFormField(
-                          hintText: "Name",
+                          hintText: 'Name',
                           controller: nameController,
                           borderRadius: 12,
                           horizontalPadding: 0,
@@ -164,7 +164,7 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                                         return 'Enter valid Email';
                                       }
                                     } else {
-                                      return "Pls enter Email";
+                                      return 'Pls enter Email';
                                     }
                                   }
                                   return null;
@@ -172,7 +172,7 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                               )
                             // PHONE NUMBER
                             : MyTextFormField(
-                                hintText: "Phone Number",
+                                hintText: 'Phone Number',
                                 controller: phoneController,
                                 borderRadius: 12,
                                 horizontalPadding: 0,
@@ -182,7 +182,7 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
 
                         // STREET
                         MyTextFormField(
-                          hintText: "Street Address",
+                          hintText: 'Street Address',
                           controller: streetController,
                           borderRadius: 12,
                           horizontalPadding: 0,
@@ -192,7 +192,7 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
 
                         // CITY
                         MyTextFormField(
-                          hintText: "City Name",
+                          hintText: 'City Name',
                           controller: cityController,
                           borderRadius: 12,
                           horizontalPadding: 0,
@@ -201,46 +201,49 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                         ),
 
                         // SELECT GENDER
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 2,
-                          ),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: primary3,
-                              borderRadius: BorderRadius.circular(12),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              vertical: 2,
                             ),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 4),
-                            child: DropdownButton(
-                              value: selectedGender,
-                              hint: const Text(
-                                "Select Gender",
-                                style: TextStyle(
-                                  color: primaryDark2,
-                                ),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: primary3,
+                                borderRadius: BorderRadius.circular(12),
                               ),
-                              underline: const SizedBox(),
-                              iconEnabledColor: primaryDark,
-                              dropdownColor: primary2,
-                              items: ['Male', 'Female']
-                                  .map((e) => DropdownMenuItem(
-                                        value: e,
-                                        child: Text(e),
-                                      ))
-                                  .toList(),
-                              onChanged: (value) {
-                                setState(() {
-                                  selectedGender = value;
-                                });
-                              },
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 4),
+                              child: DropdownButton(
+                                value: selectedGender,
+                                hint: const Text(
+                                  'Select Gender',
+                                  style: TextStyle(
+                                    color: primaryDark2,
+                                  ),
+                                ),
+                                underline: const SizedBox(),
+                                iconEnabledColor: primaryDark,
+                                dropdownColor: primary2,
+                                items: ['Male', 'Female']
+                                    .map((e) => DropdownMenuItem(
+                                          value: e,
+                                          child: Text(e),
+                                        ))
+                                    .toList(),
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedGender = value;
+                                  });
+                                },
+                              ),
                             ),
                           ),
                         ),
 
                         // SAVE
                         MyButton(
-                          text: "SAVE",
+                          text: 'SAVE',
                           onTap: () async {
                             await save(signInMethodProvider);
                           },

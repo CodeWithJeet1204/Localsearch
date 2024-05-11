@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:find_easy_user/page/main/events/event_page.dart';
+import 'package:find_easy_user/page/main/events/events_previous_work_images_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/image_show.dart';
 import 'package:find_easy_user/widgets/snack_bar.dart';
@@ -26,6 +27,7 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
   final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
   Map<String, dynamic> organizerData = {};
+  List workImages = [];
   Map<String, Map<String, dynamic>> allEvents = {};
   Map<String, Map<String, dynamic>> events = {};
   Map<String, dynamic> ongoingEvents = {};
@@ -39,6 +41,7 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
   void initState() {
     getOrganizerData();
     getIfFollowing();
+    getWorkImages();
     getEvents();
     super.initState();
   }
@@ -46,7 +49,7 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
   // GET ORGANIZER DATA
   Future<void> getOrganizerData() async {
     final organizerSnap =
-        await store.collection('Events').doc(widget.organizerId).get();
+        await store.collection('Organizers').doc(widget.organizerId).get();
 
     final myOrganizerData = organizerSnap.data()!;
 
@@ -61,7 +64,7 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
     Map<String, Map<String, dynamic>> myEvents = {};
     Map<String, Map<String, dynamic>> myOngoingEvents = {};
     List myEventTypes = [];
-    final eventsSnap = await store.collection('Event').get();
+    final eventsSnap = await store.collection('Events').get();
 
     eventsSnap.docs.forEach((event) {
       final eventData = event.data();
@@ -95,6 +98,22 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
     });
   }
 
+  // GET WORK IMAGES
+  Future<void> getWorkImages() async {
+    List myWorkImages = [];
+
+    final organizerSnap =
+        await store.collection('Organizers').doc(widget.organizerId).get();
+
+    final organizerData = organizerSnap.data()!;
+
+    myWorkImages = organizerData['workImages'];
+
+    setState(() {
+      workImages = myWorkImages;
+    });
+  }
+
   // FOLLOW ORGANIZER
   Future<void> followOrganizer() async {
     final userSnap =
@@ -115,7 +134,7 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
     });
 
     final organizerSnap =
-        await store.collection('Events').doc(widget.organizerId).get();
+        await store.collection('Organizers').doc(widget.organizerId).get();
 
     final organizerData = organizerSnap.data()!;
 
@@ -127,7 +146,7 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
       followers.add(auth.currentUser!.uid);
     }
 
-    await store.collection('Events').doc(widget.organizerId).update({
+    await store.collection('Organizers').doc(widget.organizerId).update({
       'Followers': followers,
     });
 
@@ -498,7 +517,7 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
                                       }
                                     },
                                     icon: const Icon(FeatherIcons.mapPin),
-                                    tooltip: "Locate on Maps",
+                                    tooltip: 'Locate on Maps',
                                   ),
                                 ],
                               ),
@@ -557,7 +576,7 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
                                       }
                                     },
                                     icon: const Icon(FeatherIcons.mail),
-                                    tooltip: "Mail",
+                                    tooltip: 'Mail',
                                   ),
                                 ],
                               ),
@@ -644,7 +663,7 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
                                       }
                                     },
                                     icon: const Icon(FeatherIcons.globe),
-                                    tooltip: "Website",
+                                    tooltip: 'Website',
                                   ),
                                 ],
                               ),
@@ -678,6 +697,56 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
                           ),
 
                           Divider(),
+
+                          // WORK IMAGES
+                          workImages.isEmpty
+                              ? Container()
+                              : Padding(
+                                  padding: EdgeInsets.all(width * 0.0125),
+                                  child: InkWell(
+                                    onTap: () {
+                                      print(workImages);
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: ((context) =>
+                                              EventsPreviousWorkImagesPage(
+                                                workImages: workImages,
+                                              )),
+                                        ),
+                                      );
+                                    },
+                                    splashColor: white,
+                                    customBorder: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Container(
+                                      width: width,
+                                      decoration: BoxDecoration(
+                                        color: primary2.withOpacity(0.5),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      padding: EdgeInsets.all(width * 0.045),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            'See Previous Work',
+                                            style: TextStyle(
+                                              fontSize: width * 0.05,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          Icon(FeatherIcons.chevronRight),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+
+                          workImages.isEmpty ? Container() : Divider(),
 
                           // ONGOING
                           ongoingEvents.isEmpty
@@ -808,7 +877,7 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
                                                   : primaryDark,
                                             ),
                                           ),
-                                          tooltip: "Select $type",
+                                          tooltip: 'Select $type',
                                           onPressed: () {
                                             setState(() {
                                               if (selectedEventType == type) {
@@ -818,7 +887,7 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
                                               }
                                             });
                                             print(
-                                                "Selected Category: $selectedEventType");
+                                                'Selected Category: $selectedEventType');
                                             getTypeEvent(selectedEventType);
                                           },
                                           backgroundColor:

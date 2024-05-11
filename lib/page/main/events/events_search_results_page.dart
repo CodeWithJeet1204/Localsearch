@@ -83,7 +83,7 @@ class _EventsSearchResultsPageState extends State<EventsSearchResultsPage> {
   Future<void> getEvents() async {
     Map<String, dynamic> mySearchedEvents = {};
 
-    final eventsSnap = await store.collection('Event').get();
+    final eventsSnap = await store.collection('Events').get();
 
     for (var myEventData in eventsSnap.docs) {
       final eventData = myEventData.data();
@@ -96,12 +96,12 @@ class _EventsSearchResultsPageState extends State<EventsSearchResultsPage> {
       final Timestamp endDate = eventData['endDate'];
       final String organizerId = eventData['organizerId'];
       final String organizerName = eventData['organizerName'];
-      print("Event Name: $eventName");
+      print('Event Name: $eventName');
 
       final eventNameLower = eventName.toLowerCase();
       final searchLower = widget.search.toLowerCase();
-      print("Event name lower: $eventNameLower");
-      print("search lower: $searchLower");
+      print('Event name lower: $eventNameLower');
+      print('search lower: $searchLower');
       print(eventNameLower.contains(searchLower));
       print(endDate.toDate());
       print(DateTime.now());
@@ -196,7 +196,7 @@ class _EventsSearchResultsPageState extends State<EventsSearchResultsPage> {
   Future<void> getOrganizers() async {
     Map<String, dynamic> allOrganizers = {};
 
-    final organizerSnap = await store.collection('Events').get();
+    final organizerSnap = await store.collection('Organizers').get();
 
     for (var organizerSnap in organizerSnap.docs) {
       final organizerData = organizerSnap.data();
@@ -291,7 +291,7 @@ class _EventsSearchResultsPageState extends State<EventsSearchResultsPage> {
       'wishlistEvents': userWishlist,
     });
 
-    final eventSnap = await store.collection('Event').doc(eventId).get();
+    final eventSnap = await store.collection('Events').doc(eventId).get();
 
     final eventData = eventSnap.data()!;
 
@@ -303,7 +303,7 @@ class _EventsSearchResultsPageState extends State<EventsSearchResultsPage> {
       noOfWishList--;
     }
 
-    await store.collection('Event').doc(eventId).update({
+    await store.collection('Events').doc(eventId).update({
       'wishlists': noOfWishList,
     });
   }
@@ -733,7 +733,7 @@ class _EventsSearchResultsPageState extends State<EventsSearchResultsPage> {
                                                       : primaryDark,
                                             ),
                                           ),
-                                          tooltip: "Select $name",
+                                          tooltip: 'Select $name',
                                           onPressed: () {
                                             setState(() {
                                               if (selectedEventCategory ==
@@ -744,7 +744,7 @@ class _EventsSearchResultsPageState extends State<EventsSearchResultsPage> {
                                               }
                                             });
                                             print(
-                                                "Selected Category: $selectedEventCategory");
+                                                'Selected Category: $selectedEventCategory');
                                             getTypeEvent(selectedEventCategory);
                                           },
                                           backgroundColor:

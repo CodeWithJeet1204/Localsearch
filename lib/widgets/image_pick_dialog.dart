@@ -42,7 +42,7 @@ Future<XFile?>? showImagePickDialog(BuildContext context) async {
                   padding: EdgeInsets.only(left: 12),
                   child: Text(
                     overflow: TextOverflow.ellipsis,
-                    "Choose Camera",
+                    'Choose Camera',
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                     ),
@@ -78,7 +78,7 @@ Future<XFile?>? showImagePickDialog(BuildContext context) async {
                   padding: EdgeInsets.only(left: 12),
                   child: Text(
                     overflow: TextOverflow.ellipsis,
-                    "Choose from Gallery",
+                    'Choose from Gallery',
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                     ),

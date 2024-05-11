@@ -27,6 +27,7 @@ class _EventPageState extends State<EventPage> {
   final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
   Map<String, dynamic> event = {};
+  List workImages = [];
   int _currentIndex = 0;
   bool isData = false;
 
@@ -39,7 +40,8 @@ class _EventPageState extends State<EventPage> {
 
   // GET DATA
   Future<void> getData() async {
-    final eventSnap = await store.collection('Event').doc(widget.eventId).get();
+    final eventSnap =
+        await store.collection('Events').doc(widget.eventId).get();
 
     final eventData = eventSnap.data()!;
 
@@ -52,7 +54,7 @@ class _EventPageState extends State<EventPage> {
   // GET TIME OF DAY
   String getTimeString(String timeString) {
     String cleanedString =
-        timeString.replaceAll("TimeOfDay(", "").replaceAll(")", "");
+        timeString.replaceAll('TimeOfDay(', '').replaceAll(')', '');
 
     List<String> parts = cleanedString.split(':');
 
@@ -102,7 +104,8 @@ class _EventPageState extends State<EventPage> {
       'wishlistEvents': userWishlist,
     });
 
-    final eventSnap = await store.collection('Event').doc(widget.eventId).get();
+    final eventSnap =
+        await store.collection('Events').doc(widget.eventId).get();
 
     final eventData = eventSnap.data()!;
 
@@ -114,7 +117,7 @@ class _EventPageState extends State<EventPage> {
       noOfWishList--;
     }
 
-    await store.collection('Event').doc(widget.eventId).update({
+    await store.collection('Events').doc(widget.eventId).update({
       'wishlists': noOfWishList,
     });
   }
@@ -142,7 +145,7 @@ class _EventPageState extends State<EventPage> {
                     isWishlist ? Icons.favorite : Icons.favorite_outline,
                     color: Colors.red,
                   ),
-                  tooltip: isWishlist ? "WISHLISTED" : "WISHLIST",
+                  tooltip: isWishlist ? 'WISHLISTED' : 'WISHLIST',
                 );
               }
 
@@ -188,8 +191,6 @@ class _EventPageState extends State<EventPage> {
                     final String? ticketTotal = event['ticketNoOfTickets'];
 
                     final String? ticketPrice = event['ticketPrice'];
-                    final String? ticketGeneralPrice =
-                        event['ticketGeneralPrice'];
                     final String? ticketEarlyBirdPrice =
                         event['ticketEarlyBirdPrice'];
                     final String? ticketVIPPrice = event['ticketVIPPrice'];
@@ -672,48 +673,6 @@ class _EventPageState extends State<EventPage> {
                                     width: width * 0.785,
                                     child: Text(
                                       'Rs. $ticketPrice',
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        color: primaryDark,
-                                        fontSize: width * 0.05,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-
-                          Divider(),
-
-                          // TICKET GENERAL PRICE
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: width * 0.0225,
-                            ),
-                            child: SizedBox(
-                              width: width * 0.785,
-                              child: Text(
-                                'General',
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  color: primaryDark.withOpacity(0.75),
-                                  fontSize: width * 0.04,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ),
-
-                          ticketGeneralPrice == null
-                              ? Container()
-                              : Padding(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: width * 0.0225,
-                                  ),
-                                  child: SizedBox(
-                                    width: width * 0.785,
-                                    child: Text(
-                                      'Rs. $ticketGeneralPrice',
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(

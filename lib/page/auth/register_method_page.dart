@@ -33,8 +33,8 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
   final TextEditingController confirmPasswordController =
       TextEditingController();
   final TextEditingController phoneController = TextEditingController();
-  String phoneText = "SIGNUP";
-  String googleText = "Signup With GOOGLE";
+  String phoneText = 'SIGNUP';
+  String googleText = 'Signup With GOOGLE';
   bool isGoogleRegistering = false;
   bool isEmailRegistering = false;
   bool isPhoneRegistering = false;
@@ -144,13 +144,13 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
         }
       } else {
         mySnackBar(
-          "Passwords do not match",
+          'Passwords do not match',
           context,
         );
       }
     } else {
       mySnackBar(
-        "Passwords dont match, check again!",
+        'Passwords dont match, check again!',
         context,
       );
     }
@@ -167,7 +167,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
         });
 
         await FirebaseAuth.instance.verifyPhoneNumber(
-            phoneNumber: "+91 ${phoneController.text}",
+            phoneNumber: '+91 ${phoneController.text}',
             verificationCompleted: (_) {
               setState(() {
                 isPhoneRegistering = false;
@@ -177,7 +177,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
               if (context.mounted) {
                 setState(() {
                   isPhoneRegistering = false;
-                  phoneText = "SIGNUP";
+                  phoneText = 'SIGNUP';
                 });
                 mySnackBar(
                   e.toString(),
@@ -191,7 +191,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
             ) {
               setState(() {
                 isPhoneRegistering = false;
-                phoneText = "SIGNUP";
+                phoneText = 'SIGNUP';
               });
               signInMethodProvider.chooseNumber();
               Navigator.of(context).pop();
@@ -209,7 +209,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
               if (context.mounted) {
                 setState(() {
                   isPhoneRegistering = false;
-                  phoneText = "SIGNUP";
+                  phoneText = 'SIGNUP';
                 });
                 mySnackBar(
                   e.toString(),
@@ -220,7 +220,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
       } catch (e) {
         setState(() {
           isPhoneRegistering = false;
-          phoneText = "SIGNUP";
+          phoneText = 'SIGNUP';
         });
         if (mounted) {
           mySnackBar(
@@ -237,7 +237,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
       SignInMethodProvider signInMethodProvider, FirebaseAuth _auth) async {
     setState(() {
       isGoogleRegistering = true;
-      googleText = "PLEASE WAIT";
+      googleText = 'PLEASE WAIT';
     });
     try {
       await AuthMethods().signInWithGoogle(context);
@@ -280,7 +280,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
       } else {
         if (context.mounted) {
           mySnackBar(
-            "Some error occured\nTry signing with email / phone number",
+            'Some error occured\nTry signing with email / phone number',
             context,
           );
         }
@@ -317,7 +317,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                     // REGISTER HEADTEXT
                     SizedBox(height: width * 0.35),
                     const HeadText(
-                      text: "REGISTER",
+                      text: 'REGISTER',
                     ),
                     SizedBox(height: width * 0.3),
 
@@ -326,7 +326,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                         // EMAIL
                         MyCollapseContainer(
                           width: MediaQuery.of(context).size.width,
-                          text: "Email",
+                          text: 'Email',
                           children: Padding(
                             padding: EdgeInsets.all(width * 0.0225),
                             child: Form(
@@ -335,7 +335,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                                 children: [
                                   // EMAIL
                                   MyTextFormField(
-                                    hintText: "Email",
+                                    hintText: 'Email',
                                     controller: emailController,
                                     borderRadius: 16,
                                     horizontalPadding:
@@ -348,7 +348,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
 
                                   // PASSWORD
                                   MyTextFormField(
-                                    hintText: "Password",
+                                    hintText: 'Password',
                                     controller: passwordController,
                                     borderRadius: 16,
                                     horizontalPadding:
@@ -360,7 +360,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                                     ],
                                   ),
                                   MyTextFormField(
-                                    hintText: "Confirm Password",
+                                    hintText: 'Confirm Password',
                                     controller: confirmPasswordController,
                                     borderRadius: 16,
                                     horizontalPadding:
@@ -374,7 +374,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                                   ),
                                   const SizedBox(height: 8),
                                   MyButton(
-                                    text: "SIGNUP",
+                                    text: 'SIGNUP',
                                     onTap: () async {
                                       await registerWithEmail(
                                         signInMethodProvider,
@@ -393,7 +393,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                         // PHONE NUMBER
                         MyCollapseContainer(
                           width: MediaQuery.of(context).size.width,
-                          text: "Phone Number",
+                          text: 'Phone Number',
                           children: Padding(
                             padding: EdgeInsets.all(width * 0.0225),
                             child: Form(
@@ -506,7 +506,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                           children: [
                             const Text(
                               overflow: TextOverflow.ellipsis,
-                              "Already have an account?",
+                              'Already have an account?',
                             ),
                             MyTextButton(
                               onPressed: () {
@@ -518,7 +518,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                                       builder: (context) => const LoginPage()),
                                 );
                               },
-                              text: "SIGN IN",
+                              text: 'SIGN IN',
                               textColor: buttonColor,
                             ),
                           ],
@@ -534,7 +534,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                     width: width * 0.66,
                     alignment: Alignment.center,
                     child: const HeadText(
-                      text: "REGISTER",
+                      text: 'REGISTER',
                     ),
                   ),
                   Container(
@@ -546,7 +546,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                         // EMAIL
                         MyCollapseContainer(
                           width: MediaQuery.of(context).size.width,
-                          text: "Email",
+                          text: 'Email',
                           children: Padding(
                             padding: EdgeInsets.symmetric(
                               horizontal: width < screenSize
@@ -560,7 +560,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                                 children: [
                                   // EMAIL
                                   MyTextFormField(
-                                    hintText: "Email",
+                                    hintText: 'Email',
                                     controller: emailController,
                                     borderRadius: 16,
                                     horizontalPadding: width < screenSize
@@ -573,7 +573,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
 
                                   // PASSWORD
                                   MyTextFormField(
-                                    hintText: "Password",
+                                    hintText: 'Password',
                                     controller: passwordController,
                                     borderRadius: 16,
                                     horizontalPadding: width < screenSize
@@ -585,7 +585,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                                     ],
                                   ),
                                   MyTextFormField(
-                                    hintText: "Confirm Password",
+                                    hintText: 'Confirm Password',
                                     controller: confirmPasswordController,
                                     borderRadius: 16,
                                     horizontalPadding: width < screenSize
@@ -599,7 +599,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                                   ),
                                   const SizedBox(height: 8),
                                   MyButton(
-                                    text: "SIGNUP",
+                                    text: 'SIGNUP',
                                     onTap: () async {
                                       await registerWithEmail(
                                         signInMethodProvider,
@@ -620,7 +620,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                         // PHONE NUMBER
                         MyCollapseContainer(
                           width: MediaQuery.of(context).size.width,
-                          text: "Phone Number",
+                          text: 'Phone Number',
                           children: Padding(
                             padding: EdgeInsets.all(width * 0.0225),
                             child: Form(
@@ -628,7 +628,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                               child: Column(
                                 children: [
                                   MyTextFormField(
-                                    hintText: "Phone Number",
+                                    hintText: 'Phone Number',
                                     controller: phoneController,
                                     borderRadius: 16,
                                     horizontalPadding: width < screenSize
@@ -664,7 +664,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                         //   onTap: () async {
                         //     setState(() {
                         //       isGoogleRegistering = true;
-                        //       googleText = "PLEASE WAIT";
+                        //       googleText = 'PLEASE WAIT';
                         //     });
                         //     try {
                         // Sign In With Google
@@ -678,11 +678,11 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                         //             .collection('Users')
                         //             .doc(_auth.currentUser!.uid)
                         //             .set({
-                        //           "Email":
+                        //           'Email':
                         //               FirebaseAuth.instance.currentUser!.email,
-                        //           "Name": FirebaseAuth
+                        //           'Name': FirebaseAuth
                         //               .instance.currentUser!.displayName,
-                        //           "uid": FirebaseAuth.instance.currentUser!.uid,
+                        //           'uid': FirebaseAuth.instance.currentUser!.uid,
                         //           'Image': null,
                         //           'Phone Number': null,
                         //         });
@@ -692,14 +692,14 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                         //             .collection('Shops')
                         //             .doc(_auth.currentUser!.uid)
                         //             .update({
-                        //           "Name": null,
+                        //           'Name': null,
                         //           'Views': null,
-                        //           "GSTNumber": null,
-                        //           "Address": null,
-                        //           "Special Note": null,
-                        //           "Industry": null,
-                        //           "Image": null,
-                        //           "Type": null,
+                        //           'GSTNumber': null,
+                        //           'Address': null,
+                        //           'Special Note': null,
+                        //           'Industry': null,
+                        //           'Image': null,
+                        //           'Type': null,
                         //           'MembershipName': null,
                         //           'MembershipDuration': null,
                         //           'MembershipTime': null,
@@ -718,7 +718,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                         //         if (context.mounted) {
                         //           mySnackBar(
                         //             context,
-                        //             "Some error occured\nTry signing with email / phone number",
+                        //             'Some error occured\nTry signing with email / phone number',
                         //           );
                         //         }
                         //       }
@@ -776,7 +776,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                           children: [
                             const Text(
                               overflow: TextOverflow.ellipsis,
-                              "Already have an account?",
+                              'Already have an account?',
                             ),
                             MyTextButton(
                               onPressed: () {
@@ -788,7 +788,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                                       builder: (context) => const LoginPage()),
                                 );
                               },
-                              text: "SIGN IN",
+                              text: 'SIGN IN',
                               textColor: buttonColor,
                             ),
                           ],

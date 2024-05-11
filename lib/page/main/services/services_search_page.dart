@@ -75,9 +75,9 @@ class _ServicesSearchPageState extends State<ServicesSearchPage> {
         categories.addAll(myCategories);
         subCategories.addAll(mySubCategories);
       });
-      print("places: $places");
-      print("categories: $categories");
-      print("subCategories: $subCategories");
+      print('places: $places');
+      print('categories: $categories');
+      print('subCategories: $subCategories');
     });
 
     setState(() {

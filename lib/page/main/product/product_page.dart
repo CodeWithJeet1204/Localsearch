@@ -1176,7 +1176,7 @@ class _ProductPageState extends State<ProductPage> {
                                         ),
                                         child: data['isPercent']
                                             ? Text(
-                                                "${data['discountAmount']}% off",
+                                                '${data['discountAmount']}% off',
                                                 overflow: TextOverflow.ellipsis,
                                                 style: TextStyle(
                                                   color: Colors.white,
@@ -1185,7 +1185,7 @@ class _ProductPageState extends State<ProductPage> {
                                                 ),
                                               )
                                             : Text(
-                                                "Save Rs. ${data['discountAmount']}",
+                                                'Save Rs. ${data['discountAmount']}',
                                                 overflow: TextOverflow.ellipsis,
                                                 style: TextStyle(
                                                   color: Colors.white,
@@ -1206,7 +1206,7 @@ class _ProductPageState extends State<ProductPage> {
                                   icon: const Icon(
                                     Icons.share_outlined,
                                   ),
-                                  tooltip: "Share",
+                                  tooltip: 'Share',
                                 ),
                               ],
                             ),
@@ -1280,7 +1280,7 @@ class _ProductPageState extends State<ProductPage> {
                                             padding: EdgeInsets.symmetric(
                                               horizontal: width * 0.0225,
                                             ),
-                                            child: price == "" || price == 'N/A'
+                                            child: price == '' || price == 'N/A'
                                                 ? Text(
                                                     'N/A',
                                                     overflow:
@@ -1376,9 +1376,9 @@ class _ProductPageState extends State<ProductPage> {
                                     left: width * 0.02775,
                                   ),
                                   child: Text(
-                                    widget.productData['productPrice'] == ""
-                                        ? "N/A"
-                                        : "Rs. ${widget.productData['productPrice']}",
+                                    widget.productData['productPrice'] == ''
+                                        ? 'N/A'
+                                        : 'Rs. ${widget.productData['productPrice']}',
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                       color: primaryDark,
@@ -1401,7 +1401,7 @@ class _ProductPageState extends State<ProductPage> {
                               size: width * 0.1,
                             ),
                             splashColor: Colors.red,
-                            tooltip: "Wishlist",
+                            tooltip: 'Wishlist',
                           ),
                         ],
                       ),

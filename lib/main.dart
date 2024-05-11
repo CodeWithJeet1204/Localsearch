@@ -36,7 +36,7 @@ void main() async {
   if (FirebaseAuth.instance.currentUser != null) {
     print(FirebaseAuth.instance.currentUser!.uid);
   } else {
-    print("No user");
+    print('No user');
   }
 }
 

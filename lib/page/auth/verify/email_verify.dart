@@ -61,7 +61,7 @@ class _EmailVerifyPageState extends State<EmailVerifyPage> {
       await user.sendEmailVerification();
       if (mounted) {
         mySnackBar(
-          "Verification Email Sent",
+          'Verification Email Sent',
           context,
         );
       }
@@ -101,7 +101,7 @@ class _EmailVerifyPageState extends State<EmailVerifyPage> {
               ),
             ),
             Text(
-              "An email has been sent to your account, pls click on it\nTo verify your account\n\nIf you want to resend email click below\n\n(It may take some time for email to arrive)",
+              'An email has been sent to your account, pls click on it\nTo verify your account\n\nIf you want to resend email click below\n\n(It may take some time for email to arrive)',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: primaryDark,
@@ -110,7 +110,7 @@ class _EmailVerifyPageState extends State<EmailVerifyPage> {
             ),
             const SizedBox(height: 20),
             MyButton(
-              text: "I have Verified my Email",
+              text: 'I have Verified my Email',
               onTap: () async {
                 await checkEmailVerification(fromButton: true);
               },
@@ -121,12 +121,12 @@ class _EmailVerifyPageState extends State<EmailVerifyPage> {
             Opacity(
               opacity: canResendEmail ? 1 : 0.5,
               child: MyButton(
-                text: "Resend Email",
+                text: 'Resend Email',
                 onTap: canResendEmail
                     ? sendEmailVerification
                     : () {
                         mySnackBar(
-                          "Wait for 5 seconds",
+                          'Wait for 5 seconds',
                           context,
                         );
                       },

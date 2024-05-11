@@ -356,7 +356,7 @@ class _SearchPageState extends State<SearchPage> {
                                                 );
                                               },
                                               icon: const Icon(FeatherIcons.x),
-                                              tooltip: "Remove",
+                                              tooltip: 'Remove',
                                             ),
                                           ],
                                         ),

@@ -213,4 +213,4 @@ Map<String, Map<String, String>> shopCategories = {
     'Big Machines': '',
   },
 };
-// TODO: ADD HOUSEHOLD 
+// TODO: ADD HOUSEHOLD

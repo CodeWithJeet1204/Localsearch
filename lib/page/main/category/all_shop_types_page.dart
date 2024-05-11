@@ -38,7 +38,7 @@ class _AllShopTypesPageState extends State<AllShopTypesPage> {
                       vertical: width * 0.0125,
                     ),
                     child: Text(
-                      "Business",
+                      'Business',
                       style: TextStyle(
                         fontSize: width * 0.045,
                         fontWeight: FontWeight.w500,
@@ -128,7 +128,7 @@ class _AllShopTypesPageState extends State<AllShopTypesPage> {
                       vertical: width * 0.0125,
                     ),
                     child: Text(
-                      "Household",
+                      'Household',
                       style: TextStyle(
                         fontSize: width * 0.045,
                         fontWeight: FontWeight.w500,

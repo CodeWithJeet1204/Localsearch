@@ -49,14 +49,14 @@ class _ProfilePageState extends State<ProfilePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Profile"),
+        title: const Text('Profile'),
         actions: [
           IconButton(
             onPressed: () async {
               await logOut(context);
             },
             icon: const Icon(Icons.logout),
-            tooltip: "LOG OUT",
+            tooltip: 'LOG OUT',
           ),
         ],
       ),
@@ -142,7 +142,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 icon: const Icon(
                                   FeatherIcons.settings,
                                 ),
-                                tooltip: "Your Info",
+                                tooltip: 'Your Info',
                               ),
                             ],
                           );

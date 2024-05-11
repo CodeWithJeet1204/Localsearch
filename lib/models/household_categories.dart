@@ -5,66 +5,66 @@ List<List<String>> householdCategories = [
   ],
   [
     'Weaving,',
-    'https://img.freepik.com/free-vector/various-color-checkered-cotton-shirts-folded-stack_1441-3074.jpg?w=1380&t=st=1708074608~exp=1708075208~hmac=08ad9e959fea122ee32e34b5865982a5d3bf423a78796794223a4beebd35b7a9',
+    '',
   ],
   [
     'Tailoring',
-    'https://img.freepik.com/free-vector/various-color-checkered-cotton-shirts-folded-stack_1441-3074.jpg?w=1380&t=st=1708074608~exp=1708075208~hmac=08ad9e959fea122ee32e34b5865982a5d3bf423a78796794223a4beebd35b7a9',
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQRPFWGnCNrKxUrzYgMQa2Ku4MjsxcAARGsSXKShhazwA&s',
   ],
   [
     'Food',
-    'https://img.freepik.com/free-vector/various-color-checkered-cotton-shirts-folded-stack_1441-3074.jpg?w=1380&t=st=1708074608~exp=1708075208~hmac=08ad9e959fea122ee32e34b5865982a5d3bf423a78796794223a4beebd35b7a9',
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSeyZa5g__WwNZXym0P1TzUSTaq1q8U8pbCoSKDkZWd0Q&s',
   ],
   [
     'Bakery Items',
-    'https://img.freepik.com/free-vector/various-color-checkered-cotton-shirts-folded-stack_1441-3074.jpg?w=1380&t=st=1708074608~exp=1708075208~hmac=08ad9e959fea122ee32e34b5865982a5d3bf423a78796794223a4beebd35b7a9',
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQnNUyj5s1tAZf7qw97rBt34E-IALWKAHtaEmCf5k8tNw&s',
   ],
   [
     'Woodwork',
-    'https://img.freepik.com/free-vector/various-color-checkered-cotton-shirts-folded-stack_1441-3074.jpg?w=1380&t=st=1708074608~exp=1708075208~hmac=08ad9e959fea122ee32e34b5865982a5d3bf423a78796794223a4beebd35b7a9',
+    'https://storage.needpix.com/rsynced_images/nails-37063_1280.png',
   ],
   [
     'Metalwork',
-    'https://img.freepik.com/free-vector/various-color-checkered-cotton-shirts-folded-stack_1441-3074.jpg?w=1380&t=st=1708074608~exp=1708075208~hmac=08ad9e959fea122ee32e34b5865982a5d3bf423a78796794223a4beebd35b7a9',
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT7y6LcXIgWNpLFeVo6DAZOA9orVXfgAhsRfIPocdvjSQ&s',
   ],
   [
     'Beauty Products (Cosmetics)',
-    'https://img.freepik.com/free-vector/various-color-checkered-cotton-shirts-folded-stack_1441-3074.jpg?w=1380&t=st=1708074608~exp=1708075208~hmac=08ad9e959fea122ee32e34b5865982a5d3bf423a78796794223a4beebd35b7a9',
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNwii0aOBJ8zcdWXY_6MFMBsnTGDyHu7uozUoT-sxbTw&s',
   ],
   [
     'Candles',
-    'https://img.freepik.com/free-vector/various-color-checkered-cotton-shirts-folded-stack_1441-3074.jpg?w=1380&t=st=1708074608~exp=1708075208~hmac=08ad9e959fea122ee32e34b5865982a5d3bf423a78796794223a4beebd35b7a9',
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQmJxhE1rZIjygzYyVj-nlC76DqdDcfo4w95xmym0hHVQ&s',
   ],
   [
     'Ayurvedic Products',
-    'https://img.freepik.com/free-vector/various-color-checkered-cotton-shirts-folded-stack_1441-3074.jpg?w=1380&t=st=1708074608~exp=1708075208~hmac=08ad9e959fea122ee32e34b5865982a5d3bf423a78796794223a4beebd35b7a9',
+    'https://media.istockphoto.com/id/1573635910/vector/indian-gooseberry.webp?b=1&s=612x612&w=0&k=20&c=e9SlCGE2NqTpi-pMaVbB8ICEfFH5ZEHNuIpwbQYGdxg=',
   ],
   [
     'Indian Snacks',
-    'https://img.freepik.com/free-vector/various-color-checkered-cotton-shirts-folded-stack_1441-3074.jpg?w=1380&t=st=1708074608~exp=1708075208~hmac=08ad9e959fea122ee32e34b5865982a5d3bf423a78796794223a4beebd35b7a9',
+    'https://images.rawpixel.com/image_800/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIzLTA0L2pvYjk2OS0wNTYtbGczMmJvbzEuanBn.jpg',
   ],
   [
     'Papercraft',
-    'https://img.freepik.com/free-vector/various-color-checkered-cotton-shirts-folded-stack_1441-3074.jpg?w=1380&t=st=1708074608~exp=1708075208~hmac=08ad9e959fea122ee32e34b5865982a5d3bf423a78796794223a4beebd35b7a9',
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTEYacy9D_GIR1UFvBOC3IgNDkEXK44PllLvfA_uBvjA&s',
   ],
   [
     'Jewelry',
-    'https://img.freepik.com/free-vector/various-color-checkered-cotton-shirts-folded-stack_1441-3074.jpg?w=1380&t=st=1708074608~exp=1708075208~hmac=08ad9e959fea122ee32e34b5865982a5d3bf423a78796794223a4beebd35b7a9',
+    'https://i.pinimg.com/564x/ca/1b/41/ca1b41c7a5e984458a865c05c97802e7.jpg',
   ],
   [
     'Paintings',
-    'https://img.freepik.com/free-vector/various-color-checkered-cotton-shirts-folded-stack_1441-3074.jpg?w=1380&t=st=1708074608~exp=1708075208~hmac=08ad9e959fea122ee32e34b5865982a5d3bf423a78796794223a4beebd35b7a9',
+    'https://thumbs.dreamstime.com/b/art-studio-design-interior-colorful-vector-illustration-painting-tools-elements-cartoon-colorful-vector-concept-art-supplies-easel-126529488.jpg',
   ],
   [
     'Sculptures',
-    'https://img.freepik.com/free-vector/various-color-checkered-cotton-shirts-folded-stack_1441-3074.jpg?w=1380&t=st=1708074608~exp=1708075208~hmac=08ad9e959fea122ee32e34b5865982a5d3bf423a78796794223a4beebd35b7a9',
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQXttbJVXI2W3hkIcthvzFM7ZOxxT9mQT8T09anYv4pQaX0TGvOoiMe6qOGuqkO5vqvIns&usqp=CAU',
   ],
   [
     'Decorations',
-    'https://img.freepik.com/free-vector/various-color-checkered-cotton-shirts-folded-stack_1441-3074.jpg?w=1380&t=st=1708074608~exp=1708075208~hmac=08ad9e959fea122ee32e34b5865982a5d3bf423a78796794223a4beebd35b7a9',
+    'https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/i/90f00138-24aa-4f42-8d4b-815228663372/d5ohk6x-72088887-4c89-4b0c-8013-f9f6ae351d41.jpg',
   ],
   [
     'Festive Essentials',
-    'https://img.freepik.com/free-vector/various-color-checkered-cotton-shirts-folded-stack_1441-3074.jpg?w=1380&t=st=1708074608~exp=1708075208~hmac=08ad9e959fea122ee32e34b5865982a5d3bf423a78796794223a4beebd35b7a9',
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTUgpsHoOvTZZmkP2oP0WS6twd8b31GjdofSbLpuDBG1w&s',
   ],
 ];

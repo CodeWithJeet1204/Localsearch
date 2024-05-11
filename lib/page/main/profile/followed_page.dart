@@ -118,7 +118,7 @@ class _FollowedPageState extends State<FollowedPage>
 
     await Future.forEach(myFollowedOrganizers, (organizerId) async {
       final organizerSnap =
-          await store.collection('Events').doc(organizerId).get();
+          await store.collection('Organizers').doc(organizerId).get();
 
       if (organizerSnap.exists) {
         final organizerData = organizerSnap.data()!;
@@ -176,7 +176,7 @@ class _FollowedPageState extends State<FollowedPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Followed"),
+        title: const Text('Followed'),
         forceMaterialTransparency: true,
         bottom: PreferredSize(
           preferredSize: Size(
@@ -221,10 +221,10 @@ class _FollowedPageState extends State<FollowedPage>
             },
             tabs: const [
               Tab(
-                text: "Shops",
+                text: 'Shops',
               ),
               Tab(
-                text: "Organizers",
+                text: 'Organizers',
               ),
             ],
           ),
@@ -325,7 +325,7 @@ class _FollowedPageState extends State<FollowedPage>
                                                             : primaryDark,
                                                   ),
                                                 ),
-                                                tooltip: "See $type",
+                                                tooltip: 'See $type',
                                                 onPressed: () {
                                                   setState(() {
                                                     if (selectedShopType ==
@@ -389,7 +389,7 @@ class _FollowedPageState extends State<FollowedPage>
                                                     },
                                                     backgroundColor: Colors.red,
                                                     icon: FeatherIcons.trash,
-                                                    label: "Unfollow",
+                                                    label: 'Unfollow',
                                                     borderRadius:
                                                         const BorderRadius.only(
                                                       topRight:
@@ -542,7 +542,7 @@ class _FollowedPageState extends State<FollowedPage>
                                                             : primaryDark,
                                                   ),
                                                 ),
-                                                tooltip: "See $type",
+                                                tooltip: 'See $type',
                                                 onPressed: () {
                                                   setState(() {
                                                     if (selectedOrganizerType ==
@@ -612,7 +612,7 @@ class _FollowedPageState extends State<FollowedPage>
                                                     },
                                                     backgroundColor: Colors.red,
                                                     icon: FeatherIcons.trash,
-                                                    label: "Unfollow",
+                                                    label: 'Unfollow',
                                                     borderRadius:
                                                         const BorderRadius.only(
                                                       topRight:

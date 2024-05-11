@@ -348,7 +348,7 @@ class _CategoryPageState extends State<CategoryPage> {
                                                             ),
                                                             splashColor:
                                                                 Colors.red,
-                                                            tooltip: "Wishlist",
+                                                            tooltip: 'Wishlist',
                                                           ),
                                                         ],
                                                       ),

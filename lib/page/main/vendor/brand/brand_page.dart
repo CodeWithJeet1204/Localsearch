@@ -344,7 +344,7 @@ class _BrandPageState extends State<BrandPage> {
                                                             ),
                                                             splashColor:
                                                                 Colors.red,
-                                                            tooltip: "Wishlist",
+                                                            tooltip: 'Wishlist',
                                                           ),
                                                         ],
                                                       ),

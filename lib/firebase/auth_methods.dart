@@ -44,7 +44,7 @@ class AuthMethods {
     try {
       _auth.currentUser!.sendEmailVerification();
       mySnackBar(
-        "Email Verification has been sent",
+        'Email Verification has been sent',
         context,
       );
     } on FirebaseAuthException catch (e) {
@@ -82,7 +82,7 @@ class AuthMethods {
 
   // GOOGLE SIGN IN
   final GoogleSignIn googleSignIn = GoogleSignIn(
-    hostedDomain: "",
+    hostedDomain: '',
   );
 
   /*Future<void>*/ signInWithGoogle(BuildContext context) async {

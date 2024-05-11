@@ -16,7 +16,7 @@ class SpeechToText extends StatefulWidget {
 class _SpeechToTextState extends State<SpeechToText> {
   late stt.SpeechToText speech;
   bool isListening = true;
-  String text = "Press the button to speak";
+  String text = 'Press the button to speak';
   double confidence = 1;
 
   // INIT STATE
@@ -32,9 +32,9 @@ class _SpeechToTextState extends State<SpeechToText> {
     if (!isListening) {
       print(2);
       bool available = await speech.initialize(
-        onStatus: (status) => print("Status: $status"),
+        onStatus: (status) => print('Status: $status'),
         onError: (errorNotification) =>
-            print("Error Notification: $errorNotification"),
+            print('Error Notification: $errorNotification'),
       );
       if (available) {
         print(3);
@@ -122,7 +122,7 @@ class _SpeechToTextState extends State<SpeechToText> {
                       isListening ? FeatherIcons.mic : FeatherIcons.micOff,
                       size: width * 0.1125,
                     ),
-                    tooltip: isListening ? 'Done' : "Start Speaking",
+                    tooltip: isListening ? 'Done' : 'Start Speaking',
                   ),
                 ),
                 Padding(
@@ -134,7 +134,7 @@ class _SpeechToTextState extends State<SpeechToText> {
                     icon: const Icon(
                       FeatherIcons.check,
                     ),
-                    tooltip: "Done",
+                    tooltip: 'Done',
                   ),
                 ),
               ],

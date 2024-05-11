@@ -202,7 +202,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
             },
             color: primaryDark,
             backgroundColor: Color.fromARGB(255, 243, 253, 255),
-            semanticsLabel: "Refresh",
+            semanticsLabel: 'Refresh',
             child: LayoutBuilder(
               builder: ((context, constraints) {
                 final double width = constraints.maxWidth;
@@ -229,7 +229,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                       //       },
                       //       icon: const Icon(FeatherIcons.search),
                       //       color: primaryDark2.withOpacity(0.8),
-                      //       tooltip: "Search",
+                      //       tooltip: 'Search',
                       //     ),
                       //   ),
                       // ),
@@ -523,7 +523,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                         ),
                                         SizedBox(height: 8),
                                         Text(
-                                          "See All",
+                                          'See All',
                                           style: TextStyle(
                                             fontWeight: FontWeight.w500,
                                           ),

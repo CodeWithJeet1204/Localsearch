@@ -149,7 +149,7 @@ class _PostsPageState extends State<PostsPage> {
                 },
                 color: primaryDark,
                 backgroundColor: Color.fromARGB(255, 243, 253, 255),
-                semanticsLabel: "Refresh",
+                semanticsLabel: 'Refresh',
                 child: Padding(
                   padding: EdgeInsets.symmetric(
                     horizontal: MediaQuery.of(context).size.width * 0.00625,
@@ -265,7 +265,7 @@ class _PostsPageState extends State<PostsPage> {
                                               icon: Icon(
                                                 FeatherIcons.share2,
                                               ),
-                                              tooltip: "Share Product",
+                                              tooltip: 'Share Product',
                                             ),
                                           ],
                                         ),

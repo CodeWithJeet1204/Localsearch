@@ -8,6 +8,7 @@ import 'package:find_easy_user/page/main/vendor/category/all_category_page.dart'
 import 'package:find_easy_user/page/main/vendor/category/category_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/image_show.dart';
+import 'package:find_easy_user/widgets/see_more_text.dart';
 import 'package:find_easy_user/widgets/snack_bar.dart';
 import 'package:find_easy_user/widgets/text_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -45,8 +46,8 @@ class _VendorPageState extends State<VendorPage> {
   Map<String, String>? categories;
   Map<String, dynamic> products = {};
   String? productSort = 'Recently Added';
-  final ScrollController _scrollController = ScrollController();
-  int _numProductsLoaded = 7;
+  final ScrollController scrollController = ScrollController();
+  int numProductsLoaded = 7;
 
   // INIT STATE
   @override
@@ -58,29 +59,29 @@ class _VendorPageState extends State<VendorPage> {
     getProducts();
     sortProducts(EventSorting.recentlyAdded);
     super.initState();
-    _scrollController.addListener(_scrollListener);
+    scrollController.addListener(scrollListener);
     setRecentShop();
   }
 
   // DISPOSE
   @override
   void dispose() {
-    _scrollController.dispose();
+    scrollController.dispose();
     super.dispose();
   }
 
   // SCROLL LISTENER
-  void _scrollListener() {
-    if (_scrollController.position.pixels ==
-        _scrollController.position.maxScrollExtent) {
-      _loadMoreProducts();
+  void scrollListener() {
+    if (scrollController.position.pixels ==
+        scrollController.position.maxScrollExtent) {
+      loadMoreProducts();
     }
   }
 
   // LOAD MORE PRODUCTS
-  void _loadMoreProducts() {
+  void loadMoreProducts() {
     setState(() {
-      _numProductsLoaded += 7;
+      numProductsLoaded += 7;
     });
   }
 
@@ -110,6 +111,9 @@ class _VendorPageState extends State<VendorPage> {
     final vendorData = vendorSnap.data()!;
 
     int views = vendorData['Views'] ?? 0;
+    List viewsTimestamp = vendorData['viewsTimestamp'] ?? [];
+
+    viewsTimestamp.add(DateTime.now());
 
     views = views + 1;
 
@@ -120,6 +124,7 @@ class _VendorPageState extends State<VendorPage> {
         .doc(widget.vendorId)
         .update({
       'Views': views,
+      'viewsTimestamp': viewsTimestamp,
     });
   }
 
@@ -168,8 +173,8 @@ class _VendorPageState extends State<VendorPage> {
     setState(() {
       ownerData = currentOwnerData;
     });
-    print("Owner1: $ownerData");
-    print("Shop1: $shopData");
+    print('Owner1: $ownerData');
+    print('Shop1: $shopData');
 
     await getCategories();
   }
@@ -292,8 +297,8 @@ class _VendorPageState extends State<VendorPage> {
   // GET CATEGORIES
   Future<void> getCategories() async {
     Map<String, String> category = {};
-    print("Owner2: $ownerData");
-    print("Shop2: $shopData");
+    print('Owner2: $ownerData');
+    print('Shop2: $shopData');
     final categoriesSnap = await store
         .collection('Business')
         .doc('Special Categories')
@@ -419,7 +424,7 @@ class _VendorPageState extends State<VendorPage> {
           IconButton(
             onPressed: () {},
             icon: const Icon(FeatherIcons.share2),
-            tooltip: "Share Shop",
+            tooltip: 'Share Shop',
           ),
         ],
       ),
@@ -471,20 +476,11 @@ class _VendorPageState extends State<VendorPage> {
                                   ),
                                 ),
                               ),
+
                               SizedBox(height: width * 0.0225),
-                              SizedBox(
-                                width: width * 0.9,
-                                child: Text(
-                                  shopData!['Name'],
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: width * 0.055,
-                                  ),
-                                ),
-                              ),
+
                               SizedBox(height: width * 0.0225),
+
                               Text(
                                 shopData!['Type'],
                                 maxLines: 1,
@@ -630,59 +626,154 @@ class _VendorPageState extends State<VendorPage> {
 
                               SizedBox(height: width * 0.0125),
 
-                              // ADDRESS
+                              // NAME
                               Padding(
                                 padding: EdgeInsets.symmetric(
                                   horizontal: width * 0.0125,
+                                  vertical: width * 0.0175,
                                 ),
                                 child: Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceAround,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          ownerData!['Name'],
-                                          style: TextStyle(
-                                            fontSize: width * 0.04,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: width * 0.8,
-                                          child: Text(
-                                            shopData!['Address'],
-                                          ),
-                                        ),
-                                      ],
+                                    SizedBox(
+                                      width: width * 0.8,
+                                      child: Text(
+                                        ownerData!['Name'],
+                                      ),
                                     ),
-                                    IconButton(
-                                      onPressed: () async {
-                                        String encodedAddress = Uri.encodeFull(
-                                            shopData!['Address']);
-
-                                        Uri mapsUrl = Uri.parse(
-                                            'https://www.google.com/maps/search/?api=1&query=$encodedAddress');
-
-                                        if (await canLaunchUrl(mapsUrl)) {
-                                          await launchUrl(mapsUrl);
-                                        } else {
-                                          mySnackBar(
-                                            'Something went Wrong',
-                                            context,
-                                          );
-                                        }
-                                      },
-                                      icon: const Icon(FeatherIcons.mapPin),
-                                      tooltip: "Locate on Maps",
+                                    Padding(
+                                      padding: EdgeInsets.only(
+                                        right: width * 0.034,
+                                      ),
+                                      child: Icon(FeatherIcons.user),
                                     ),
                                   ],
                                 ),
+                              ),
+
+                              SizedBox(height: width * 0.033),
+
+                              // ADDRESS
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: width * 0.0125,
+                                ),
+                                child: GestureDetector(
+                                  onTap: () async {
+                                    String encodedAddress =
+                                        Uri.encodeFull(shopData!['Address']);
+
+                                    Uri mapsUrl = Uri.parse(
+                                        'https://www.google.com/maps/search/?api=1&query=$encodedAddress');
+
+                                    if (await canLaunchUrl(mapsUrl)) {
+                                      await launchUrl(mapsUrl);
+                                    } else {
+                                      mySnackBar(
+                                        'Something went Wrong',
+                                        context,
+                                      );
+                                    }
+                                  },
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      SizedBox(
+                                        width: width * 0.8,
+                                        child: Text(
+                                          shopData!['Address'],
+                                        ),
+                                      ),
+                                      IconButton(
+                                        onPressed: () async {
+                                          String encodedAddress =
+                                              Uri.encodeFull(
+                                                  shopData!['Address']);
+
+                                          Uri mapsUrl = Uri.parse(
+                                              'https://www.google.com/maps/search/?api=1&query=$encodedAddress');
+
+                                          if (await canLaunchUrl(mapsUrl)) {
+                                            await launchUrl(mapsUrl);
+                                          } else {
+                                            mySnackBar(
+                                              'Something went Wrong',
+                                              context,
+                                            );
+                                          }
+                                        },
+                                        icon: const Icon(FeatherIcons.mapPin),
+                                        tooltip: 'Locate on Maps',
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+
+                              SizedBox(height: width * 0.033),
+
+                              // INDUSTRY
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: width * 0.0125,
+                                  vertical: width * 0.0175,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      width: width * 0.8,
+                                      child: Text(
+                                        shopData!['Industry'],
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.only(
+                                        right: width * 0.034,
+                                      ),
+                                      child: Icon(Icons.factory_outlined),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              SizedBox(height: width * 0.033),
+
+                              // DESCRIPTION
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.only(left: width * 0.015),
+                                    child: SizedBox(
+                                      width: width * 0.85,
+                                      child: Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: SeeMoreText(
+                                          shopData!['Description'],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.only(right: width * 0.04),
+                                    child: Icon(
+                                      Icons.info_outline,
+                                      size: width * 0.075,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -1003,10 +1094,9 @@ class _VendorPageState extends State<VendorPage> {
                                 child: ListView.builder(
                                   shrinkWrap: true,
                                   physics: const ClampingScrollPhysics(),
-                                  itemCount:
-                                      _numProductsLoaded > products.length
-                                          ? products.length
-                                          : _numProductsLoaded,
+                                  itemCount: numProductsLoaded > products.length
+                                      ? products.length
+                                      : numProductsLoaded,
                                   itemBuilder: ((context, index) {
                                     final name =
                                         products.values.toList()[index][0];

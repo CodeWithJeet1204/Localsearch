@@ -42,14 +42,14 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
       });
       if (isChangingName && !isChangingNumber) {
         if (nameController.text.isEmpty) {
-          mySnackBar("Name should be atleast 1 characters long", context);
+          mySnackBar('Name should be atleast 1 characters long', context);
           setState(() {
             isSaving = false;
           });
           return;
         } else {
           Map<String, dynamic> updatedUserName = {
-            "Name": nameController.text.toString(),
+            'Name': nameController.text.toString(),
           };
           await FirebaseFirestore.instance
               .collection('Users')
@@ -63,14 +63,14 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
         });
       } else if (!isChangingName && isChangingNumber) {
         if (numberController.text.length != 10) {
-          mySnackBar("Number should be 10 characters long", context);
+          mySnackBar('Number should be 10 characters long', context);
           setState(() {
             isSaving = false;
           });
           return;
         } else {
           Map<String, dynamic> updatedUserNumber = {
-            "Phone Number": numberController.text.toString(),
+            'Phone Number': numberController.text.toString(),
           };
           await FirebaseFirestore.instance
               .collection('Users')
@@ -88,7 +88,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
             isSaving = false;
           });
           return mySnackBar(
-            "Name should be atleast 1 characters long",
+            'Name should be atleast 1 characters long',
             context,
           );
         }
@@ -97,13 +97,13 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
             isSaving = false;
           });
           return mySnackBar(
-            "Number should be 10 characters long",
+            'Number should be 10 characters long',
             context,
           );
         } else {
           // NAME
           Map<String, dynamic> updatedUserName = {
-            "Name": nameController.text.toString(),
+            'Name': nameController.text.toString(),
           };
           await FirebaseFirestore.instance
               .collection('Users')
@@ -112,7 +112,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
 
           // NUMBER
           Map<String, dynamic> updatedUserNumber = {
-            "Phone Number": numberController.text.toString(),
+            'Phone Number': numberController.text.toString(),
           };
           await FirebaseFirestore.instance
               .collection('Users')
@@ -147,7 +147,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
       appBar: AppBar(
         title: const Text(
           overflow: TextOverflow.ellipsis,
-          "User Details",
+          'User Details',
         ),
       ),
       body: Padding(
@@ -162,7 +162,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                   if (snapshot.hasError) {
                     return const Center(
                       child: Text(
-                        "Something went wrong",
+                        'Something went wrong',
                         overflow: TextOverflow.ellipsis,
                       ),
                     );
@@ -194,7 +194,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                     onTapOutside: (event) =>
                                         FocusScope.of(context).unfocus(),
                                     decoration: InputDecoration(
-                                      hintText: "Change Name",
+                                      hintText: 'Change Name',
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(12),
                                       ),
@@ -230,7 +230,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                             });
                                           },
                                           icon: const Icon(FeatherIcons.edit),
-                                          tooltip: "Edit Name",
+                                          tooltip: 'Edit Name',
                                         ),
                                       ),
                                     ],
@@ -255,7 +255,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                     onTapOutside: (event) =>
                                         FocusScope.of(context).unfocus(),
                                     decoration: InputDecoration(
-                                      hintText: "Change Number",
+                                      hintText: 'Change Number',
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(12),
                                       ),
@@ -293,7 +293,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                             });
                                           },
                                           icon: const Icon(FeatherIcons.edit),
-                                          tooltip: "Edit Phone Number",
+                                          tooltip: 'Edit Phone Number',
                                         ),
                                       ),
                                     ],
@@ -390,7 +390,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                               ),
                                             ))
                                         : MyButton(
-                                            text: "SAVE",
+                                            text: 'SAVE',
                                             onTap: save,
                                             isLoading: false,
                                             horizontalPadding: 0,
@@ -399,7 +399,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
 
                                     // CANCEL
                                     MyButton(
-                                      text: "CANCEL",
+                                      text: 'CANCEL',
                                       onTap: () {
                                         setState(() {
                                           isChangingName = false;

@@ -55,8 +55,8 @@ class _AllCategoryPageState extends State<AllCategoryPage> {
     setState(() {
       ownerData = currentOwnerData;
     });
-    print("Owner1: $ownerData");
-    print("Shop1: $shopData");
+    print('Owner1: $ownerData');
+    print('Shop1: $shopData');
 
     await getCategories();
   }
