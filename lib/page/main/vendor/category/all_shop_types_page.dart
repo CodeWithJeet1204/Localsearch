@@ -1,6 +1,6 @@
 import 'package:find_easy_user/models/business_categories.dart';
 import 'package:find_easy_user/models/household_categories.dart';
-import 'package:find_easy_user/page/main/category/shop_categories_page.dart';
+import 'package:find_easy_user/page/main/vendor/category/shop_categories_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:flutter/material.dart';
 

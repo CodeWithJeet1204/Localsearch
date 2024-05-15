@@ -59,7 +59,7 @@ class _NumberVerifyPageState extends State<NumberVerifyPage> {
             'numberVerified': false,
             'Email': null,
             'Name': null,
-            'recentShop': null,
+            'recentShop': '',
             'followedShops': [],
             'followedOrganizers': [],
             'wishlists': [],

@@ -2,8 +2,8 @@ import 'dart:async';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
-import 'package:find_easy_user/page/main/category/category_products_page.dart';
-import 'package:find_easy_user/page/main/product/product_all_reviews_page.dart';
+import 'package:find_easy_user/page/main/vendor/category/category_products_page.dart';
+import 'package:find_easy_user/page/main/vendor/product/product_all_reviews_page.dart';
 import 'package:find_easy_user/page/main/vendor/vendor_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/image_view.dart';
@@ -994,13 +994,25 @@ class _ProductPageState extends State<ProductPage> {
     final int propertyNoOfAnswers4 = properties['propertyNoOfAnswers4'];
     final int propertyNoOfAnswers5 = properties['propertyNoOfAnswers5'];
 
+    final String shortsThumbnail = data['shortsThumbnail'];
+
+    final String shortsURL = data['shortsURL'];
+
+    if (shortsThumbnail != '') {
+      print("Inserting");
+      if (!images.contains(shortsThumbnail)) {
+        images.insert(0, shortsThumbnail);
+      }
+    }
+
     final bool isAvailable = data['isAvailable'];
 
     final bool bulkSellAvailable = data['bulkSellAvailable'];
     final bool cardOffersAvailable = data['cardOffersAvailable'];
     final bool codAvailable = data['codAvailable'];
     final bool deliveryAvailable = data['deliveryAvailable'];
-    final double? deliveryRange = data['deliveryRange'];
+    final double? deliveryRange =
+        double.parse((data['deliveryRange']).toString());
     final bool giftWrapAvailable = data['giftWrapAvailable'];
     final bool gstInvoiceAvailable = data['gstInvoiceAvailable'];
     final bool refundAvailable = data['refundAvailable'];
@@ -1104,31 +1116,102 @@ class _ProductPageState extends State<ProductPage> {
                             CarouselSlider(
                               items: (images)
                                   .map(
-                                    (e) => GestureDetector(
-                                      onTap: () {
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: ((context) => ImageView(
-                                                  imagesUrl: images,
-                                                )),
+                                    (e) => Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        GestureDetector(
+                                          onTap: () {
+                                            images.remove(
+                                              shortsThumbnail,
+                                            );
+                                            images.insert(
+                                              0,
+                                              shortsURL,
+                                            );
+                                            Navigator.of(context)
+                                                .push(
+                                              MaterialPageRoute(
+                                                builder: ((context) =>
+                                                    ImageView(
+                                                      imagesUrl: images,
+                                                      shortsThumbnail:
+                                                          shortsThumbnail,
+                                                      shortsURL: shortsURL,
+                                                    )),
+                                              ),
+                                            )
+                                                .then((value) {
+                                              images.remove(
+                                                shortsURL,
+                                              );
+                                              images.insert(
+                                                0,
+                                                shortsThumbnail,
+                                              );
+                                            });
+                                            ;
+                                          },
+                                          child: Container(
+                                            alignment: Alignment.center,
+                                            child: Image.network(e),
                                           ),
-                                        );
-                                      },
-                                      child: Container(
-                                        alignment: Alignment.center,
-                                        // width: width * 1.5,
-                                        // height: width * 1.5,
-                                        // decoration: BoxDecoration(
-                                        //   border: Border.all(
-                                        //     color: primaryDark2,
-                                        //     width: 0.25,
-                                        //   ),
-                                        //   borderRadius: BorderRadius.circular(12),
-                                        // ),
-                                        child: Image.network(
-                                          e,
                                         ),
-                                      ),
+                                        e != shortsThumbnail
+                                            ? SizedBox(
+                                                width: 1,
+                                                height: 1,
+                                              )
+                                            : GestureDetector(
+                                                onTap: () {
+                                                  images.remove(
+                                                    shortsThumbnail,
+                                                  );
+                                                  images.insert(
+                                                    0,
+                                                    shortsURL,
+                                                  );
+
+                                                  Navigator.of(context)
+                                                      .push(
+                                                    MaterialPageRoute(
+                                                      builder: ((context) =>
+                                                          ImageView(
+                                                            imagesUrl: images,
+                                                            shortsThumbnail:
+                                                                shortsThumbnail,
+                                                            shortsURL:
+                                                                shortsURL,
+                                                          )),
+                                                    ),
+                                                  )
+                                                      .then((value) {
+                                                    images.remove(
+                                                      shortsURL,
+                                                    );
+                                                    images.insert(
+                                                      0,
+                                                      shortsThumbnail,
+                                                    );
+                                                  });
+                                                },
+                                                child: Container(
+                                                  width: width * 0.2,
+                                                  height: width * 0.2,
+                                                  decoration: BoxDecoration(
+                                                    color:
+                                                        white.withOpacity(0.5),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            100),
+                                                  ),
+                                                  child: Icon(
+                                                    Icons.play_arrow_rounded,
+                                                    color: white,
+                                                    size: width * 0.2,
+                                                  ),
+                                                ),
+                                              ),
+                                      ],
                                     ),
                                   )
                                   .toList(),
@@ -1158,6 +1241,11 @@ class _ProductPageState extends State<ProductPage> {
                                     if (snapshot.hasData) {
                                       final priceSnap = snapshot.data!;
                                       Map<String, dynamic> data = {};
+
+                                      if (priceSnap.docs.isEmpty) {
+                                        return Container();
+                                      }
+
                                       for (QueryDocumentSnapshot<
                                               Map<String, dynamic>> doc
                                           in priceSnap.docs) {
@@ -1407,68 +1495,20 @@ class _ProductPageState extends State<ProductPage> {
                       ),
 
                       // AVAILABLE
-                      !isAvailable
-                          ? Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.symmetric(
-                                    vertical: width * 0.0175,
-                                    horizontal: width * 0.02,
-                                  ),
-                                  child: Text(
-                                    'OUT OF STOCK',
-                                    style: TextStyle(
-                                      color: Colors.red,
-                                      fontSize: width * 0.05,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
+                      isAvailable
+                          ? Padding(
+                              padding: EdgeInsets.symmetric(
+                                vertical: width * 0.0175,
+                                horizontal: width * 0.02,
+                              ),
+                              child: Text(
+                                'OUT OF STOCK',
+                                style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: width * 0.05,
+                                  fontWeight: FontWeight.w600,
                                 ),
-
-                                // LIKES
-                                GestureDetector(
-                                  onTap: () async {
-                                    await likeProduct();
-                                  },
-                                  child: Container(
-                                    padding: EdgeInsets.all(width * 0.0225),
-                                    margin: EdgeInsets.symmetric(
-                                      vertical: width * 0.0175,
-                                      horizontal: width * 0.02,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: isLiked
-                                          ? Color.fromRGBO(228, 228, 228, 1)
-                                          : white,
-                                      border: Border.all(
-                                        width: 1,
-                                        color: isLiked
-                                            ? white
-                                            : Color.fromRGBO(228, 228, 228, 1),
-                                      ),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceAround,
-                                      children: [
-                                        Text(
-                                          likes.toString(),
-                                          style: TextStyle(),
-                                        ),
-                                        SizedBox(width: width * 0.0225),
-                                        Icon(
-                                          isLiked
-                                              ? Icons.thumb_up
-                                              : Icons.thumb_up_outlined,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
+                              ),
                             )
                           : Container(),
 
@@ -1503,7 +1543,19 @@ class _ProductPageState extends State<ProductPage> {
                                         )
                                       : Container()
                                   : Container()
-                              : Container(),
+                              : Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: width * 0.0175,
+                                    horizontal: width * 0.02,
+                                  ),
+                                  child: Text(
+                                    'Delivery Not Available',
+                                    style: TextStyle(
+                                      color: Colors.red,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
 
                           // LIKES
                           isAvailable
@@ -1709,147 +1761,155 @@ class _ProductPageState extends State<ProductPage> {
                       ),
 
                       // PROPERTIES
-                      Center(
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: width * 0.05,
-                            vertical: width * 0.025,
-                          ),
-                          margin: EdgeInsets.symmetric(
-                            horizontal: width * 0.0125,
-                            vertical: width * 0.025,
-                          ),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              width: 0.25,
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
+                      propertyName0 == '' &&
+                              propertyName1 == '' &&
+                              propertyName2 == '' &&
+                              propertyName3 == '' &&
+                              propertyName4 == '' &&
+                              propertyName5 == ''
+                          ? Container()
+                          : Center(
+                              child: Container(
                                 padding: EdgeInsets.symmetric(
-                                  horizontal: width * 0.0225,
-                                  vertical: width * 0.0125,
+                                  horizontal: width * 0.05,
+                                  vertical: width * 0.025,
                                 ),
-                                child: Text(
-                                  'Properties',
-                                  style: TextStyle(
-                                    fontSize: width * 0.05,
+                                margin: EdgeInsets.symmetric(
+                                  horizontal: width * 0.0125,
+                                  vertical: width * 0.025,
+                                ),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    width: 0.25,
                                   ),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: width * 0.0225,
+                                        vertical: width * 0.0125,
+                                      ),
+                                      child: Text(
+                                        'Properties',
+                                        style: TextStyle(
+                                          fontSize: width * 0.05,
+                                        ),
+                                      ),
+                                    ),
+                                    DataTable(
+                                      columns: const [
+                                        DataColumn(
+                                          label: Text('Property'),
+                                        ),
+                                        DataColumn(
+                                          label: Text('Value'),
+                                        ),
+                                      ],
+                                      rows: [
+                                        if (propertyName0 != '' &&
+                                            propertyValue0.length == 1)
+                                          DataRow(
+                                            cells: [
+                                              DataCell(
+                                                Text(propertyName0),
+                                              ),
+                                              DataCell(
+                                                Text(propertyValue0[0]),
+                                              ),
+                                            ],
+                                          ),
+                                        if (propertyName1 != '' &&
+                                            propertyValue1.length == 1)
+                                          DataRow(
+                                            cells: [
+                                              DataCell(
+                                                Text(propertyName1),
+                                              ),
+                                              DataCell(
+                                                Text(propertyValue1[0]),
+                                              ),
+                                            ],
+                                          ),
+                                        if (propertyName2 != '' &&
+                                            propertyValue2.length == 1)
+                                          DataRow(
+                                            cells: [
+                                              DataCell(
+                                                Text(propertyName2),
+                                              ),
+                                              DataCell(
+                                                Text(propertyValue2[0]),
+                                              ),
+                                            ],
+                                          ),
+                                        if (propertyName3 != '' &&
+                                            propertyValue3.length == 1)
+                                          DataRow(
+                                            cells: [
+                                              DataCell(
+                                                Text(propertyName3),
+                                              ),
+                                              DataCell(
+                                                Text(propertyValue3[0]),
+                                              ),
+                                            ],
+                                          ),
+                                        if (propertyName4 != '' &&
+                                            propertyValue4.length == 1)
+                                          DataRow(
+                                            cells: [
+                                              DataCell(
+                                                Text(propertyName4),
+                                              ),
+                                              DataCell(
+                                                Text(propertyValue4[0]),
+                                              ),
+                                            ],
+                                          ),
+                                        if (propertyName5 != '' &&
+                                            propertyValue5.length == 1)
+                                          DataRow(
+                                            cells: [
+                                              DataCell(
+                                                Text(propertyName5),
+                                              ),
+                                              DataCell(
+                                                Text(propertyValue5[0]),
+                                              ),
+                                            ],
+                                          ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
                               ),
-                              DataTable(
-                                columns: const [
-                                  DataColumn(
-                                    label: Text('Property'),
-                                  ),
-                                  DataColumn(
-                                    label: Text('Value'),
-                                  ),
-                                ],
-                                rows: [
-                                  if (propertyName0 != '' &&
-                                      propertyValue0.length == 1)
-                                    DataRow(
-                                      cells: [
-                                        DataCell(
-                                          Text(propertyName0),
-                                        ),
-                                        DataCell(
-                                          Text(propertyValue0[0]),
-                                        ),
-                                      ],
-                                    ),
-                                  if (propertyName1 != '' &&
-                                      propertyValue1.length == 1)
-                                    DataRow(
-                                      cells: [
-                                        DataCell(
-                                          Text(propertyName1),
-                                        ),
-                                        DataCell(
-                                          Text(propertyValue1[0]),
-                                        ),
-                                      ],
-                                    ),
-                                  if (propertyName2 != '' &&
-                                      propertyValue2.length == 1)
-                                    DataRow(
-                                      cells: [
-                                        DataCell(
-                                          Text(propertyName2),
-                                        ),
-                                        DataCell(
-                                          Text(propertyValue2[0]),
-                                        ),
-                                      ],
-                                    ),
-                                  if (propertyName3 != '' &&
-                                      propertyValue3.length == 1)
-                                    DataRow(
-                                      cells: [
-                                        DataCell(
-                                          Text(propertyName3),
-                                        ),
-                                        DataCell(
-                                          Text(propertyValue3[0]),
-                                        ),
-                                      ],
-                                    ),
-                                  if (propertyName4 != '' &&
-                                      propertyValue4.length == 1)
-                                    DataRow(
-                                      cells: [
-                                        DataCell(
-                                          Text(propertyName4),
-                                        ),
-                                        DataCell(
-                                          Text(propertyValue4[0]),
-                                        ),
-                                      ],
-                                    ),
-                                  if (propertyName5 != '' &&
-                                      propertyValue5.length == 1)
-                                    DataRow(
-                                      cells: [
-                                        DataCell(
-                                          Text(propertyName5),
-                                        ),
-                                        DataCell(
-                                          Text(propertyValue5[0]),
-                                        ),
-                                      ],
-                                    ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                            ),
 
-                      // PROPERTY 0
+                      // 2/3 ANSWER PROPERTIES
                       Properties(
-                          propertyValue0: propertyValue0,
-                          propertyName0: propertyName0,
-                          propertyNoOfAnswers0: propertyNoOfAnswers0,
-                          width: width,
-                          propertyValue1: propertyValue1,
-                          propertyName1: propertyName1,
-                          propertyNoOfAnswers1: propertyNoOfAnswers1,
-                          propertyValue2: propertyValue2,
-                          propertyName2: propertyName2,
-                          propertyNoOfAnswers2: propertyNoOfAnswers2,
-                          propertyValue3: propertyValue3,
-                          propertyName3: propertyName3,
-                          propertyNoOfAnswers3: propertyNoOfAnswers3,
-                          propertyValue4: propertyValue4,
-                          propertyName4: propertyName4,
-                          propertyNoOfAnswers4: propertyNoOfAnswers4,
-                          propertyValue5: propertyValue5,
-                          propertyName5: propertyName5,
-                          propertyNoOfAnswers5: propertyNoOfAnswers5),
+                        propertyValue0: propertyValue0,
+                        propertyName0: propertyName0,
+                        propertyNoOfAnswers0: propertyNoOfAnswers0,
+                        width: width,
+                        propertyValue1: propertyValue1,
+                        propertyName1: propertyName1,
+                        propertyNoOfAnswers1: propertyNoOfAnswers1,
+                        propertyValue2: propertyValue2,
+                        propertyName2: propertyName2,
+                        propertyNoOfAnswers2: propertyNoOfAnswers2,
+                        propertyValue3: propertyValue3,
+                        propertyName3: propertyName3,
+                        propertyNoOfAnswers3: propertyNoOfAnswers3,
+                        propertyValue4: propertyValue4,
+                        propertyName4: propertyName4,
+                        propertyNoOfAnswers4: propertyNoOfAnswers4,
+                        propertyValue5: propertyValue5,
+                        propertyName5: propertyName5,
+                        propertyNoOfAnswers5: propertyNoOfAnswers5,
+                      ),
 
                       // SERVICES
                       Center(
@@ -1995,7 +2055,7 @@ class _ProductPageState extends State<ProductPage> {
                       ),
 
                       // ALL DISCOUNTS
-                      allDiscount == null
+                      allDiscount == null || allDiscount!.isEmpty
                           ? Container()
                           : AllDiscountsWidget(
                               noOfDiscounts: allDiscount!.length,
@@ -2275,11 +2335,9 @@ class _ProductPageState extends State<ProductPage> {
                             color: darkGrey,
                           ),
                         ),
-                        padding: EdgeInsets.only(
-                          left: width * 0.0225,
-                          right: width * 0.0225,
-                          top: width * 0.0125,
-                          bottom: ratings.isEmpty ? 0 : width * 0.0125,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: width * 0.0225,
+                          vertical: width * 0.0125,
                         ),
                         margin: EdgeInsets.symmetric(
                           horizontal: width * 0.0125,

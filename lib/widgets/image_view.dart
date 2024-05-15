@@ -1,15 +1,21 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:find_easy_user/utils/colors.dart';
+import 'package:flick_video_player/flick_video_player.dart';
 import 'package:flutter/material.dart';
+import 'package:video_player/video_player.dart';
 
 class ImageView extends StatefulWidget {
   const ImageView({
     super.key,
     required this.imagesUrl,
+    this.shortsURL,
+    this.shortsThumbnail,
   });
 
   final List imagesUrl;
+  final String? shortsURL;
+  final String? shortsThumbnail;
 
   @override
   State<ImageView> createState() => _ImageViewState();
@@ -17,7 +23,31 @@ class ImageView extends StatefulWidget {
 
 class _ImageViewState extends State<ImageView> {
   final controller = CarouselController();
+  late FlickManager flickManager;
   int currentIndex = 0;
+
+  // INIT STATE
+  @override
+  void initState() {
+    super.initState();
+
+    flickManager = FlickManager(
+      videoPlayerController: VideoPlayerController.networkUrl(
+        Uri.parse(
+          widget.shortsURL!,
+        ),
+      ),
+    );
+
+    print('def');
+  }
+
+  // DISPOSE
+  @override
+  void dispose() {
+    flickManager.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,40 +63,46 @@ class _ImageViewState extends State<ImageView> {
               CarouselSlider(
                 carouselController: controller,
                 items: widget.imagesUrl
-                    .map((e) => SizedBox(
-                          height: width * 8,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: InteractiveViewer(
-                              child: CachedNetworkImage(
-                                imageUrl: e,
-                                imageBuilder: (context, imageProvider) {
-                                  return Center(
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(
-                                        8,
-                                      ),
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          image: DecorationImage(
-                                            image: imageProvider,
-                                            fit: BoxFit.contain,
+                    .map((e) => e == widget.shortsURL
+                        ? AspectRatio(
+                            aspectRatio: 9 / 16,
+                            child: FlickVideoPlayer(
+                              flickManager: flickManager,
+                            ),
+                          )
+                        : SizedBox(
+                            height: width * 8,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: InteractiveViewer(
+                                child: CachedNetworkImage(
+                                  imageUrl: e,
+                                  imageBuilder: (context, imageProvider) {
+                                    return Center(
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(
+                                          8,
+                                        ),
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            image: DecorationImage(
+                                              image: imageProvider,
+                                              fit: BoxFit.contain,
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  );
-                                },
+                                    );
+                                  },
+                                ),
                               ),
                             ),
-                          ),
-                        ))
+                          ))
                     .toList(),
                 options: CarouselOptions(
                   enableInfiniteScroll: false,
-                  aspectRatio: 0.6,
-                  viewportFraction: 0.95,
-                  enlargeCenterPage: false,
+                  aspectRatio: 0.6125,
+                  enlargeCenterPage: true,
                   onPageChanged: (index, reason) {
                     setState(() {
                       controller.animateToPage(index);
@@ -90,6 +126,7 @@ class _ImageViewState extends State<ImageView> {
                         padding: const EdgeInsets.symmetric(horizontal: 4),
                         child: GestureDetector(
                           onTap: () {
+                            print("Index: $index");
                             setState(() {
                               controller.animateToPage(index);
                             });
@@ -105,7 +142,9 @@ class _ImageViewState extends State<ImageView> {
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(4),
                               child: Image.network(
-                                widget.imagesUrl[index],
+                                widget.imagesUrl[index] == widget.shortsURL
+                                    ? widget.shortsThumbnail
+                                    : widget.imagesUrl[index],
                                 height: width * 0.175,
                                 width: width * 0.175,
                               ),

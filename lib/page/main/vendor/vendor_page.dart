@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
-import 'package:find_easy_user/page/main/product/product_page.dart';
+import 'package:find_easy_user/page/main/vendor/product/product_page.dart';
 import 'package:find_easy_user/page/main/vendor/brand/all_brand_page.dart';
 import 'package:find_easy_user/page/main/vendor/brand/brand_page.dart';
 import 'package:find_easy_user/page/main/vendor/category/all_category_page.dart';
@@ -308,7 +308,7 @@ class _VendorPageState extends State<VendorPage> {
     print(categoriesSnap.docs.length);
 
     for (var categoryData in categoriesSnap.docs) {
-      final List vendorIds = categoryData['vendorIds'];
+      final List vendorIds = categoryData['vendorId'];
       if (vendorIds.contains(widget.vendorId)) {
         final name = categoryData['specialCategoryName'] as String;
         final imageUrl = categoryData['specialCategoryImageUrl'] as String;

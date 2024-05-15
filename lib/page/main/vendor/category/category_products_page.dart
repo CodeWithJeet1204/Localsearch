@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:find_easy_user/page/main/product/product_page.dart';
+import 'package:find_easy_user/page/main/vendor/product/product_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/skeleton_container.dart';
 import 'package:flutter/material.dart';

@@ -1,5 +1,5 @@
 import 'package:find_easy_user/models/business_sub_categories.dart';
-import 'package:find_easy_user/page/main/category/category_products_page.dart';
+import 'package:find_easy_user/page/main/vendor/category/category_products_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';

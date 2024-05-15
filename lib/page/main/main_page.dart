@@ -6,8 +6,9 @@ import 'package:find_easy_user/page/auth/verify/email_verify.dart';
 import 'package:find_easy_user/page/main/events/events_home_page.dart';
 import 'package:find_easy_user/page/main/product_home_page.dart';
 import 'package:find_easy_user/page/main/post_page.dart';
-import 'package:find_easy_user/page/main/profile/profile_page.dart';
+import 'package:find_easy_user/page/main/vendor/profile/profile_page.dart';
 import 'package:find_easy_user/page/main/services/services_home_page.dart';
+import 'package:find_easy_user/page/main/vendor/shorts_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/snack_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -24,13 +25,14 @@ class _MainPageState extends State<MainPage>
     with AutomaticKeepAliveClientMixin {
   final auth = FirebaseAuth.instance.currentUser!;
   final store = FirebaseFirestore.instance;
-  int current = 4;
+  int current = 2;
   Widget? detailsPage;
 
   List<Widget> items = [
     const PostsPage(),
     const ProductHomePage(),
-    ServicesHomePage(),
+    const ShortsPage(),
+    const ServicesHomePage(),
     const EventsHomePage(),
     const ProfilePage(),
   ];
@@ -110,20 +112,28 @@ class _MainPageState extends State<MainPage>
           ),
           bottomNavigationBar: BottomNavigationBar(
             elevation: 0,
-            backgroundColor: white,
-            selectedLabelStyle: const TextStyle(
+            backgroundColor: current == 2 ? black : white,
+            selectedLabelStyle: TextStyle(
               fontWeight: FontWeight.w500,
-              color: primaryDark,
+              color: current == 2 ? darkGrey.withOpacity(0.66) : primaryDark,
+            ),
+            unselectedLabelStyle: TextStyle(
+              fontWeight: FontWeight.w400,
+              color: current == 2
+                  ? darkGrey.withOpacity(0.5)
+                  : black.withOpacity(0.5),
             ),
             useLegacyColorScheme: false,
             type: BottomNavigationBarType.fixed,
-            selectedIconTheme: const IconThemeData(
+            selectedIconTheme: IconThemeData(
               size: 24,
-              color: primaryDark,
+              color: current == 2 ? lightGrey.withOpacity(0.66) : primaryDark,
             ),
             unselectedIconTheme: IconThemeData(
               size: 24,
-              color: black.withOpacity(0.5),
+              color: current == 2
+                  ? darkGrey.withOpacity(0.5)
+                  : black.withOpacity(0.5),
             ),
             currentIndex: current,
             onTap: changePage,
@@ -143,6 +153,14 @@ class _MainPageState extends State<MainPage>
                 activeIcon: Icon(FeatherIcons.home),
                 label: 'Products',
                 tooltip: 'PRODUCTS',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(
+                  FeatherIcons.video,
+                ),
+                activeIcon: Icon(FeatherIcons.video),
+                label: 'Shorts',
+                tooltip: 'SHORTS',
               ),
               BottomNavigationBarItem(
                 icon: Icon(

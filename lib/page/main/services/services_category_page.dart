@@ -40,6 +40,9 @@ class _ServicesCategoryPageState extends State<ServicesCategoryPage> {
             ),
             itemCount: servicesMap[widget.place]![widget.category]!.length,
             itemBuilder: ((context, index) {
+              print("Services Map: $servicesMap");
+              print(
+                  'Name: ${servicesMap[widget.place]![widget.category]![index]}');
               final name = servicesMap[widget.place]![widget.category]![index];
               final imageUrl = subCategoryImageMap[name]!;
 

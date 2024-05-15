@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:find_easy_user/page/main/product/product_page.dart';
+import 'package:find_easy_user/page/main/vendor/product/product_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/image_show.dart';
 import 'package:firebase_auth/firebase_auth.dart';
