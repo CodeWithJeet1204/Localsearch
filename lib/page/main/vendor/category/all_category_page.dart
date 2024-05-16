@@ -73,8 +73,8 @@ class _AllCategoryPageState extends State<AllCategoryPage> {
     print(categoriesSnap.docs.length);
 
     for (var categoryData in categoriesSnap.docs) {
-      final List vendorIds = categoryData['vendorIds'];
-      if (vendorIds.contains(widget.vendorId)) {
+      final List vendorId = categoryData['vendorId'];
+      if (vendorId.contains(widget.vendorId)) {
         final name = categoryData['specialCategoryName'] as String;
         final imageUrl = categoryData['specialCategoryImageUrl'] as String;
 

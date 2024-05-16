@@ -4,6 +4,7 @@ import 'package:find_easy_user/page/main/vendor/product/product_page.dart';
 import 'package:find_easy_user/page/main/vendor/vendor_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flick_video_player/flick_video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -25,38 +26,52 @@ class ShortsTile extends StatefulWidget {
 }
 
 class _ShortsTileState extends State<ShortsTile> {
-  late VideoPlayerController videoController;
-  late Future initializeVideoPlayer;
+  late FlickManager flickManager;
   final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
   bool isWishListed = false;
   bool isWishlistLocked = false;
   bool isVideoPlaying = true;
+  bool isData = false;
 
   // INIT STATE
   @override
   void initState() {
     getIfWishlist(widget.data['productId']);
-    videoController = VideoPlayerController.networkUrl(
-      Uri.parse(
-        widget.data['shortsURL'],
+    flickManager = FlickManager(
+      videoPlayerController: VideoPlayerController.networkUrl(
+        Uri.parse(
+          widget.data['shortsURL'],
+        ),
       ),
     );
-    initializeVideoPlayer = videoController.initialize();
-    videoController.setLooping(true);
+    flickManager.flickVideoManager!.videoPlayerController?.addListener(() {
+      if (flickManager
+              .flickVideoManager!.videoPlayerController!.value.position ==
+          flickManager
+              .flickVideoManager!.videoPlayerController!.value.duration) {
+        flickManager.flickControlManager!.seekTo(
+          Duration(
+            seconds: 0,
+          ),
+        );
+        flickManager.flickControlManager!.play();
+      }
+    });
     super.initState();
   }
 
   // DISPOSE
   @override
   void dispose() {
-    videoController.dispose();
+    flickManager.dispose();
     super.dispose();
   }
 
   // PAUSE PLAY SHORT
   void pausePlayShort() {
-    isVideoPlaying ? videoController.pause() : videoController.play();
+    flickManager.flickControlManager?.togglePlay();
+
     setState(() {
       isVideoPlaying = !isVideoPlaying;
     });
@@ -76,6 +91,7 @@ class _ShortsTileState extends State<ShortsTile> {
       } else {
         isWishListed = false;
       }
+      isData = true;
     });
   }
 
@@ -162,316 +178,293 @@ class _ShortsTileState extends State<ShortsTile> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
 
-    (widget.snappedPageIndex == widget.currentIndex && isVideoPlaying)
-        ? videoController.play()
-        : videoController.pause();
-
-    return SafeArea(
-      child: VisibilityDetector(
+    if (isData) {
+      return VisibilityDetector(
         key: Key('Shorts'),
         onVisibilityChanged: (info) {
-          if (info.visibleFraction == 0) {
-            videoController.pause();
-          } else {
-            videoController.play();
-          }
+          flickManager.flickControlManager?.togglePlay();
         },
-        child: Container(
-          color: black,
-          child: FutureBuilder(
-            future: initializeVideoPlayer,
-            builder: ((context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done) {
-                return Stack(
-                  children: [
-                    GestureDetector(
-                      onTap: pausePlayShort,
-                      child: Stack(
+        child: Stack(
+          children: [
+            GestureDetector(
+              onTap: pausePlayShort,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  FlickVideoPlayer(
+                    flickManager: flickManager,
+                    flickVideoWithControls: FlickVideoWithControls(
+                      videoFit: BoxFit.contain,
+                      playerLoadingFallback: Align(
                         alignment: Alignment.center,
-                        children: [
-                          VideoPlayer(videoController),
-                          Visibility(
-                            visible: !isVideoPlaying,
-                            child: IconButton(
-                              onPressed: pausePlayShort,
-                              icon: Icon(
-                                Icons.play_arrow_rounded,
-                                size: 80,
-                                color: white,
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.all(width * 0.025),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.only(left: width * 0.05),
-                                  child: IconButton(
-                                    onPressed: () async {
-                                      isWishlistLocked
-                                          ? null
-                                          : setState(() {
-                                              isWishListed = !isWishListed;
-                                            });
-                                      isWishlistLocked
-                                          ? null
-                                          : await wishlistProduct(
-                                              widget.data['productId'],
-                                            );
-                                    },
-                                    icon: Icon(
-                                      isWishListed
-                                          ? Icons.favorite_rounded
-                                          : Icons.favorite_outline_rounded,
-                                      size: width * 0.095,
-                                      color: Colors.red,
-                                    ),
-                                    tooltip: "WISHLIST",
-                                  ),
-                                ),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  mainAxisSize: MainAxisSize.max,
-                                  children: [
-                                    Expanded(
-                                      child: Container(
-                                        padding: EdgeInsets.only(
-                                          left: width * 0.0125,
-                                        ),
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceEvenly,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Row(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              children: [
-                                                FutureBuilder(
-                                                  future: getVendorInfo(
-                                                      widget.data['vendorId']),
-                                                  builder: (context, snapshot) {
-                                                    if (snapshot.hasError) {
-                                                      return Container();
-                                                    }
-
-                                                    if (snapshot.hasData) {
-                                                      return GestureDetector(
-                                                        onTap: () {
-                                                          Navigator.of(context)
-                                                              .push(
-                                                            MaterialPageRoute(
-                                                              builder:
-                                                                  ((context) =>
-                                                                      VendorPage(
-                                                                        vendorId:
-                                                                            widget.data['vendorId'],
-                                                                      )),
-                                                            ),
-                                                          );
-                                                        },
-                                                        child: Padding(
-                                                          padding:
-                                                              EdgeInsets.all(
-                                                            width * 0.006125,
-                                                          ),
-                                                          child: Text(
-                                                            snapshot.data!,
-                                                            style: TextStyle(
-                                                              color: white,
-                                                              fontSize:
-                                                                  width * 0.05,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w500,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      );
-                                                    }
-
-                                                    return Container();
-                                                  },
-                                                ),
-                                              ],
-                                            ),
-                                            FutureBuilder(
-                                              future: getProductName(
-                                                  widget.data['productId']),
-                                              builder: (context, snapshot) {
-                                                if (snapshot.hasError) {
-                                                  return Container();
-                                                }
-
-                                                if (snapshot.hasData) {
-                                                  return GestureDetector(
-                                                    onTap: () async {
-                                                      final productSnap =
-                                                          await store
-                                                              .collection(
-                                                                  'Business')
-                                                              .doc('Data')
-                                                              .collection(
-                                                                  'Products')
-                                                              .doc(widget.data[
-                                                                  'productId'])
-                                                              .get();
-
-                                                      final productData =
-                                                          productSnap.data()!;
-
-                                                      Navigator.of(context)
-                                                          .push(
-                                                        MaterialPageRoute(
-                                                          builder: ((context) =>
-                                                              ProductPage(
-                                                                productData:
-                                                                    productData,
-                                                              )),
-                                                        ),
-                                                      );
-                                                    },
-                                                    child: Padding(
-                                                      padding: EdgeInsets.all(
-                                                        width * 0.006125,
-                                                      ),
-                                                      child: Text(
-                                                        snapshot.data!,
-                                                        style: TextStyle(
-                                                          color: white,
-                                                          fontSize:
-                                                              width * 0.05,
-                                                          fontWeight:
-                                                              FontWeight.w500,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  );
-                                                }
-
-                                                return Container();
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding:
-                                          EdgeInsets.only(left: width * 0.05),
-                                      child: IconButton(
-                                        onPressed: () {},
-                                        icon: Icon(
-                                          FeatherIcons.share2,
-                                          size: width * 0.095,
-                                          color: white,
-                                        ),
-                                        tooltip: "SHARE",
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                        child: CircularProgressIndicator(
+                          color: white,
+                        ),
                       ),
                     ),
-                  ],
-                );
-              } else {
-                return Stack(
-                  children: [
-                    Center(
-                      child: CircularProgressIndicator(
+                  ),
+                  Visibility(
+                    visible: !isVideoPlaying,
+                    child: IconButton(
+                      onPressed: pausePlayShort,
+                      icon: Icon(
+                        Icons.play_arrow_rounded,
+                        size: 80,
                         color: white,
                       ),
                     ),
-                    Padding(
-                      padding: EdgeInsets.all(width * 0.025),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.only(left: width * 0.05),
-                            child: IconButton(
-                              onPressed: () {},
-                              icon: Icon(
-                                Icons.favorite_outline_rounded,
-                                size: width * 0.095,
-                                color: Colors.red,
-                              ),
-                              tooltip: "WISHLIST",
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(width * 0.025),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(left: width * 0.05),
+                          child: IconButton(
+                            onPressed: () async {
+                              isWishlistLocked
+                                  ? null
+                                  : setState(() {
+                                      isWishListed = !isWishListed;
+                                    });
+                              isWishlistLocked
+                                  ? null
+                                  : await wishlistProduct(
+                                      widget.data['productId'],
+                                    );
+                            },
+                            icon: Icon(
+                              isWishListed
+                                  ? Icons.favorite_rounded
+                                  : Icons.favorite_outline_rounded,
+                              size: width * 0.095,
+                              color: Colors.red,
                             ),
+                            tooltip: "WISHLIST",
                           ),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  padding: EdgeInsets.only(
-                                    left: width * 0.0125,
-                                  ),
-                                  child: Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Padding(
-                                            padding: EdgeInsets.all(
-                                              width * 0.006125,
-                                            ),
-                                            child: Container(),
-                                          ),
-                                        ],
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.all(
-                                          width * 0.006125,
+                        ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            Expanded(
+                              child: Container(
+                                padding: EdgeInsets.only(
+                                  left: width * 0.0125,
+                                ),
+                                child: Column(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        FutureBuilder(
+                                          future: getVendorInfo(
+                                              widget.data['vendorId']),
+                                          builder: (context, snapshot) {
+                                            if (snapshot.hasError) {
+                                              return Container();
+                                            }
+
+                                            if (snapshot.hasData) {
+                                              return GestureDetector(
+                                                onTap: () {
+                                                  Navigator.of(context).push(
+                                                    MaterialPageRoute(
+                                                      builder: ((context) =>
+                                                          VendorPage(
+                                                            vendorId:
+                                                                widget.data[
+                                                                    'vendorId'],
+                                                          )),
+                                                    ),
+                                                  );
+                                                },
+                                                child: Padding(
+                                                  padding: EdgeInsets.all(
+                                                    width * 0.006125,
+                                                  ),
+                                                  child: Text(
+                                                    snapshot.data!,
+                                                    style: TextStyle(
+                                                      color: white,
+                                                      fontSize: width * 0.05,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
+                                            }
+
+                                            return Container();
+                                          },
                                         ),
-                                        child: Container(),
-                                      ),
-                                    ],
-                                  ),
+                                      ],
+                                    ),
+                                    FutureBuilder(
+                                      future: getProductName(
+                                          widget.data['productId']),
+                                      builder: (context, snapshot) {
+                                        if (snapshot.hasError) {
+                                          return Container();
+                                        }
+
+                                        if (snapshot.hasData) {
+                                          return GestureDetector(
+                                            onTap: () async {
+                                              final productSnap = await store
+                                                  .collection('Business')
+                                                  .doc('Data')
+                                                  .collection('Products')
+                                                  .doc(widget.data['productId'])
+                                                  .get();
+
+                                              final productData =
+                                                  productSnap.data()!;
+
+                                              Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                  builder: ((context) =>
+                                                      ProductPage(
+                                                        productData:
+                                                            productData,
+                                                      )),
+                                                ),
+                                              );
+                                            },
+                                            child: Padding(
+                                              padding: EdgeInsets.all(
+                                                width * 0.006125,
+                                              ),
+                                              child: Text(
+                                                snapshot.data!,
+                                                style: TextStyle(
+                                                  color: white,
+                                                  fontSize: width * 0.05,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        }
+
+                                        return Container();
+                                      },
+                                    ),
+                                  ],
                                 ),
                               ),
-                              Padding(
-                                padding: EdgeInsets.only(left: width * 0.05),
-                                child: IconButton(
-                                  onPressed: () {},
-                                  icon: Icon(
-                                    FeatherIcons.share2,
-                                    size: width * 0.095,
-                                    color: white,
-                                  ),
-                                  tooltip: "SHARE",
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(left: width * 0.05),
+                              child: IconButton(
+                                onPressed: () {},
+                                icon: Icon(
+                                  FeatherIcons.share2,
+                                  size: width * 0.095,
+                                  color: white,
                                 ),
+                                tooltip: "SHARE",
                               ),
-                            ],
-                          ),
-                        ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    } else {
+      return Stack(
+        children: [
+          Center(
+            child: CircularProgressIndicator(
+              color: white,
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(width * 0.025),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(left: width * 0.05),
+                  child: IconButton(
+                    onPressed: () {},
+                    icon: Icon(
+                      Icons.favorite_outline_rounded,
+                      size: width * 0.095,
+                      color: Colors.red,
+                    ),
+                    tooltip: "WISHLIST",
+                  ),
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: EdgeInsets.only(
+                          left: width * 0.0125,
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.all(
+                                    width * 0.006125,
+                                  ),
+                                  child: Container(),
+                                ),
+                              ],
+                            ),
+                            Padding(
+                              padding: EdgeInsets.all(
+                                width * 0.006125,
+                              ),
+                              child: Container(),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(left: width * 0.05),
+                      child: IconButton(
+                        onPressed: () {},
+                        icon: Icon(
+                          FeatherIcons.share2,
+                          size: width * 0.095,
+                          color: white,
+                        ),
+                        tooltip: "SHARE",
                       ),
                     ),
                   ],
-                );
-              }
-            }),
+                ),
+              ],
+            ),
           ),
-        ),
-      ),
-    );
+        ],
+      );
+    }
   }
 }
