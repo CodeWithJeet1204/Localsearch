@@ -6,6 +6,7 @@ import 'package:find_easy_user/models/services_map.dart';
 import 'package:find_easy_user/page/main/services/services_previous_work_images_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/snack_bar.dart';
+import 'package:find_easy_user/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -253,7 +254,24 @@ class _ServicesManPageState extends State<ServicesManPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        actions: [
+          IconButton(
+            onPressed: () async {
+              await showYouTubePlayerDialog(
+                context,
+                getYoutubeVideoId(
+                  '',
+                ),
+              );
+            },
+            icon: Icon(
+              Icons.question_mark_outlined,
+            ),
+            tooltip: "Help",
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.all(

@@ -1,4 +1,5 @@
 import 'package:find_easy_user/widgets/review_container.dart';
+import 'package:find_easy_user/widgets/video_tutorial.dart';
 import 'package:flutter/material.dart';
 
 class ProductAllReviewPage extends StatefulWidget {
@@ -24,6 +25,22 @@ class _ProductAllReviewPageState extends State<ProductAllReviewPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('All Reviews'),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              await showYouTubePlayerDialog(
+                context,
+                getYoutubeVideoId(
+                  '',
+                ),
+              );
+            },
+            icon: Icon(
+              Icons.question_mark_outlined,
+            ),
+            tooltip: "Help",
+          ),
+        ],
       ),
       body: SafeArea(
         child: Padding(

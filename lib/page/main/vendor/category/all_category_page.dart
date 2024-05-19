@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:find_easy_user/page/main/vendor/category/category_page.dart';
+import 'package:find_easy_user/widgets/video_tutorial.dart';
 import 'package:flutter/material.dart';
 
 class AllCategoryPage extends StatefulWidget {
@@ -95,6 +96,22 @@ class _AllCategoryPageState extends State<AllCategoryPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('All Categories - ${categories.length}'),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              await showYouTubePlayerDialog(
+                context,
+                getYoutubeVideoId(
+                  '',
+                ),
+              );
+            },
+            icon: Icon(
+              Icons.question_mark_outlined,
+            ),
+            tooltip: "Help",
+          ),
+        ],
       ),
       body: !isData
           ? Center(

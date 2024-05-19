@@ -1,6 +1,7 @@
 import 'package:feather_icons/feather_icons.dart';
 import 'package:find_easy_user/page/main/search/search_results_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
+import 'package:find_easy_user/widgets/video_tutorial.dart';
 import 'package:flutter/material.dart';
 
 class TopSearchPage extends StatefulWidget {
@@ -21,6 +22,22 @@ class _TopSearchPageState extends State<TopSearchPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Top Searches 🔥'),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              await showYouTubePlayerDialog(
+                context,
+                getYoutubeVideoId(
+                  '',
+                ),
+              );
+            },
+            icon: Icon(
+              Icons.question_mark_outlined,
+            ),
+            tooltip: "Help",
+          ),
+        ],
       ),
       body: SafeArea(
         child: Padding(

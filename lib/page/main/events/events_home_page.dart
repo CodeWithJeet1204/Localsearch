@@ -8,6 +8,7 @@ import 'package:find_easy_user/page/main/events/events_organizer_page.dart';
 import 'package:find_easy_user/page/main/events/events_search_results_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/speech_to_text.dart';
+import 'package:find_easy_user/widgets/video_tutorial.dart';
 import 'package:flutter/material.dart';
 
 class EventsHomePage extends StatefulWidget {
@@ -253,6 +254,22 @@ class _EventsHomePageState extends State<EventsHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Events'),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              await showYouTubePlayerDialog(
+                context,
+                getYoutubeVideoId(
+                  '',
+                ),
+              );
+            },
+            icon: Icon(
+              Icons.question_mark_outlined,
+            ),
+            tooltip: "Help",
+          ),
+        ],
       ),
       body: isNoEvents
           ? Center(

@@ -7,6 +7,7 @@ import 'package:find_easy_user/page/providers/register_details_provider.dart';
 import 'package:find_easy_user/page/providers/sign_in_method_provider.dart';
 import 'package:find_easy_user/page/providers/verification_provider.dart';
 import 'package:find_easy_user/utils/colors.dart';
+import 'package:find_easy_user/utils/network_connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -94,23 +95,28 @@ class MyApp extends StatelessWidget {
         '/register': ((context) => const RegisterMethodPage()),
       },
       debugShowCheckedModeBanner: false,
-      home: StreamBuilder(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: ((context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(
-                color: primaryDark,
-              ),
-            );
-          }
+      home: Stack(
+        children: [
+          StreamBuilder(
+            stream: FirebaseAuth.instance.authStateChanges(),
+            builder: ((context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: CircularProgressIndicator(
+                    color: primaryDark,
+                  ),
+                );
+              }
 
-          if (snapshot.hasData) {
-            return const MainPage();
-          }
+              if (snapshot.hasData) {
+                return const MainPage();
+              }
 
-          return const LoginPage();
-        }),
+              return const LoginPage();
+            }),
+          ),
+          ConnectivityNotificationWidget(),
+        ],
       ),
     );
   }

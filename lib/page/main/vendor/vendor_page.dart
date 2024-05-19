@@ -11,6 +11,7 @@ import 'package:find_easy_user/widgets/image_show.dart';
 import 'package:find_easy_user/widgets/see_more_text.dart';
 import 'package:find_easy_user/widgets/snack_bar.dart';
 import 'package:find_easy_user/widgets/text_button.dart';
+import 'package:find_easy_user/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -425,6 +426,20 @@ class _VendorPageState extends State<VendorPage> {
             onPressed: () {},
             icon: const Icon(FeatherIcons.share2),
             tooltip: 'Share Shop',
+          ),
+          IconButton(
+            onPressed: () async {
+              await showYouTubePlayerDialog(
+                context,
+                getYoutubeVideoId(
+                  '',
+                ),
+              );
+            },
+            icon: Icon(
+              Icons.question_mark_outlined,
+            ),
+            tooltip: "Help",
           ),
         ],
       ),

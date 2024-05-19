@@ -5,6 +5,7 @@ import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/image_view.dart';
 import 'package:find_easy_user/widgets/see_more_text.dart';
 import 'package:find_easy_user/widgets/snack_bar.dart';
+import 'package:find_easy_user/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -151,6 +152,20 @@ class _EventPageState extends State<EventPage> {
 
               return Container();
             }),
+          ),
+          IconButton(
+            onPressed: () async {
+              await showYouTubePlayerDialog(
+                context,
+                getYoutubeVideoId(
+                  '',
+                ),
+              );
+            },
+            icon: Icon(
+              Icons.question_mark_outlined,
+            ),
+            tooltip: "Help",
           ),
         ],
       ),

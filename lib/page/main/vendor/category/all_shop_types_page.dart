@@ -2,6 +2,7 @@ import 'package:find_easy_user/models/business_categories.dart';
 import 'package:find_easy_user/models/household_categories.dart';
 import 'package:find_easy_user/page/main/vendor/category/shop_categories_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
+import 'package:find_easy_user/widgets/video_tutorial.dart';
 import 'package:flutter/material.dart';
 
 class AllShopTypesPage extends StatefulWidget {
@@ -17,6 +18,22 @@ class _AllShopTypesPageState extends State<AllShopTypesPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('All Shop Types'),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              await showYouTubePlayerDialog(
+                context,
+                getYoutubeVideoId(
+                  '',
+                ),
+              );
+            },
+            icon: Icon(
+              Icons.question_mark_outlined,
+            ),
+            tooltip: "Help",
+          ),
+        ],
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(

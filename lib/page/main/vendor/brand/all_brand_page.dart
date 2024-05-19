@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:find_easy_user/page/main/vendor/brand/brand_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
+import 'package:find_easy_user/widgets/video_tutorial.dart';
 import 'package:flutter/material.dart';
 
 class AllBrandPage extends StatefulWidget {
@@ -56,6 +57,22 @@ class _AllBrandPageState extends State<AllBrandPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('All Brands - ${brands.length}'),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              await showYouTubePlayerDialog(
+                context,
+                getYoutubeVideoId(
+                  '',
+                ),
+              );
+            },
+            icon: Icon(
+              Icons.question_mark_outlined,
+            ),
+            tooltip: "Help",
+          ),
+        ],
       ),
       body: GridView.builder(
         shrinkWrap: true,

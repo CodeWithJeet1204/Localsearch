@@ -69,6 +69,22 @@
 //     return Scaffold(
 //       appBar: AppBar(
 //         title: Text(widget.place),
+// actions: [
+//           IconButton(
+//             onPressed: () async {
+//               await showYouTubePlayerDialog(
+//                 context,
+//                 getYoutubeVideoId(
+//                   '',
+//                 ),
+//               );
+//             },
+//             icon: Icon(
+//               Icons.question_mark_outlined,
+//             ),
+//             tooltip: "Help",
+//           ),
+//         ],
 //       ),
 //       body: !isData
 //           ? Center(

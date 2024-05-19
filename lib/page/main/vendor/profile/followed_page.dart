@@ -3,6 +3,7 @@ import 'package:feather_icons/feather_icons.dart';
 import 'package:find_easy_user/page/main/vendor/vendor_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/skeleton_container.dart';
+import 'package:find_easy_user/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -177,6 +178,22 @@ class _FollowedPageState extends State<FollowedPage>
     return Scaffold(
       appBar: AppBar(
         title: const Text('Followed'),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              await showYouTubePlayerDialog(
+                context,
+                getYoutubeVideoId(
+                  '',
+                ),
+              );
+            },
+            icon: Icon(
+              Icons.question_mark_outlined,
+            ),
+            tooltip: "Help",
+          ),
+        ],
         forceMaterialTransparency: true,
         bottom: PreferredSize(
           preferredSize: Size(

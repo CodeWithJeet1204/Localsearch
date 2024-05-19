@@ -5,6 +5,7 @@ import 'package:find_easy_user/page/main/vendor/product/product_page.dart';
 import 'package:find_easy_user/page/main/vendor/vendor_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/post_skeleton_container.dart';
+import 'package:find_easy_user/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -126,6 +127,22 @@ class _PostsPageState extends State<PostsPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Posts'),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              await showYouTubePlayerDialog(
+                context,
+                getYoutubeVideoId(
+                  '',
+                ),
+              );
+            },
+            icon: Icon(
+              Icons.question_mark_outlined,
+            ),
+            tooltip: "Help",
+          ),
+        ],
       ),
       body: !isData
           ? SizedBox(

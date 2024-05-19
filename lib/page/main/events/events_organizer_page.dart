@@ -5,6 +5,7 @@ import 'package:find_easy_user/page/main/events/events_previous_work_images_page
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/image_show.dart';
 import 'package:find_easy_user/widgets/snack_bar.dart';
+import 'package:find_easy_user/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -217,7 +218,24 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        actions: [
+          IconButton(
+            onPressed: () async {
+              await showYouTubePlayerDialog(
+                context,
+                getYoutubeVideoId(
+                  '',
+                ),
+              );
+            },
+            icon: Icon(
+              Icons.question_mark_outlined,
+            ),
+            tooltip: "Help",
+          ),
+        ],
+      ),
       body: !isData
           ? Center(
               child: CircularProgressIndicator(),

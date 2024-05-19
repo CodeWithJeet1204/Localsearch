@@ -1,6 +1,7 @@
 import 'package:find_easy_user/models/business_sub_categories.dart';
 import 'package:find_easy_user/page/main/vendor/category/category_products_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
+import 'package:find_easy_user/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -28,6 +29,22 @@ class _ShopCategoriesPageState extends State<ShopCategoriesPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.shopName),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              await showYouTubePlayerDialog(
+                context,
+                getYoutubeVideoId(
+                  '',
+                ),
+              );
+            },
+            icon: Icon(
+              Icons.question_mark_outlined,
+            ),
+            tooltip: "Help",
+          ),
+        ],
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(

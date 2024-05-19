@@ -1,4 +1,5 @@
 import 'package:find_easy_user/utils/colors.dart';
+import 'package:find_easy_user/widgets/video_tutorial.dart';
 import 'package:flutter/material.dart';
 
 class EventsPreviousWorkImagesPage extends StatefulWidget {
@@ -41,6 +42,22 @@ class _EventsPreviousWorkImagesPageState
     return Scaffold(
       appBar: AppBar(
         title: Text('Work Images'),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              await showYouTubePlayerDialog(
+                context,
+                getYoutubeVideoId(
+                  '',
+                ),
+              );
+            },
+            icon: Icon(
+              Icons.question_mark_outlined,
+            ),
+            tooltip: "Help",
+          ),
+        ],
       ),
       body: widget.workImages.isEmpty
           ? Center(

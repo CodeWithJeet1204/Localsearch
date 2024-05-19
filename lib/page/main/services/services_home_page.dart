@@ -5,6 +5,7 @@ import 'package:find_easy_user/page/main/services/services_search_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/name_container.dart';
 import 'package:find_easy_user/widgets/speech_to_text.dart';
+import 'package:find_easy_user/widgets/video_tutorial.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 
@@ -79,6 +80,22 @@ class _ServicesHomePageState extends State<ServicesHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Services'),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              await showYouTubePlayerDialog(
+                context,
+                getYoutubeVideoId(
+                  'https://youtube.com/shorts/gBJxIC0qkVI?si=Ax5ZaPP5KKpWmahY',
+                ),
+              );
+            },
+            icon: Icon(
+              Icons.question_mark_outlined,
+            ),
+            tooltip: "Help",
+          ),
+        ],
       ),
       body: Padding(
         padding: EdgeInsets.all(

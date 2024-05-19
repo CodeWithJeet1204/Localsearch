@@ -1,6 +1,7 @@
 import 'package:find_easy_user/models/events_categories.dart';
 import 'package:find_easy_user/page/main/events/event_type_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
+import 'package:find_easy_user/widgets/video_tutorial.dart';
 import 'package:flutter/material.dart';
 
 class AllEventsTypePage extends StatefulWidget {
@@ -18,6 +19,22 @@ class _AllEventsTypePageState extends State<AllEventsTypePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('All Event Types'),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              await showYouTubePlayerDialog(
+                context,
+                getYoutubeVideoId(
+                  '',
+                ),
+              );
+            },
+            icon: Icon(
+              Icons.question_mark_outlined,
+            ),
+            tooltip: "Help",
+          ),
+        ],
       ),
       body: SafeArea(
         child: Padding(

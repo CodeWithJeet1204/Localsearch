@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:find_easy_user/page/main/services/services_man_page.dart';
+import 'package:find_easy_user/widgets/video_tutorial.dart';
 import 'package:flutter/material.dart';
 
 class ServicesSubCategoryPage extends StatefulWidget {
@@ -70,6 +71,22 @@ class _ServicesSubCategoryPageState extends State<ServicesSubCategoryPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.subCategory),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              await showYouTubePlayerDialog(
+                context,
+                getYoutubeVideoId(
+                  '',
+                ),
+              );
+            },
+            icon: Icon(
+              Icons.question_mark_outlined,
+            ),
+            tooltip: "Help",
+          ),
+        ],
       ),
       body: !isData
           ? Center(

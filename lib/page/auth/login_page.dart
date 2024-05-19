@@ -121,7 +121,6 @@ class _LoginPageState extends State<LoginPage> {
           try {
             setState(() {
               isPhoneLogging = true;
-              phoneText = 'PLEASE WAIT';
             });
             // Register with Phone
 
@@ -198,7 +197,6 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> loginWithGoogle() async {
     try {
       setState(() {
-        googleText = 'PLEASE WAIT';
         isGoogleLogging = true;
       });
       await AuthMethods().signInWithGoogle(context);
@@ -542,7 +540,6 @@ class _LoginPageState extends State<LoginPage> {
                                               try {
                                                 setState(() {
                                                   isPhoneLogging = true;
-                                                  phoneText = 'PLEASE WAIT';
                                                 });
                                                 // Register with Phone
                                                 if (phoneController.text
@@ -652,7 +649,6 @@ class _LoginPageState extends State<LoginPage> {
                               //     onTap: () async {
                               //       try {
                               //         setState(() {
-                              //           googleText = 'PLEASE WAIT';
                               //           isGoogleLogging = true;
                               //         });
                               //         // Sign In With Google

@@ -2,6 +2,7 @@ import 'package:find_easy_user/models/services_image_map.dart';
 import 'package:find_easy_user/models/services_map.dart';
 import 'package:find_easy_user/page/main/services/services_sub_category_page.dart';
 import 'package:find_easy_user/widgets/name_container.dart';
+import 'package:find_easy_user/widgets/video_tutorial.dart';
 import 'package:flutter/material.dart';
 
 class ServicesCategoryPage extends StatefulWidget {
@@ -24,6 +25,22 @@ class _ServicesCategoryPageState extends State<ServicesCategoryPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.category),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              await showYouTubePlayerDialog(
+                context,
+                getYoutubeVideoId(
+                  '',
+                ),
+              );
+            },
+            icon: Icon(
+              Icons.question_mark_outlined,
+            ),
+            tooltip: "Help",
+          ),
+        ],
       ),
       body: Padding(
         padding: EdgeInsets.all(

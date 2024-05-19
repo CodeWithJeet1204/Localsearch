@@ -7,6 +7,7 @@ import 'package:find_easy_user/page/main/vendor/profile/wishlist_page.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/small_text_container.dart';
 import 'package:find_easy_user/widgets/snack_bar.dart';
+import 'package:find_easy_user/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -57,6 +58,20 @@ class _ProfilePageState extends State<ProfilePage> {
             },
             icon: const Icon(Icons.logout),
             tooltip: 'LOG OUT',
+          ),
+          IconButton(
+            onPressed: () async {
+              await showYouTubePlayerDialog(
+                context,
+                getYoutubeVideoId(
+                  '',
+                ),
+              );
+            },
+            icon: Icon(
+              Icons.question_mark_outlined,
+            ),
+            tooltip: "Help",
           ),
         ],
       ),

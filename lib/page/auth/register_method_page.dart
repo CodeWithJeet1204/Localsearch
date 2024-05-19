@@ -237,7 +237,6 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
       SignInMethodProvider signInMethodProvider, FirebaseAuth _auth) async {
     setState(() {
       isGoogleRegistering = true;
-      googleText = 'PLEASE WAIT';
     });
     try {
       await AuthMethods().signInWithGoogle(context);
@@ -664,7 +663,6 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                         //   onTap: () async {
                         //     setState(() {
                         //       isGoogleRegistering = true;
-                        //       googleText = 'PLEASE WAIT';
                         //     });
                         //     try {
                         // Sign In With Google

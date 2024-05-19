@@ -4,6 +4,7 @@ import 'package:feather_icons/feather_icons.dart';
 import 'package:find_easy_user/utils/colors.dart';
 import 'package:find_easy_user/widgets/button.dart';
 import 'package:find_easy_user/widgets/snack_bar.dart';
+import 'package:find_easy_user/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -146,9 +147,24 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text(
-          overflow: TextOverflow.ellipsis,
           'User Details',
         ),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              await showYouTubePlayerDialog(
+                context,
+                getYoutubeVideoId(
+                  '',
+                ),
+              );
+            },
+            icon: Icon(
+              Icons.question_mark_outlined,
+            ),
+            tooltip: "Help",
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
