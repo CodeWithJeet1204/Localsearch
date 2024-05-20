@@ -1,7 +1,7 @@
-import 'package:find_easy_user/models/business_sub_categories.dart';
-import 'package:find_easy_user/page/main/vendor/category/category_products_page.dart';
-import 'package:find_easy_user/utils/colors.dart';
-import 'package:find_easy_user/widgets/video_tutorial.dart';
+import 'package:localy_user/models/business_sub_categories.dart';
+import 'package:localy_user/page/main/vendor/category/category_products_page.dart';
+import 'package:localy_user/utils/colors.dart';
+import 'package:localy_user/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 

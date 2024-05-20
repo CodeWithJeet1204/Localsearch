@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
-import 'package:find_easy_user/page/main/vendor/product/product_page.dart';
-import 'package:find_easy_user/page/main/vendor/vendor_page.dart';
-import 'package:find_easy_user/utils/colors.dart';
-import 'package:find_easy_user/widgets/product_quick_view.dart';
-import 'package:find_easy_user/widgets/skeleton_container.dart';
-import 'package:find_easy_user/widgets/speech_to_text.dart';
+import 'package:localy_user/page/main/vendor/product/product_page.dart';
+import 'package:localy_user/page/main/vendor/vendor_page.dart';
+import 'package:localy_user/utils/colors.dart';
+import 'package:localy_user/widgets/product_quick_view.dart';
+import 'package:localy_user/widgets/skeleton_container.dart';
+import 'package:localy_user/widgets/speech_to_text.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 

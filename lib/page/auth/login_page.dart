@@ -1,18 +1,18 @@
 // ignore_for_file: unnecessary_null_comparison
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:find_easy_user/firebase/auth_methods.dart';
-import 'package:find_easy_user/page/auth/register_method_page.dart';
-import 'package:find_easy_user/page/auth/verify/number_verify.dart';
-import 'package:find_easy_user/page/main/main_page.dart';
-import 'package:find_easy_user/utils/colors.dart';
-import 'package:find_easy_user/utils/size.dart';
-import 'package:find_easy_user/widgets/button.dart';
-import 'package:find_easy_user/widgets/collapse_container.dart';
-import 'package:find_easy_user/widgets/head_text.dart';
-import 'package:find_easy_user/widgets/snack_bar.dart';
-import 'package:find_easy_user/widgets/text_button.dart';
-import 'package:find_easy_user/widgets/text_form_field.dart';
+import 'package:localy_user/firebase/auth_methods.dart';
+import 'package:localy_user/page/auth/register_method_page.dart';
+import 'package:localy_user/page/auth/verify/number_verify.dart';
+import 'package:localy_user/page/main/main_page.dart';
+import 'package:localy_user/utils/colors.dart';
+import 'package:localy_user/utils/size.dart';
+import 'package:localy_user/widgets/button.dart';
+import 'package:localy_user/widgets/collapse_container.dart';
+import 'package:localy_user/widgets/head_text.dart';
+import 'package:localy_user/widgets/snack_bar.dart';
+import 'package:localy_user/widgets/text_button.dart';
+import 'package:localy_user/widgets/text_form_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

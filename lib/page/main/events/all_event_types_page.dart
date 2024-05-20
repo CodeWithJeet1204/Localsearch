@@ -1,7 +1,7 @@
-import 'package:find_easy_user/models/events_categories.dart';
-import 'package:find_easy_user/page/main/events/event_type_page.dart';
-import 'package:find_easy_user/utils/colors.dart';
-import 'package:find_easy_user/widgets/video_tutorial.dart';
+import 'package:localy_user/models/events_categories.dart';
+import 'package:localy_user/page/main/events/event_type_page.dart';
+import 'package:localy_user/utils/colors.dart';
+import 'package:localy_user/widgets/video_tutorial.dart';
 import 'package:flutter/material.dart';
 
 class AllEventsTypePage extends StatefulWidget {

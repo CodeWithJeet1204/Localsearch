@@ -1,13 +1,13 @@
 // ignore_for_file: avoid_print
-import 'package:find_easy_user/firebase_options.dart';
-import 'package:find_easy_user/page/auth/login_page.dart';
-import 'package:find_easy_user/page/auth/register_method_page.dart';
-import 'package:find_easy_user/page/main/main_page.dart';
-import 'package:find_easy_user/page/providers/register_details_provider.dart';
-import 'package:find_easy_user/page/providers/sign_in_method_provider.dart';
-import 'package:find_easy_user/page/providers/verification_provider.dart';
-import 'package:find_easy_user/utils/colors.dart';
-import 'package:find_easy_user/utils/network_connectivity.dart';
+import 'package:localy_user/firebase_options.dart';
+import 'package:localy_user/page/auth/login_page.dart';
+import 'package:localy_user/page/auth/register_method_page.dart';
+import 'package:localy_user/page/main/main_page.dart';
+import 'package:localy_user/page/providers/register_details_provider.dart';
+import 'package:localy_user/page/providers/sign_in_method_provider.dart';
+import 'package:localy_user/page/providers/verification_provider.dart';
+import 'package:localy_user/utils/colors.dart';
+import 'package:localy_user/utils/network_connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';

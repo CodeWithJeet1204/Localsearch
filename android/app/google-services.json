@@ -1,57 +1,42 @@
 {
   "project_info": {
-    "project_number": "851488762803",
-    "project_id": "find-easy-1204",
-    "storage_bucket": "find-easy-1204.appspot.com"
+    "project_number": "706313830295",
+    "project_id": "localy-1204",
+    "storage_bucket": "localy-1204.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:851488762803:android:eb89214a6ee6397b3979c6",
+        "mobilesdk_app_id": "1:706313830295:android:96e603710c33bf2e2e0ed2",
         "android_client_info": {
-          "package_name": "com.example.find_easy"
+          "package_name": "com.example.localy"
         }
       },
       "oauth_client": [
         {
-          "client_id": "851488762803-ps9kqonltefmc06fjj2et4ro8j67m5nc.apps.googleusercontent.com",
+          "client_id": "706313830295-kfe1ncnh3bcta7qnsubirtkn1r5gcp56.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.find_easy",
+            "package_name": "com.example.localy",
             "certificate_hash": "b91a26ed5cfd1237d4bc061dc6fec8df84e76827"
           }
         },
         {
-          "client_id": "851488762803-ti82ua39ilonb2ibpqo0idjv9ilp6091.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.find_easy",
-            "certificate_hash": "9bbb3186b2189ef16d8f272bdab59362c395cbb4"
-          }
-        },
-        {
-          "client_id": "851488762803-820pd8np863ivnf4deb2snd7dckv3qq9.apps.googleusercontent.com",
+          "client_id": "706313830295-u9eva1auniuqi4poraa8jjalcld8l813.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyA-CD3MgDBzAsjmp_FlDbofynMMmW6fPsU"
+          "current_key": "AIzaSyBPolTb0g19B4ip4IrgQCPc1Higgso5NYM"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "851488762803-820pd8np863ivnf4deb2snd7dckv3qq9.apps.googleusercontent.com",
+              "client_id": "706313830295-u9eva1auniuqi4poraa8jjalcld8l813.apps.googleusercontent.com",
               "client_type": 3
-            },
-            {
-              "client_id": "851488762803-g71j7te9u229qdmbddcu74pmag1lvhja.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.mycompany.findeasy"
-              }
             }
           ]
         }
@@ -59,87 +44,28 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:851488762803:android:1efab776cf60da9f3979c6",
+        "mobilesdk_app_id": "1:706313830295:android:ed42a378d1560ec42e0ed2",
         "android_client_info": {
-          "package_name": "com.example.find_easy_user"
+          "package_name": "com.example.localy_user"
         }
       },
       "oauth_client": [
         {
-          "client_id": "851488762803-l5j5khk8p1029fq2qnmirrflnfaftg1o.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.find_easy_user",
-            "certificate_hash": "b91a26ed5cfd1237d4bc061dc6fec8df84e76827"
-          }
-        },
-        {
-          "client_id": "851488762803-820pd8np863ivnf4deb2snd7dckv3qq9.apps.googleusercontent.com",
+          "client_id": "706313830295-u9eva1auniuqi4poraa8jjalcld8l813.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyA-CD3MgDBzAsjmp_FlDbofynMMmW6fPsU"
+          "current_key": "AIzaSyBPolTb0g19B4ip4IrgQCPc1Higgso5NYM"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "851488762803-820pd8np863ivnf4deb2snd7dckv3qq9.apps.googleusercontent.com",
+              "client_id": "706313830295-u9eva1auniuqi4poraa8jjalcld8l813.apps.googleusercontent.com",
               "client_type": 3
-            },
-            {
-              "client_id": "851488762803-g71j7te9u229qdmbddcu74pmag1lvhja.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.mycompany.findeasy"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:851488762803:android:5f926bec661159da3979c6",
-        "android_client_info": {
-          "package_name": "com.mycompany.findeasy"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "851488762803-m2ee7alqv67a72ohjiimium16m3ir4er.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.mycompany.findeasy",
-            "certificate_hash": "b91a26ed5cfd1237d4bc061dc6fec8df84e76827"
-          }
-        },
-        {
-          "client_id": "851488762803-820pd8np863ivnf4deb2snd7dckv3qq9.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyA-CD3MgDBzAsjmp_FlDbofynMMmW6fPsU"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "851488762803-820pd8np863ivnf4deb2snd7dckv3qq9.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "851488762803-g71j7te9u229qdmbddcu74pmag1lvhja.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.mycompany.findeasy"
-              }
             }
           ]
         }

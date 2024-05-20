@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:find_easy_user/page/main/shorts_tile.dart';
-import 'package:find_easy_user/utils/colors.dart';
+import 'package:localy_user/page/main/shorts_tile.dart';
+import 'package:localy_user/utils/colors.dart';
 import 'package:flutter/material.dart';
 
 class ShortsPage extends StatefulWidget {

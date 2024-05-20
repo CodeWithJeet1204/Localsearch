@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
-import 'package:find_easy_user/page/main/events/event_page.dart';
-import 'package:find_easy_user/page/main/events/events_previous_work_images_page.dart';
-import 'package:find_easy_user/utils/colors.dart';
-import 'package:find_easy_user/widgets/image_show.dart';
-import 'package:find_easy_user/widgets/snack_bar.dart';
-import 'package:find_easy_user/widgets/video_tutorial.dart';
+import 'package:localy_user/page/main/events/event_page.dart';
+import 'package:localy_user/page/main/events/events_previous_work_images_page.dart';
+import 'package:localy_user/utils/colors.dart';
+import 'package:localy_user/widgets/image_show.dart';
+import 'package:localy_user/widgets/snack_bar.dart';
+import 'package:localy_user/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -390,7 +390,7 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
                                   final String phoneNumber =
                                       organizerData['Phone Number'];
                                   final String message =
-                                      'Hey, I found you on Find Easy\n';
+                                      'Hey, I found you on Localy\n';
                                   final url =
                                       'https://wa.me/$phoneNumber?text=$message';
 

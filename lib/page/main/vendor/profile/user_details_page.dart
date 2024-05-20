@@ -1,10 +1,10 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
-import 'package:find_easy_user/utils/colors.dart';
-import 'package:find_easy_user/widgets/button.dart';
-import 'package:find_easy_user/widgets/snack_bar.dart';
-import 'package:find_easy_user/widgets/video_tutorial.dart';
+import 'package:localy_user/utils/colors.dart';
+import 'package:localy_user/widgets/button.dart';
+import 'package:localy_user/widgets/snack_bar.dart';
+import 'package:localy_user/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';

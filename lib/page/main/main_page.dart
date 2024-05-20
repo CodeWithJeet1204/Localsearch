@@ -1,16 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
-import 'package:find_easy_user/page/auth/login_page.dart';
-import 'package:find_easy_user/page/auth/register_details_page.dart';
-import 'package:find_easy_user/page/auth/verify/email_verify.dart';
-import 'package:find_easy_user/page/main/events/events_home_page.dart';
-import 'package:find_easy_user/page/main/product_home_page.dart';
-import 'package:find_easy_user/page/main/post_page.dart';
-import 'package:find_easy_user/page/main/vendor/profile/profile_page.dart';
-import 'package:find_easy_user/page/main/services/services_home_page.dart';
-import 'package:find_easy_user/page/main/vendor/shorts_page.dart';
-import 'package:find_easy_user/utils/colors.dart';
-import 'package:find_easy_user/widgets/snack_bar.dart';
+import 'package:localy_user/page/auth/login_page.dart';
+import 'package:localy_user/page/auth/register_details_page.dart';
+import 'package:localy_user/page/auth/verify/email_verify.dart';
+import 'package:localy_user/page/main/events/events_home_page.dart';
+import 'package:localy_user/page/main/product_home_page.dart';
+import 'package:localy_user/page/main/post_page.dart';
+import 'package:localy_user/page/main/vendor/profile/profile_page.dart';
+import 'package:localy_user/page/main/services/services_home_page.dart';
+import 'package:localy_user/page/main/vendor/shorts_page.dart';
+import 'package:localy_user/utils/colors.dart';
+import 'package:localy_user/widgets/snack_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 

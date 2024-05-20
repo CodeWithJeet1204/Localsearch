@@ -1,4 +1,4 @@
-import 'package:find_easy_user/utils/colors.dart';
+import 'package:localy_user/utils/colors.dart';
 import 'package:flutter/material.dart';
 
 void mySnackBar(String text, BuildContext context) {
