@@ -853,6 +853,7 @@ class _VendorPageState extends State<VendorPage> {
                                       : const NeverScrollableScrollPhysics(),
                                   itemCount: brands.length,
                                   itemBuilder: ((context, index) {
+                                    print("Brands: $brands");
                                     final id = brands.keys.toList()[index];
                                     final imageUrl =
                                         brands.values.toList()[index];

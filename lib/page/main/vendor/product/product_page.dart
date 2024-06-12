@@ -1012,7 +1012,7 @@ class _ProductPageState extends State<ProductPage> {
     final bool codAvailable = data['codAvailable'];
     final bool deliveryAvailable = data['deliveryAvailable'];
     final double? deliveryRange =
-        double.parse((data['deliveryRange']).toString());
+        double.tryParse((data['deliveryRange']).toString());
     final bool giftWrapAvailable = data['giftWrapAvailable'];
     final bool gstInvoiceAvailable = data['gstInvoiceAvailable'];
     final bool refundAvailable = data['refundAvailable'];

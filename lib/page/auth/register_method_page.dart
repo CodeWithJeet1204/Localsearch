@@ -83,6 +83,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
               'likedProducts': [],
               'recentSearches': [],
               'recentProducts': [],
+              'fcmToken': '',
             });
 
             signInMethodProvider.chooseEmail();

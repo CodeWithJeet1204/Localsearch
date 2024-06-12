@@ -31,7 +31,7 @@ void main() async {
           create: (_) => RegisterDetailsProvider(),
         ),
       ],
-      child: const MyApp(),
+      child: MyApp(),
     ),
   );
   if (FirebaseAuth.instance.currentUser != null) {
@@ -42,11 +42,10 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Find Easy',
+      title: 'Localy User',
       theme: ThemeData(
         progressIndicatorTheme: const ProgressIndicatorThemeData(
           color: primaryDark2,

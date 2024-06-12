@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:localy_user/page/auth/login_page.dart';
 import 'package:localy_user/page/auth/register_details_page.dart';
 import 'package:localy_user/page/auth/verify/email_verify.dart';
@@ -10,6 +11,7 @@ import 'package:localy_user/page/main/vendor/profile/profile_page.dart';
 import 'package:localy_user/page/main/services/services_home_page.dart';
 import 'package:localy_user/page/main/vendor/shorts_page.dart';
 import 'package:localy_user/utils/colors.dart';
+import 'package:localy_user/utils/notification_handler.dart';
 import 'package:localy_user/widgets/snack_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -23,8 +25,10 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage>
     with AutomaticKeepAliveClientMixin {
+  final NotificationHandler _notificationHandler = NotificationHandler();
   final auth = FirebaseAuth.instance.currentUser!;
   final store = FirebaseFirestore.instance;
+  final messaging = FirebaseMessaging.instance;
   int current = 2;
   Widget? detailsPage;
 
@@ -44,12 +48,18 @@ class _MainPageState extends State<MainPage>
   // INIT STATE
   @override
   void initState() {
-    fetchUserDetails();
     super.initState();
+    _initializeNotifications();
+    _fetchUserDetailsAndSaveToken();
+  }
+
+  void _initializeNotifications() {
+    print('Initializing Notifications');
+    _notificationHandler.initialize();
   }
 
   // FETCH USER DETAILS
-  Future<void> fetchUserDetails() async {
+  Future<void> _fetchUserDetailsAndSaveToken() async {
     try {
       final userSnap = await store.collection('Users').doc(auth.uid).get();
 
@@ -92,6 +102,26 @@ class _MainPageState extends State<MainPage>
         mySnackBar(e.toString(), context);
       }
     }
+
+    messaging.getToken().then((String? token) {
+      print('FCM Token: $token');
+      if (token != null) {
+        FirebaseFirestore.instance
+            .collection('Users')
+            .doc(auth.uid)
+            .update({'fcmToken': token}).catchError((e) {
+          print('Error updating FCM token: $e');
+        });
+      }
+    }).catchError((e) {
+      print('Error retrieving FCM token: $e');
+    });
+
+    messaging.subscribeToTopic('all').then((_) {
+      print('Subscribed to all topic');
+    }).catchError((e) {
+      print('Error subscribing to topic: $e');
+    });
   }
 
   // CHANGE PAGE

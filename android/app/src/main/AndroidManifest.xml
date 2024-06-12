@@ -39,7 +39,7 @@
             </intent-filter>
             <!-- <data 
             android:scheme="http"
-            android:host="findeasyuser.com" />
+            android:host="localyuser.com" />
             <data android:scheme="https"/> -->
         </activity>
         <!-- Don't delete the meta-data below.
