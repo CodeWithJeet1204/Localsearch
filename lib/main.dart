@@ -4,7 +4,6 @@ import 'package:localy_user/page/auth/login_page.dart';
 import 'package:localy_user/page/auth/register_method_page.dart';
 import 'package:localy_user/page/main/main_page.dart';
 import 'package:localy_user/page/providers/register_details_provider.dart';
-import 'package:localy_user/page/providers/sign_in_method_provider.dart';
 import 'package:localy_user/page/providers/verification_provider.dart';
 import 'package:localy_user/utils/colors.dart';
 import 'package:localy_user/utils/network_connectivity.dart';
@@ -21,9 +20,6 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-          create: (_) => SignInMethodProvider(),
-        ),
         ChangeNotifierProvider(
           create: (_) => VerificationProvider(),
         ),

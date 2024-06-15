@@ -61,7 +61,7 @@ class _CategoryPageState extends State<CategoryPage> {
         .collection('Business')
         .doc('Data')
         .collection('Products')
-        .where('categoryId', isEqualTo: widget.categoryName)
+        .where('categoryName', isEqualTo: widget.categoryName)
         .get();
 
     for (var productData in productsSnap.docs) {

@@ -43,7 +43,9 @@ class _EmailVerifyPageState extends State<EmailVerifyPage> {
       if (mounted) {
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
-              builder: ((context) => const RegisterDetailsPage())),
+              builder: ((context) => const RegisterDetailsPage(
+                    emailPhoneGoogleChosen: 1,
+                  ))),
           (route) => false,
         );
       }

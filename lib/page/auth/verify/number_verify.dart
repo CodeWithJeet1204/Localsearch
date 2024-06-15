@@ -80,7 +80,9 @@ class _NumberVerifyPageState extends State<NumberVerifyPage> {
             MaterialPageRoute(
               builder: ((context) => widget.isLogging
                   ? const MainPage()
-                  : const RegisterDetailsPage()),
+                  : const RegisterDetailsPage(
+                      emailPhoneGoogleChosen: 2,
+                    )),
             ),
           );
         }

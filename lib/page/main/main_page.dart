@@ -82,9 +82,15 @@ class _MainPageState extends State<MainPage>
 
       final userData = userSnap.data()!;
 
-      if (userData['Name'] == null || userData['Email'] == null) {
+      if (!auth.emailVerified) {
         setState(() {
-          detailsPage = const RegisterDetailsPage();
+          detailsPage = EmailVerifyPage();
+        });
+      } else if (userData['Name'] == null || userData['Email'] == null) {
+        setState(() {
+          detailsPage = const RegisterDetailsPage(
+            emailPhoneGoogleChosen: 0,
+          );
         });
       } else if (auth.email != null &&
           auth.email!.length > 4 &&

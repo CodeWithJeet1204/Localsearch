@@ -1,6 +1,8 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:localy_user/utils/colors.dart';
 import 'package:localy_user/widgets/button.dart';
 import 'package:localy_user/widgets/snack_bar.dart';
@@ -23,7 +25,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
   final TextEditingController numberController = TextEditingController();
   bool isChangingName = false;
   bool isChangingNumber = false;
-  bool isChangingImage = false;
+  bool isChangingAddress = false;
   bool isSaving = false;
   bool isDataLoaded = false;
 
@@ -136,6 +138,89 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
     }
   }
 
+  // GET ADDRESS
+  Future<String> getAddress(double lat, double long) async {
+    print("Getting address");
+    print("Lat: $lat");
+    print("Long: $long");
+    List<Placemark> placemarks = await placemarkFromCoordinates(lat, long);
+    return '${placemarks[0].name}, ${placemarks[0].locality}, ${placemarks[0].administrativeArea}';
+  }
+
+  // GET LOCATION
+  Future<Position?> getLocation() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+
+    if (!serviceEnabled) {
+      mySnackBar('Turn ON Location Services to Continue', context);
+      return null;
+    } else {
+      LocationPermission permission = await Geolocator.checkPermission();
+
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          mySnackBar('Pls give Location Permission to Continue', context);
+        }
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.deniedForever) {
+          mySnackBar(
+            'Because Location permission is denied, We are continuing without Location',
+            context,
+          );
+          setState(() {
+            isChangingAddress = true;
+          });
+        } else {
+          return await Geolocator.getCurrentPosition();
+        }
+      } else {
+        return await Geolocator.getCurrentPosition();
+      }
+    }
+    return null;
+  }
+
+  // GET LOCATION WITH ADDRESS ZERO
+  // Future<String?> getAddressWithLocationZero() async {
+  //   setState(() {
+  //     isChangingAddress = true;
+  //   });
+
+  //   double? latitude;
+  //   double? longitude;
+
+  //   await getLocation().then((value) async {
+  //     if (value != null) {
+  //       setState(() {
+  //         latitude = value.latitude;
+  //         longitude = value.longitude;
+  //       });
+
+  //       await FirebaseFirestore.instance
+  //           .collection('Users')
+  //           .doc(FirebaseAuth.instance.currentUser!.uid)
+  //           .update({
+  //         'Latitude': latitude,
+  //         'Longitude': longitude,
+  //       });
+
+  //       print(latitude);
+  //       print(longitude);
+
+  //       if (latitude != null && longitude != null) {
+  //         return await getAddress(
+  //           latitude!,
+  //           longitude!,
+  //         );
+  //       }
+  //     }
+  //   });
+  //   setState(() {
+  //     isChangingAddress = false;
+  //   });
+  // }
+
   @override
   Widget build(BuildContext context) {
     final userStream = FirebaseFirestore.instance
@@ -152,6 +237,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
         actions: [
           IconButton(
             onPressed: () async {
+              print(123);
               await showYouTubePlayerDialog(
                 context,
                 getYoutubeVideoId(
@@ -191,13 +277,10 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          SizedBox(height: width * 0.1111125),
-
                           // NAME
                           Container(
                             width: width,
-                            height:
-                                isChangingName ? width * 0.2775 : width * 0.175,
+                            height: width * 0.175,
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
                               color: primary2.withOpacity(0.9),
@@ -257,9 +340,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                           // PHONE NUMBER
                           Container(
                             width: width,
-                            height: isChangingNumber
-                                ? width * 0.2775
-                                : width * 0.175,
+                            height: width * 0.175,
                             decoration: BoxDecoration(
                               color: primary2.withOpacity(0.9),
                               borderRadius: BorderRadius.circular(12),
@@ -288,8 +369,11 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                         child: SizedBox(
                                           width: width * 0.725,
                                           child: AutoSizeText(
-                                            userData['Phone Number'] ??
-                                                'Phone Number N/A',
+                                            userData['Phone Number'] == null ||
+                                                    userData['Phone Number'] ==
+                                                        ''
+                                                ? 'Phone Number N/A'
+                                                : userData['Phone Number'],
                                             overflow: TextOverflow.ellipsis,
                                             maxLines: 1,
                                             style: TextStyle(
@@ -314,6 +398,182 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                       ),
                                     ],
                                   ),
+                          ),
+                          const SizedBox(height: 14),
+
+                          // ADDRESS
+                          GestureDetector(
+                            onTap: userData['Latitude'] != 0 &&
+                                    userData['Longitude'] != 0
+                                ? null
+                                : () async {
+                                    setState(() {
+                                      isChangingAddress = true;
+                                    });
+
+                                    double? latitude;
+                                    double? longitude;
+
+                                    await getLocation().then((value) async {
+                                      if (value != null) {
+                                        setState(() {
+                                          latitude = value.latitude;
+                                          longitude = value.longitude;
+                                        });
+
+                                        await FirebaseFirestore.instance
+                                            .collection('Users')
+                                            .doc(FirebaseAuth
+                                                .instance.currentUser!.uid)
+                                            .update({
+                                          'Latitude': latitude,
+                                          'Longitude': longitude,
+                                        });
+
+                                        print(latitude);
+                                        print(longitude);
+
+                                        if (latitude != null &&
+                                            longitude != null) {
+                                          await getAddress(
+                                            latitude!,
+                                            longitude!,
+                                          );
+                                        }
+                                      }
+                                    });
+                                    setState(() {
+                                      isChangingAddress = false;
+                                    });
+                                  },
+                            child: Container(
+                              width: width,
+                              height: width * 0.175,
+                              decoration: BoxDecoration(
+                                color: primary2.withOpacity(0.9),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: isChangingAddress
+                                  ? Center(
+                                      child: CircularProgressIndicator(),
+                                    )
+                                  : Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Padding(
+                                          padding: EdgeInsets.only(
+                                            left: width * 0.055,
+                                          ),
+                                          child: SizedBox(
+                                            width: width * 0.725,
+                                            child: FutureBuilder(
+                                                future: userData['Latitude'] ==
+                                                            0 &&
+                                                        userData['Longitude'] ==
+                                                            0
+                                                    ? null
+                                                    : getAddress(
+                                                        userData['Latitude'],
+                                                        userData['Longitude']),
+                                                builder: (context, snapshot) {
+                                                  if (snapshot.hasError) {
+                                                    return Text(
+                                                      'Some error occured',
+                                                      style: TextStyle(
+                                                        fontSize: width * 0.045,
+                                                        color: primaryDark2,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                      ),
+                                                    );
+                                                  }
+
+                                                  if (snapshot.hasData) {
+                                                    return Text(
+                                                      userData['Latitude'] ==
+                                                                  0 &&
+                                                              userData[
+                                                                      'Longitude'] ==
+                                                                  0
+                                                          ? 'NONE'
+                                                          : snapshot.data!,
+                                                      style: TextStyle(
+                                                        fontSize: width * 0.045,
+                                                        color: primaryDark2,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                      ),
+                                                    );
+                                                  }
+
+                                                  return Text(
+                                                    'Click on icon to get Location',
+                                                    style: TextStyle(
+                                                      fontSize: width * 0.04,
+                                                      color: primaryDark2
+                                                          .withOpacity(0.75),
+                                                    ),
+                                                  );
+                                                }),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: EdgeInsets.only(
+                                            right: width * 0.03,
+                                          ),
+                                          child: IconButton(
+                                            onPressed: () async {
+                                              setState(() {
+                                                isChangingAddress = true;
+                                              });
+
+                                              double? latitude;
+                                              double? longitude;
+
+                                              await getLocation()
+                                                  .then((value) async {
+                                                if (value != null) {
+                                                  setState(() {
+                                                    latitude = value.latitude;
+                                                    longitude = value.longitude;
+                                                  });
+
+                                                  await FirebaseFirestore
+                                                      .instance
+                                                      .collection('Users')
+                                                      .doc(FirebaseAuth.instance
+                                                          .currentUser!.uid)
+                                                      .update({
+                                                    'Latitude': latitude,
+                                                    'Longitude': longitude,
+                                                  });
+
+                                                  print(latitude);
+                                                  print(longitude);
+
+                                                  if (latitude != null &&
+                                                      longitude != null) {
+                                                    await getAddress(
+                                                      latitude!,
+                                                      longitude!,
+                                                    );
+                                                  }
+                                                }
+                                              });
+                                              setState(() {
+                                                isChangingAddress = false;
+                                              });
+                                            },
+                                            icon: const Icon(
+                                              FeatherIcons.refreshCw,
+                                            ),
+                                            tooltip: 'Relocate',
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                            ),
                           ),
                           const SizedBox(height: 14),
 
@@ -347,16 +607,16 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                               ],
                             ),
                           ),
-                          const SizedBox(height: 18),
+                          const SizedBox(height: 14),
 
                           // GENDER
                           Container(
                             width: width,
                             height: width * 0.175,
                             decoration: BoxDecoration(
-                              color: userData['gender'] == 'Male'
+                              color: userData['Gender'] == 'Male'
                                   ? const Color.fromARGB(255, 148, 207, 255)
-                                  : userData['gender'] == 'Female'
+                                  : userData['Gender'] == 'Female'
                                       ? Color.fromARGB(255, 255, 200, 218)
                                       : primary2.withOpacity(0.9),
                               borderRadius: BorderRadius.circular(12),
@@ -370,7 +630,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                 width: width * 0.725,
                                 height: width * 0.175,
                                 child: Text(
-                                  userData['gender'] ?? 'Gender N/A',
+                                  userData['Gender'] ?? 'Gender N/A',
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 1,
                                   textAlign: TextAlign.left,

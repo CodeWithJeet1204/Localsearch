@@ -103,7 +103,9 @@ class AuthMethods {
           if (context.mounted) {
             Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(
-                builder: ((context) => const RegisterDetailsPage()),
+                builder: ((context) => const RegisterDetailsPage(
+                      emailPhoneGoogleChosen: 3,
+                    )),
               ),
               (route) => false,
             );

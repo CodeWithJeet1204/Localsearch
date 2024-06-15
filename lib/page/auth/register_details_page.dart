@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:localy_user/page/main/main_page.dart';
-import 'package:localy_user/page/providers/sign_in_method_provider.dart';
 import 'package:localy_user/utils/colors.dart';
 import 'package:localy_user/widgets/button.dart';
 import 'package:localy_user/widgets/head_text.dart';
@@ -8,26 +9,27 @@ import 'package:localy_user/widgets/snack_bar.dart';
 import 'package:localy_user/widgets/text_form_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class RegisterDetailsPage extends StatefulWidget {
   const RegisterDetailsPage({
     super.key,
+    required this.emailPhoneGoogleChosen,
   });
+
+  final int? emailPhoneGoogleChosen;
 
   @override
   State<RegisterDetailsPage> createState() => _RegisterDetailsPageState();
 }
-
-// TODO: ADDRESS WITH GOOGLE MAPS
 
 class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
   final registerDetailsKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
   final emailController = TextEditingController();
   final phoneController = TextEditingController();
-  final streetController = TextEditingController();
-  final cityController = TextEditingController();
+  double? latitude;
+  double? longitude;
+  String? address;
   bool isSaving = false;
   String? selectedGender;
 
@@ -41,7 +43,7 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
           child: Padding(
             padding: EdgeInsets.all(16),
             child: Text(
-              'Name: Helps Vendors identify you in messages.\n\nStreet Address: To recommend nearby shops to you\n\nCity Name: To show you the shops in your city',
+              'Name: Helps Vendors identify you in messages.\n\nLocation: To recommend nearby shops to you',
               style: TextStyle(
                 color: primaryDark,
                 fontWeight: FontWeight.w500,
@@ -53,9 +55,68 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
     );
   }
 
+  // GET LOCATION
+  Future<Position?> getLocation() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+
+    if (!serviceEnabled) {
+      mySnackBar('Turn ON Location Services to Continue', context);
+      return null;
+    } else {
+      LocationPermission permission = await Geolocator.checkPermission();
+
+      // LOCATION PERMISSION GIVEN
+      Future<Position> locationPermissionGiven() async {
+        print("Permission given");
+        return await Geolocator.getCurrentPosition();
+      }
+
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          mySnackBar('Pls give Location Permission to Continue', context);
+        }
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.deniedForever) {
+          setState(() {
+            latitude = 0;
+            longitude = 0;
+            address = "NONE";
+          });
+          mySnackBar(
+            'Because Location permission is denied, We are continuing without Location',
+            context,
+          );
+        } else {
+          return await locationPermissionGiven();
+        }
+      } else {
+        return await locationPermissionGiven();
+      }
+    }
+    return null;
+  }
+
+  // GET ADDRESS
+  Future<void> getAddress(double lat, double long) async {
+    print("Getting address");
+    List<Placemark> placemarks = await placemarkFromCoordinates(lat, long);
+    setState(() {
+      address =
+          '${placemarks[0].name}, ${placemarks[0].locality}, ${placemarks[0].administrativeArea}';
+    });
+    print("address got");
+  }
+
   // SAVE
-  Future<void> save(SignInMethodProvider signInMethodProvider) async {
-    if (selectedGender != null) {
+  Future<void> save() async {
+    if (registerDetailsKey.currentState!.validate()) {
+      if (address == null) {
+        return mySnackBar('Get Location', context);
+      }
+      if (selectedGender == null) {
+        return mySnackBar('Select Gender', context);
+      }
       setState(() {
         isSaving = true;
       });
@@ -68,7 +129,9 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                 .update({
                 'Name': nameController.text,
                 'Email': emailController.text,
-                'gender': selectedGender,
+                'Gender': selectedGender,
+                'Latitude': latitude,
+                'Longitude': longitude,
               })
             : await FirebaseFirestore.instance
                 .collection('Users')
@@ -76,7 +139,9 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                 .update({
                 'Name': nameController.text,
                 'Phone Number': '+91${phoneController.text}',
-                'gender': selectedGender,
+                'Gender': selectedGender,
+                'Latitude': latitude,
+                'Longitude': longitude,
               });
 
         setState(() {
@@ -95,20 +160,18 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
           return mySnackBar(e.toString(), context);
         }
       }
-    } else {
-      mySnackBar('Select Gender', context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final signInMethodProvider = Provider.of<SignInMethodProvider>(context);
-
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: LayoutBuilder(
           builder: ((context, constraints) {
+            final width = constraints.maxWidth;
+
             return SingleChildScrollView(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -137,7 +200,7 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                         ),
 
                         // EMAIL
-                        !signInMethodProvider.isEmailChosen
+                        widget.emailPhoneGoogleChosen == 2
                             ? TextFormField(
                                 autofillHints: const [AutofillHints.email],
                                 autofocus: false,
@@ -170,6 +233,7 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                                   return null;
                                 },
                               )
+
                             // PHONE NUMBER
                             : MyTextFormField(
                                 hintText: 'Phone Number',
@@ -177,28 +241,50 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                                 borderRadius: 12,
                                 horizontalPadding: 0,
                                 verticalPadding: 12,
-                                autoFillHints: const [AutofillHints.email],
+                                autoFillHints: const [],
+                                keyboardType: TextInputType.number,
                               ),
 
-                        // STREET
-                        MyTextFormField(
-                          hintText: 'Street Address',
-                          controller: streetController,
-                          borderRadius: 12,
-                          horizontalPadding: 0,
-                          verticalPadding: 12,
-                          autoFillHints: const [AutofillHints.email],
+                        SizedBox(height: 8),
+
+                        // LOCATION
+                        GestureDetector(
+                          onTap: () async {
+                            await getLocation().then((value) async {
+                              if (value != null) {
+                                setState(() {
+                                  latitude = value.latitude;
+                                  longitude = value.longitude;
+                                });
+
+                                if (latitude != null && longitude != null) {
+                                  await getAddress(latitude!, longitude!);
+                                }
+                              }
+                            });
+                          },
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: Container(
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: primary2,
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              padding: EdgeInsets.all(width * 0.025),
+                              child: Text(
+                                address ?? 'Get Location',
+                                style: TextStyle(
+                                  fontSize: width * 0.045,
+                                  color: primaryDark2,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
 
-                        // CITY
-                        MyTextFormField(
-                          hintText: 'City Name',
-                          controller: cityController,
-                          borderRadius: 12,
-                          horizontalPadding: 0,
-                          verticalPadding: 12,
-                          autoFillHints: const [AutofillHints.email],
-                        ),
+                        SizedBox(height: 8),
 
                         // SELECT GENDER
                         Align(
@@ -213,7 +299,9 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 4),
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
                               child: DropdownButton(
                                 value: selectedGender,
                                 hint: const Text(
@@ -245,7 +333,7 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                         MyButton(
                           text: 'SAVE',
                           onTap: () async {
-                            await save(signInMethodProvider);
+                            await save();
                           },
                           isLoading: isSaving,
                           horizontalPadding: 0,

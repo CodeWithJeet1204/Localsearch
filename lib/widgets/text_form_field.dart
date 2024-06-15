@@ -108,7 +108,7 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
                       }
                     } else if (widget.hintText == 'Phone Number') {
                       if (value.length != 10) {
-                        return 'Phone No. should be  10 chars long';
+                        return 'Phone No. should be 10 chars long';
                       }
                     }
                   } else {

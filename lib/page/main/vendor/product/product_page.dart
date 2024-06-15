@@ -435,6 +435,89 @@ class _ProductPageState extends State<ProductPage> {
     }
   }
 
+  // GET PRODUCTS FROM VENDOR
+  Future<void> getProductsFromVendor() async {
+    final productsSnap = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Products')
+        .where('vendorId', isEqualTo: widget.productData['vendorId'])
+        .get();
+
+    for (var productSnap in productsSnap.docs) {
+      final productData = productSnap.data();
+
+      if (productData['productName'] == widget.productData['productName']) {
+        continue;
+      }
+
+      otherVendorProductsDatas.add(productData);
+    }
+
+    setState(() {
+      otherVendorProductsAdded = true;
+    });
+  }
+
+  // GET SIMILAR PRODUCTS
+  Future<void> getSimilarProducts(String productName, {String? search}) async {
+    List<QueryDocumentSnapshot<Map<String, dynamic>>> searchedProductDocs = [];
+    final productsSnap = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Products')
+        .get();
+
+    final productDocs = productsSnap.docs;
+
+    if (search != null) {
+      final searchedProductsSnap = await store
+          .collection('Business')
+          .doc('Data')
+          .collection('Products')
+          .where('productName', isGreaterThanOrEqualTo: search)
+          .get();
+
+      searchedProductDocs = searchedProductsSnap.docs;
+      searchedProductDocs.shuffle();
+
+      productDocs.addAll(searchedProductDocs);
+    }
+
+    final List<QueryDocumentSnapshot<Map<String, dynamic>>>
+        filteredProductDocs = [];
+
+    for (var productData in productDocs) {
+      if (productData['productName'] == productName) {
+        continue;
+      }
+
+      final List<String> productNameWords =
+          productName.toLowerCase().split(' ');
+      final String similarProductName =
+          productData['productName'].toString().toLowerCase();
+      final bool productNameMatch = productNameWords.any((word) =>
+          similarProductName.contains(' $word ') ||
+          similarProductName.contains('$word ') ||
+          similarProductName.contains(' $word'));
+
+      if (productNameMatch) {
+        filteredProductDocs.add(productData);
+      }
+    }
+
+    filteredProductDocs.shuffle();
+
+    for (var productData in filteredProductDocs) {
+      final Map<String, dynamic> productDatas = productData.data();
+      similarProductsDatas.add(productDatas);
+    }
+
+    setState(() {
+      similarProductsAdded = true;
+    });
+  }
+
   // GET AVERAGE RATINGS
   Future<void> getAverageRatings() async {
     final productSnap = await store
@@ -615,91 +698,8 @@ class _ProductPageState extends State<ProductPage> {
     }
   }
 
-  // GET SIMILAR PRODUCTS
-  Future<void> getSimilarProducts(String productName, {String? search}) async {
-    List<QueryDocumentSnapshot<Map<String, dynamic>>> searchedProductDocs = [];
-    final productsSnap = await store
-        .collection('Business')
-        .doc('Data')
-        .collection('Products')
-        .get();
-
-    final productDocs = productsSnap.docs;
-
-    if (search != null) {
-      final searchedProductsSnap = await store
-          .collection('Business')
-          .doc('Data')
-          .collection('Products')
-          .where('productName', isGreaterThanOrEqualTo: search)
-          .get();
-
-      searchedProductDocs = searchedProductsSnap.docs;
-      searchedProductDocs.shuffle();
-
-      productDocs.addAll(searchedProductDocs);
-    }
-
-    final List<QueryDocumentSnapshot<Map<String, dynamic>>>
-        filteredProductDocs = [];
-
-    for (var productData in productDocs) {
-      if (productData['productName'] == productName) {
-        continue;
-      }
-
-      final List<String> productNameWords =
-          productName.toLowerCase().split(' ');
-      final String similarProductName =
-          productData['productName'].toString().toLowerCase();
-      final bool productNameMatch = productNameWords.any((word) =>
-          similarProductName.contains(' $word ') ||
-          similarProductName.contains('$word ') ||
-          similarProductName.contains(' $word'));
-
-      if (productNameMatch) {
-        filteredProductDocs.add(productData);
-      }
-    }
-
-    filteredProductDocs.shuffle();
-
-    for (var productData in filteredProductDocs) {
-      final Map<String, dynamic> productDatas = productData.data();
-      similarProductsDatas.add(productDatas);
-    }
-
-    setState(() {
-      similarProductsAdded = true;
-    });
-  }
-
-  // GET PRODUCTS FROM VENDOR
-  Future<void> getProductsFromVendor() async {
-    final productsSnap = await store
-        .collection('Business')
-        .doc('Data')
-        .collection('Products')
-        .where('vendorId', isEqualTo: widget.productData['vendorId'])
-        .get();
-
-    for (var productSnap in productsSnap.docs) {
-      final productData = productSnap.data();
-
-      if (productData['productName'] == widget.productData['productName']) {
-        continue;
-      }
-
-      otherVendorProductsDatas.add(productData);
-    }
-
-    setState(() {
-      otherVendorProductsAdded = true;
-    });
-  }
-
   // ADD REVIEW WIDGET
-  Widget addAReview() {
+  Widget addAReviewWidget() {
     final width = MediaQuery.of(context).size.width;
 
     return hasReviewedBefore == null
@@ -1604,33 +1604,36 @@ class _ProductPageState extends State<ProductPage> {
                       ),
 
                       // DESCRIPTION
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                          vertical: width * 0.0175,
-                          horizontal: width * 0.02,
-                        ),
-                        child: Container(
-                          width: width,
-                          padding: EdgeInsets.all(width * 0.0225),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              width: 0.33,
-                              color: black,
+                      description.isEmpty
+                          ? Container()
+                          : Padding(
+                              padding: EdgeInsets.symmetric(
+                                vertical: width * 0.0175,
+                                horizontal: width * 0.02,
+                              ),
+                              child: Container(
+                                width: width,
+                                padding: EdgeInsets.all(width * 0.0225),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    width: 0.33,
+                                    color: black,
+                                  ),
+                                ),
+                                child: SeeMoreText(
+                                  description,
+                                  textStyle: const TextStyle(
+                                    color: primaryDark,
+                                  ),
+                                  seeMoreStyle: TextStyle(
+                                    color: Colors.blue,
+                                    fontSize:
+                                        MediaQuery.of(context).size.width *
+                                            0.0425,
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
-                          child: SeeMoreText(
-                            description,
-                            textStyle: const TextStyle(
-                              color: primaryDark,
-                            ),
-                            seeMoreStyle: TextStyle(
-                              color: Colors.blue,
-                              fontSize:
-                                  MediaQuery.of(context).size.width * 0.0425,
-                            ),
-                          ),
-                        ),
-                      ),
 
                       // BRAND & CATEGORY
                       Padding(
@@ -2067,225 +2070,85 @@ class _ProductPageState extends State<ProductPage> {
                       ),
 
                       // OTHER VENDOR PRODUCTS
-                      Container(
-                        width: width,
-                        height: width * 0.66,
-                        decoration: const BoxDecoration(
-                          color: white,
-                        ),
-                        padding: EdgeInsets.only(
-                          right: width * 0.02,
-                        ),
-                        margin: EdgeInsets.symmetric(
-                          horizontal: width * 0.00125,
-                          vertical: width * 0.0125,
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: width * 0.025,
-                              ),
-                              child: const Text(
-                                'Other Products From This Shop',
-                              ),
-                            ),
-                            SizedBox(
+                      otherVendorProductsDatas.isEmpty
+                          ? Container()
+                          : Container(
                               width: width,
-                              height: width * 0.5,
-                              child: ListView.builder(
-                                shrinkWrap: true,
-                                scrollDirection: Axis.horizontal,
-                                itemCount: otherVendorProductsDatas.length,
-                                itemBuilder: ((context, index) {
-                                  final data = otherVendorProductsDatas[index];
-                                  final String name =
-                                      otherVendorProductsDatas[index]
-                                          ['productName'];
-                                  final String price =
-                                      otherVendorProductsDatas[index]
-                                          ['productPrice'];
-                                  final String image =
-                                      otherVendorProductsDatas[index]['images']
-                                          [0];
-
-                                  return GestureDetector(
-                                    onTap: () {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: ((context) => ProductPage(
-                                                productData: data,
-                                              )),
-                                        ),
-                                      );
-                                    },
-                                    child: Container(
-                                      width: width * 0.3,
-                                      height: width * 0.2,
-                                      decoration: BoxDecoration(
-                                        color: white,
-                                        border: Border.all(
-                                          width: 0.25,
-                                        ),
-                                        borderRadius: BorderRadius.circular(2),
-                                      ),
-                                      padding: EdgeInsets.all(
-                                        width * 0.00625,
-                                      ),
-                                      margin: EdgeInsets.only(
-                                        left: width * 0.025,
-                                        right: width * 0.025,
-                                        top: width * 0.01,
-                                        bottom: width * 0.015,
-                                      ),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(2),
-                                            child: Image.network(
-                                              image,
-                                              fit: BoxFit.cover,
-                                              width: width * 0.3,
-                                              height: width * 0.3,
-                                            ),
-                                          ),
-                                          Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceAround,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                name,
-                                                overflow: TextOverflow.ellipsis,
-                                                maxLines: 1,
-                                                style: TextStyle(
-                                                  fontSize: width * 0.05,
-                                                ),
-                                              ),
-                                              Text(
-                                                'Rs. $price',
-                                                overflow: TextOverflow.ellipsis,
-                                                maxLines: 1,
-                                                style: TextStyle(
-                                                  fontSize: width * 0.045,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
+                              height: width * 0.66,
+                              decoration: const BoxDecoration(
+                                color: white,
+                              ),
+                              padding: EdgeInsets.only(
+                                right: width * 0.02,
+                              ),
+                              margin: EdgeInsets.symmetric(
+                                horizontal: width * 0.00125,
+                                vertical: width * 0.0125,
+                              ),
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: width * 0.025,
                                     ),
-                                  );
-                                }),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                                    child: const Text(
+                                      'Other Products From This Shop',
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: width,
+                                    height: width * 0.5,
+                                    child: ListView.builder(
+                                      shrinkWrap: true,
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount:
+                                          otherVendorProductsDatas.length,
+                                      itemBuilder: ((context, index) {
+                                        final data =
+                                            otherVendorProductsDatas[index];
+                                        final String name =
+                                            otherVendorProductsDatas[index]
+                                                ['productName'];
+                                        final String price =
+                                            otherVendorProductsDatas[index]
+                                                ['productPrice'];
+                                        final String image =
+                                            otherVendorProductsDatas[index]
+                                                ['images'][0];
 
-                      const Divider(),
-
-                      // SIMILAR PRODUCTS
-                      Container(
-                        width: width,
-                        height: width * 0.6,
-                        decoration: const BoxDecoration(
-                          color: white,
-                        ),
-                        padding: EdgeInsets.only(
-                          right: width * 0.02,
-                        ),
-                        margin: EdgeInsets.symmetric(
-                          horizontal: width * 0.00125,
-                          vertical: width * 0.0125,
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: width * 0.025,
-                              ),
-                              child: const Text(
-                                'Similar Products',
-                              ),
-                            ),
-                            SizedBox(
-                              width: width,
-                              height: width * 0.5,
-                              child: ListView.builder(
-                                shrinkWrap: true,
-                                scrollDirection: Axis.horizontal,
-                                itemCount: similarProductsDatas.length,
-                                itemBuilder: ((context, index) {
-                                  final data = similarProductsDatas[index];
-                                  final String name =
-                                      similarProductsDatas[index]
-                                          ['productName'];
-                                  final String price =
-                                      similarProductsDatas[index]
-                                          ['productPrice'];
-                                  final String image =
-                                      similarProductsDatas[index]['images'][0];
-
-                                  return GestureDetector(
-                                    onTap: () {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: ((context) => ProductPage(
-                                                productData: data,
-                                              )),
-                                        ),
-                                      );
-                                    },
-                                    child: Container(
-                                      width: width * 0.3,
-                                      height: width * 0.2,
-                                      decoration: BoxDecoration(
-                                        color: white,
-                                        borderRadius: BorderRadius.circular(2),
-                                        border: Border.all(
-                                          width: 0.25,
-                                        ),
-                                      ),
-                                      padding: EdgeInsets.all(
-                                        width * 0.00625,
-                                      ),
-                                      margin: EdgeInsets.only(
-                                        left: width * 0.025,
-                                        right: width * 0.025,
-                                        top: width * 0.01,
-                                        bottom: width * 0.015,
-                                      ),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(2),
-                                            child: Image.network(
-                                              image,
-                                              fit: BoxFit.cover,
-                                              width: width * 0.3,
-                                              height: width * 0.3,
+                                        return GestureDetector(
+                                          onTap: () {
+                                            Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                builder: ((context) =>
+                                                    ProductPage(
+                                                      productData: data,
+                                                    )),
+                                              ),
+                                            );
+                                          },
+                                          child: Container(
+                                            width: width * 0.3,
+                                            height: width * 0.2,
+                                            decoration: BoxDecoration(
+                                              color: white,
+                                              border: Border.all(
+                                                width: 0.25,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(2),
                                             ),
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.symmetric(
-                                              horizontal: width * 0.00625,
+                                            padding: EdgeInsets.all(
+                                              width * 0.00625,
+                                            ),
+                                            margin: EdgeInsets.only(
+                                              left: width * 0.025,
+                                              right: width * 0.025,
+                                              top: width * 0.01,
+                                              bottom: width * 0.015,
                                             ),
                                             child: Column(
                                               mainAxisAlignment:
@@ -2293,38 +2156,202 @@ class _ProductPageState extends State<ProductPage> {
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: [
-                                                Text(
-                                                  name,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  maxLines: 1,
-                                                  style: TextStyle(
-                                                    fontSize: width * 0.05,
+                                                ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(2),
+                                                  child: Image.network(
+                                                    image,
+                                                    fit: BoxFit.cover,
+                                                    width: width * 0.3,
+                                                    height: width * 0.3,
                                                   ),
                                                 ),
-                                                Text(
-                                                  'Rs. $price',
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  maxLines: 1,
-                                                  style: TextStyle(
-                                                    fontSize: width * 0.045,
-                                                    fontWeight: FontWeight.w500,
+                                                Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceAround,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      name,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      maxLines: 1,
+                                                      style: TextStyle(
+                                                        fontSize: width * 0.05,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      'Rs. $price',
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      maxLines: 1,
+                                                      style: TextStyle(
+                                                        fontSize: width * 0.045,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                      }),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                      otherVendorProductsDatas.isEmpty
+                          ? Container()
+                          : const Divider(),
+
+                      // SIMILAR PRODUCTS
+                      similarProductsDatas.isEmpty
+                          ? Container()
+                          : Container(
+                              width: width,
+                              height: width * 0.6,
+                              decoration: const BoxDecoration(
+                                color: white,
+                              ),
+                              padding: EdgeInsets.only(
+                                right: width * 0.02,
+                              ),
+                              margin: EdgeInsets.symmetric(
+                                horizontal: width * 0.00125,
+                                vertical: width * 0.0125,
+                              ),
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: width * 0.025,
+                                    ),
+                                    child: const Text(
+                                      'Similar Products',
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: width,
+                                    height: width * 0.5,
+                                    child: ListView.builder(
+                                      shrinkWrap: true,
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: similarProductsDatas.length,
+                                      itemBuilder: ((context, index) {
+                                        final data =
+                                            similarProductsDatas[index];
+                                        final String name =
+                                            similarProductsDatas[index]
+                                                ['productName'];
+                                        final String price =
+                                            similarProductsDatas[index]
+                                                ['productPrice'];
+                                        final String image =
+                                            similarProductsDatas[index]
+                                                ['images'][0];
+
+                                        return GestureDetector(
+                                          onTap: () {
+                                            Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                builder: ((context) =>
+                                                    ProductPage(
+                                                      productData: data,
+                                                    )),
+                                              ),
+                                            );
+                                          },
+                                          child: Container(
+                                            width: width * 0.3,
+                                            height: width * 0.2,
+                                            decoration: BoxDecoration(
+                                              color: white,
+                                              borderRadius:
+                                                  BorderRadius.circular(2),
+                                              border: Border.all(
+                                                width: 0.25,
+                                              ),
+                                            ),
+                                            padding: EdgeInsets.all(
+                                              width * 0.00625,
+                                            ),
+                                            margin: EdgeInsets.only(
+                                              left: width * 0.025,
+                                              right: width * 0.025,
+                                              top: width * 0.01,
+                                              bottom: width * 0.015,
+                                            ),
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(2),
+                                                  child: Image.network(
+                                                    image,
+                                                    fit: BoxFit.cover,
+                                                    width: width * 0.3,
+                                                    height: width * 0.3,
+                                                  ),
+                                                ),
+                                                Padding(
+                                                  padding: EdgeInsets.symmetric(
+                                                    horizontal: width * 0.00625,
+                                                  ),
+                                                  child: Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        name,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        maxLines: 1,
+                                                        style: TextStyle(
+                                                          fontSize:
+                                                              width * 0.05,
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        'Rs. $price',
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        maxLines: 1,
+                                                        style: TextStyle(
+                                                          fontSize:
+                                                              width * 0.045,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
                                                 ),
                                               ],
                                             ),
                                           ),
-                                        ],
-                                      ),
+                                        );
+                                      }),
                                     ),
-                                  );
-                                }),
+                                  ),
+                                ],
                               ),
                             ),
-                          ],
-                        ),
-                      ),
 
                       // RATINGS
                       Container(
@@ -2503,7 +2530,7 @@ class _ProductPageState extends State<ProductPage> {
                       ),
 
                       // ADD RATING
-                      addAReview(),
+                      addAReviewWidget(),
                     ],
                   ),
                 ),

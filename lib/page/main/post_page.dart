@@ -109,15 +109,17 @@ class _PostsPageState extends State<PostsPage> {
         .doc(vendorId)
         .get();
 
-    final vendorData = vendorSnap.data()!;
+    final vendorData = vendorSnap.data();
 
-    final id = vendorSnap.id;
-    final name = vendorData['Name'];
-    final imageUrl = vendorData['Image'];
+    if (vendorData != null) {
+      final id = vendorSnap.id;
+      final name = vendorData['Name'];
+      final imageUrl = vendorData['Image'];
 
-    setState(() {
-      vendors[id] = [name, imageUrl];
-    });
+      setState(() {
+        vendors[id] = [name, imageUrl];
+      });
+    }
   }
 
   @override

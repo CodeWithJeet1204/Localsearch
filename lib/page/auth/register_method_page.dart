@@ -4,7 +4,6 @@ import 'package:localy_user/page/auth/login_page.dart';
 import 'package:localy_user/page/auth/register_details_page.dart';
 import 'package:localy_user/page/auth/verify/email_verify.dart';
 import 'package:localy_user/page/auth/verify/number_verify.dart';
-import 'package:localy_user/page/providers/sign_in_method_provider.dart';
 import 'package:localy_user/utils/colors.dart';
 import 'package:localy_user/utils/size.dart';
 import 'package:localy_user/widgets/button.dart';
@@ -16,7 +15,6 @@ import 'package:localy_user/widgets/text_form_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 
 class RegisterMethodPage extends StatefulWidget {
   const RegisterMethodPage({super.key});
@@ -50,9 +48,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
   }
 
   // REGISTER WITH EMAIL
-  Future<void> registerWithEmail(
-    SignInMethodProvider signInMethodProvider,
-  ) async {
+  Future<void> registerWithEmail() async {
     if (passwordController.text == confirmPasswordController.text) {
       if (registerEmailFormKey.currentState!.validate()) {
         setState(() {
@@ -85,8 +81,6 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
               'recentProducts': [],
               'fcmToken': '',
             });
-
-            signInMethodProvider.chooseEmail();
           } else {
             if (mounted) {
               mySnackBar(
@@ -110,26 +104,6 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                   ),
                 );
               }
-            }
-          }
-        } on FirebaseAuthException catch (e) {
-          setState(() {
-            isEmailRegistering = false;
-          });
-
-          if (e.code == 'email-already-in-use') {
-            if (mounted) {
-              mySnackBar(
-                'This email is already in use.',
-                context,
-              );
-            }
-          } else {
-            if (mounted) {
-              mySnackBar(
-                e.message ?? 'An error occurred.',
-                context,
-              );
             }
           }
         } catch (e) {
@@ -158,9 +132,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
   }
 
   // REGISTER WITH PHONE
-  Future<void> registerWithPhone(
-    SignInMethodProvider signInMethodProvider,
-  ) async {
+  Future<void> registerWithPhone() async {
     if (registerNumberFormKey.currentState!.validate()) {
       try {
         setState(() {
@@ -194,7 +166,6 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                 isPhoneRegistering = false;
                 phoneText = 'SIGNUP';
               });
-              signInMethodProvider.chooseNumber();
               Navigator.of(context).pop();
               Navigator.of(context).push(
                 MaterialPageRoute(
@@ -234,8 +205,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
   }
 
   // REGISTER WITH GOOGLE
-  Future<void> registerWithGoogle(
-      SignInMethodProvider signInMethodProvider, FirebaseAuth _auth) async {
+  Future<void> registerWithGoogle(FirebaseAuth _auth) async {
     setState(() {
       isGoogleRegistering = true;
     });
@@ -261,8 +231,6 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
           'recentProducts': [],
         });
 
-        signInMethodProvider.chooseGoogle();
-
         setState(() {
           isGoogleRegistering = false;
         });
@@ -272,7 +240,9 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
             Navigator.of(context).pop();
             Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (context) => const RegisterDetailsPage(),
+                builder: (context) => const RegisterDetailsPage(
+                  emailPhoneGoogleChosen: 3,
+                ),
               ),
             );
           }
@@ -303,7 +273,6 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
 
   @override
   Widget build(BuildContext context) {
-    final signInMethodProvider = Provider.of<SignInMethodProvider>(context);
     final double width = MediaQuery.of(context).size.width;
 
     return Scaffold(
@@ -376,9 +345,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                                   MyButton(
                                     text: 'SIGNUP',
                                     onTap: () async {
-                                      await registerWithEmail(
-                                        signInMethodProvider,
-                                      );
+                                      await registerWithEmail();
                                     },
                                     horizontalPadding: width * 0.066,
                                     isLoading: isEmailRegistering,
@@ -441,8 +408,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                                   MyButton(
                                     text: phoneText,
                                     onTap: () async {
-                                      await registerWithPhone(
-                                          signInMethodProvider);
+                                      await registerWithPhone();
                                     },
                                     horizontalPadding:
                                         MediaQuery.of(context).size.width *
@@ -460,7 +426,6 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                         GestureDetector(
                           onTap: () async {
                             await registerWithGoogle(
-                              signInMethodProvider,
                               FirebaseAuth.instance,
                             );
                           },
@@ -601,9 +566,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                                   MyButton(
                                     text: 'SIGNUP',
                                     onTap: () async {
-                                      await registerWithEmail(
-                                        signInMethodProvider,
-                                      );
+                                      await registerWithEmail();
                                     },
                                     horizontalPadding: width < screenSize
                                         ? width * 0.066
@@ -643,9 +606,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                                   MyButton(
                                     text: phoneText,
                                     onTap: () async {
-                                      await registerWithPhone(
-                                        signInMethodProvider,
-                                      );
+                                      await registerWithPhone();
                                     },
                                     horizontalPadding: width < screenSize
                                         ? width * 0.066

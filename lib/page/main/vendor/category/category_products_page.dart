@@ -49,7 +49,6 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
         .collection('Business')
         .doc('Data')
         .collection('Products')
-        .where('categoryId', isEqualTo: widget.categoryName)
         .where('categoryName', isEqualTo: widget.categoryName)
         .get();
 
@@ -75,7 +74,7 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.categoryName),
+        title: Text(widget.categoryName * 2),
         actions: [
           IconButton(
             onPressed: () async {
