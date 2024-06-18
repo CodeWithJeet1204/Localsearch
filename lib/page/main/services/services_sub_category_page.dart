@@ -33,16 +33,16 @@ class _ServicesSubCategoryPageState extends State<ServicesSubCategoryPage> {
   Future<void> getIdData() async {
     List myIds = [];
     final serviceSnap = await store.collection('Services').get();
-    serviceSnap.docs.forEach((service) {
+    for (var service in serviceSnap.docs) {
       final serviceData = service.data();
       final String id = service.id;
       final Map subCategories = serviceData['SubCategory'];
-      subCategories.keys.forEach((subCategoryKey) {
+      for (var subCategoryKey in subCategories.keys) {
         if (subCategoryKey == widget.subCategory) {
           myIds.add(id);
         }
-      });
-    });
+      }
+    }
 
     await getServicemanData(myIds);
   }
@@ -81,19 +81,19 @@ class _ServicesSubCategoryPageState extends State<ServicesSubCategoryPage> {
                 ),
               );
             },
-            icon: Icon(
+            icon: const Icon(
               Icons.question_mark_outlined,
             ),
-            tooltip: "Help",
+            tooltip: 'Help',
           ),
         ],
       ),
       body: !isData
-          ? Center(
+          ? const Center(
               child: CircularProgressIndicator(),
             )
           : serviceman.isEmpty
-              ? Center(
+              ? const Center(
                   child: Text('No One Available'),
                 )
               : SafeArea(
@@ -105,7 +105,7 @@ class _ServicesSubCategoryPageState extends State<ServicesSubCategoryPage> {
                       width: width,
                       child: ListView.builder(
                         shrinkWrap: true,
-                        physics: ClampingScrollPhysics(),
+                        physics: const ClampingScrollPhysics(),
                         itemCount: serviceman.length,
                         itemBuilder: ((context, index) {
                           final id = serviceman.keys.toList()[index];

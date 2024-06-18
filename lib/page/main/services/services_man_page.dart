@@ -76,8 +76,6 @@ class _ServicesManPageState extends State<ServicesManPage> {
     final Map<String, dynamic> mySubCategories =
         myServicemanData['SubCategory'];
 
-    print('SubCategories: $mySubCategories');
-
     setState(() {
       allServiceManSubCategories = mySubCategories;
       subCategories = mySubCategories;
@@ -135,11 +133,11 @@ class _ServicesManPageState extends State<ServicesManPage> {
       if (categoriesMapForPlace != null) {
         allServiceManSubCategories.forEach((subCategoryName, _) {
           categoriesMapForPlace.forEach((category, subCategoryList) {
-            allServiceManSubCategories.keys.forEach((subCategoryName) {
+            for (var subCategoryName in allServiceManSubCategories.keys) {
               if (subCategoryList.contains(subCategoryName)) {
                 uniqueCategories.add(category);
               }
-            });
+            }
           });
         });
       }
@@ -169,12 +167,12 @@ class _ServicesManPageState extends State<ServicesManPage> {
       Map<String, dynamic> filteredCategories = {};
       allServiceManSubCategories.forEach((subCategoryName, _) {
         servicesMap[selectedPlace]!.forEach((categoryName, subCategoryList) {
-          subCategoryList.forEach((subCategory) {
+          for (var subCategory in subCategoryList) {
             if (subCategoryName == subCategory) {
               filteredCategories[subCategory] =
                   allServiceManSubCategories[subCategory];
             }
-          });
+          }
         });
       });
       setState(() {
@@ -194,14 +192,12 @@ class _ServicesManPageState extends State<ServicesManPage> {
         servicesMap.forEach((place, placeMap) {
           placeMap.forEach((category, subCategoryList) {
             if (category == selectedCategory) {
-              subCategoryList.forEach((subCategory) {
-                print('SubCategory: $subCategory');
+              for (var subCategory in subCategoryList) {
                 if (subCategoryName == subCategory) {
-                  print('abc');
                   filteredSubCategories[subCategory] =
                       allServiceManSubCategories[subCategory];
                 }
-              });
+              }
             }
           });
         });
@@ -265,10 +261,10 @@ class _ServicesManPageState extends State<ServicesManPage> {
                 ),
               );
             },
-            icon: Icon(
+            icon: const Icon(
               Icons.question_mark_outlined,
             ),
-            tooltip: "Help",
+            tooltip: 'Help',
           ),
         ],
       ),
@@ -313,7 +309,7 @@ class _ServicesManPageState extends State<ServicesManPage> {
                             ),
                           ),
 
-                          SizedBox(height: 12),
+                          const SizedBox(height: 12),
 
                           // NAME
                           SizedBox(
@@ -331,7 +327,7 @@ class _ServicesManPageState extends State<ServicesManPage> {
                             ),
                           ),
 
-                          SizedBox(height: 12),
+                          const SizedBox(height: 12),
 
                           // CONTACT & CHAT
                           Row(
@@ -382,7 +378,7 @@ class _ServicesManPageState extends State<ServicesManPage> {
                                 onTap: () async {
                                   final String phoneNumber =
                                       servicemanData['Phone Number'];
-                                  final String message =
+                                  const String message =
                                       'Hey, I found you on Localy\n';
                                   final url =
                                       'https://wa.me/$phoneNumber?text=$message';
@@ -390,10 +386,12 @@ class _ServicesManPageState extends State<ServicesManPage> {
                                   if (await canLaunchUrl(Uri.parse(url))) {
                                     await launchUrl(Uri.parse(url));
                                   } else {
-                                    mySnackBar(
-                                      'Something went Wrong',
-                                      context,
-                                    );
+                                    if (context.mounted) {
+                                      mySnackBar(
+                                        'Something went Wrong',
+                                        context,
+                                      );
+                                    }
                                   }
                                 },
                                 child: Container(
@@ -436,7 +434,7 @@ class _ServicesManPageState extends State<ServicesManPage> {
                       ),
                     ),
 
-                    previousWorkImages.isEmpty ? Container() : Divider(),
+                    previousWorkImages.isEmpty ? Container() : const Divider(),
 
                     previousWorkImages.isEmpty
                         ? Container()
@@ -444,7 +442,6 @@ class _ServicesManPageState extends State<ServicesManPage> {
                             padding: EdgeInsets.all(width * 0.0125),
                             child: InkWell(
                               onTap: () {
-                                print(previousWorkImages);
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
                                     builder: ((context) =>
@@ -477,14 +474,14 @@ class _ServicesManPageState extends State<ServicesManPage> {
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
-                                    Icon(FeatherIcons.chevronRight),
+                                    const Icon(FeatherIcons.chevronRight),
                                   ],
                                 ),
                               ),
                             ),
                           ),
 
-                    Divider(),
+                    const Divider(),
 
                     // PLACES CHIPS
                     SizedBox(
@@ -492,7 +489,7 @@ class _ServicesManPageState extends State<ServicesManPage> {
                       height: 50,
                       child: ListView.builder(
                         shrinkWrap: true,
-                        physics: ClampingScrollPhysics(),
+                        physics: const ClampingScrollPhysics(),
                         scrollDirection: Axis.horizontal,
                         itemCount: places.length,
                         itemBuilder: ((context, index) {
@@ -543,7 +540,7 @@ class _ServicesManPageState extends State<ServicesManPage> {
                       height: 50,
                       child: ListView.builder(
                         shrinkWrap: true,
-                        physics: ClampingScrollPhysics(),
+                        physics: const ClampingScrollPhysics(),
                         scrollDirection: Axis.horizontal,
                         itemCount: categories.length,
                         itemBuilder: ((context, index) {
@@ -591,7 +588,7 @@ class _ServicesManPageState extends State<ServicesManPage> {
                       width: width,
                       child: ListView.builder(
                         shrinkWrap: true,
-                        physics: ClampingScrollPhysics(),
+                        physics: const ClampingScrollPhysics(),
                         itemCount: subCategories.length,
                         itemBuilder: ((context, index) {
                           final name = subCategories.keys.toList()[index];
@@ -667,7 +664,7 @@ class _ServicesManPageState extends State<ServicesManPage> {
                                         child: RichText(
                                           text: TextSpan(
                                             children: [
-                                              TextSpan(
+                                              const TextSpan(
                                                 text: 'Per ',
                                                 style: TextStyle(
                                                   color: primaryDark,

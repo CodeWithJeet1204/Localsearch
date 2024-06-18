@@ -41,7 +41,7 @@ class _EventsPreviousWorkImagesPageState
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Work Images'),
+        title: const Text('Work Images'),
         actions: [
           IconButton(
             onPressed: () async {
@@ -52,15 +52,15 @@ class _EventsPreviousWorkImagesPageState
                 ),
               );
             },
-            icon: Icon(
+            icon: const Icon(
               Icons.question_mark_outlined,
             ),
-            tooltip: "Help",
+            tooltip: 'Help',
           ),
         ],
       ),
       body: widget.workImages.isEmpty
-          ? Center(
+          ? const Center(
               child: Text('No Images'),
             )
           : SafeArea(
@@ -73,8 +73,9 @@ class _EventsPreviousWorkImagesPageState
                   height: MediaQuery.of(context).size.height,
                   child: GridView.builder(
                     shrinkWrap: true,
-                    physics: ClampingScrollPhysics(),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    physics: const ClampingScrollPhysics(),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3,
                       childAspectRatio: 1,
                     ),

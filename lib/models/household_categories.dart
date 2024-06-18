@@ -4,7 +4,7 @@ List<List<String>> householdCategories = [
     'https://img.freepik.com/free-vector/various-color-checkered-cotton-shirts-folded-stack_1441-3074.jpg?w=1380&t=st=1708074608~exp=1708075208~hmac=08ad9e959fea122ee32e34b5865982a5d3bf423a78796794223a4beebd35b7a9',
   ],
   [
-    'Weaving,',
+    'Weaving',
     '',
   ],
   [

@@ -856,7 +856,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                   width: width,
                                   child: GridView.builder(
                                     shrinkWrap: true,
-                                    physics: ClampingScrollPhysics(),
+                                    physics: const ClampingScrollPhysics(),
                                     gridDelegate:
                                         const SliverGridDelegateWithFixedCrossAxisCount(
                                       crossAxisCount: 2,

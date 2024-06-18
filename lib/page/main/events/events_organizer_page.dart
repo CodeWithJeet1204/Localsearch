@@ -67,7 +67,7 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
     List myEventTypes = [];
     final eventsSnap = await store.collection('Events').get();
 
-    eventsSnap.docs.forEach((event) {
+    for (var event in eventsSnap.docs) {
       final eventData = event.data();
 
       if (eventData['organizerId'] == widget.organizerId) {
@@ -96,7 +96,7 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
         events = myEvents;
         allEvents = myEvents;
       });
-    });
+    }
   }
 
   // GET WORK IMAGES
@@ -152,14 +152,16 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
     });
 
     await getIfFollowing();
-    Navigator.of(context).pop();
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: ((context) => EventsOrganizerPage(
-              organizerId: widget.organizerId,
-            )),
-      ),
-    );
+    if (mounted) {
+      Navigator.of(context).pop();
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: ((context) => EventsOrganizerPage(
+                organizerId: widget.organizerId,
+              )),
+        ),
+      );
+    }
   }
 
   // GET IF FOLLOWING
@@ -229,15 +231,15 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
                 ),
               );
             },
-            icon: Icon(
+            icon: const Icon(
               Icons.question_mark_outlined,
             ),
-            tooltip: "Help",
+            tooltip: 'Help',
           ),
         ],
       ),
       body: !isData
-          ? Center(
+          ? const Center(
               child: CircularProgressIndicator(),
             )
           : SafeArea(
@@ -389,7 +391,7 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
                                 onTap: () async {
                                   final String phoneNumber =
                                       organizerData['Phone Number'];
-                                  final String message =
+                                  const String message =
                                       'Hey, I found you on Localy\n';
                                   final url =
                                       'https://wa.me/$phoneNumber?text=$message';
@@ -397,10 +399,12 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
                                   if (await canLaunchUrl(Uri.parse(url))) {
                                     await launchUrl(Uri.parse(url));
                                   } else {
-                                    mySnackBar(
-                                      'Something went Wrong',
-                                      context,
-                                    );
+                                    if (context.mounted) {
+                                      mySnackBar(
+                                        'Something went Wrong',
+                                        context,
+                                      );
+                                    }
                                   }
                                 },
                                 child: Container(
@@ -470,7 +474,7 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
                                   padding: EdgeInsets.only(
                                     right: width * 0.034,
                                   ),
-                                  child: Icon(FeatherIcons.users),
+                                  child: const Icon(FeatherIcons.users),
                                 ),
                               ],
                             ),
@@ -488,10 +492,12 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
                               if (await canLaunchUrl(mapsUrl)) {
                                 await launchUrl(mapsUrl);
                               } else {
-                                mySnackBar(
-                                  'Something went Wrong',
-                                  context,
-                                );
+                                if (context.mounted) {
+                                  mySnackBar(
+                                    'Something went Wrong',
+                                    context,
+                                  );
+                                }
                               }
                             },
                             onLongPress: () {
@@ -528,10 +534,12 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
                                       if (await canLaunchUrl(mapsUrl)) {
                                         await launchUrl(mapsUrl);
                                       } else {
-                                        mySnackBar(
-                                          'Something went Wrong',
-                                          context,
-                                        );
+                                        if (context.mounted) {
+                                          mySnackBar(
+                                            'Something went Wrong',
+                                            context,
+                                          );
+                                        }
                                       }
                                     },
                                     icon: const Icon(FeatherIcons.mapPin),
@@ -553,7 +561,9 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
                               if (await canLaunchUrl(emailUri)) {
                                 await launchUrl(emailUri);
                               } else {
-                                mySnackBar('Something went Wrong', context);
+                                if (context.mounted) {
+                                  mySnackBar('Something went Wrong', context);
+                                }
                               }
                             },
                             onLongPress: () {
@@ -589,8 +599,12 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
                                       if (await canLaunchUrl(emailUri)) {
                                         await launchUrl(emailUri);
                                       } else {
-                                        mySnackBar(
-                                            'Something went Wrong', context);
+                                        if (context.mounted) {
+                                          mySnackBar(
+                                            'Something went Wrong',
+                                            context,
+                                          );
+                                        }
                                       }
                                     },
                                     icon: const Icon(FeatherIcons.mail),
@@ -613,10 +627,12 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
                                 if (await canLaunchUrl(uri)) {
                                   await launchUrl(uri);
                                 } else {
-                                  mySnackBar(
-                                    'Something went wrong',
-                                    context,
-                                  );
+                                  if (context.mounted) {
+                                    mySnackBar(
+                                      'Something went wrong',
+                                      context,
+                                    );
+                                  }
                                 }
                               } else {
                                 mySnackBar(
@@ -646,7 +662,7 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
                                     width: width * 0.8,
                                     child: Text(
                                       organizerData['Website'],
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         color: Color.fromRGBO(
                                           13,
                                           121,
@@ -668,10 +684,12 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
                                         if (await canLaunchUrl(uri)) {
                                           await launchUrl(uri);
                                         } else {
-                                          mySnackBar(
-                                            'Something went wrong',
-                                            context,
-                                          );
+                                          if (context.mounted) {
+                                            mySnackBar(
+                                              'Something went wrong',
+                                              context,
+                                            );
+                                          }
                                         }
                                       } else {
                                         mySnackBar(
@@ -708,13 +726,13 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
                                   padding: EdgeInsets.only(
                                     right: width * 0.034,
                                   ),
-                                  child: Icon(FeatherIcons.calendar),
+                                  child: const Icon(FeatherIcons.calendar),
                                 ),
                               ],
                             ),
                           ),
 
-                          Divider(),
+                          const Divider(),
 
                           // WORK IMAGES
                           workImages.isEmpty
@@ -723,7 +741,6 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
                                   padding: EdgeInsets.all(width * 0.0125),
                                   child: InkWell(
                                     onTap: () {
-                                      print(workImages);
                                       Navigator.of(context).push(
                                         MaterialPageRoute(
                                           builder: ((context) =>
@@ -757,14 +774,14 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
                                               fontWeight: FontWeight.w500,
                                             ),
                                           ),
-                                          Icon(FeatherIcons.chevronRight),
+                                          const Icon(FeatherIcons.chevronRight),
                                         ],
                                       ),
                                     ),
                                   ),
                                 ),
 
-                          workImages.isEmpty ? Container() : Divider(),
+                          workImages.isEmpty ? Container() : const Divider(),
 
                           // ONGOING
                           ongoingEvents.isEmpty
@@ -792,7 +809,7 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
                                   child: ListView.builder(
                                     shrinkWrap: true,
                                     scrollDirection: Axis.horizontal,
-                                    physics: ClampingScrollPhysics(),
+                                    physics: const ClampingScrollPhysics(),
                                     itemCount: ongoingEvents.length,
                                     itemBuilder: ((context, index) {
                                       final id =
@@ -868,7 +885,7 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
                                   ),
                                 ),
 
-                          ongoingEvents.isEmpty ? Container() : Divider(),
+                          ongoingEvents.isEmpty ? Container() : const Divider(),
 
                           // EVENT TYPES
                           eventTypes.length < 2
@@ -878,7 +895,7 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
                                   height: 50,
                                   child: ListView.builder(
                                     shrinkWrap: true,
-                                    physics: ClampingScrollPhysics(),
+                                    physics: const ClampingScrollPhysics(),
                                     scrollDirection: Axis.horizontal,
                                     itemCount: eventTypes.length,
                                     itemBuilder: ((context, index) {
@@ -904,8 +921,6 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
                                                 selectedEventType = type;
                                               }
                                             });
-                                            print(
-                                                'Selected Category: $selectedEventType');
                                             getTypeEvent(selectedEventType);
                                           },
                                           backgroundColor:
@@ -923,7 +938,7 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
                               ? SizedBox(
                                   width: width,
                                   height: 100,
-                                  child: Center(
+                                  child: const Center(
                                     child: Text('No Events'),
                                   ),
                                 )
@@ -931,7 +946,7 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
                                   width: width,
                                   child: ListView.builder(
                                     shrinkWrap: true,
-                                    physics: ClampingScrollPhysics(),
+                                    physics: const ClampingScrollPhysics(),
                                     itemCount: events.length,
                                     itemBuilder: ((context, index) {
                                       final id = events.keys.toList()[index];
@@ -1004,7 +1019,7 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
                                                       ),
                                                     ),
                                                   ),
-                                                  SizedBox(height: 4),
+                                                  const SizedBox(height: 4),
                                                   // DATES
                                                   SizedBox(
                                                     width: width * 0.6,
@@ -1021,7 +1036,7 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
                                                       ),
                                                     ),
                                                   ),
-                                                  SizedBox(height: 4),
+                                                  const SizedBox(height: 4),
                                                   // TYPE
                                                   SizedBox(
                                                     width: width * 0.6,
@@ -1037,7 +1052,7 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
                                                       ),
                                                     ),
                                                   ),
-                                                  SizedBox(height: 4),
+                                                  const SizedBox(height: 4),
                                                   // ADDRESS
                                                   SizedBox(
                                                     width: width * 0.6,
@@ -1076,7 +1091,7 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
                                   ),
                                 ),
 
-                          SizedBox(height: 8),
+                          const SizedBox(height: 8),
                         ],
                       ),
                     );

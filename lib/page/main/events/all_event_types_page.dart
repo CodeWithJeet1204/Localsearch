@@ -18,7 +18,7 @@ class _AllEventsTypePageState extends State<AllEventsTypePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('All Event Types'),
+        title: const Text('All Event Types'),
         actions: [
           IconButton(
             onPressed: () async {
@@ -29,10 +29,10 @@ class _AllEventsTypePageState extends State<AllEventsTypePage> {
                 ),
               );
             },
-            icon: Icon(
+            icon: const Icon(
               Icons.question_mark_outlined,
             ),
-            tooltip: "Help",
+            tooltip: 'Help',
           ),
         ],
       ),
@@ -45,8 +45,8 @@ class _AllEventsTypePageState extends State<AllEventsTypePage> {
             width: width,
             child: GridView.builder(
               shrinkWrap: true,
-              physics: ClampingScrollPhysics(),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              physics: const ClampingScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 3,
               ),
               itemCount: eventCategories.length,

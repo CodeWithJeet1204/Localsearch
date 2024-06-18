@@ -41,8 +41,6 @@ class _ImageViewState extends State<ImageView> {
         ),
       );
     }
-
-    print('def');
   }
 
   // DISPOSE
@@ -67,10 +65,10 @@ class _ImageViewState extends State<ImageView> {
                 ),
               );
             },
-            icon: Icon(
+            icon: const Icon(
               Icons.question_mark_outlined,
             ),
-            tooltip: "Help",
+            tooltip: 'Help',
           ),
         ],
       ),
@@ -155,7 +153,6 @@ class _ImageViewState extends State<ImageView> {
                         padding: const EdgeInsets.symmetric(horizontal: 4),
                         child: GestureDetector(
                           onTap: () {
-                            print("Index: $index");
                             setState(() {
                               controller.animateToPage(index);
                             });

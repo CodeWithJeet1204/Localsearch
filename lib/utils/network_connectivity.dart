@@ -6,11 +6,11 @@ class ConnectivityNotificationWidget extends StatefulWidget {
   const ConnectivityNotificationWidget({super.key});
 
   @override
-  _ConnectivityNotificationWidgetState createState() =>
-      _ConnectivityNotificationWidgetState();
+  ConnectivityNotificationWidgetState createState() =>
+      ConnectivityNotificationWidgetState();
 }
 
-class _ConnectivityNotificationWidgetState
+class ConnectivityNotificationWidgetState
     extends State<ConnectivityNotificationWidget> {
   ConnectivityResult _connectionStatus = ConnectivityResult.none;
   late StreamSubscription<ConnectivityResult> _connectivitySubscription;
@@ -69,7 +69,7 @@ class _ConnectivityNotificationWidgetState
               child: const Text('Retry', overflow: TextOverflow.ellipsis),
               onPressed: () async {
                 final currentStatus = await Connectivity().checkConnectivity();
-                if (currentStatus != ConnectivityResult.none) {
+                if (currentStatus.first != ConnectivityResult.none) {
                   if (context.mounted) {
                     Navigator.pop(context);
                   }

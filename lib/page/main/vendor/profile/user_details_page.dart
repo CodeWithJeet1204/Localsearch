@@ -140,9 +140,6 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
 
   // GET ADDRESS
   Future<String> getAddress(double lat, double long) async {
-    print("Getting address");
-    print("Lat: $lat");
-    print("Long: $long");
     List<Placemark> placemarks = await placemarkFromCoordinates(lat, long);
     return '${placemarks[0].name}, ${placemarks[0].locality}, ${placemarks[0].administrativeArea}';
   }
@@ -152,7 +149,9 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
 
     if (!serviceEnabled) {
-      mySnackBar('Turn ON Location Services to Continue', context);
+      if (mounted) {
+        mySnackBar('Turn ON Location Services to Continue', context);
+      }
       return null;
     } else {
       LocationPermission permission = await Geolocator.checkPermission();
@@ -160,14 +159,18 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
-          mySnackBar('Pls give Location Permission to Continue', context);
+          if (mounted) {
+            mySnackBar('Pls give Location Permission to Continue', context);
+          }
         }
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.deniedForever) {
-          mySnackBar(
-            'Because Location permission is denied, We are continuing without Location',
-            context,
-          );
+          if (mounted) {
+            mySnackBar(
+              'Because Location permission is denied, We are continuing without Location',
+              context,
+            );
+          }
           setState(() {
             isChangingAddress = true;
           });
@@ -237,7 +240,6 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
         actions: [
           IconButton(
             onPressed: () async {
-              print(123);
               await showYouTubePlayerDialog(
                 context,
                 getYoutubeVideoId(
@@ -245,10 +247,10 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                 ),
               );
             },
-            icon: Icon(
+            icon: const Icon(
               Icons.question_mark_outlined,
             ),
-            tooltip: "Help",
+            tooltip: 'Help',
           ),
         ],
       ),
@@ -430,9 +432,6 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                           'Longitude': longitude,
                                         });
 
-                                        print(latitude);
-                                        print(longitude);
-
                                         if (latitude != null &&
                                             longitude != null) {
                                           await getAddress(
@@ -454,7 +453,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: isChangingAddress
-                                  ? Center(
+                                  ? const Center(
                                       child: CircularProgressIndicator(),
                                     )
                                   : Row(
@@ -549,9 +548,6 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                                     'Longitude': longitude,
                                                   });
 
-                                                  print(latitude);
-                                                  print(longitude);
-
                                                   if (latitude != null &&
                                                       longitude != null) {
                                                     await getAddress(
@@ -617,7 +613,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                               color: userData['Gender'] == 'Male'
                                   ? const Color.fromARGB(255, 148, 207, 255)
                                   : userData['Gender'] == 'Female'
-                                      ? Color.fromARGB(255, 255, 200, 218)
+                                      ? const Color.fromARGB(255, 255, 200, 218)
                                       : primary2.withOpacity(0.9),
                               borderRadius: BorderRadius.circular(12),
                             ),

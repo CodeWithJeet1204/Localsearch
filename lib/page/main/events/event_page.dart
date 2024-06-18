@@ -162,15 +162,15 @@ class _EventPageState extends State<EventPage> {
                 ),
               );
             },
-            icon: Icon(
+            icon: const Icon(
               Icons.question_mark_outlined,
             ),
-            tooltip: "Help",
+            tooltip: 'Help',
           ),
         ],
       ),
       body: !isData
-          ? Center(
+          ? const Center(
               child: CircularProgressIndicator(),
             )
           : SafeArea(
@@ -347,7 +347,7 @@ class _EventPageState extends State<EventPage> {
                             ),
                           ),
 
-                          Divider(),
+                          const Divider(),
 
                           // VENUE
                           Padding(
@@ -387,7 +387,7 @@ class _EventPageState extends State<EventPage> {
                             ),
                           ),
 
-                          Divider(),
+                          const Divider(),
 
                           // DATES
                           Padding(
@@ -431,7 +431,7 @@ class _EventPageState extends State<EventPage> {
                             ),
                           ),
 
-                          Divider(),
+                          const Divider(),
 
                           // TIMING
                           Padding(
@@ -471,7 +471,7 @@ class _EventPageState extends State<EventPage> {
                             ),
                           ),
 
-                          Divider(),
+                          const Divider(),
 
                           // WEEKEND TIMING
                           weekendStartTime == null && weekendEndTime == null
@@ -515,7 +515,7 @@ class _EventPageState extends State<EventPage> {
                                   ),
                                 ),
 
-                          Divider(),
+                          const Divider(),
 
                           // TYPE
                           Padding(
@@ -555,7 +555,7 @@ class _EventPageState extends State<EventPage> {
                             ),
                           ),
 
-                          Divider(
+                          const Divider(
                             thickness: 4,
                             height: 24,
                           ),
@@ -589,7 +589,7 @@ class _EventPageState extends State<EventPage> {
                             ),
                           ),
 
-                          Divider(
+                          const Divider(
                             thickness: 4,
                             height: 24,
                           ),
@@ -614,7 +614,7 @@ class _EventPageState extends State<EventPage> {
                             ),
                           ),
 
-                          SizedBox(height: 8),
+                          const SizedBox(height: 8),
 
                           // TICKET TOTAL TICKETS
                           Padding(
@@ -656,7 +656,7 @@ class _EventPageState extends State<EventPage> {
                                   ),
                                 ),
 
-                          Divider(),
+                          const Divider(),
 
                           // TICKET BASE PRICE
                           Padding(
@@ -698,7 +698,7 @@ class _EventPageState extends State<EventPage> {
                                   ),
                                 ),
 
-                          Divider(),
+                          const Divider(),
 
                           // TICKET EARLY BIRD PRICE
                           Padding(
@@ -740,7 +740,7 @@ class _EventPageState extends State<EventPage> {
                                   ),
                                 ),
 
-                          Divider(),
+                          const Divider(),
 
                           // TICKET VIP PRICE
                           Padding(
@@ -782,7 +782,7 @@ class _EventPageState extends State<EventPage> {
                                   ),
                                 ),
 
-                          Divider(),
+                          const Divider(),
 
                           // TICKET GROUP PRICE
                           Padding(
@@ -824,7 +824,7 @@ class _EventPageState extends State<EventPage> {
                                   ),
                                 ),
 
-                          Divider(),
+                          const Divider(),
 
                           // TICKET PROMO PRICE
                           Padding(
@@ -866,7 +866,7 @@ class _EventPageState extends State<EventPage> {
                                   ),
                                 ),
 
-                          Divider(),
+                          const Divider(),
 
                           // TICKET WEBSITE
                           ticketWebsite == null
@@ -882,10 +882,12 @@ class _EventPageState extends State<EventPage> {
                                       if (await canLaunchUrl(uri)) {
                                         await launchUrl(uri);
                                       } else {
-                                        mySnackBar(
-                                          'Something went wrong',
-                                          context,
-                                        );
+                                        if (context.mounted) {
+                                          mySnackBar(
+                                            'Something went wrong',
+                                            context,
+                                          );
+                                        }
                                       }
                                     } else {
                                       mySnackBar(
@@ -935,10 +937,12 @@ class _EventPageState extends State<EventPage> {
                                       if (await canLaunchUrl(uri)) {
                                         await launchUrl(uri);
                                       } else {
-                                        mySnackBar(
-                                          'Something went wrong',
-                                          context,
-                                        );
+                                        if (context.mounted) {
+                                          mySnackBar(
+                                            'Something went wrong',
+                                            context,
+                                          );
+                                        }
                                       }
                                     } else {
                                       mySnackBar(
@@ -966,8 +970,8 @@ class _EventPageState extends State<EventPage> {
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
-                                          color:
-                                              Color.fromRGBO(13, 121, 210, 1),
+                                          color: const Color.fromRGBO(
+                                              13, 121, 210, 1),
                                           fontSize: width * 0.05,
                                         ),
                                       ),
@@ -975,7 +979,7 @@ class _EventPageState extends State<EventPage> {
                                   ),
                                 ),
 
-                          Divider(),
+                          const Divider(),
 
                           // TICKET ADDRESS
                           ticketAddress == null
@@ -1019,7 +1023,7 @@ class _EventPageState extends State<EventPage> {
                                   ),
                                 ),
 
-                          Divider(),
+                          const Divider(),
 
                           // TICKET REFUND DAYS
                           ticketRefundDays == null
@@ -1065,7 +1069,7 @@ class _EventPageState extends State<EventPage> {
                                   ),
                                 ),
 
-                          Divider(
+                          const Divider(
                             thickness: 4,
                             height: 24,
                           ),
@@ -1084,7 +1088,7 @@ class _EventPageState extends State<EventPage> {
                                 if (await canLaunchUrl(url)) {
                                   await launchUrl(url);
                                 } else {
-                                  if (mounted) {
+                                  if (context.mounted) {
                                     mySnackBar('Some error occured', context);
                                   }
                                 }
@@ -1126,7 +1130,7 @@ class _EventPageState extends State<EventPage> {
                                 if (await canLaunchUrl(url)) {
                                   await launchUrl(url);
                                 } else {
-                                  if (mounted) {
+                                  if (context.mounted) {
                                     mySnackBar('Some error occured', context);
                                   }
                                 }
@@ -1153,7 +1157,7 @@ class _EventPageState extends State<EventPage> {
                                       fontSize: width * 0.05,
                                     ),
                                   ),
-                                  Icon(
+                                  const Icon(
                                     FeatherIcons.phoneCall,
                                   ),
                                 ],
@@ -1161,7 +1165,7 @@ class _EventPageState extends State<EventPage> {
                             ),
                           ),
 
-                          Divider(),
+                          const Divider(),
 
                           // ORGANIZER NAME
                           Padding(
@@ -1201,7 +1205,7 @@ class _EventPageState extends State<EventPage> {
                             ),
                           ),
 
-                          SizedBox(height: 12),
+                          const SizedBox(height: 12),
                         ],
                       ),
                     );

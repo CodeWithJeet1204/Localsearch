@@ -28,10 +28,10 @@ class _AllShopTypesPageState extends State<AllShopTypesPage> {
                 ),
               );
             },
-            icon: Icon(
+            icon: const Icon(
               Icons.question_mark_outlined,
             ),
-            tooltip: "Help",
+            tooltip: 'Help',
           ),
         ],
       ),

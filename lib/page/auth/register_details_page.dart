@@ -60,33 +60,38 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
 
     if (!serviceEnabled) {
-      mySnackBar('Turn ON Location Services to Continue', context);
+      if (mounted) {
+        mySnackBar('Turn ON Location Services to Continue', context);
+      }
       return null;
     } else {
       LocationPermission permission = await Geolocator.checkPermission();
 
       // LOCATION PERMISSION GIVEN
       Future<Position> locationPermissionGiven() async {
-        print("Permission given");
         return await Geolocator.getCurrentPosition();
       }
 
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
-          mySnackBar('Pls give Location Permission to Continue', context);
+          if (mounted) {
+            mySnackBar('Pls give Location Permission to Continue', context);
+          }
         }
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.deniedForever) {
           setState(() {
             latitude = 0;
             longitude = 0;
-            address = "NONE";
+            address = 'NONE';
           });
-          mySnackBar(
-            'Because Location permission is denied, We are continuing without Location',
-            context,
-          );
+          if (mounted) {
+            mySnackBar(
+              'Because Location permission is denied, We are continuing without Location',
+              context,
+            );
+          }
         } else {
           return await locationPermissionGiven();
         }
@@ -99,13 +104,11 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
 
   // GET ADDRESS
   Future<void> getAddress(double lat, double long) async {
-    print("Getting address");
     List<Placemark> placemarks = await placemarkFromCoordinates(lat, long);
     setState(() {
       address =
           '${placemarks[0].name}, ${placemarks[0].locality}, ${placemarks[0].administrativeArea}';
     });
-    print("address got");
   }
 
   // SAVE
@@ -245,7 +248,7 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                                 keyboardType: TextInputType.number,
                               ),
 
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
 
                         // LOCATION
                         GestureDetector(
@@ -284,13 +287,13 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                           ),
                         ),
 
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
 
                         // SELECT GENDER
                         Align(
                           alignment: Alignment.centerLeft,
                           child: Padding(
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                               vertical: 2,
                             ),
                             child: Container(

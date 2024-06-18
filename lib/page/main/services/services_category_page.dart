@@ -35,10 +35,10 @@ class _ServicesCategoryPageState extends State<ServicesCategoryPage> {
                 ),
               );
             },
-            icon: Icon(
+            icon: const Icon(
               Icons.question_mark_outlined,
             ),
-            tooltip: "Help",
+            tooltip: 'Help',
           ),
         ],
       ),
@@ -50,16 +50,13 @@ class _ServicesCategoryPageState extends State<ServicesCategoryPage> {
           width: MediaQuery.of(context).size.width,
           child: GridView.builder(
             shrinkWrap: true,
-            physics: ClampingScrollPhysics(),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            physics: const ClampingScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 1,
               childAspectRatio: 25 / 9,
             ),
             itemCount: servicesMap[widget.place]![widget.category]!.length,
             itemBuilder: ((context, index) {
-              print("Services Map: $servicesMap");
-              print(
-                  'Name: ${servicesMap[widget.place]![widget.category]![index]}');
               final name = servicesMap[widget.place]![widget.category]![index];
               final imageUrl = subCategoryImageMap[name]!;
 

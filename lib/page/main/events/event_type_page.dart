@@ -39,9 +39,9 @@ class _EventTypePageState extends State<EventTypePage> {
         .where('eventType', isEqualTo: widget.eventType)
         .get();
 
-    eventSnap.docs.forEach((event) {
+    for (var event in eventSnap.docs) {
       myEvents[event.id] = event.data();
-    });
+    }
 
     setState(() {
       events = myEvents;
@@ -117,10 +117,10 @@ class _EventTypePageState extends State<EventTypePage> {
                 ),
               );
             },
-            icon: Icon(
+            icon: const Icon(
               Icons.question_mark_outlined,
             ),
-            tooltip: "Help",
+            tooltip: 'Help',
           ),
         ],
       ),
@@ -133,7 +133,7 @@ class _EventTypePageState extends State<EventTypePage> {
             width: width,
             child: GridView.builder(
               shrinkWrap: true,
-              physics: ClampingScrollPhysics(),
+              physics: const ClampingScrollPhysics(),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
                 childAspectRatio: width * 0.633 / width,
@@ -276,7 +276,7 @@ class _EventTypePageState extends State<EventTypePage> {
                         );
                       }
 
-                      return Center(
+                      return const Center(
                         child: CircularProgressIndicator(),
                       );
                     });

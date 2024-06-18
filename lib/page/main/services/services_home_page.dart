@@ -79,7 +79,7 @@ class _ServicesHomePageState extends State<ServicesHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Services'),
+        title: const Text('Services'),
         actions: [
           IconButton(
             onPressed: () async {
@@ -90,10 +90,10 @@ class _ServicesHomePageState extends State<ServicesHomePage> {
                 ),
               );
             },
-            icon: Icon(
+            icon: const Icon(
               Icons.question_mark_outlined,
             ),
-            tooltip: "Help",
+            tooltip: 'Help',
           ),
         ],
       ),
@@ -154,7 +154,7 @@ class _ServicesHomePageState extends State<ServicesHomePage> {
                                 },
                                 decoration: InputDecoration(
                                   border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.only(
+                                    borderRadius: const BorderRadius.only(
                                       topLeft: Radius.circular(7),
                                       bottomLeft: Radius.circular(7),
                                     ),

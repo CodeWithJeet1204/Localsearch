@@ -51,7 +51,7 @@ class _ShortsTileState extends State<ShortsTile> {
           flickManager
               .flickVideoManager!.videoPlayerController!.value.duration) {
         flickManager.flickControlManager!.seekTo(
-          Duration(
+          const Duration(
             seconds: 0,
           ),
         );
@@ -180,7 +180,7 @@ class _ShortsTileState extends State<ShortsTile> {
 
     if (isData) {
       return VisibilityDetector(
-        key: Key('Shorts'),
+        key: const Key('Shorts'),
         onVisibilityChanged: (info) {
           flickManager.flickControlManager?.togglePlay();
         },
@@ -193,7 +193,7 @@ class _ShortsTileState extends State<ShortsTile> {
                 children: [
                   FlickVideoPlayer(
                     flickManager: flickManager,
-                    flickVideoWithControls: FlickVideoWithControls(
+                    flickVideoWithControls: const FlickVideoWithControls(
                       videoFit: BoxFit.contain,
                       playerLoadingFallback: Align(
                         alignment: Alignment.center,
@@ -207,7 +207,7 @@ class _ShortsTileState extends State<ShortsTile> {
                     visible: !isVideoPlaying,
                     child: IconButton(
                       onPressed: pausePlayShort,
-                      icon: Icon(
+                      icon: const Icon(
                         Icons.play_arrow_rounded,
                         size: 80,
                         color: white,
@@ -242,7 +242,7 @@ class _ShortsTileState extends State<ShortsTile> {
                               size: width * 0.095,
                               color: Colors.red,
                             ),
-                            tooltip: "WISHLIST",
+                            tooltip: 'WISHLIST',
                           ),
                         ),
                         Row(
@@ -328,16 +328,17 @@ class _ShortsTileState extends State<ShortsTile> {
 
                                               final productData =
                                                   productSnap.data()!;
-
-                                              Navigator.of(context).push(
-                                                MaterialPageRoute(
-                                                  builder: ((context) =>
-                                                      ProductPage(
-                                                        productData:
-                                                            productData,
-                                                      )),
-                                                ),
-                                              );
+                                              if (context.mounted) {
+                                                Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                    builder: ((context) =>
+                                                        ProductPage(
+                                                          productData:
+                                                              productData,
+                                                        )),
+                                                  ),
+                                                );
+                                              }
                                             },
                                             child: Padding(
                                               padding: EdgeInsets.all(
@@ -371,7 +372,7 @@ class _ShortsTileState extends State<ShortsTile> {
                                   size: width * 0.095,
                                   color: white,
                                 ),
-                                tooltip: "SHARE",
+                                tooltip: 'SHARE',
                               ),
                             ),
                           ],
@@ -388,7 +389,7 @@ class _ShortsTileState extends State<ShortsTile> {
     } else {
       return Stack(
         children: [
-          Center(
+          const Center(
             child: CircularProgressIndicator(
               color: white,
             ),
@@ -408,7 +409,7 @@ class _ShortsTileState extends State<ShortsTile> {
                       size: width * 0.095,
                       color: Colors.red,
                     ),
-                    tooltip: "WISHLIST",
+                    tooltip: 'WISHLIST',
                   ),
                 ),
                 Row(
@@ -455,7 +456,7 @@ class _ShortsTileState extends State<ShortsTile> {
                           size: width * 0.095,
                           color: white,
                         ),
-                        tooltip: "SHARE",
+                        tooltip: 'SHARE',
                       ),
                     ),
                   ],

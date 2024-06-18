@@ -41,7 +41,7 @@ class _ServicesPreviousWorkImagesPageState
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Previous Work Images'),
+        title: const Text('Previous Work Images'),
         actions: [
           IconButton(
             onPressed: () async {
@@ -52,10 +52,10 @@ class _ServicesPreviousWorkImagesPageState
                 ),
               );
             },
-            icon: Icon(
+            icon: const Icon(
               Icons.question_mark_outlined,
             ),
-            tooltip: "Help",
+            tooltip: 'Help',
           ),
         ],
       ),
@@ -69,7 +69,7 @@ class _ServicesPreviousWorkImagesPageState
             height: MediaQuery.of(context).size.height,
             child: ListView.builder(
               shrinkWrap: true,
-              physics: ClampingScrollPhysics(),
+              physics: const ClampingScrollPhysics(),
               itemCount: widget.imagesData.length,
               itemBuilder: ((context, index) {
                 final subCategory = widget.imagesData.keys.toList()[index];
@@ -100,13 +100,13 @@ class _ServicesPreviousWorkImagesPageState
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       SizedBox(
                         width: width,
                         height: width * 0.33,
                         child: ListView.builder(
                           shrinkWrap: true,
-                          physics: ClampingScrollPhysics(),
+                          physics: const ClampingScrollPhysics(),
                           scrollDirection: Axis.horizontal,
                           itemCount: images.length,
                           itemBuilder: ((context, index) {

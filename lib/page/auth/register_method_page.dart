@@ -205,13 +205,13 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
   }
 
   // REGISTER WITH GOOGLE
-  Future<void> registerWithGoogle(FirebaseAuth _auth) async {
+  Future<void> registerWithGoogle(FirebaseAuth auth) async {
     setState(() {
       isGoogleRegistering = true;
     });
     try {
       await AuthMethods().signInWithGoogle(context);
-      await _auth.currentUser!.reload();
+      await auth.currentUser!.reload();
       if (FirebaseAuth.instance.currentUser != null) {
         await FirebaseFirestore.instance
             .collection('Users')
@@ -248,7 +248,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
           }
         }
       } else {
-        if (context.mounted) {
+        if (mounted) {
           mySnackBar(
             'Some error occured\nTry signing with email / phone number',
             context,
@@ -262,7 +262,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
       setState(() {
         isGoogleRegistering = false;
       });
-      if (context.mounted) {
+      if (mounted) {
         mySnackBar(
           e.toString(),
           context,

@@ -96,20 +96,12 @@ class _EventsSearchResultsPageState extends State<EventsSearchResultsPage> {
       final Timestamp endDate = eventData['endDate'];
       final String organizerId = eventData['organizerId'];
       final String organizerName = eventData['organizerName'];
-      print('Event Name: $eventName');
 
       final eventNameLower = eventName.toLowerCase();
       final searchLower = widget.search.toLowerCase();
-      print('Event name lower: $eventNameLower');
-      print('search lower: $searchLower');
-      print(eventNameLower.contains(searchLower));
-      print(endDate.toDate());
-      print(DateTime.now());
-      print(endDate.toDate().isAfter(DateTime.now()));
 
       if (eventNameLower.contains(searchLower) &&
           endDate.toDate().isAfter(DateTime.now())) {
-        print(123);
         int relevanceScore = calculateRelevanceScore(
           eventNameLower,
           searchLower,
@@ -143,13 +135,13 @@ class _EventsSearchResultsPageState extends State<EventsSearchResultsPage> {
   // GET EVENT CATEGORIES
   void getEventCategories(Map<dynamic, dynamic> events) {
     List myEventCategories = [];
-    events.values.forEach((event) {
+    for (var event in events.values) {
       final type = event[5];
 
       if (!myEventCategories.contains(type)) {
         myEventCategories.add(type);
       }
-    });
+    }
 
     setState(() {
       eventCategories = myEventCategories;
@@ -673,7 +665,7 @@ class _EventsSearchResultsPageState extends State<EventsSearchResultsPage> {
                                 ),
 
                       searchedOrganizers.isNotEmpty && searchedEvents.isNotEmpty
-                          ? Divider()
+                          ? const Divider()
                           : Container(),
 
                       // EVENT
@@ -743,8 +735,6 @@ class _EventsSearchResultsPageState extends State<EventsSearchResultsPage> {
                                                 selectedEventCategory = name;
                                               }
                                             });
-                                            print(
-                                                'Selected Category: $selectedEventCategory');
                                             getTypeEvent(selectedEventCategory);
                                           },
                                           backgroundColor:
@@ -763,7 +753,7 @@ class _EventsSearchResultsPageState extends State<EventsSearchResultsPage> {
                                   width: width,
                                   child: GridView.builder(
                                     shrinkWrap: true,
-                                    physics: ClampingScrollPhysics(),
+                                    physics: const ClampingScrollPhysics(),
                                     gridDelegate:
                                         const SliverGridDelegateWithFixedCrossAxisCount(
                                       crossAxisCount: 2,

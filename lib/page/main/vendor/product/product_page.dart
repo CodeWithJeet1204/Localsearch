@@ -87,7 +87,7 @@ class _ProductPageState extends State<ProductPage> {
 
   // ADD PRODUCT VIEW
   Future<void> addProductView() async {
-    await Timer(Duration(seconds: 5), () async {
+    Timer(const Duration(seconds: 5), () async {
       final productSnap = await store
           .collection('Business')
           .doc('Data')
@@ -998,7 +998,6 @@ class _ProductPageState extends State<ProductPage> {
     final String shortsURL = data['shortsURL'];
 
     if (shortsThumbnail != '') {
-      print("Inserting");
       if (!images.contains(shortsThumbnail)) {
         images.insert(0, shortsThumbnail);
       }
@@ -1148,7 +1147,6 @@ class _ProductPageState extends State<ProductPage> {
                                                 shortsThumbnail,
                                               );
                                             });
-                                            ;
                                           },
                                           child: Container(
                                             alignment: Alignment.center,
@@ -1156,7 +1154,7 @@ class _ProductPageState extends State<ProductPage> {
                                           ),
                                         ),
                                         e != shortsThumbnail
-                                            ? SizedBox(
+                                            ? const SizedBox(
                                                 width: 1,
                                                 height: 1,
                                               )
@@ -1534,7 +1532,7 @@ class _ProductPageState extends State<ProductPage> {
                                                             deliveryRange * 1.1
                                                     ? 'Delivery Maybe Available'
                                                     : 'Delivery Not Available',
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                               color: Colors.green,
                                               fontWeight: FontWeight.w500,
                                             ),
@@ -1547,7 +1545,7 @@ class _ProductPageState extends State<ProductPage> {
                                     vertical: width * 0.0175,
                                     horizontal: width * 0.02,
                                   ),
-                                  child: Text(
+                                  child: const Text(
                                     'Delivery Not Available',
                                     style: TextStyle(
                                       color: Colors.red,
@@ -1570,13 +1568,15 @@ class _ProductPageState extends State<ProductPage> {
                                     ),
                                     decoration: BoxDecoration(
                                       color: isLiked
-                                          ? Color.fromRGBO(228, 228, 228, 1)
+                                          ? const Color.fromRGBO(
+                                              228, 228, 228, 1)
                                           : white,
                                       border: Border.all(
                                         width: 1,
                                         color: isLiked
                                             ? white
-                                            : Color.fromRGBO(228, 228, 228, 1),
+                                            : const Color.fromRGBO(
+                                                228, 228, 228, 1),
                                       ),
                                       borderRadius: BorderRadius.circular(12),
                                     ),
@@ -1586,7 +1586,7 @@ class _ProductPageState extends State<ProductPage> {
                                       children: [
                                         Text(
                                           likes.toString(),
-                                          style: TextStyle(),
+                                          style: const TextStyle(),
                                         ),
                                         SizedBox(width: width * 0.0225),
                                         Icon(

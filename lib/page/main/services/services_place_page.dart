@@ -33,10 +33,10 @@ class _ServicesPlacePageState extends State<ServicesPlacePage> {
                 ),
               );
             },
-            icon: Icon(
+            icon: const Icon(
               Icons.question_mark_outlined,
             ),
-            tooltip: "Help",
+            tooltip: 'Help',
           ),
         ],
       ),
@@ -48,8 +48,8 @@ class _ServicesPlacePageState extends State<ServicesPlacePage> {
           width: MediaQuery.of(context).size.width,
           child: GridView.builder(
             shrinkWrap: true,
-            physics: ClampingScrollPhysics(),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            physics: const ClampingScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 1,
               childAspectRatio: 25 / 9,
             ),

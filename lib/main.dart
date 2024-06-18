@@ -27,7 +27,7 @@ void main() async {
           create: (_) => RegisterDetailsProvider(),
         ),
       ],
-      child: MyApp(),
+      child: const MyApp(),
     ),
   );
   if (FirebaseAuth.instance.currentUser != null) {
@@ -38,6 +38,8 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -110,7 +112,7 @@ class MyApp extends StatelessWidget {
               return const LoginPage();
             }),
           ),
-          ConnectivityNotificationWidget(),
+          const ConnectivityNotificationWidget(),
         ],
       ),
     );

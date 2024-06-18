@@ -139,10 +139,10 @@ class _PostsPageState extends State<PostsPage> {
                 ),
               );
             },
-            icon: Icon(
+            icon: const Icon(
               Icons.question_mark_outlined,
             ),
-            tooltip: "Help",
+            tooltip: 'Help',
           ),
         ],
       ),
@@ -154,7 +154,7 @@ class _PostsPageState extends State<PostsPage> {
                 itemCount: 4,
                 itemBuilder: ((context, index) {
                   return Padding(
-                    padding: EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(8.0),
                     child: PostSkeletonContainer(
                       width: width,
                       height: width * 1.25,
@@ -164,7 +164,7 @@ class _PostsPageState extends State<PostsPage> {
               ),
             )
           : posts.isEmpty
-              ? Center(
+              ? const Center(
                   child: Text('No Posts Available'),
                 )
               : SafeArea(
@@ -173,7 +173,7 @@ class _PostsPageState extends State<PostsPage> {
                       await getPosts();
                     },
                     color: primaryDark,
-                    backgroundColor: Color.fromARGB(255, 243, 253, 255),
+                    backgroundColor: const Color.fromARGB(255, 243, 253, 255),
                     semanticsLabel: 'Refresh',
                     child: Padding(
                       padding: EdgeInsets.symmetric(
@@ -295,7 +295,7 @@ class _PostsPageState extends State<PostsPage> {
                                                 // SHARE
                                                 IconButton(
                                                   onPressed: () {},
-                                                  icon: Icon(
+                                                  icon: const Icon(
                                                     FeatherIcons.share2,
                                                   ),
                                                   tooltip: 'Share Product',

@@ -54,7 +54,6 @@ class _MainPageState extends State<MainPage>
   }
 
   void _initializeNotifications() {
-    print('Initializing Notifications');
     _notificationHandler.initialize();
   }
 
@@ -84,7 +83,7 @@ class _MainPageState extends State<MainPage>
 
       if (!auth.emailVerified) {
         setState(() {
-          detailsPage = EmailVerifyPage();
+          detailsPage = const EmailVerifyPage();
         });
       } else if (userData['Name'] == null || userData['Email'] == null) {
         setState(() {
@@ -110,24 +109,15 @@ class _MainPageState extends State<MainPage>
     }
 
     messaging.getToken().then((String? token) {
-      print('FCM Token: $token');
       if (token != null) {
         FirebaseFirestore.instance
             .collection('Users')
             .doc(auth.uid)
-            .update({'fcmToken': token}).catchError((e) {
-          print('Error updating FCM token: $e');
-        });
+            .update({'fcmToken': token}).catchError((e) {});
       }
-    }).catchError((e) {
-      print('Error retrieving FCM token: $e');
-    });
+    }).catchError((e) {});
 
-    messaging.subscribeToTopic('all').then((_) {
-      print('Subscribed to all topic');
-    }).catchError((e) {
-      print('Error subscribing to topic: $e');
-    });
+    messaging.subscribeToTopic('all').then((_) {}).catchError((e) {});
   }
 
   // CHANGE PAGE
@@ -143,8 +133,8 @@ class _MainPageState extends State<MainPage>
     return detailsPage ??
         Scaffold(
           body: IndexedStack(
-            children: items,
             index: current,
+            children: items,
           ),
           bottomNavigationBar: BottomNavigationBar(
             elevation: 0,

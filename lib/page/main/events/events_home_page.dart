@@ -57,7 +57,7 @@ class _EventsHomePageState extends State<EventsHomePage> {
       return;
     }
 
-    eventSnap.docs.forEach((event) {
+    for (var event in eventSnap.docs) {
       final eventData = event.data();
 
       final id = eventData['eventId'];
@@ -65,7 +65,7 @@ class _EventsHomePageState extends State<EventsHomePage> {
       final imageUrl = eventData['imageUrl'][0];
 
       myNearEvents[id] = [name, imageUrl];
-    });
+    }
 
     setState(() {
       nearEvents = myNearEvents;
@@ -82,7 +82,7 @@ class _EventsHomePageState extends State<EventsHomePage> {
       return;
     }
 
-    eventSnap.docs.forEach((event) {
+    for (var event in eventSnap.docs) {
       final eventData = event.data();
 
       final id = eventData['eventId'];
@@ -100,7 +100,7 @@ class _EventsHomePageState extends State<EventsHomePage> {
       setState(() {
         todayEvents = myTodayEvents;
       });
-    });
+    }
   }
 
   // GET ORGANIZERS
@@ -115,7 +115,7 @@ class _EventsHomePageState extends State<EventsHomePage> {
       return;
     }
 
-    organizerSnap.docs.forEach((organizer) {
+    for (var organizer in organizerSnap.docs) {
       final organizerData = organizer.data();
 
       final id = organizer.id;
@@ -123,7 +123,7 @@ class _EventsHomePageState extends State<EventsHomePage> {
       final imageUrl = organizerData['Image'];
 
       myOrganizers[id] = [name, imageUrl];
-    });
+    }
 
     setState(() {
       organizers = myOrganizers;
@@ -140,7 +140,7 @@ class _EventsHomePageState extends State<EventsHomePage> {
       return;
     }
 
-    eventSnap.docs.forEach((event) {
+    for (var event in eventSnap.docs) {
       final eventData = event.data();
 
       final id = eventData['eventId'];
@@ -161,7 +161,7 @@ class _EventsHomePageState extends State<EventsHomePage> {
       setState(() {
         sportsEvents = mySportsEvents;
       });
-    });
+    }
   }
 
   // GET MUSIC EVENTS
@@ -174,7 +174,7 @@ class _EventsHomePageState extends State<EventsHomePage> {
       return;
     }
 
-    eventSnap.docs.forEach((event) {
+    for (var event in eventSnap.docs) {
       final eventData = event.data();
 
       final id = eventData['eventId'];
@@ -190,7 +190,7 @@ class _EventsHomePageState extends State<EventsHomePage> {
       setState(() {
         musicEvents = myMusicEvents;
       });
-    });
+    }
   }
 
   // GET EXHIBITION EVENTS
@@ -203,7 +203,7 @@ class _EventsHomePageState extends State<EventsHomePage> {
       return;
     }
 
-    eventSnap.docs.forEach((event) {
+    for (var event in eventSnap.docs) {
       final eventData = event.data();
 
       final id = eventData['eventId'];
@@ -220,7 +220,7 @@ class _EventsHomePageState extends State<EventsHomePage> {
         exhibitionEvents = myExhibitionEvents;
         isData = true;
       });
-    });
+    }
   }
 
   // LISTEN
@@ -253,7 +253,7 @@ class _EventsHomePageState extends State<EventsHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Events'),
+        title: const Text('Events'),
         actions: [
           IconButton(
             onPressed: () async {
@@ -264,19 +264,19 @@ class _EventsHomePageState extends State<EventsHomePage> {
                 ),
               );
             },
-            icon: Icon(
+            icon: const Icon(
               Icons.question_mark_outlined,
             ),
-            tooltip: "Help",
+            tooltip: 'Help',
           ),
         ],
       ),
       body: isNoEvents
-          ? Center(
+          ? const Center(
               child: Text('No Events Nearby'),
             )
           : !isData
-              ? Center(
+              ? const Center(
                   child: CircularProgressIndicator(),
                 )
               : SafeArea(
@@ -647,7 +647,7 @@ class _EventsHomePageState extends State<EventsHomePage> {
                                           Navigator.of(context).push(
                                             MaterialPageRoute(
                                               builder: ((context) =>
-                                                  AllEventsTypePage()),
+                                                  const AllEventsTypePage()),
                                             ),
                                           );
                                         },
@@ -663,7 +663,7 @@ class _EventsHomePageState extends State<EventsHomePage> {
                                             borderRadius:
                                                 BorderRadius.circular(12),
                                           ),
-                                          child: Column(
+                                          child: const Column(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.center,
                                             crossAxisAlignment:
@@ -690,7 +690,7 @@ class _EventsHomePageState extends State<EventsHomePage> {
                               ),
                             ),
 
-                            nearEvents.isEmpty ? Container() : Divider(),
+                            nearEvents.isEmpty ? Container() : const Divider(),
 
                             // NEAR YOU
                             nearEvents.isEmpty
@@ -716,7 +716,7 @@ class _EventsHomePageState extends State<EventsHomePage> {
                                     child: ListView.builder(
                                       shrinkWrap: true,
                                       scrollDirection: Axis.horizontal,
-                                      physics: ClampingScrollPhysics(),
+                                      physics: const ClampingScrollPhysics(),
                                       itemCount: nearEvents.length,
                                       itemBuilder: ((context, index) {
                                         final id =
@@ -795,7 +795,7 @@ class _EventsHomePageState extends State<EventsHomePage> {
                                     ),
                                   ),
 
-                            todayEvents.isEmpty ? Container() : Divider(),
+                            todayEvents.isEmpty ? Container() : const Divider(),
 
                             // TODAY
                             todayEvents.isEmpty
@@ -821,7 +821,7 @@ class _EventsHomePageState extends State<EventsHomePage> {
                                     child: ListView.builder(
                                       shrinkWrap: true,
                                       scrollDirection: Axis.horizontal,
-                                      physics: ClampingScrollPhysics(),
+                                      physics: const ClampingScrollPhysics(),
                                       itemCount: todayEvents.length,
                                       itemBuilder: ((context, index) {
                                         final id =
@@ -898,7 +898,7 @@ class _EventsHomePageState extends State<EventsHomePage> {
                                     ),
                                   ),
 
-                            organizers.isEmpty ? Container() : Divider(),
+                            organizers.isEmpty ? Container() : const Divider(),
 
                             // ORGANIZER
                             organizers.isEmpty
@@ -924,7 +924,7 @@ class _EventsHomePageState extends State<EventsHomePage> {
                                     child: ListView.builder(
                                       shrinkWrap: true,
                                       scrollDirection: Axis.horizontal,
-                                      physics: ClampingScrollPhysics(),
+                                      physics: const ClampingScrollPhysics(),
                                       itemCount: organizers.length,
                                       itemBuilder: ((context, index) {
                                         final id =
@@ -1003,7 +1003,9 @@ class _EventsHomePageState extends State<EventsHomePage> {
                                     ),
                                   ),
 
-                            sportsEvents.isEmpty ? Container() : Divider(),
+                            sportsEvents.isEmpty
+                                ? Container()
+                                : const Divider(),
 
                             // SPORTS
                             sportsEvents.isEmpty
@@ -1029,7 +1031,7 @@ class _EventsHomePageState extends State<EventsHomePage> {
                                     child: ListView.builder(
                                       shrinkWrap: true,
                                       scrollDirection: Axis.horizontal,
-                                      physics: ClampingScrollPhysics(),
+                                      physics: const ClampingScrollPhysics(),
                                       itemCount: sportsEvents.length,
                                       itemBuilder: ((context, index) {
                                         final id =
@@ -1106,7 +1108,7 @@ class _EventsHomePageState extends State<EventsHomePage> {
                                     ),
                                   ),
 
-                            musicEvents.isEmpty ? Container() : Divider(),
+                            musicEvents.isEmpty ? Container() : const Divider(),
 
                             // MUSIC
                             musicEvents.isEmpty
@@ -1132,7 +1134,7 @@ class _EventsHomePageState extends State<EventsHomePage> {
                                     child: ListView.builder(
                                       shrinkWrap: true,
                                       scrollDirection: Axis.horizontal,
-                                      physics: ClampingScrollPhysics(),
+                                      physics: const ClampingScrollPhysics(),
                                       itemCount: musicEvents.length,
                                       itemBuilder: ((context, index) {
                                         final id =
@@ -1209,7 +1211,9 @@ class _EventsHomePageState extends State<EventsHomePage> {
                                     ),
                                   ),
 
-                            exhibitionEvents.isEmpty ? Container() : Divider(),
+                            exhibitionEvents.isEmpty
+                                ? Container()
+                                : const Divider(),
 
                             // EXHIBITION
                             exhibitionEvents.isEmpty
@@ -1235,7 +1239,7 @@ class _EventsHomePageState extends State<EventsHomePage> {
                                     child: ListView.builder(
                                       shrinkWrap: true,
                                       scrollDirection: Axis.horizontal,
-                                      physics: ClampingScrollPhysics(),
+                                      physics: const ClampingScrollPhysics(),
                                       itemCount: exhibitionEvents.length,
                                       itemBuilder: ((context, index) {
                                         final id = exhibitionEvents.keys

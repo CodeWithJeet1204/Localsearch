@@ -109,7 +109,7 @@ class _VendorPageState extends State<VendorPage> {
 
   // SET RECENT SHOP
   Future<void> setRecentShop() async {
-    await Timer(
+    Timer(
       const Duration(seconds: 5),
       () async {
         await setRecentAndUpdate();
@@ -263,8 +263,6 @@ class _VendorPageState extends State<VendorPage> {
 
   // GET ADDRESS
   Future<List> getAddress(double shopLatitutde, double shopLongitude) async {
-    print("SHOPLat: $shopLatitutde");
-    print("SHOPLong: $shopLongitude");
     // List<Placemark> placemarks =
     //     await placemarkFromCoordinates(shopLatitutde, shopLongitude);
 
@@ -296,7 +294,7 @@ class _VendorPageState extends State<VendorPage> {
       'AIzaSyCTzhOTUtdVUx0qpAbcXdn1TQKSmqtJbZM',
     );
 
-    final apiKey = 'AIzaSyCTzhOTUtdVUx0qpAbcXdn1TQKSmqtJbZM';
+    const apiKey = 'AIzaSyCTzhOTUtdVUx0qpAbcXdn1TQKSmqtJbZM';
     final apiUrl =
         'https://maps.googleapis.com/maps/api/geocode/json?latlng=$shopLatitutde,$shopLongitude&key=$apiKey';
 
@@ -316,7 +314,7 @@ class _VendorPageState extends State<VendorPage> {
         throw Exception('Failed to load data');
       }
     } catch (e) {
-      print('Error: $e');
+      throw Exception(e.toString());
     }
 
     // yourPlacemark =
@@ -324,7 +322,7 @@ class _VendorPageState extends State<VendorPage> {
 
     return [
       // '${placemarks[0].locality}, ${placemarks[0].locality}, ${placemarks[0].administrativeArea}',
-      address!.length > 30 ? address!.substring(0, 30) + '...' : address,
+      address!.length > 30 ? '${address!.substring(0, 30)}...' : address,
       distance,
       // yourPlacemark,
     ];
@@ -358,7 +356,9 @@ class _VendorPageState extends State<VendorPage> {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
 
     if (!serviceEnabled) {
-      mySnackBar('Turn ON Location Services to Continue', context);
+      if (mounted) {
+        mySnackBar('Turn ON Location Services to Continue', context);
+      }
       return null;
     } else {
       LocationPermission permission = await Geolocator.checkPermission();
@@ -366,14 +366,18 @@ class _VendorPageState extends State<VendorPage> {
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
-          mySnackBar('Pls give Location Permission to Continue', context);
+          if (mounted) {
+            mySnackBar('Pls give Location Permission to Continue', context);
+          }
         }
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.deniedForever) {
-          mySnackBar(
-            'Because Location permission is denied, We are continuing without Location',
-            context,
-          );
+          if (mounted) {
+            mySnackBar(
+              'Because Location permission is denied, We are continuing without Location',
+              context,
+            );
+          }
           setState(() {
             isChangingAddress = true;
           });
@@ -576,10 +580,10 @@ class _VendorPageState extends State<VendorPage> {
                 ),
               );
             },
-            icon: Icon(
+            icon: const Icon(
               Icons.question_mark_outlined,
             ),
-            tooltip: "Help",
+            tooltip: 'Help',
           ),
         ],
       ),
@@ -721,7 +725,7 @@ class _VendorPageState extends State<VendorPage> {
                                     onTap: () async {
                                       final String phoneNumber =
                                           ownerData!['Phone Number'];
-                                      final String message =
+                                      const String message =
                                           'Hey, I found you on Localy\n';
                                       final url =
                                           'https://wa.me/$phoneNumber?text=$message';
@@ -729,10 +733,12 @@ class _VendorPageState extends State<VendorPage> {
                                       if (await canLaunchUrl(Uri.parse(url))) {
                                         await launchUrl(Uri.parse(url));
                                       } else {
-                                        mySnackBar(
-                                          'Something went Wrong',
-                                          context,
-                                        );
+                                        if (context.mounted) {
+                                          mySnackBar(
+                                            'Something went Wrong',
+                                            context,
+                                          );
+                                        }
                                       }
                                     },
                                     child: Container(
@@ -802,7 +808,7 @@ class _VendorPageState extends State<VendorPage> {
                                       padding: EdgeInsets.only(
                                         right: width * 0.034,
                                       ),
-                                      child: Icon(FeatherIcons.user),
+                                      child: const Icon(FeatherIcons.user),
                                     ),
                                   ],
                                 ),
@@ -816,10 +822,8 @@ class _VendorPageState extends State<VendorPage> {
                                   future: getAddress(shopData!['Latitude']!,
                                       shopData!['Longitude']!),
                                   builder: (context, snapshot) {
-                                    print("YOURLatitude: $latitude");
-                                    print("YOURLongitude: $longitude");
                                     if (snapshot.hasError) {
-                                      return Center(
+                                      return const Center(
                                         child: Text('Something went wrong'),
                                       );
                                     }
@@ -841,10 +845,12 @@ class _VendorPageState extends State<VendorPage> {
                                             if (await canLaunchUrl(mapsUrl)) {
                                               await launchUrl(mapsUrl);
                                             } else {
-                                              mySnackBar(
-                                                'Something went Wrong',
-                                                context,
-                                              );
+                                              if (context.mounted) {
+                                                mySnackBar(
+                                                  'Something went Wrong',
+                                                  context,
+                                                );
+                                              }
                                             }
                                           },
                                           child: Row(
@@ -883,10 +889,12 @@ class _VendorPageState extends State<VendorPage> {
                                                       mapsUrl)) {
                                                     await launchUrl(mapsUrl);
                                                   } else {
-                                                    mySnackBar(
-                                                      'Something went Wrong',
-                                                      context,
-                                                    );
+                                                    if (context.mounted) {
+                                                      mySnackBar(
+                                                        'Something went Wrong',
+                                                        context,
+                                                      );
+                                                    }
                                                   }
                                                 },
                                                 icon: const Icon(
@@ -899,7 +907,7 @@ class _VendorPageState extends State<VendorPage> {
                                       );
                                     }
 
-                                    return Center(
+                                    return const Center(
                                       child: CircularProgressIndicator(),
                                     );
                                   }),
@@ -927,7 +935,7 @@ class _VendorPageState extends State<VendorPage> {
                                       padding: EdgeInsets.only(
                                         right: width * 0.034,
                                       ),
-                                      child: Icon(Icons.factory_outlined),
+                                      child: const Icon(Icons.factory_outlined),
                                     ),
                                   ],
                                 ),

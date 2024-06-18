@@ -162,10 +162,10 @@ class _CategoryPageState extends State<CategoryPage> {
                 ),
               );
             },
-            icon: Icon(
+            icon: const Icon(
               Icons.question_mark_outlined,
             ),
-            tooltip: "Help",
+            tooltip: 'Help',
           ),
         ],
       ),
@@ -218,7 +218,7 @@ class _CategoryPageState extends State<CategoryPage> {
                           ),
                           const Divider(),
                           products!.isEmpty
-                              ? SizedBox(
+                              ? const SizedBox(
                                   height: 80,
                                   child: Center(
                                     child: Text('No Products'),

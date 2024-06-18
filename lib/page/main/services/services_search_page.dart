@@ -46,7 +46,7 @@ class _ServicesSearchPageState extends State<ServicesSearchPage> {
   Future<void> getData() async {
     final serviceSnap = await store.collection('Services').get();
 
-    serviceSnap.docs.forEach((service) {
+    for (var service in serviceSnap.docs) {
       final List myPlaces = List.from(service['Place']);
       final List myCategories = List.from(service['Category']);
       final List mySubCategories = List.from(service['SubCategory']);
@@ -75,10 +75,7 @@ class _ServicesSearchPageState extends State<ServicesSearchPage> {
         categories.addAll(myCategories);
         subCategories.addAll(mySubCategories);
       });
-      print('places: $places');
-      print('categories: $categories');
-      print('subCategories: $subCategories');
-    });
+    }
 
     setState(() {
       isData = true;
@@ -92,13 +89,10 @@ class _ServicesSearchPageState extends State<ServicesSearchPage> {
       builder: ((context) => const SpeechToText()),
     );
 
-    print('Result: $result');
-
     if (result != null && result is String) {
       setState(() {
         searchController.text = result;
       });
-      print(searchController.text);
     }
   }
 
@@ -137,7 +131,7 @@ class _ServicesSearchPageState extends State<ServicesSearchPage> {
 
     return Scaffold(
       body: !isData
-          ? Center(
+          ? const Center(
               child: CircularProgressIndicator(),
             )
           : places.isEmpty && categories.isEmpty && subCategories.isEmpty
@@ -329,7 +323,7 @@ class _ServicesSearchPageState extends State<ServicesSearchPage> {
                       ),
 
                       // NOTHING
-                      SizedBox(
+                      const SizedBox(
                         height: 80,
                         child: Center(
                           child: Text('No One Available'),
@@ -549,15 +543,15 @@ class _ServicesSearchPageState extends State<ServicesSearchPage> {
                                       padding: EdgeInsets.symmetric(
                                         horizontal: width * 0.0166,
                                       ),
-                                      child: Text('Places'),
+                                      child: const Text('Places'),
                                     ),
                                     SizedBox(
                                       width: width,
                                       child: GridView.builder(
                                         shrinkWrap: true,
-                                        physics: ClampingScrollPhysics(),
+                                        physics: const ClampingScrollPhysics(),
                                         gridDelegate:
-                                            SliverGridDelegateWithFixedCrossAxisCount(
+                                            const SliverGridDelegateWithFixedCrossAxisCount(
                                           crossAxisCount: 2,
                                           childAspectRatio: 16 / 9,
                                         ),
@@ -593,21 +587,21 @@ class _ServicesSearchPageState extends State<ServicesSearchPage> {
                               : Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Divider(),
+                                    const Divider(),
                                     Padding(
                                       padding: EdgeInsets.symmetric(
                                         horizontal: width * 0.0166,
                                       ),
-                                      child: Text('Categories'),
+                                      child: const Text('Categories'),
                                     ),
                                     SizedBox(
                                       width: width,
                                       child: GridView.builder(
                                         shrinkWrap: true,
-                                        physics: ClampingScrollPhysics(),
+                                        physics: const ClampingScrollPhysics(),
                                         itemCount: categories.length,
                                         gridDelegate:
-                                            SliverGridDelegateWithFixedCrossAxisCount(
+                                            const SliverGridDelegateWithFixedCrossAxisCount(
                                           crossAxisCount: 2,
                                           childAspectRatio: 16 / 9,
                                         ),
@@ -645,20 +639,20 @@ class _ServicesSearchPageState extends State<ServicesSearchPage> {
                               : Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Divider(),
+                                    const Divider(),
                                     Padding(
                                       padding: EdgeInsets.symmetric(
                                         horizontal: width * 0.0166,
                                       ),
-                                      child: Text('Sub Categories'),
+                                      child: const Text('Sub Categories'),
                                     ),
                                     SizedBox(
                                       width: width,
                                       child: GridView.builder(
                                         shrinkWrap: true,
-                                        physics: ClampingScrollPhysics(),
+                                        physics: const ClampingScrollPhysics(),
                                         gridDelegate:
-                                            SliverGridDelegateWithFixedCrossAxisCount(
+                                            const SliverGridDelegateWithFixedCrossAxisCount(
                                           crossAxisCount: 2,
                                           childAspectRatio: 16 / 9,
                                         ),

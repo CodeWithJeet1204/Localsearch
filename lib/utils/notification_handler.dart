@@ -14,7 +14,6 @@ class NotificationHandler {
     flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print('Sending noti');
       RemoteNotification? notification = message.notification;
       if (notification != null) {
         flutterLocalNotificationsPlugin.show(

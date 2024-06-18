@@ -62,7 +62,7 @@ class _ShortsPageState extends State<ShortsPage> {
             stream: shortsStream,
             builder: (context, snapshot) {
               if (snapshot.hasError) {
-                return Center(
+                return const Center(
                   child: Text(
                     'Some Error Occured',
                     style: TextStyle(
@@ -76,7 +76,7 @@ class _ShortsPageState extends State<ShortsPage> {
                 final shortsSnap = snapshot.data!;
 
                 if (shortsSnap.docs.isEmpty) {
-                  return Center(
+                  return const Center(
                     child: Text(
                       'No Shorts Available',
                       style: TextStyle(
@@ -109,7 +109,7 @@ class _ShortsPageState extends State<ShortsPage> {
                 );
               }
 
-              return Center(
+              return const Center(
                 child: CircularProgressIndicator(),
               );
             }),

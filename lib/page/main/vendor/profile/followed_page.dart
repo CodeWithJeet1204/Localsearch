@@ -188,10 +188,10 @@ class _FollowedPageState extends State<FollowedPage>
                 ),
               );
             },
-            icon: Icon(
+            icon: const Icon(
               Icons.question_mark_outlined,
             ),
-            tooltip: "Help",
+            tooltip: 'Help',
           ),
         ],
         forceMaterialTransparency: true,
@@ -250,7 +250,7 @@ class _FollowedPageState extends State<FollowedPage>
       body: SafeArea(
         child: TabBarView(
           controller: tabController,
-          physics: NeverScrollableScrollPhysics(),
+          physics: const NeverScrollableScrollPhysics(),
           children: [
             // SHOPS
             !isShopsData
@@ -265,7 +265,7 @@ class _FollowedPageState extends State<FollowedPage>
                           scrollDirection: Axis.horizontal,
                           itemBuilder: ((context, index) {
                             return Padding(
-                              padding: EdgeInsets.all(8),
+                              padding: const EdgeInsets.all(8),
                               child: SkeletonContainer(
                                 width: MediaQuery.of(context).size.width * 0.3,
                                 height: 40,
@@ -281,7 +281,7 @@ class _FollowedPageState extends State<FollowedPage>
                           itemCount: 4,
                           itemBuilder: ((context, index) {
                             return Padding(
-                              padding: EdgeInsets.all(8),
+                              padding: const EdgeInsets.all(8),
                               child: SkeletonContainer(
                                 width: MediaQuery.of(context).size.width,
                                 height: 80,
@@ -481,7 +481,7 @@ class _FollowedPageState extends State<FollowedPage>
                           scrollDirection: Axis.horizontal,
                           itemBuilder: ((context, index) {
                             return Padding(
-                              padding: EdgeInsets.all(8),
+                              padding: const EdgeInsets.all(8),
                               child: SkeletonContainer(
                                 width: MediaQuery.of(context).size.width * 0.3,
                                 height: 40,
@@ -497,7 +497,7 @@ class _FollowedPageState extends State<FollowedPage>
                           itemCount: 4,
                           itemBuilder: ((context, index) {
                             return Padding(
-                              padding: EdgeInsets.all(8),
+                              padding: const EdgeInsets.all(8),
                               child: SkeletonContainer(
                                 width: MediaQuery.of(context).size.width,
                                 height: 80,

@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_function_literals_in_foreach_calls
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:localy_user/models/business_categories.dart';
@@ -92,7 +94,6 @@ class _ProductHomePageState extends State<ProductHomePage> {
     List<String> temporaryNameList = [];
     List<String> temporaryImageList = [];
     List<Map<String, dynamic>> temporaryDataList = [];
-    // ignore: avoid_function_literals_in_foreach_calls
     recentShopProducts.forEach((productId) async {
       final productData = await store
           .collection('Business')
@@ -201,7 +202,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
               await getFollowedShops();
             },
             color: primaryDark,
-            backgroundColor: Color.fromARGB(255, 243, 253, 255),
+            backgroundColor: const Color.fromARGB(255, 243, 253, 255),
             semanticsLabel: 'Refresh',
             child: LayoutBuilder(
               builder: ((context, constraints) {
@@ -511,7 +512,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                       ),
                                       borderRadius: BorderRadius.circular(12),
                                     ),
-                                    child: Column(
+                                    child: const Column(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       crossAxisAlignment:

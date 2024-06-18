@@ -7,7 +7,6 @@ import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 Future<void> showYouTubePlayerDialog(BuildContext context, String? url) async {
   if (url != null) {
     String? videoId = YoutubePlayer.convertUrlToId(url);
-    print("Video id: $videoId");
     if (videoId != null) {
       if (videoId.isNotEmpty) {
         await showDialog(
@@ -34,17 +33,17 @@ String? getYoutubeVideoId(String url) {
 
 class YouTubePlayerDialog extends StatefulWidget {
   const YouTubePlayerDialog({
-    Key? key,
+    super.key,
     required this.videoId,
   });
 
   final String videoId;
 
   @override
-  _YouTubePlayerDialogState createState() => _YouTubePlayerDialogState();
+  YouTubePlayerDialogState createState() => YouTubePlayerDialogState();
 }
 
-class _YouTubePlayerDialogState extends State<YouTubePlayerDialog> {
+class YouTubePlayerDialogState extends State<YouTubePlayerDialog> {
   late YoutubePlayerController controller;
 
   @override
@@ -52,7 +51,7 @@ class _YouTubePlayerDialogState extends State<YouTubePlayerDialog> {
     super.initState();
     controller = YoutubePlayerController(
       initialVideoId: widget.videoId,
-      flags: YoutubePlayerFlags(
+      flags: const YoutubePlayerFlags(
         autoPlay: true,
         mute: false,
         showLiveFullscreenButton: false,
@@ -81,14 +80,14 @@ class _YouTubePlayerDialogState extends State<YouTubePlayerDialog> {
               CurrentPosition(),
               ProgressBar(
                 isExpanded: true,
-                colors: ProgressBarColors(
+                colors: const ProgressBarColors(
                   playedColor: primary2,
                   handleColor: darkGrey,
                 ),
               ),
             ],
             onEnded: (metaData) {
-              controller.seekTo(Duration(seconds: 0));
+              controller.seekTo(const Duration(seconds: 0));
               controller.play();
             },
           ),

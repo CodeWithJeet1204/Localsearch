@@ -56,8 +56,6 @@ class _AllCategoryPageState extends State<AllCategoryPage> {
     setState(() {
       ownerData = currentOwnerData;
     });
-    print('Owner1: $ownerData');
-    print('Shop1: $shopData');
 
     await getCategories();
   }
@@ -70,8 +68,6 @@ class _AllCategoryPageState extends State<AllCategoryPage> {
         .doc('Special Categories')
         .collection(shopData!['Type'])
         .get();
-
-    print(categoriesSnap.docs.length);
 
     for (var categoryData in categoriesSnap.docs) {
       final List vendorId = categoryData['vendorId'];
@@ -106,15 +102,15 @@ class _AllCategoryPageState extends State<AllCategoryPage> {
                 ),
               );
             },
-            icon: Icon(
+            icon: const Icon(
               Icons.question_mark_outlined,
             ),
-            tooltip: "Help",
+            tooltip: 'Help',
           ),
         ],
       ),
       body: !isData
-          ? Center(
+          ? const Center(
               child: CircularProgressIndicator(),
             )
           : GridView.builder(
@@ -149,7 +145,7 @@ class _AllCategoryPageState extends State<AllCategoryPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        SizedBox(height: 2),
+                        const SizedBox(height: 2),
                         ClipRRect(
                           borderRadius: BorderRadius.circular(2),
                           clipBehavior: Clip.antiAlias,
@@ -160,7 +156,7 @@ class _AllCategoryPageState extends State<AllCategoryPage> {
                             fit: BoxFit.cover,
                           ),
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Text(
                           name,
                           maxLines: 1,
