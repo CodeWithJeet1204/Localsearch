@@ -1,6 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:localy_user/utils/colors.dart';
 import 'package:localy_user/widgets/image_view.dart';
 import 'package:localy_user/widgets/see_more_text.dart';
@@ -83,6 +84,12 @@ class _EventPageState extends State<EventPage> {
 
       return userWishlist.contains(widget.eventId);
     });
+  }
+
+  // GET ADDRESS
+  Future<String> getAddress(double lat, double long) async {
+    List<Placemark> placemarks = await placemarkFromCoordinates(lat, long);
+    return '${placemarks[0].name}, ${placemarks[0].locality}, ${placemarks[0].administrativeArea}';
   }
 
   // WISHLIST EVENT
@@ -188,9 +195,10 @@ class _EventPageState extends State<EventPage> {
 
                     final String type = event['eventType'];
 
-                    final String address = event['eventAddress'];
+                    final double eventLatitude = event['eventLatitude'];
+                    final double eventLongitude = event['eventLongitude'];
 
-                    final String contactHelp = event['contactHelp'];
+                    final String? contactHelp = event['contactHelp'];
 
                     final String organizerName = event['organizerName'];
 
@@ -315,7 +323,7 @@ class _EventPageState extends State<EventPage> {
                               horizontal: width * 0.0225,
                             ),
                             child: SizedBox(
-                              width: width * 0.785,
+                              width: width * 0.9,
                               child: Text(
                                 'Name',
                                 maxLines: 2,
@@ -334,7 +342,7 @@ class _EventPageState extends State<EventPage> {
                               horizontal: width * 0.0225,
                             ),
                             child: SizedBox(
-                              width: width * 0.785,
+                              width: width * 0.9,
                               child: Text(
                                 name,
                                 maxLines: 2,
@@ -355,7 +363,7 @@ class _EventPageState extends State<EventPage> {
                               horizontal: width * 0.0225,
                             ),
                             child: SizedBox(
-                              width: width * 0.785,
+                              width: width * 0.9,
                               child: Text(
                                 'Venue',
                                 maxLines: 2,
@@ -369,21 +377,59 @@ class _EventPageState extends State<EventPage> {
                             ),
                           ),
 
+                          // LOCATION
                           Padding(
                             padding: EdgeInsets.symmetric(
                               horizontal: width * 0.0225,
                             ),
                             child: SizedBox(
-                              width: width * 0.785,
-                              child: Text(
-                                address,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  color: primaryDark,
-                                  fontSize: width * 0.05,
-                                ),
-                              ),
+                              width: width * 0.9,
+                              child: FutureBuilder(
+                                  future:
+                                      getAddress(eventLatitude, eventLongitude),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.hasError) {
+                                      return const Text(
+                                        'Something went wrong with addresss',
+                                      );
+                                    }
+
+                                    if (snapshot.hasData) {
+                                      return GestureDetector(
+                                        onTap: () async {
+                                          String encodedAddress =
+                                              Uri.encodeFull(snapshot.data!);
+
+                                          Uri mapsUrl = Uri.parse(
+                                              'https://www.google.com/maps/search/?api=1&query=$encodedAddress');
+
+                                          if (await canLaunchUrl(mapsUrl)) {
+                                            await launchUrl(mapsUrl);
+                                          } else {
+                                            if (context.mounted) {
+                                              mySnackBar(
+                                                'Something went Wrong',
+                                                context,
+                                              );
+                                            }
+                                          }
+                                        },
+                                        child: Text(
+                                          snapshot.data!,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            color: primaryDark,
+                                            fontSize: width * 0.05,
+                                          ),
+                                        ),
+                                      );
+                                    }
+
+                                    return Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  }),
                             ),
                           ),
 
@@ -395,7 +441,7 @@ class _EventPageState extends State<EventPage> {
                               horizontal: width * 0.0225,
                             ),
                             child: SizedBox(
-                              width: width * 0.785,
+                              width: width * 0.9,
                               child: Text(
                                 'Dates',
                                 maxLines: 2,
@@ -409,12 +455,13 @@ class _EventPageState extends State<EventPage> {
                             ),
                           ),
 
+                          // DATES
                           Padding(
                             padding: EdgeInsets.symmetric(
                               horizontal: width * 0.0225,
                             ),
                             child: SizedBox(
-                              width: width * 0.785,
+                              width: width * 0.9,
                               child: Text(
                                 '''${DateFormat('d MMM yy').format(
                                   startDate.toDate(),
@@ -439,7 +486,7 @@ class _EventPageState extends State<EventPage> {
                               horizontal: width * 0.0225,
                             ),
                             child: SizedBox(
-                              width: width * 0.785,
+                              width: width * 0.9,
                               child: Text(
                                 'Timing',
                                 maxLines: 2,
@@ -453,12 +500,13 @@ class _EventPageState extends State<EventPage> {
                             ),
                           ),
 
+                          // TIMING
                           Padding(
                             padding: EdgeInsets.symmetric(
                               horizontal: width * 0.0225,
                             ),
                             child: SizedBox(
-                              width: width * 0.785,
+                              width: width * 0.9,
                               child: Text(
                                 '${getTimeString(startTime)} - ${getTimeString(endTime)}',
                                 maxLines: 2,
@@ -471,17 +519,19 @@ class _EventPageState extends State<EventPage> {
                             ),
                           ),
 
-                          const Divider(),
+                          weekendStartTime == null || weekendEndTime == null
+                              ? Container()
+                              : const Divider(),
 
                           // WEEKEND TIMING
-                          weekendStartTime == null && weekendEndTime == null
+                          weekendStartTime == null || weekendEndTime == null
                               ? Container()
                               : Padding(
                                   padding: EdgeInsets.symmetric(
                                     horizontal: width * 0.0225,
                                   ),
                                   child: SizedBox(
-                                    width: width * 0.785,
+                                    width: width * 0.9,
                                     child: Text(
                                       'Weekend Timings',
                                       maxLines: 2,
@@ -495,6 +545,7 @@ class _EventPageState extends State<EventPage> {
                                   ),
                                 ),
 
+                          // WEEKEND TIMING
                           weekendStartTime == null && weekendEndTime == null
                               ? Container()
                               : Padding(
@@ -502,7 +553,7 @@ class _EventPageState extends State<EventPage> {
                                     horizontal: width * 0.0225,
                                   ),
                                   child: SizedBox(
-                                    width: width * 0.785,
+                                    width: width * 0.9,
                                     child: Text(
                                       '${getTimeString(weekendStartTime!)} - ${getTimeString(weekendEndTime!)}',
                                       maxLines: 2,
@@ -523,7 +574,7 @@ class _EventPageState extends State<EventPage> {
                               horizontal: width * 0.0225,
                             ),
                             child: SizedBox(
-                              width: width * 0.785,
+                              width: width * 0.9,
                               child: Text(
                                 'Type',
                                 maxLines: 2,
@@ -537,12 +588,13 @@ class _EventPageState extends State<EventPage> {
                             ),
                           ),
 
+                          // TYPE
                           Padding(
                             padding: EdgeInsets.symmetric(
                               horizontal: width * 0.0225,
                             ),
                             child: SizedBox(
-                              width: width * 0.785,
+                              width: width * 0.9,
                               child: Text(
                                 type,
                                 maxLines: 2,
@@ -555,39 +607,44 @@ class _EventPageState extends State<EventPage> {
                             ),
                           ),
 
-                          const Divider(
-                            thickness: 4,
-                            height: 24,
-                          ),
+                          description == ''
+                              ? Container()
+                              : const Divider(
+                                  thickness: 4,
+                                  height: 24,
+                                ),
 
                           // DESCRIPTION
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                              vertical: width * 0.0175,
-                              horizontal: width * 0.02,
-                            ),
-                            child: Container(
-                              width: width,
-                              padding: EdgeInsets.all(width * 0.0225),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  width: 0.33,
-                                  color: black,
+                          description == ''
+                              ? Container()
+                              : Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: width * 0.0175,
+                                    horizontal: width * 0.02,
+                                  ),
+                                  child: Container(
+                                    width: width,
+                                    padding: EdgeInsets.all(width * 0.0225),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        width: 0.33,
+                                        color: black,
+                                      ),
+                                    ),
+                                    child: SeeMoreText(
+                                      description,
+                                      textStyle: const TextStyle(
+                                        color: primaryDark,
+                                      ),
+                                      seeMoreStyle: TextStyle(
+                                        color: Colors.blue,
+                                        fontSize:
+                                            MediaQuery.of(context).size.width *
+                                                0.0425,
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                              child: SeeMoreText(
-                                description,
-                                textStyle: const TextStyle(
-                                  color: primaryDark,
-                                ),
-                                seeMoreStyle: TextStyle(
-                                  color: Colors.blue,
-                                  fontSize: MediaQuery.of(context).size.width *
-                                      0.0425,
-                                ),
-                              ),
-                            ),
-                          ),
 
                           const Divider(
                             thickness: 4,
@@ -600,7 +657,7 @@ class _EventPageState extends State<EventPage> {
                               horizontal: width * 0.0225,
                             ),
                             child: SizedBox(
-                              width: width * 0.785,
+                              width: width * 0.9,
                               child: Text(
                                 'TICKETS INFO',
                                 maxLines: 2,
@@ -622,7 +679,7 @@ class _EventPageState extends State<EventPage> {
                               horizontal: width * 0.0225,
                             ),
                             child: SizedBox(
-                              width: width * 0.785,
+                              width: width * 0.9,
                               child: Text(
                                 'Total Tickets',
                                 maxLines: 2,
@@ -636,6 +693,7 @@ class _EventPageState extends State<EventPage> {
                             ),
                           ),
 
+                          // TICKET TOTAL TICKETS
                           ticketTotal == null
                               ? Container()
                               : Padding(
@@ -643,7 +701,7 @@ class _EventPageState extends State<EventPage> {
                                     horizontal: width * 0.0225,
                                   ),
                                   child: SizedBox(
-                                    width: width * 0.785,
+                                    width: width * 0.9,
                                     child: Text(
                                       '$ticketTotal Tickets',
                                       maxLines: 2,
@@ -664,7 +722,7 @@ class _EventPageState extends State<EventPage> {
                               horizontal: width * 0.0225,
                             ),
                             child: SizedBox(
-                              width: width * 0.785,
+                              width: width * 0.9,
                               child: Text(
                                 'Base',
                                 maxLines: 2,
@@ -678,6 +736,7 @@ class _EventPageState extends State<EventPage> {
                             ),
                           ),
 
+                          // TICKET BASE PRICE
                           ticketPrice == null
                               ? Container()
                               : Padding(
@@ -685,7 +744,7 @@ class _EventPageState extends State<EventPage> {
                                     horizontal: width * 0.0225,
                                   ),
                                   child: SizedBox(
-                                    width: width * 0.785,
+                                    width: width * 0.9,
                                     child: Text(
                                       'Rs. $ticketPrice',
                                       maxLines: 2,
@@ -698,28 +757,11 @@ class _EventPageState extends State<EventPage> {
                                   ),
                                 ),
 
-                          const Divider(),
+                          ticketEarlyBirdPrice == null
+                              ? Container()
+                              : const Divider(),
 
                           // TICKET EARLY BIRD PRICE
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: width * 0.0225,
-                            ),
-                            child: SizedBox(
-                              width: width * 0.785,
-                              child: Text(
-                                'Early Bird',
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  color: primaryDark.withOpacity(0.75),
-                                  fontSize: width * 0.04,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ),
-
                           ticketEarlyBirdPrice == null
                               ? Container()
                               : Padding(
@@ -727,7 +769,29 @@ class _EventPageState extends State<EventPage> {
                                     horizontal: width * 0.0225,
                                   ),
                                   child: SizedBox(
-                                    width: width * 0.785,
+                                    width: width * 0.9,
+                                    child: Text(
+                                      'Early Bird',
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        color: primaryDark.withOpacity(0.75),
+                                        fontSize: width * 0.04,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+
+                          // TICKET EARLY BIRD PRICE
+                          ticketEarlyBirdPrice == null
+                              ? Container()
+                              : Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: width * 0.0225,
+                                  ),
+                                  child: SizedBox(
+                                    width: width * 0.9,
                                     child: Text(
                                       'Rs. $ticketEarlyBirdPrice',
                                       maxLines: 2,
@@ -740,27 +804,31 @@ class _EventPageState extends State<EventPage> {
                                   ),
                                 ),
 
-                          const Divider(),
+                          ticketEarlyBirdPrice == null
+                              ? Container()
+                              : const Divider(),
 
                           // TICKET VIP PRICE
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: width * 0.0225,
-                            ),
-                            child: SizedBox(
-                              width: width * 0.785,
-                              child: Text(
-                                'VIP',
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  color: primaryDark.withOpacity(0.75),
-                                  fontSize: width * 0.04,
-                                  fontWeight: FontWeight.w500,
+                          ticketVIPPrice == null
+                              ? Container()
+                              : Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: width * 0.0225,
+                                  ),
+                                  child: SizedBox(
+                                    width: width * 0.9,
+                                    child: Text(
+                                      'VIP',
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        color: primaryDark.withOpacity(0.75),
+                                        fontSize: width * 0.04,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
-                          ),
 
                           ticketVIPPrice == null
                               ? Container()
@@ -769,7 +837,7 @@ class _EventPageState extends State<EventPage> {
                                     horizontal: width * 0.0225,
                                   ),
                                   child: SizedBox(
-                                    width: width * 0.785,
+                                    width: width * 0.9,
                                     child: Text(
                                       'Rs. $ticketVIPPrice',
                                       maxLines: 2,
@@ -782,27 +850,31 @@ class _EventPageState extends State<EventPage> {
                                   ),
                                 ),
 
-                          const Divider(),
+                          ticketVIPPrice == null
+                              ? Container()
+                              : const Divider(),
 
                           // TICKET GROUP PRICE
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: width * 0.0225,
-                            ),
-                            child: SizedBox(
-                              width: width * 0.785,
-                              child: Text(
-                                'Group',
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  color: primaryDark.withOpacity(0.75),
-                                  fontSize: width * 0.04,
-                                  fontWeight: FontWeight.w500,
+                          ticketGroupPrice == null
+                              ? Container()
+                              : Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: width * 0.0225,
+                                  ),
+                                  child: SizedBox(
+                                    width: width * 0.9,
+                                    child: Text(
+                                      'Group',
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        color: primaryDark.withOpacity(0.75),
+                                        fontSize: width * 0.04,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
-                          ),
 
                           ticketGroupPrice == null
                               ? Container()
@@ -811,7 +883,7 @@ class _EventPageState extends State<EventPage> {
                                     horizontal: width * 0.0225,
                                   ),
                                   child: SizedBox(
-                                    width: width * 0.785,
+                                    width: width * 0.9,
                                     child: Text(
                                       'Rs. $ticketGroupPrice',
                                       maxLines: 2,
@@ -824,27 +896,31 @@ class _EventPageState extends State<EventPage> {
                                   ),
                                 ),
 
-                          const Divider(),
+                          ticketGroupPrice == null
+                              ? Container()
+                              : const Divider(),
 
                           // TICKET PROMO PRICE
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: width * 0.0225,
-                            ),
-                            child: SizedBox(
-                              width: width * 0.785,
-                              child: Text(
-                                'Discount & Promo Code',
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  color: primaryDark.withOpacity(0.75),
-                                  fontSize: width * 0.04,
-                                  fontWeight: FontWeight.w500,
+                          ticketPromoCodePrice == null
+                              ? Container()
+                              : Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: width * 0.0225,
+                                  ),
+                                  child: SizedBox(
+                                    width: width * 0.9,
+                                    child: Text(
+                                      'Discount & Promo Code',
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        color: primaryDark.withOpacity(0.75),
+                                        fontSize: width * 0.04,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
-                          ),
 
                           ticketPromoCodePrice == null
                               ? Container()
@@ -853,7 +929,7 @@ class _EventPageState extends State<EventPage> {
                                     horizontal: width * 0.0225,
                                   ),
                                   child: SizedBox(
-                                    width: width * 0.785,
+                                    width: width * 0.9,
                                     child: Text(
                                       'Rs. $ticketPromoCodePrice - $ticketPromoCode',
                                       maxLines: 2,
@@ -866,7 +942,9 @@ class _EventPageState extends State<EventPage> {
                                   ),
                                 ),
 
-                          const Divider(),
+                          ticketPromoCodePrice == null
+                              ? Container()
+                              : const Divider(),
 
                           // TICKET WEBSITE
                           ticketWebsite == null
@@ -909,7 +987,7 @@ class _EventPageState extends State<EventPage> {
                                       horizontal: width * 0.0225,
                                     ),
                                     child: SizedBox(
-                                      width: width * 0.785,
+                                      width: width * 0.9,
                                       child: Text(
                                         'Ticket Website',
                                         maxLines: 2,
@@ -964,7 +1042,7 @@ class _EventPageState extends State<EventPage> {
                                       horizontal: width * 0.0225,
                                     ),
                                     child: SizedBox(
-                                      width: width * 0.785,
+                                      width: width * 0.9,
                                       child: Text(
                                         ticketWebsite,
                                         maxLines: 1,
@@ -979,7 +1057,7 @@ class _EventPageState extends State<EventPage> {
                                   ),
                                 ),
 
-                          const Divider(),
+                          ticketWebsite == null ? Container() : const Divider(),
 
                           // TICKET ADDRESS
                           ticketAddress == null
@@ -989,7 +1067,7 @@ class _EventPageState extends State<EventPage> {
                                     horizontal: width * 0.0225,
                                   ),
                                   child: SizedBox(
-                                    width: width * 0.785,
+                                    width: width * 0.9,
                                     child: Text(
                                       'Ticket Address',
                                       maxLines: 2,
@@ -1010,7 +1088,7 @@ class _EventPageState extends State<EventPage> {
                                     horizontal: width * 0.0225,
                                   ),
                                   child: SizedBox(
-                                    width: width * 0.785,
+                                    width: width * 0.9,
                                     child: Text(
                                       ticketAddress,
                                       maxLines: 2,
@@ -1023,7 +1101,7 @@ class _EventPageState extends State<EventPage> {
                                   ),
                                 ),
 
-                          const Divider(),
+                          ticketAddress == null ? Container() : const Divider(),
 
                           // TICKET REFUND DAYS
                           ticketRefundDays == null
@@ -1033,7 +1111,7 @@ class _EventPageState extends State<EventPage> {
                                     horizontal: width * 0.0225,
                                   ),
                                   child: SizedBox(
-                                    width: width * 0.785,
+                                    width: width * 0.9,
                                     child: Text(
                                       'Ticket Refund Days',
                                       maxLines: 2,
@@ -1054,7 +1132,7 @@ class _EventPageState extends State<EventPage> {
                                     horizontal: width * 0.0225,
                                   ),
                                   child: SizedBox(
-                                    width: width * 0.785,
+                                    width: width * 0.9,
                                     child: Text(
                                       int.parse(ticketRefundDays) > 1
                                           ? '$ticketRefundDays Days'
@@ -1075,97 +1153,110 @@ class _EventPageState extends State<EventPage> {
                           ),
 
                           // CONTACT HELP
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: width * 0.0225,
-                            ),
-                            child: GestureDetector(
-                              onTap: () async {
-                                final Uri url = Uri(
-                                  scheme: 'tel',
-                                  path: contactHelp,
-                                );
-                                if (await canLaunchUrl(url)) {
-                                  await launchUrl(url);
-                                } else {
-                                  if (context.mounted) {
-                                    mySnackBar('Some error occured', context);
-                                  }
-                                }
-                              },
-                              onLongPress: () {
-                                Clipboard.setData(
-                                  ClipboardData(
-                                    text: contactHelp,
+                          contactHelp == ''
+                              ? Container()
+                              : Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: width * 0.0225,
                                   ),
-                                );
-                                mySnackBar('Copied To Clipboard', context);
-                              },
-                              child: SizedBox(
-                                width: width * 0.785,
-                                child: Text(
-                                  'Contact Help',
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    color: primaryDark.withOpacity(0.75),
-                                    fontSize: width * 0.04,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: width * 0.0225,
-                            ),
-                            child: GestureDetector(
-                              onTap: () async {
-                                final Uri url = Uri(
-                                  scheme: 'tel',
-                                  path: contactHelp,
-                                );
-                                if (await canLaunchUrl(url)) {
-                                  await launchUrl(url);
-                                } else {
-                                  if (context.mounted) {
-                                    mySnackBar('Some error occured', context);
-                                  }
-                                }
-                              },
-                              onLongPress: () {
-                                Clipboard.setData(
-                                  ClipboardData(
-                                    text: contactHelp,
-                                  ),
-                                );
-                                mySnackBar('Copied To Clipboard', context);
-                              },
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    contactHelp,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      color: primaryDark,
-                                      fontSize: width * 0.05,
+                                  child: GestureDetector(
+                                    onTap: () async {
+                                      final Uri url = Uri(
+                                        scheme: 'tel',
+                                        path: contactHelp,
+                                      );
+                                      if (await canLaunchUrl(url)) {
+                                        await launchUrl(url);
+                                      } else {
+                                        if (context.mounted) {
+                                          mySnackBar(
+                                              'Some error occured', context);
+                                        }
+                                      }
+                                    },
+                                    onLongPress: () {
+                                      Clipboard.setData(
+                                        ClipboardData(
+                                          text: contactHelp!,
+                                        ),
+                                      );
+                                      mySnackBar(
+                                          'Copied To Clipboard', context);
+                                    },
+                                    child: SizedBox(
+                                      width: width * 0.9,
+                                      child: Text(
+                                        'Contact Help',
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          color: primaryDark.withOpacity(0.75),
+                                          fontSize: width * 0.04,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                  const Icon(
-                                    FeatherIcons.phoneCall,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
+                                ),
 
-                          const Divider(),
+                          contactHelp == ''
+                              ? Container()
+                              : Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: width * 0.0225,
+                                  ),
+                                  child: GestureDetector(
+                                    onTap: () async {
+                                      final Uri url = Uri(
+                                        scheme: 'tel',
+                                        path: contactHelp,
+                                      );
+                                      if (await canLaunchUrl(url)) {
+                                        await launchUrl(url);
+                                      } else {
+                                        if (context.mounted) {
+                                          mySnackBar(
+                                            'Some error occured',
+                                            context,
+                                          );
+                                        }
+                                      }
+                                    },
+                                    onLongPress: () {
+                                      Clipboard.setData(
+                                        ClipboardData(
+                                          text: contactHelp,
+                                        ),
+                                      );
+                                      mySnackBar(
+                                        'Copied To Clipboard',
+                                        context,
+                                      );
+                                    },
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          contactHelp!,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            color: primaryDark,
+                                            fontSize: width * 0.05,
+                                          ),
+                                        ),
+                                        const Icon(
+                                          FeatherIcons.phoneCall,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+
+                          contactHelp == '' ? Container() : const Divider(),
 
                           // ORGANIZER NAME
                           Padding(
@@ -1173,7 +1264,7 @@ class _EventPageState extends State<EventPage> {
                               horizontal: width * 0.0225,
                             ),
                             child: SizedBox(
-                              width: width * 0.785,
+                              width: width * 0.9,
                               child: Text(
                                 'Organizer',
                                 maxLines: 2,
@@ -1192,7 +1283,7 @@ class _EventPageState extends State<EventPage> {
                               horizontal: width * 0.0225,
                             ),
                             child: SizedBox(
-                              width: width * 0.785,
+                              width: width * 0.9,
                               child: Text(
                                 organizerName,
                                 maxLines: 2,

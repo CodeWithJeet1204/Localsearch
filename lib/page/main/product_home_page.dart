@@ -173,12 +173,14 @@ class _ProductHomePageState extends State<ProductHomePage> {
           .doc(vendorId)
           .get();
 
-      final vendorData = vendorSnap.data()!;
+      final vendorData = vendorSnap.data();
 
-      final String name = vendorData['Name'];
-      final String imageUrl = vendorData['Image'];
+      if (vendorData != null) {
+        final String? name = vendorData['Name'];
+        final String? imageUrl = vendorData['Image'];
 
-      myFollowedShops[vendorId] = [name, imageUrl];
+        myFollowedShops[vendorId] = [name, imageUrl];
+      }
     });
 
     setState(() {

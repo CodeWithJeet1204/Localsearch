@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:localy_user/page/main/events/event_page.dart';
 import 'package:localy_user/page/main/events/events_previous_work_images_page.dart';
 import 'package:localy_user/utils/colors.dart';
@@ -215,6 +216,12 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
         events = filteredEvents;
       });
     }
+  }
+
+  // GET ADDRESS
+  Future<String> getAddress(double lat, double long) async {
+    List<Placemark> placemarks = await placemarkFromCoordinates(lat, long);
+    return '${placemarks[0].name}, ${placemarks[0].locality}, ${placemarks[0].administrativeArea}';
   }
 
   @override
@@ -519,9 +526,56 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
                                 children: [
                                   SizedBox(
                                     width: width * 0.8,
-                                    child: Text(
-                                      organizerData['Address'],
-                                    ),
+                                    child: FutureBuilder(
+                                        future: getAddress(
+                                          organizerData['Latitude'],
+                                          organizerData['Longitude'],
+                                        ),
+                                        builder: (context, snapshot) {
+                                          if (snapshot.hasError) {
+                                            return const Text(
+                                              'Something went wrong with addresss',
+                                            );
+                                          }
+
+                                          if (snapshot.hasData) {
+                                            return GestureDetector(
+                                              onTap: () async {
+                                                String encodedAddress =
+                                                    Uri.encodeFull(
+                                                        snapshot.data!);
+
+                                                Uri mapsUrl = Uri.parse(
+                                                    'https://www.google.com/maps/search/?api=1&query=$encodedAddress');
+
+                                                if (await canLaunchUrl(
+                                                    mapsUrl)) {
+                                                  await launchUrl(mapsUrl);
+                                                } else {
+                                                  if (context.mounted) {
+                                                    mySnackBar(
+                                                      'Something went Wrong',
+                                                      context,
+                                                    );
+                                                  }
+                                                }
+                                              },
+                                              child: Text(
+                                                snapshot.data!,
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                  color: primaryDark,
+                                                  fontSize: width * 0.05,
+                                                ),
+                                              ),
+                                            );
+                                          }
+
+                                          return Center(
+                                            child: CircularProgressIndicator(),
+                                          );
+                                        }),
                                   ),
                                   IconButton(
                                     onPressed: () async {
@@ -616,95 +670,99 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
                           ),
 
                           // WEBSITE
-                          GestureDetector(
-                            onTap: () async {
-                              final uri = Uri.tryParse(
-                                organizerData['Website'].contains('https://')
-                                    ? organizerData['Website']
-                                    : 'https://${organizerData['Website']}',
-                              );
-                              if (uri != null) {
-                                if (await canLaunchUrl(uri)) {
-                                  await launchUrl(uri);
-                                } else {
-                                  if (context.mounted) {
-                                    mySnackBar(
-                                      'Something went wrong',
-                                      context,
+                          organizerData['Website'] == ''
+                              ? Container()
+                              : GestureDetector(
+                                  onTap: () async {
+                                    final uri = Uri.tryParse(
+                                      organizerData['Website']
+                                              .contains('https://')
+                                          ? organizerData['Website']
+                                          : 'https://${organizerData['Website']}',
                                     );
-                                  }
-                                }
-                              } else {
-                                mySnackBar(
-                                  'Ticket website URL is invalid',
-                                  context,
-                                );
-                              }
-                            },
-                            onLongPress: () {
-                              Clipboard.setData(
-                                ClipboardData(
-                                  text: organizerData['Website'],
-                                ),
-                              );
-                              mySnackBar('Copied To Clipboard', context);
-                            },
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: width * 0.0125,
-                              ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  SizedBox(
-                                    width: width * 0.8,
-                                    child: Text(
-                                      organizerData['Website'],
-                                      style: const TextStyle(
-                                        color: Color.fromRGBO(
-                                          13,
-                                          121,
-                                          210,
-                                          1,
-                                        ),
+                                    if (uri != null) {
+                                      if (await canLaunchUrl(uri)) {
+                                        await launchUrl(uri);
+                                      } else {
+                                        if (context.mounted) {
+                                          mySnackBar(
+                                            'Something went wrong',
+                                            context,
+                                          );
+                                        }
+                                      }
+                                    } else {
+                                      mySnackBar(
+                                        'Ticket website URL is invalid',
+                                        context,
+                                      );
+                                    }
+                                  },
+                                  onLongPress: () {
+                                    Clipboard.setData(
+                                      ClipboardData(
+                                        text: organizerData['Website'],
                                       ),
+                                    );
+                                    mySnackBar('Copied To Clipboard', context);
+                                  },
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: width * 0.0125,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        SizedBox(
+                                          width: width * 0.8,
+                                          child: Text(
+                                            organizerData['Website'],
+                                            style: const TextStyle(
+                                              color: Color.fromRGBO(
+                                                13,
+                                                121,
+                                                210,
+                                                1,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        IconButton(
+                                          onPressed: () async {
+                                            final uri = Uri.tryParse(
+                                              organizerData['Website']
+                                                      .contains('https://')
+                                                  ? organizerData['Website']
+                                                  : 'https://${organizerData['Website']}',
+                                            );
+                                            if (uri != null) {
+                                              if (await canLaunchUrl(uri)) {
+                                                await launchUrl(uri);
+                                              } else {
+                                                if (context.mounted) {
+                                                  mySnackBar(
+                                                    'Something went wrong',
+                                                    context,
+                                                  );
+                                                }
+                                              }
+                                            } else {
+                                              mySnackBar(
+                                                'Ticket website URL is invalid',
+                                                context,
+                                              );
+                                            }
+                                          },
+                                          icon: const Icon(FeatherIcons.globe),
+                                          tooltip: 'Website',
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  IconButton(
-                                    onPressed: () async {
-                                      final uri = Uri.tryParse(
-                                        organizerData['Website']
-                                                .contains('https://')
-                                            ? organizerData['Website']
-                                            : 'https://${organizerData['Website']}',
-                                      );
-                                      if (uri != null) {
-                                        if (await canLaunchUrl(uri)) {
-                                          await launchUrl(uri);
-                                        } else {
-                                          if (context.mounted) {
-                                            mySnackBar(
-                                              'Something went wrong',
-                                              context,
-                                            );
-                                          }
-                                        }
-                                      } else {
-                                        mySnackBar(
-                                          'Ticket website URL is invalid',
-                                          context,
-                                        );
-                                      }
-                                    },
-                                    icon: const Icon(FeatherIcons.globe),
-                                    tooltip: 'Website',
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
+                                ),
 
                           // DOE
                           Padding(
@@ -964,8 +1022,11 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
                                           .toList()[index]['imageUrl'][0];
                                       final type = events.values.toList()[index]
                                           ['eventType'];
-                                      final address = events.values
-                                          .toList()[index]['eventAddress'];
+                                      final double eventLatitude = events.values
+                                          .toList()[index]['eventLatitude'];
+                                      final double eventLongitude =
+                                          events.values.toList()[index]
+                                              ['eventLongitude'];
 
                                       return GestureDetector(
                                         onTap: () {
@@ -1056,17 +1117,42 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
                                                   // ADDRESS
                                                   SizedBox(
                                                     width: width * 0.6,
-                                                    child: Text(
-                                                      address,
-                                                      maxLines: 2,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      textAlign:
-                                                          TextAlign.start,
-                                                      style: TextStyle(
-                                                        fontSize: width * 0.045,
-                                                      ),
-                                                    ),
+                                                    child: FutureBuilder(
+                                                        future: getAddress(
+                                                            eventLatitude,
+                                                            eventLongitude),
+                                                        builder: (context,
+                                                            snapshot) {
+                                                          if (snapshot
+                                                              .hasError) {
+                                                            return const Text(
+                                                              'Something went wrong with addresss',
+                                                            );
+                                                          }
+
+                                                          if (snapshot
+                                                              .hasData) {
+                                                            return Text(
+                                                              snapshot.data!,
+                                                              maxLines: 2,
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                              style: TextStyle(
+                                                                color:
+                                                                    primaryDark,
+                                                                fontSize:
+                                                                    width *
+                                                                        0.05,
+                                                              ),
+                                                            );
+                                                          }
+
+                                                          return Center(
+                                                            child:
+                                                                CircularProgressIndicator(),
+                                                          );
+                                                        }),
                                                   ),
                                                 ],
                                               ), // IMAGE
