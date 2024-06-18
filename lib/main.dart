@@ -6,7 +6,6 @@ import 'package:localy_user/page/main/main_page.dart';
 import 'package:localy_user/page/providers/register_details_provider.dart';
 import 'package:localy_user/page/providers/verification_provider.dart';
 import 'package:localy_user/utils/colors.dart';
-import 'package:localy_user/utils/network_connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -112,7 +111,7 @@ class MyApp extends StatelessWidget {
               return const LoginPage();
             }),
           ),
-          const ConnectivityNotificationWidget(),
+          // const ConnectivityNotificationWidget(),
         ],
       ),
     );
