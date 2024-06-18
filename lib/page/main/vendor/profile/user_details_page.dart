@@ -37,6 +37,52 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
     super.dispose();
   }
 
+  // GET ADDRESS
+  Future<String> getAddress(double lat, double long) async {
+    List<Placemark> placemarks = await placemarkFromCoordinates(lat, long);
+    return '${placemarks[0].name}, ${placemarks[0].locality}, ${placemarks[0].administrativeArea}';
+  }
+
+  // GET LOCATION
+  Future<Position?> getLocation() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+
+    if (!serviceEnabled) {
+      if (mounted) {
+        mySnackBar('Turn ON Location Services to Continue', context);
+      }
+      return null;
+    } else {
+      LocationPermission permission = await Geolocator.checkPermission();
+
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          if (mounted) {
+            mySnackBar('Pls give Location Permission to Continue', context);
+          }
+        }
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.deniedForever) {
+          if (mounted) {
+            mySnackBar(
+              'Because Location permission is denied, We are continuing without Location',
+              context,
+            );
+          }
+          setState(() {
+            isChangingAddress = true;
+          });
+        } else {
+          return await Geolocator.getCurrentPosition();
+        }
+      } else {
+        return await Geolocator.getCurrentPosition();
+      }
+    }
+    return null;
+  }
+
   // SAVE
   void save() async {
     try {
@@ -137,92 +183,6 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
       }
     }
   }
-
-  // GET ADDRESS
-  Future<String> getAddress(double lat, double long) async {
-    List<Placemark> placemarks = await placemarkFromCoordinates(lat, long);
-    return '${placemarks[0].name}, ${placemarks[0].locality}, ${placemarks[0].administrativeArea}';
-  }
-
-  // GET LOCATION
-  Future<Position?> getLocation() async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-
-    if (!serviceEnabled) {
-      if (mounted) {
-        mySnackBar('Turn ON Location Services to Continue', context);
-      }
-      return null;
-    } else {
-      LocationPermission permission = await Geolocator.checkPermission();
-
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          if (mounted) {
-            mySnackBar('Pls give Location Permission to Continue', context);
-          }
-        }
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.deniedForever) {
-          if (mounted) {
-            mySnackBar(
-              'Because Location permission is denied, We are continuing without Location',
-              context,
-            );
-          }
-          setState(() {
-            isChangingAddress = true;
-          });
-        } else {
-          return await Geolocator.getCurrentPosition();
-        }
-      } else {
-        return await Geolocator.getCurrentPosition();
-      }
-    }
-    return null;
-  }
-
-  // GET LOCATION WITH ADDRESS ZERO
-  // Future<String?> getAddressWithLocationZero() async {
-  //   setState(() {
-  //     isChangingAddress = true;
-  //   });
-
-  //   double? latitude;
-  //   double? longitude;
-
-  //   await getLocation().then((value) async {
-  //     if (value != null) {
-  //       setState(() {
-  //         latitude = value.latitude;
-  //         longitude = value.longitude;
-  //       });
-
-  //       await FirebaseFirestore.instance
-  //           .collection('Users')
-  //           .doc(FirebaseAuth.instance.currentUser!.uid)
-  //           .update({
-  //         'Latitude': latitude,
-  //         'Longitude': longitude,
-  //       });
-
-  //       print(latitude);
-  //       print(longitude);
-
-  //       if (latitude != null && longitude != null) {
-  //         return await getAddress(
-  //           latitude!,
-  //           longitude!,
-  //         );
-  //       }
-  //     }
-  //   });
-  //   setState(() {
-  //     isChangingAddress = false;
-  //   });
-  // }
 
   @override
   Widget build(BuildContext context) {
