@@ -63,7 +63,6 @@ class _ProductPageState extends State<ProductPage> {
   List<Map<String, dynamic>> otherVendorProductsDatas = [];
   bool otherVendorProductsAdded = false;
   double? distance;
-  // TODO: CALCULATE DISTANCE
 
   // INIT STATE
   @override
@@ -1303,7 +1302,7 @@ class _ProductPageState extends State<ProductPage> {
                       ),
 
                       // DOTS
-                      images.isEmpty
+                      images.length < 2
                           ? const SizedBox(height: 36)
                           : Padding(
                               padding: const EdgeInsets.only(

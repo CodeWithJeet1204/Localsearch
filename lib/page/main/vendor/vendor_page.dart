@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:localy_user/page/main/vendor/product/product_page.dart';
 import 'package:localy_user/page/main/vendor/brand/all_brand_page.dart';
 import 'package:localy_user/page/main/vendor/brand/brand_page.dart';
@@ -15,6 +17,7 @@ import 'package:localy_user/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
 
 enum EventSorting {
   recentlyAdded,
@@ -49,12 +52,30 @@ class _VendorPageState extends State<VendorPage> {
   String? productSort = 'Recently Added';
   final ScrollController scrollController = ScrollController();
   int numProductsLoaded = 7;
+  bool isChangingAddress = false;
+  String? address;
+  double? latitude;
+  double? longitude;
 
   // INIT STATE
   @override
   void initState() {
     getVendorInfo();
     getIfFollowing();
+    getLocation().then((value) async {
+      if (value != null) {
+        setState(() {
+          latitude = value.latitude;
+          longitude = value.longitude;
+        });
+      }
+      if (latitude != null && longitude != null) {
+        await getAddress(
+          latitude!,
+          longitude!,
+        );
+      }
+    });
     getBrands();
     getDiscounts();
     getProducts();
@@ -174,9 +195,6 @@ class _VendorPageState extends State<VendorPage> {
     setState(() {
       ownerData = currentOwnerData;
     });
-    print('Owner1: $ownerData');
-    print('Shop1: $shopData');
-
     await getCategories();
   }
 
@@ -243,6 +261,132 @@ class _VendorPageState extends State<VendorPage> {
     }
   }
 
+  // GET ADDRESS
+  Future<List> getAddress(double shopLatitutde, double shopLongitude) async {
+    print("SHOPLat: $shopLatitutde");
+    print("SHOPLong: $shopLongitude");
+    // List<Placemark> placemarks =
+    //     await placemarkFromCoordinates(shopLatitutde, shopLongitude);
+
+    double? yourLatitude;
+    double? yourLongitude;
+    // List<Placemark> yourPlacemark;
+
+    await getLocation().then((value) async {
+      if (value != null) {
+        yourLatitude = value.latitude;
+        yourLongitude = value.longitude;
+      }
+    });
+
+    String? address;
+
+    // double distance = Geolocator.distanceBetween(
+    //   yourLatitude!,
+    //   yourLongitude!,
+    //   shopLatitutde,
+    //   shopLongitude,
+    // );
+
+    double distance = await getDrivingDistance(
+      yourLatitude!,
+      yourLongitude!,
+      shopLatitutde,
+      shopLongitude,
+      'AIzaSyCTzhOTUtdVUx0qpAbcXdn1TQKSmqtJbZM',
+    );
+
+    final apiKey = 'AIzaSyCTzhOTUtdVUx0qpAbcXdn1TQKSmqtJbZM';
+    final apiUrl =
+        'https://maps.googleapis.com/maps/api/geocode/json?latlng=$shopLatitutde,$shopLongitude&key=$apiKey';
+
+    try {
+      final response = await http.get(Uri.parse(apiUrl));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['status'] == 'OK') {
+          setState(() {
+            address = data['results'][0]['formatted_address'];
+          });
+        } else {
+          throw Exception('Failed to get location');
+        }
+      } else {
+        throw Exception('Failed to load data');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+
+    // yourPlacemark =
+    //     await placemarkFromCoordinates(yourLatitude!, yourLongitude!);
+
+    return [
+      // '${placemarks[0].locality}, ${placemarks[0].locality}, ${placemarks[0].administrativeArea}',
+      address!.length > 30 ? address!.substring(0, 30) + '...' : address,
+      distance,
+      // yourPlacemark,
+    ];
+  }
+
+  // GET DISTANCE
+  Future<double> getDrivingDistance(double startLat, double startLng,
+      double endLat, double endLng, String apiKey) async {
+    final String url =
+        'https://maps.googleapis.com/maps/api/distancematrix/json?origins=$startLat,$startLng&destinations=$endLat,$endLng&key=$apiKey';
+
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+
+      if (data['rows'][0]['elements'][0]['status'] == 'OK') {
+        final distance = data['rows'][0]['elements'][0]['distance']['value'];
+        return distance / 1000;
+      } else {
+        throw Exception(
+            'Error fetching distance: ${data['rows'][0]['elements'][0]['status']}');
+      }
+    } else {
+      throw Exception('Failed to fetch data');
+    }
+  }
+
+  // GET LOCATION
+  Future<Position?> getLocation() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+
+    if (!serviceEnabled) {
+      mySnackBar('Turn ON Location Services to Continue', context);
+      return null;
+    } else {
+      LocationPermission permission = await Geolocator.checkPermission();
+
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          mySnackBar('Pls give Location Permission to Continue', context);
+        }
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.deniedForever) {
+          mySnackBar(
+            'Because Location permission is denied, We are continuing without Location',
+            context,
+          );
+          setState(() {
+            isChangingAddress = true;
+          });
+        } else {
+          return await Geolocator.getCurrentPosition();
+        }
+      } else {
+        return await Geolocator.getCurrentPosition();
+      }
+    }
+    return null;
+  }
+
   // GET BRANDS
   Future<void> getBrands() async {
     Map brand = {};
@@ -298,15 +442,11 @@ class _VendorPageState extends State<VendorPage> {
   // GET CATEGORIES
   Future<void> getCategories() async {
     Map<String, String> category = {};
-    print('Owner2: $ownerData');
-    print('Shop2: $shopData');
     final categoriesSnap = await store
         .collection('Business')
         .doc('Special Categories')
         .collection(shopData!['Type'])
         .get();
-
-    print(categoriesSnap.docs.length);
 
     for (var categoryData in categoriesSnap.docs) {
       final List vendorIds = categoryData['vendorId'];
@@ -671,64 +811,98 @@ class _VendorPageState extends State<VendorPage> {
                               SizedBox(height: width * 0.033),
 
                               // ADDRESS
-                              Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: width * 0.0125,
-                                ),
-                                child: GestureDetector(
-                                  onTap: () async {
-                                    String encodedAddress =
-                                        Uri.encodeFull(shopData!['Address']);
 
-                                    Uri mapsUrl = Uri.parse(
-                                        'https://www.google.com/maps/search/?api=1&query=$encodedAddress');
-
-                                    if (await canLaunchUrl(mapsUrl)) {
-                                      await launchUrl(mapsUrl);
-                                    } else {
-                                      mySnackBar(
-                                        'Something went Wrong',
-                                        context,
+                              FutureBuilder(
+                                  future: getAddress(shopData!['Latitude']!,
+                                      shopData!['Longitude']!),
+                                  builder: (context, snapshot) {
+                                    print("YOURLatitude: $latitude");
+                                    print("YOURLongitude: $longitude");
+                                    if (snapshot.hasError) {
+                                      return Center(
+                                        child: Text('Something went wrong'),
                                       );
                                     }
-                                  },
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      SizedBox(
-                                        width: width * 0.8,
-                                        child: Text(
-                                          shopData!['Address'],
+
+                                    if (snapshot.hasData) {
+                                      return Padding(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: width * 0.0125,
                                         ),
-                                      ),
-                                      IconButton(
-                                        onPressed: () async {
-                                          String encodedAddress =
-                                              Uri.encodeFull(
-                                                  shopData!['Address']);
+                                        child: GestureDetector(
+                                          onTap: () async {
+                                            String encodedAddress =
+                                                Uri.encodeFull(
+                                                    snapshot.data![0]);
 
-                                          Uri mapsUrl = Uri.parse(
-                                              'https://www.google.com/maps/search/?api=1&query=$encodedAddress');
+                                            Uri mapsUrl = Uri.parse(
+                                                'https://www.google.com/maps/search/?api=1&query=$encodedAddress');
 
-                                          if (await canLaunchUrl(mapsUrl)) {
-                                            await launchUrl(mapsUrl);
-                                          } else {
-                                            mySnackBar(
-                                              'Something went Wrong',
-                                              context,
-                                            );
-                                          }
-                                        },
-                                        icon: const Icon(FeatherIcons.mapPin),
-                                        tooltip: 'Locate on Maps',
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
+                                            if (await canLaunchUrl(mapsUrl)) {
+                                              await launchUrl(mapsUrl);
+                                            } else {
+                                              mySnackBar(
+                                                'Something went Wrong',
+                                                context,
+                                              );
+                                            }
+                                          },
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  SizedBox(
+                                                    width: width * 0.8,
+                                                    child: Text(
+                                                      snapshot.data![0],
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    '${snapshot.data![1].toStringAsFixed(2)} km',
+                                                  ),
+                                                ],
+                                              ),
+                                              IconButton(
+                                                onPressed: () async {
+                                                  String encodedAddress =
+                                                      Uri.encodeFull(
+                                                          snapshot.data![0]);
+
+                                                  Uri mapsUrl = Uri.parse(
+                                                      'https://www.google.com/maps/search/?api=1&query=$encodedAddress');
+
+                                                  if (await canLaunchUrl(
+                                                      mapsUrl)) {
+                                                    await launchUrl(mapsUrl);
+                                                  } else {
+                                                    mySnackBar(
+                                                      'Something went Wrong',
+                                                      context,
+                                                    );
+                                                  }
+                                                },
+                                                icon: const Icon(
+                                                    FeatherIcons.mapPin),
+                                                tooltip: 'Locate on Maps',
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    }
+
+                                    return Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  }),
 
                               SizedBox(height: width * 0.033),
 
@@ -853,7 +1027,6 @@ class _VendorPageState extends State<VendorPage> {
                                       : const NeverScrollableScrollPhysics(),
                                   itemCount: brands.length,
                                   itemBuilder: ((context, index) {
-                                    print("Brands: $brands");
                                     final id = brands.keys.toList()[index];
                                     final imageUrl =
                                         brands.values.toList()[index];
