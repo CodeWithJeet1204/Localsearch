@@ -1,17 +1,17 @@
 Map<String, String> eventCategories = {
-  'Conference': 'https://hatrabbits.com/wp-content/uploads/2017/01/random.jpg',
+  'Conference':
+      'https://storage.needpix.com/rsynced_images/hall-828549_1280.jpg',
   'Seminars':
-      'https://i.redd.it/i-got-bored-so-i-decided-to-draw-a-random-image-on-the-v0-4ig97vv85vjb1.png?width=1280&format=png&auto=webp&s=7177756d1f393b6e093596d06e1ba539f723264b',
-  'Workshops':
-      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRj5DxPo8nYQff7_JqenCpnVrTcIlswz77UHmDpG-vEzw&s',
+      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTWN1Pmc2sQzjPeq8-hMd57dKY9tvsq4L6H7g&s',
+  'Workshops': 'https://live.staticflickr.com/5209/5243791863_7d749f2c18_c.jpg',
   'Trade Shows/Exhibitions':
-      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJ3JN-NIjBWpN2iiqKlBt4e_9xrpsk8rifM3w6iGntEw&s',
+      'https://live.staticflickr.com/65535/50214710681_bce2b437a9_b.jpg',
   'Networking Events':
-      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrYOxVvjmV8HbOgZrMwB8Un0qrEzm5xVq-WVpmJBbAIA&s',
+      'https://live.staticflickr.com/4122/4910942014_5bb7b7b8f3_b.jpg',
   'Product Launches':
-      'https://live.staticflickr.com/3938/15374337148_5da467f58a_b.jpg',
+      'https://upload.wikimedia.org/wikipedia/commons/c/cb/Wikipedia_Zero_Product_Launch_Press_Conference_-_Ncell%2C_Nepal.jpg',
   'Corporate Meetings':
-      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPlU41r6DhfIyJU3kncZxwOr3IQ-inwEk6AxuvwVy0Dg&s',
+      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSiRmLwpUyu2hKLKqTHVNO-CgUZr_pIsB8hKQ&s',
   'Party':
       'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSkhmu0kbaio-JIrlX89qWvjJP47EXDybAJvIjTyXBcg&s',
   'Weddings': 'https://live.staticflickr.com/1594/24993709285_cf265cb8e2_c.jpg',

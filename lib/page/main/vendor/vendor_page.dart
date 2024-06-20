@@ -539,7 +539,7 @@ class _VendorPageState extends State<VendorPage> {
   double calculateAverageRating(Map<String, dynamic> ratings) {
     if (ratings.isEmpty) return 0.0;
 
-    final allRatings = ratings.values.map((e) => e[0] as int).toList();
+    final allRatings = ratings.values.map((e) => e[0] as double).toList();
 
     final sum = allRatings.reduce((value, element) => value + element);
 

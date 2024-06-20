@@ -97,7 +97,7 @@ class _ShopCategoriesPageState extends State<ShopCategoriesPage> {
                           borderRadius: BorderRadius.circular(12),
                           child: Image.network(
                             imageUrl,
-                            fit: BoxFit.contain,
+                            fit: BoxFit.cover,
                             width: width * 0.33,
                             height: width * 0.33,
                           ),

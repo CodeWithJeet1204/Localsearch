@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:localy_user/page/main/vendor/product/product_page.dart';
 import 'package:localy_user/page/main/vendor/vendor_page.dart';
 import 'package:localy_user/utils/colors.dart';
@@ -103,24 +104,22 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
   // GET SHOPS
   Future<void> getShops() async {
     var allShops = {};
-
     final shopSnap = await store
         .collection('Business')
         .doc('Owners')
         .collection('Shops')
         .get();
-
     for (var shopSnap in shopSnap.docs) {
       final shopData = shopSnap.data();
 
       final String name = shopData['Name'];
       final String imageUrl = shopData['Image'];
-      final String address = shopData['Address'];
+      final double latitude = shopData['Latitude'];
+      final double longitude = shopData['Longitude'];
       final String vendorId = shopSnap.id;
 
-      allShops[vendorId] = [name, imageUrl, address];
+      allShops[vendorId] = [name, imageUrl, latitude, longitude];
     }
-
     searchedShops.clear();
 
     List<MapEntry<String, int>> relevanceScores = [];
@@ -134,7 +133,6 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
         relevanceScores.add(MapEntry(key, relevance));
       }
     });
-
     relevanceScores.sort((a, b) {
       int relevanceComparison = b.value.compareTo(a.value);
       if (relevanceComparison != 0) {
@@ -142,11 +140,9 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
       }
       return a.key.compareTo(b.key);
     });
-
     for (var entry in relevanceScores) {
       searchedShops[entry.key] = allShops[entry.key];
     }
-
     setState(() {
       getShopsData = true;
     });
@@ -364,6 +360,12 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
     final averageRating = sum / allRatings.length;
 
     return averageRating;
+  }
+
+  // GET ADDRESS
+  Future<String> getAddress(double lat, double long) async {
+    List<Placemark> placemarks = await placemarkFromCoordinates(lat, long);
+    return '${placemarks[0].name}, ${placemarks[0].locality}, ${placemarks[0].administrativeArea}';
   }
 
   @override
@@ -743,9 +745,24 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                                 fontSize: width * 0.06125,
                                               ),
                                             ),
-                                            subtitle: Text(
-                                              searchedShops[currentShop][2],
-                                            ),
+                                            subtitle: FutureBuilder(
+                                                future: getAddress(
+                                                  searchedShops[currentShop][2],
+                                                  searchedShops[currentShop][3],
+                                                ),
+                                                builder: (context, snapshot) {
+                                                  if (snapshot.hasError) {
+                                                    return Container();
+                                                  }
+
+                                                  if (snapshot.hasData) {
+                                                    return Text(
+                                                      snapshot.data!,
+                                                    );
+                                                  }
+
+                                                  return Container();
+                                                }),
                                             trailing: const Icon(
                                               FeatherIcons.chevronRight,
                                               color: primaryDark,

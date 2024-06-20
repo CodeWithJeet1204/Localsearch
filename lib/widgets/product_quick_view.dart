@@ -201,7 +201,7 @@ class _ProductQuickViewState extends State<ProductQuickView> {
                                     decoration: BoxDecoration(
                                       image: DecorationImage(
                                         image: NetworkImage(e),
-                                        fit: BoxFit.contain,
+                                        fit: BoxFit.cover,
                                       ),
                                     ),
                                   ),

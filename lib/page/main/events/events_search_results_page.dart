@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:localy_user/page/main/events/event_page.dart';
 import 'package:localy_user/page/main/events/events_organizer_page.dart';
 import 'package:localy_user/utils/colors.dart';
@@ -195,13 +196,15 @@ class _EventsSearchResultsPageState extends State<EventsSearchResultsPage> {
 
       final String name = organizerData['Name'];
       final String imageUrl = organizerData['Image'];
-      final String address = organizerData['Address'];
+      final double latitude = organizerData['Latitude'];
+      final double longitude = organizerData['Longitude'];
       final String organizerId = organizerSnap.id;
 
       allOrganizers[organizerId] = {
         'name': name,
         'imageUrl': imageUrl,
-        'address': address,
+        'latitude': latitude,
+        'longitude': longitude,
         'id': organizerId,
       };
     }
@@ -298,6 +301,12 @@ class _EventsSearchResultsPageState extends State<EventsSearchResultsPage> {
     await store.collection('Events').doc(eventId).update({
       'wishlists': noOfWishList,
     });
+  }
+
+  // GET ADDRESS
+  Future<String> getAddress(double lat, double long) async {
+    List<Placemark> placemarks = await placemarkFromCoordinates(lat, long);
+    return '${placemarks[0].name}, ${placemarks[0].locality}, ${placemarks[0].administrativeArea}';
   }
 
   @override
@@ -650,10 +659,28 @@ class _EventsSearchResultsPageState extends State<EventsSearchResultsPage> {
                                               fontSize: width * 0.06125,
                                             ),
                                           ),
-                                          subtitle: Text(
-                                            searchedOrganizers[currentOrganizer]
-                                                ['address'],
-                                          ),
+                                          subtitle: FutureBuilder(
+                                              future: getAddress(
+                                                searchedOrganizers[
+                                                        currentOrganizer]
+                                                    ['latitude'],
+                                                searchedOrganizers[
+                                                        currentOrganizer]
+                                                    ['longitude'],
+                                              ),
+                                              builder: (context, snapshot) {
+                                                if (snapshot.hasError) {
+                                                  return Container();
+                                                }
+
+                                                if (snapshot.hasData) {
+                                                  return Text(
+                                                    snapshot.data!,
+                                                  );
+                                                }
+
+                                                return Container();
+                                              }),
                                           trailing: const Icon(
                                             FeatherIcons.chevronRight,
                                             color: primaryDark,

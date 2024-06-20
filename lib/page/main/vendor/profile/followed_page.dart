@@ -147,7 +147,7 @@ class _FollowedPageState extends State<FollowedPage>
 
   // GET ORGANIZER TYPES
   void getOrganizerTypes(Map<String, List<String>> organizers) {
-    List<String> myTypes = ['Conference'];
+    List<String> myTypes = [];
 
     organizers.forEach((key, value) {
       final myType = value[2];

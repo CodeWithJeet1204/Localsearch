@@ -2,6 +2,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:localy_user/page/main/events/events_organizer_page.dart';
 import 'package:localy_user/utils/colors.dart';
 import 'package:localy_user/widgets/image_view.dart';
 import 'package:localy_user/widgets/see_more_text.dart';
@@ -32,6 +33,7 @@ class _EventPageState extends State<EventPage> {
   List workImages = [];
   int _currentIndex = 0;
   bool isData = false;
+  bool isOrganizerHold = false;
 
   // INIT STATE
   @override
@@ -201,6 +203,7 @@ class _EventPageState extends State<EventPage> {
                     final String? contactHelp = event['contactHelp'];
 
                     final String organizerName = event['organizerName'];
+                    final String organizerId = event['organizerId'];
 
                     final Timestamp startDate = event['startDate'];
                     final Timestamp endDate = event['endDate'];
@@ -233,6 +236,49 @@ class _EventPageState extends State<EventPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // VENDOR
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: width * 0.0125,
+                              vertical: width * 0.025,
+                            ),
+                            child: GestureDetector(
+                              onTap: () {},
+                              onTapDown: (details) {
+                                setState(() {
+                                  isOrganizerHold = true;
+                                });
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: ((context) => EventsOrganizerPage(
+                                          organizerId: organizerId,
+                                        )),
+                                  ),
+                                );
+                              },
+                              onTapUp: (details) {
+                                setState(() {
+                                  isOrganizerHold = false;
+                                });
+                              },
+                              onTapCancel: () {
+                                setState(() {
+                                  isOrganizerHold = false;
+                                });
+                              },
+                              child: Text(
+                                'Visit the $organizerName page',
+                                style: TextStyle(
+                                  color: const Color.fromARGB(255, 0, 114, 196),
+                                  fontSize: width * 0.045,
+                                  decoration: isOrganizerHold
+                                      ? TextDecoration.underline
+                                      : null,
+                                ),
+                              ),
+                            ),
+                          ),
+
                           // IMAGES
                           CarouselSlider(
                             items: images
@@ -264,7 +310,7 @@ class _EventPageState extends State<EventPage> {
                                           decoration: BoxDecoration(
                                             image: DecorationImage(
                                               image: NetworkImage(e),
-                                              fit: BoxFit.contain,
+                                              fit: BoxFit.cover,
                                             ),
                                           ),
                                         ),

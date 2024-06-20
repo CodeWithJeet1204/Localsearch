@@ -86,6 +86,8 @@ class _WishlistPageState extends State<WishlistPage>
         final String shopType = vendorData['Type'];
 
         if (productCategoryName != '0') {
+          print("Shop Type: $shopType");
+          print("Product Category name: $productCategoryName");
           final categorySnap = await store
               .collection('Business')
               .doc('Special Categories')
@@ -134,7 +136,7 @@ class _WishlistPageState extends State<WishlistPage>
   // GET EVENT WISHLIST
   Future<void> getEventWishlist() async {
     Map<String, Map<String, dynamic>> myEvents = {};
-    List myTypes = ['Conference'];
+    List myTypes = [];
     final userSnap =
         await store.collection('Users').doc(auth.currentUser!.uid).get();
 
