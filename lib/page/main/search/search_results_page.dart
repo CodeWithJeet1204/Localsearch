@@ -1183,8 +1183,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                                                     .favorite_border,
                                                             color: Colors.red,
                                                           ),
-                                                          splashColor:
-                                                              Colors.red,
+                                                          color: Colors.red,
                                                         ),
                                                       ],
                                                     ),

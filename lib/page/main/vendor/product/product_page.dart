@@ -1485,7 +1485,7 @@ class _ProductPageState extends State<ProductPage> {
                               color: Colors.red,
                               size: width * 0.1,
                             ),
-                            splashColor: Colors.red,
+                            color: Colors.red,
                             tooltip: 'Wishlist',
                           ),
                         ],

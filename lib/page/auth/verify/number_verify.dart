@@ -26,7 +26,7 @@ class NumberVerifyPage extends StatefulWidget {
 }
 
 class _NumberVerifyPageState extends State<NumberVerifyPage> {
-  final TextEditingController otpController = TextEditingController();
+  final otpController = TextEditingController();
   bool isOTPVerifying = false;
 
   // DISPOSE

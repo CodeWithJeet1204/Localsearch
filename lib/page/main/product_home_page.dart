@@ -249,7 +249,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                               ),
                             );
                           },
-                          splashColor: primary2.withOpacity(0.125),
+                          splashColor: white.withOpacity(0.125),
                           customBorder: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),

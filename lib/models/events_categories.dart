@@ -92,5 +92,5 @@ Map<String, String> eventCategories = {
   'Meditation Sessions':
       'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOXjJL84dcPcrJlT1n8ST-WVr-lpt03NQIJhcjo10GTA&s',
   'Religious Conferences':
-      'https://live.staticflickr.com/8602/15150343533_71d9eaf6aa_b.jpg',
+      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTijcrpkFntvIT0HM906kDZ1-p3SjQlLNJkyg&s',
 };

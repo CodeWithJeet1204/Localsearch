@@ -18,7 +18,7 @@ Map<String, Map<String, String>> shopCategories = {
         'https://w7.pngwing.com/pngs/212/294/png-transparent-whole-grain-whole-food-cereal-whole-wheat-bread-brown-rice-rice-natural-foods-food-eating.png',
   },
   'Pharmacies': {
-    'Clincial Medicines': '',
+    'Clinical Medicines': '',
     'Dermatology': '',
     'Oncology': '',
     'Emergency Medicines': '',
@@ -33,7 +33,8 @@ Map<String, Map<String, String>> shopCategories = {
     'Medical Equipments': '',
   },
   'Electronics': {
-    'Mobile & Tabs': '',
+    'Mobile': '',
+    'Tabs': '',
     'Televisions': '',
     'Headphones': '',
     'Cameras': '',

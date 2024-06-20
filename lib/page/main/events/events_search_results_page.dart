@@ -1020,8 +1020,7 @@ class _EventsSearchResultsPageState extends State<EventsSearchResultsPage> {
                                                                     .favorite_border,
                                                             color: Colors.red,
                                                           ),
-                                                          splashColor:
-                                                              Colors.red,
+                                                          color: Colors.red,
                                                         ),
                                                       ],
                                                     ),

@@ -263,7 +263,7 @@ class _EventTypePageState extends State<EventTypePage> {
                                             : Icons.favorite_border,
                                         color: Colors.red,
                                       ),
-                                      splashColor: Colors.red,
+                                      color: Colors.red,
                                       tooltip: isWishListed
                                           ? 'Remove from Wishlist'
                                           : 'Wishlist',

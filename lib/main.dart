@@ -85,6 +85,17 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(
           seedColor: primary2,
         ),
+        bottomSheetTheme: BottomSheetThemeData(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(0),
+          ),
+          backgroundColor: white,
+          modalBarrierColor: white,
+          surfaceTintColor: white,
+          shadowColor: white,
+          dragHandleColor: white,
+          modalBackgroundColor: white,
+        ),
         useMaterial3: true,
       ),
       routes: {

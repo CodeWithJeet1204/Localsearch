@@ -2,6 +2,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:localy_user/page/main/events/event_comments_page.dart';
 import 'package:localy_user/page/main/events/events_organizer_page.dart';
 import 'package:localy_user/utils/colors.dart';
 import 'package:localy_user/widgets/image_view.dart';
@@ -155,6 +156,7 @@ class _EventPageState extends State<EventPage> {
                     isWishlist ? Icons.favorite : Icons.favorite_outline,
                     color: Colors.red,
                   ),
+                  color: Colors.red,
                   tooltip: isWishlist ? 'WISHLISTED' : 'WISHLIST',
                 );
               }
@@ -232,6 +234,9 @@ class _EventPageState extends State<EventPage> {
 
                     final String description = event['eventDescription'];
 
+                    // final Map<String, dynamic> comments =
+                    //     event['eventComments'];
+
                     return SingleChildScrollView(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -304,7 +309,7 @@ class _EventPageState extends State<EventPage> {
                                       },
                                       child: ClipRRect(
                                         borderRadius: BorderRadius.circular(
-                                          12,
+                                          10,
                                         ),
                                         child: Container(
                                           decoration: BoxDecoration(
@@ -360,6 +365,49 @@ class _EventPageState extends State<EventPage> {
                                   ),
                                 )
                               : const SizedBox(height: 12),
+
+                          const Divider(),
+
+                          // COMMENTS
+                          InkWell(
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: ((context) => EventCommentsPage(
+                                        eventId: widget.eventId,
+                                      )),
+                                ),
+                              );
+                            },
+                            splashColor: primary2,
+                            customBorder: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Container(
+                              width: width,
+                              decoration: BoxDecoration(
+                                color: primary2,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: EdgeInsets.all(width * 0.0225),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "See Comments",
+                                    style: TextStyle(
+                                      color: primaryDark,
+                                      fontSize: width * 0.05,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  Icon(FeatherIcons.chevronRight),
+                                ],
+                              ),
+                            ),
+                          ),
 
                           const Divider(),
 

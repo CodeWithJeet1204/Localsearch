@@ -256,7 +256,7 @@ class _ProductQuickViewState extends State<ProductQuickView> {
                                           : Icons.favorite_border,
                                       color: Colors.red,
                                     ),
-                                    splashColor: Colors.red,
+                                    color: Colors.red,
                                     iconSize: width * 0.075,
                                   ),
                           ],

@@ -21,8 +21,8 @@ class UserDetailsPage extends StatefulWidget {
 class _UserDetailsPageState extends State<UserDetailsPage> {
   final FirebaseAuth auth = FirebaseAuth.instance;
   final storage = FirebaseStorage.instance;
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController numberController = TextEditingController();
+  final nameController = TextEditingController();
+  final numberController = TextEditingController();
   bool isChangingName = false;
   bool isChangingNumber = false;
   bool isChangingAddress = false;

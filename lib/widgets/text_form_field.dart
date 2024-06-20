@@ -22,7 +22,7 @@ class MyTextFormField extends StatefulWidget {
   final double horizontalPadding;
   final double verticalPadding;
   final TextInputType? keyboardType;
-  final TextEditingController controller;
+  final controller;
 
   @override
   State<MyTextFormField> createState() => _MyTextFormFieldState();

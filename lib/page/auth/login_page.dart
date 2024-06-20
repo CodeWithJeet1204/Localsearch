@@ -28,9 +28,9 @@ class _LoginPageState extends State<LoginPage> {
   final store = FirebaseFirestore.instance;
   final GlobalKey<FormState> emailLoginFormKey = GlobalKey<FormState>();
   final GlobalKey<FormState> numberLoginFormKey = GlobalKey<FormState>();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final TextEditingController phoneController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final phoneController = TextEditingController();
   String phoneText = 'VERIFY';
   String googleText = 'Sign in with GOOGLE';
   bool isGoogleLogging = false;
