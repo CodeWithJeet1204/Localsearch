@@ -6,7 +6,7 @@ import 'package:localy_user/page/auth/register_details_page.dart';
 import 'package:localy_user/page/auth/verify/email_verify.dart';
 import 'package:localy_user/page/main/events/events_home_page.dart';
 import 'package:localy_user/page/main/product_home_page.dart';
-import 'package:localy_user/page/main/post_page.dart';
+import 'package:localy_user/page/main/post_home_page.dart';
 import 'package:localy_user/page/main/vendor/profile/profile_page.dart';
 import 'package:localy_user/page/main/services/services_home_page.dart';
 import 'package:localy_user/page/main/vendor/shorts_page.dart';
@@ -29,7 +29,7 @@ class _MainPageState extends State<MainPage>
   final auth = FirebaseAuth.instance.currentUser!;
   final store = FirebaseFirestore.instance;
   final messaging = FirebaseMessaging.instance;
-  int current = 2;
+  int currentIndex = 1;
   Widget? detailsPage;
 
   List<Widget> items = [
@@ -123,7 +123,7 @@ class _MainPageState extends State<MainPage>
   // CHANGE PAGE
   void changePage(int index) {
     setState(() {
-      current = index;
+      currentIndex = index;
     });
   }
 
@@ -132,20 +132,22 @@ class _MainPageState extends State<MainPage>
     super.build(context);
     return detailsPage ??
         Scaffold(
-          body: IndexedStack(
-            index: current,
-            children: items,
-          ),
+          // body: IndexedStack(
+          //   index: current,
+          //   children: items,
+          // ),
+          body: items[currentIndex],
           bottomNavigationBar: BottomNavigationBar(
             elevation: 0,
-            backgroundColor: current == 2 ? black : white,
+            backgroundColor: currentIndex == 2 ? black : white,
             selectedLabelStyle: TextStyle(
               fontWeight: FontWeight.w500,
-              color: current == 2 ? darkGrey.withOpacity(0.66) : primaryDark,
+              color:
+                  currentIndex == 2 ? darkGrey.withOpacity(0.66) : primaryDark,
             ),
             unselectedLabelStyle: TextStyle(
               fontWeight: FontWeight.w400,
-              color: current == 2
+              color: currentIndex == 2
                   ? darkGrey.withOpacity(0.5)
                   : black.withOpacity(0.5),
             ),
@@ -153,16 +155,19 @@ class _MainPageState extends State<MainPage>
             type: BottomNavigationBarType.fixed,
             selectedIconTheme: IconThemeData(
               size: 24,
-              color: current == 2 ? lightGrey.withOpacity(0.66) : primaryDark,
+              color:
+                  currentIndex == 2 ? lightGrey.withOpacity(0.66) : primaryDark,
             ),
             unselectedIconTheme: IconThemeData(
               size: 24,
-              color: current == 2
+              color: currentIndex == 2
                   ? darkGrey.withOpacity(0.5)
                   : black.withOpacity(0.5),
             ),
-            currentIndex: current,
-            onTap: changePage,
+            currentIndex: currentIndex,
+            onTap: (index) {
+              changePage(index);
+            },
             items: const [
               BottomNavigationBarItem(
                 icon: Icon(

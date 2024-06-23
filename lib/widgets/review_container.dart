@@ -11,7 +11,7 @@ class ReviewContainer extends StatefulWidget {
   });
 
   final String name;
-  final int rating;
+  final double rating;
   final String review;
 
   @override

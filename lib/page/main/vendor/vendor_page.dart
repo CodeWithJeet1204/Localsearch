@@ -243,7 +243,14 @@ class _VendorPageState extends State<VendorPage> {
       'Followers': followers,
     });
 
-    await getIfFollowing();
+    Navigator.of(context).pop();
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: ((context) => VendorPage(
+              vendorId: widget.vendorId,
+            )),
+      ),
+    );
   }
 
   // CALL VENDOR
@@ -262,13 +269,9 @@ class _VendorPageState extends State<VendorPage> {
   }
 
   // GET ADDRESS
-  Future<List> getAddress(double shopLatitutde, double shopLongitude) async {
-    // List<Placemark> placemarks =
-    //     await placemarkFromCoordinates(shopLatitutde, shopLongitude);
-
+  Future<List> getAddress(double shopLatitude, double shopLongitude) async {
     double? yourLatitude;
     double? yourLongitude;
-    // List<Placemark> yourPlacemark;
 
     await getLocation().then((value) async {
       if (value != null) {
@@ -279,24 +282,20 @@ class _VendorPageState extends State<VendorPage> {
 
     String? address;
 
-    // double distance = Geolocator.distanceBetween(
-    //   yourLatitude!,
-    //   yourLongitude!,
-    //   shopLatitutde,
-    //   shopLongitude,
-    // );
+    print("Shop latitude: $shopLatitude");
+    print("Shop longitude: $shopLongitude");
 
     double distance = await getDrivingDistance(
       yourLatitude!,
       yourLongitude!,
-      shopLatitutde,
+      shopLatitude,
       shopLongitude,
       'AIzaSyCTzhOTUtdVUx0qpAbcXdn1TQKSmqtJbZM',
     );
 
     const apiKey = 'AIzaSyCTzhOTUtdVUx0qpAbcXdn1TQKSmqtJbZM';
     final apiUrl =
-        'https://maps.googleapis.com/maps/api/geocode/json?latlng=$shopLatitutde,$shopLongitude&key=$apiKey';
+        'https://maps.googleapis.com/maps/api/geocode/json?latlng=$shopLatitude,$shopLongitude&key=$apiKey';
 
     try {
       final response = await http.get(Uri.parse(apiUrl));
@@ -317,14 +316,9 @@ class _VendorPageState extends State<VendorPage> {
       throw Exception(e.toString());
     }
 
-    // yourPlacemark =
-    //     await placemarkFromCoordinates(yourLatitude!, yourLongitude!);
-
     return [
-      // '${placemarks[0].locality}, ${placemarks[0].locality}, ${placemarks[0].administrativeArea}',
       address!.length > 30 ? '${address!.substring(0, 30)}...' : address,
       distance,
-      // yourPlacemark,
     ];
   }
 
@@ -617,7 +611,7 @@ class _VendorPageState extends State<VendorPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              // INFO
+                              // IMAGE
                               GestureDetector(
                                 onTap: () async {
                                   await showDialog(
@@ -635,11 +629,22 @@ class _VendorPageState extends State<VendorPage> {
                                   ),
                                 ),
                               ),
+                              SizedBox(height: width * 0.045),
 
-                              SizedBox(height: width * 0.0225),
+                              // NAME
+                              Text(
+                                shopData!['Name'],
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: primaryDark,
+                                  fontSize: width * 0.05,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              SizedBox(height: width * 0.025),
 
-                              SizedBox(height: width * 0.0225),
-
+                              // TYPE
                               Text(
                                 shopData!['Type'],
                                 maxLines: 1,
@@ -648,7 +653,33 @@ class _VendorPageState extends State<VendorPage> {
                                   fontSize: width * 0.04,
                                 ),
                               ),
-                              SizedBox(height: width * 0.025),
+                              SizedBox(height: width * 0.045),
+
+                              // CLOSED
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: shopData!['Open']
+                                      ? Colors.green.withOpacity(0.2)
+                                      : Colors.red.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                padding: EdgeInsets.all(width * 0.0225),
+                                child: Text(
+                                  shopData!['Open'] ? 'OPEN' : 'CLOSED',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: shopData!['Open']
+                                        ? Colors.green
+                                        : Colors.red,
+                                    fontSize: width * 0.05,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: width * 0.045),
+
+                              // OPTIONS
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceAround,
@@ -781,11 +812,10 @@ class _VendorPageState extends State<VendorPage> {
                                   ),
                                 ],
                               ),
-                              SizedBox(height: width * 0.0225),
 
-                              const Divider(),
-
-                              SizedBox(height: width * 0.0125),
+                              Divider(
+                                height: width * 0.05,
+                              ),
 
                               // NAME
                               Padding(
@@ -806,48 +836,109 @@ class _VendorPageState extends State<VendorPage> {
                                     ),
                                     Padding(
                                       padding: EdgeInsets.only(
-                                        right: width * 0.034,
+                                        right: width * 0.04,
                                       ),
                                       child: const Icon(FeatherIcons.user),
                                     ),
                                   ],
                                 ),
                               ),
-
                               SizedBox(height: width * 0.033),
 
-                              // ADDRESS
+                              // FOLLOWERS
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: width * 0.0125,
+                                  vertical: width * 0.0175,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      "Followers",
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.only(
+                                        right: width * 0.0575,
+                                      ),
+                                      child: Text(
+                                        shopData!['Followers']
+                                            .length
+                                            .toString(),
+                                        style: TextStyle(
+                                          color: primaryDark,
+                                          fontSize: width * 0.05,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(height: width * 0.033),
 
+                              // PRODUCTS
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: width * 0.0125,
+                                  vertical: width * 0.0175,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      "Total Products",
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.only(
+                                        right: width * 0.0575,
+                                      ),
+                                      child: Text(
+                                        products.length.toString(),
+                                        style: TextStyle(
+                                          color: primaryDark,
+                                          fontSize: width * 0.05,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(height: width * 0.033),
+
+                              // LOCATION
                               FutureBuilder(
                                   future: getAddress(shopData!['Latitude']!,
                                       shopData!['Longitude']!),
                                   builder: (context, snapshot) {
                                     if (snapshot.hasError) {
                                       return const Center(
-                                        child: Text('Something went wrong'),
+                                        child: Text(
+                                            'Something went wrong while finding Location'),
                                       );
                                     }
 
                                     if (snapshot.hasData) {
+                                      print("Snapshot data: ${snapshot.data}");
                                       return Padding(
                                         padding: EdgeInsets.symmetric(
-                                          horizontal: width * 0.0125,
-                                        ),
+                                            horizontal: width * 0.0125),
                                         child: GestureDetector(
                                           onTap: () async {
-                                            String encodedAddress =
-                                                Uri.encodeFull(
-                                                    snapshot.data![0]);
-
                                             Uri mapsUrl = Uri.parse(
-                                                'https://www.google.com/maps/search/?api=1&query=$encodedAddress');
+                                                'https://www.google.com/maps/search/?api=1&query=${shopData!['Latitude']},${shopData!['Longitude']}');
 
                                             if (await canLaunchUrl(mapsUrl)) {
                                               await launchUrl(mapsUrl);
                                             } else {
                                               if (context.mounted) {
                                                 mySnackBar(
-                                                  'Something went Wrong',
+                                                  'Something went wrong',
                                                   context,
                                                 );
                                               }
@@ -867,23 +958,18 @@ class _VendorPageState extends State<VendorPage> {
                                                 children: [
                                                   SizedBox(
                                                     width: width * 0.8,
-                                                    child: Text(
-                                                      snapshot.data![0],
-                                                    ),
+                                                    child:
+                                                        Text(snapshot.data![0]),
                                                   ),
                                                   Text(
-                                                    '${snapshot.data![1].toStringAsFixed(2)} km',
+                                                    '${shopData!['Latitude'].toStringAsFixed(5)}, ${shopData!['Longitude'].toStringAsFixed(5)}',
                                                   ),
                                                 ],
                                               ),
                                               IconButton(
                                                 onPressed: () async {
-                                                  String encodedAddress =
-                                                      Uri.encodeFull(
-                                                          snapshot.data![0]);
-
                                                   Uri mapsUrl = Uri.parse(
-                                                      'https://www.google.com/maps/search/?api=1&query=$encodedAddress');
+                                                      'https://www.google.com/maps/search/?api=1&query=${shopData!['Latitude']},${shopData!['Longitude']}');
 
                                                   if (await canLaunchUrl(
                                                       mapsUrl)) {
@@ -891,7 +977,7 @@ class _VendorPageState extends State<VendorPage> {
                                                   } else {
                                                     if (context.mounted) {
                                                       mySnackBar(
-                                                        'Something went Wrong',
+                                                        'Something went wrong while finding Location',
                                                         context,
                                                       );
                                                     }
@@ -907,8 +993,38 @@ class _VendorPageState extends State<VendorPage> {
                                       );
                                     }
 
-                                    return const Center(
-                                      child: CircularProgressIndicator(),
+                                    return Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: width * 0.0125,
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              SizedBox(
+                                                width: width * 0.8,
+                                                child: const Text(
+                                                  'Getting Location',
+                                                ),
+                                              ),
+                                              const Text('-- km'),
+                                            ],
+                                          ),
+                                          IconButton(
+                                            onPressed: () {},
+                                            icon:
+                                                const Icon(FeatherIcons.mapPin),
+                                          ),
+                                        ],
+                                      ),
                                     );
                                   }),
 

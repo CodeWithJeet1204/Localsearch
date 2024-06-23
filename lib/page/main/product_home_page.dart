@@ -3,6 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:localy_user/models/business_categories.dart';
+import 'package:localy_user/page/main/all_discount_page.dart';
 import 'package:localy_user/page/main/vendor/category/all_shop_types_page.dart';
 import 'package:localy_user/page/main/vendor/category/shop_categories_page.dart';
 import 'package:localy_user/page/main/vendor/product/product_page.dart';
@@ -12,6 +13,7 @@ import 'package:localy_user/utils/colors.dart';
 import 'package:localy_user/widgets/skeleton_container.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:localy_user/widgets/video_tutorial.dart';
 
 class ProductHomePage extends StatefulWidget {
   const ProductHomePage({super.key});
@@ -33,6 +35,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
   bool getRecentData = false;
   bool getWishlistData = false;
   bool getFollowedData = false;
+  int noOfDiscounts = 0;
 
   List<int> numbers = [0, 1, 2, 3];
   List<int> reverseNumbers = [4, 5, 6, 7];
@@ -40,6 +43,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
   // INIT STATE
   @override
   void initState() {
+    getNoOfDiscounts();
     getRecentShop();
     getWishlist();
     getFollowedShops();
@@ -51,6 +55,30 @@ class _ProductHomePageState extends State<ProductHomePage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     getRecentShop();
+  }
+
+  // GET NO. OF DISCOUNTS
+  Future<void> getNoOfDiscounts() async {
+    int myNoOfDiscounts = 0;
+    final discountSnap = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Discounts')
+        .get();
+
+    discountSnap.docs.forEach((discount) {
+      final discountData = discount.data();
+
+      final Timestamp endDateTime = discountData['discountEndDateTime'];
+
+      if (endDateTime.toDate().isAfter(DateTime.now())) {
+        myNoOfDiscounts++;
+      }
+    });
+
+    setState(() {
+      noOfDiscounts = myNoOfDiscounts;
+    });
   }
 
   // GET RECENT SHOP
@@ -192,6 +220,25 @@ class _ProductHomePageState extends State<ProductHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Products'),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              await showYouTubePlayerDialog(
+                context,
+                getYoutubeVideoId(
+                  '',
+                ),
+              );
+            },
+            icon: const Icon(
+              Icons.question_mark_outlined,
+            ),
+            tooltip: 'Help',
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(
@@ -215,27 +262,6 @@ class _ProductHomePageState extends State<ProductHomePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // SEARCH
-                      // Align(
-                      //   alignment: Alignment.centerRight,
-                      //   child: Padding(
-                      //     padding: EdgeInsets.symmetric(
-                      //       horizontal: width * 0.0125,
-                      //       vertical: width * 0.0125,
-                      //     ),
-                      //     child: IconButton(
-                      //       onPressed: () {
-                      //         Navigator.of(context).push(
-                      //           MaterialPageRoute(
-                      //             builder: ((context) => const SearchPage()),
-                      //           ),
-                      //         );
-                      //       },
-                      //       icon: const Icon(FeatherIcons.search),
-                      //       color: primaryDark2.withOpacity(0.8),
-                      //       tooltip: 'Search',
-                      //     ),
-                      //   ),
-                      // ),
                       Padding(
                         padding: EdgeInsets.symmetric(
                           horizontal: width * 0.0125,
@@ -261,10 +287,10 @@ class _ProductHomePageState extends State<ProductHomePage> {
                             ),
                             decoration: BoxDecoration(
                               color: primary2.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
                               border: Border.all(
-                                color: primaryDark.withOpacity(0.25),
+                                color: primaryDark.withOpacity(0.5),
                               ),
+                              borderRadius: BorderRadius.circular(8),
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -273,13 +299,13 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                 Text(
                                   'Search...',
                                   style: TextStyle(
-                                    color: primaryDark2.withOpacity(0.5),
+                                    color: primaryDark2.withOpacity(0.8),
                                     fontSize: width * 0.045,
                                   ),
                                 ),
                                 Icon(
                                   FeatherIcons.search,
-                                  color: primaryDark2.withOpacity(0.5),
+                                  color: primaryDark2.withOpacity(0.8),
                                 ),
                               ],
                             ),
@@ -287,42 +313,72 @@ class _ProductHomePageState extends State<ProductHomePage> {
                         ),
                       ),
 
-                      // CATEGORIES
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.baseline,
-                        textBaseline: TextBaseline.alphabetic,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: width * 0.025,
-                              vertical: width * 0.025,
+                      // ONGOING DISCOUNTS
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (context) => AllDiscountPage()),
+                          );
+                        },
+                        child: Container(
+                          width: width,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.red.shade300,
+                                Colors.orange.shade300,
+                                Colors.yellow.shade300,
+                                Colors.green.shade300,
+                                Colors.blue.shade300,
+                                Colors.indigo.shade300,
+                                Color.fromRGBO(143, 30, 255, 1),
+                              ],
                             ),
-                            child: Text(
-                              'Shop Types',
-                              style: TextStyle(
-                                color: primaryDark,
-                                fontSize: width * 0.07,
-                                fontWeight: FontWeight.w500,
-                              ),
+                            border: Border.all(
+                              width: 2,
+                              color: primaryDark,
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding: EdgeInsets.symmetric(
+                            vertical: 8,
+                          ),
+                          margin: EdgeInsets.symmetric(
+                            horizontal: width * 0.0125,
+                            vertical: 4,
+                          ),
+                          child: Text(
+                            "ONGOING OFFERS - $noOfDiscounts",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: primaryDark,
+                              fontSize: width * 0.066,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
-                          // MyTextButton(
-                          //   onPressed: () {
-                          //     Navigator.of(context).push(
-                          //       MaterialPageRoute(
-                          //         builder: ((context) =>
-                          //             const AllShopTypesPage()),
-                          //       ),
-                          //     );
-                          //   },
-                          //   text: 'See All',
-                          //   textColor: primaryDark2,
-                          // ),
-                        ],
+                        ),
                       ),
 
-                      // CATEGORIES BOX
+                      Divider(),
+
+                      // SHOP TYPES
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: width * 0.025,
+                          vertical: width * 0.025,
+                        ),
+                        child: Text(
+                          'Shop Types',
+                          style: TextStyle(
+                            color: primaryDark,
+                            fontSize: width * 0.0675,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+
+                      // SHOP TYPES BOX
                       Container(
                         width: width,
                         height: width * 0.65,
@@ -400,8 +456,12 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                               ),
                                               Text(
                                                 name,
-                                                overflow: TextOverflow.ellipsis,
                                                 maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                  color: primaryDark,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
                                               ),
                                             ],
                                           ),
@@ -541,7 +601,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                         ),
                       ),
 
-                      // CONTINUE
+                      // CONTINUE SHOPPING
                       recentShop == ''
                           ? Container()
                           : !getRecentData
@@ -567,7 +627,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                   ),
                                 ),
 
-                      // CONTINUE PRODUCTS
+                      // CONTINUE SHOPPING PRODUCTS
                       recentShop == ''
                           ? Container()
                           : !getRecentData

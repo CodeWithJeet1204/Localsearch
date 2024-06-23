@@ -289,7 +289,7 @@ class _ProductPageState extends State<ProductPage> {
       // Category
       if (data['isCategories'] &&
           (data['categories'] as List)
-              .contains(widget.productData['categoryId'])) {
+              .contains(widget.productData['categoryName'])) {
         // Check if the discount is active
         if ((data['discountEndDateTime'] as Timestamp)
                 .toDate()

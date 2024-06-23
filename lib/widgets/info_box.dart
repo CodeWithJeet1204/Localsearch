@@ -41,13 +41,13 @@ class InfoBox extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              overflow: TextOverflow.ellipsis,
               head,
+              maxLines: maxLines,
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                 fontWeight: FontWeight.w500,
                 color: primaryDark2,
               ),
-              maxLines: maxLines,
             ),
             SizedBox(
               width: width,

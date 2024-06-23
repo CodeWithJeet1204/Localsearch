@@ -461,7 +461,7 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
 
                           SizedBox(height: width * 0.0125),
 
-                          // ADDRESS
+                          // FOLLOWERS
                           Padding(
                             padding: EdgeInsets.symmetric(
                               horizontal: width * 0.0125,

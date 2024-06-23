@@ -36,7 +36,7 @@ class _ServicesSubCategoryPageState extends State<ServicesSubCategoryPage> {
     for (var service in serviceSnap.docs) {
       final serviceData = service.data();
       final String id = service.id;
-      final Map subCategories = serviceData['SubCategory'];
+      final Map<String, dynamic> subCategories = serviceData['SubCategory'];
       for (var subCategoryKey in subCategories.keys) {
         if (subCategoryKey == widget.subCategory) {
           myIds.add(id);
@@ -70,7 +70,7 @@ class _ServicesSubCategoryPageState extends State<ServicesSubCategoryPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.subCategory),
+        title: Text('123'),
         actions: [
           IconButton(
             onPressed: () async {

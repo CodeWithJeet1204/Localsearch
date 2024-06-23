@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:localy_user/utils/colors.dart';
 import 'package:localy_user/widgets/skeleton_container.dart';
-import 'package:localy_user/widgets/text_form_field.dart';
 import 'package:uuid/uuid.dart';
 
 class EventCommentsPage extends StatefulWidget {
@@ -26,6 +25,14 @@ class _EventCommentsPageState extends State<EventCommentsPage> {
   bool isReplying = false;
   String currentReplyCommentId = '';
   String currentReplyCommenter = '';
+  FocusNode focusNode = FocusNode();
+
+  // DISPOSE
+  @override
+  void dispose() {
+    focusNode.dispose();
+    super.dispose();
+  }
 
   // GET COMMENTER NAME
   Future<String> getCommenterName(String userId) async {
@@ -303,12 +310,19 @@ class _EventCommentsPageState extends State<EventCommentsPage> {
           children: [
             SizedBox(
               width: width * 0.825,
-              child: MyTextFormField(
-                hintText: 'Comment',
+              child: TextFormField(
                 controller: commentController,
-                borderRadius: 4,
-                horizontalPadding: 0,
-                autoFillHints: [],
+                focusNode: focusNode,
+                onTapOutside: (event) => FocusScope.of(context).unfocus(),
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(4),
+                    borderSide: BorderSide(
+                      color: Colors.cyan.shade700,
+                    ),
+                  ),
+                  hintText: 'Comment',
+                ),
               ),
             ),
             IconButton.filledTonal(
@@ -493,9 +507,12 @@ class _EventCommentsPageState extends State<EventCommentsPage> {
                                                   // REPLY
                                                   IconButton(
                                                     onPressed: () async {
+                                                      focusNode.requestFocus();
+
                                                       final commenter =
                                                           await getCommenterName(
-                                                              commenterId);
+                                                        commenterId,
+                                                      );
 
                                                       setState(() {
                                                         currentReplyCommentId =

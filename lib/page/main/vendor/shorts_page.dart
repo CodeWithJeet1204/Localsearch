@@ -87,8 +87,10 @@ class _ShortsPageState extends State<ShortsPage> {
                 }
 
                 return PageView.builder(
-                  controller:
-                      PageController(initialPage: 0, viewportFraction: 1),
+                  controller: PageController(
+                    initialPage: 0,
+                    viewportFraction: 1,
+                  ),
                   scrollDirection: Axis.vertical,
                   onPageChanged: (pageIndex) {
                     setState(() {
