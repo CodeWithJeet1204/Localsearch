@@ -36,7 +36,7 @@ class _MyCollapseContainerState extends State<MyCollapseContainer> {
                 : widget.width * 0.0175,
           ),
         ),
-        initiallyExpanded: true,
+        initiallyExpanded: false,
         tilePadding: EdgeInsets.symmetric(
           horizontal: widget.width < screenSize
               ? widget.width * 0.0225

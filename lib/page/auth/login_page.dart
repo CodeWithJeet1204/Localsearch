@@ -2,6 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:localy_user/firebase/auth_methods.dart';
+import 'package:localy_user/page/auth/forgot_password_page.dart';
 import 'package:localy_user/page/auth/register_method_page.dart';
 import 'package:localy_user/page/auth/verify/number_verify.dart';
 import 'package:localy_user/page/main/main_page.dart';
@@ -49,12 +50,6 @@ class _LoginPageState extends State<LoginPage> {
   // LOGIN WITH EMAIL
   Future<void> loginWithEmail() async {
     if (emailLoginFormKey.currentState!.validate()) {
-      // final businessDoc = await store
-      //     .collection('Business')
-      //     .doc('Owners')
-      //     .collection('Users')
-      //     .get();
-
       try {
         setState(() {
           isEmailLogging = true;
@@ -226,9 +221,8 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    // ignore: no_leading_underscores_for_local_identifiers
-    final FirebaseAuth _auth = FirebaseAuth.instance;
-    final AuthMethods auth = AuthMethods();
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    final AuthMethods authMethods = AuthMethods();
     final double width = MediaQuery.of(context).size.width;
 
     return Scaffold(
@@ -277,6 +271,26 @@ class _LoginPageState extends State<LoginPage> {
                                     autoFillHints: const [
                                       AutofillHints.password
                                     ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Padding(
+                                      padding: EdgeInsets.only(
+                                        left: width * 0.05,
+                                      ),
+                                      child: MyTextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ForgotPasswordPage()),
+                                          );
+                                        },
+                                        text: 'Forgot Password?',
+                                        textColor: primaryDark2,
+                                      ),
+                                    ),
                                   ),
                                   const SizedBox(height: 8),
                                   MyButton(
@@ -544,19 +558,19 @@ class _LoginPageState extends State<LoginPage> {
                                                 // Register with Phone
                                                 if (phoneController.text
                                                     .contains('+91')) {
-                                                  await auth.phoneSignIn(
+                                                  await authMethods.phoneSignIn(
                                                       context,
                                                       ' ${phoneController.text}');
                                                 } else if (phoneController.text
                                                     .contains('+91 ')) {
-                                                  await auth.phoneSignIn(
+                                                  await authMethods.phoneSignIn(
                                                       context,
                                                       phoneController.text);
                                                 } else {
                                                   setState(() {
                                                     isPhoneLogging = true;
                                                   });
-                                                  await _auth.verifyPhoneNumber(
+                                                  await auth.verifyPhoneNumber(
                                                       phoneNumber:
                                                           '+91 ${phoneController.text}',
                                                       verificationCompleted:
