@@ -1,5 +1,6 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:localy_user/page/main/main_page.dart';
 import 'package:localy_user/utils/colors.dart';
@@ -9,6 +10,7 @@ import 'package:localy_user/widgets/snack_bar.dart';
 import 'package:localy_user/widgets/text_form_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class RegisterDetailsPage extends StatefulWidget {
   const RegisterDetailsPage({
@@ -30,8 +32,9 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
   double? latitude;
   double? longitude;
   String? address;
-  bool isSaving = false;
   String? selectedGender;
+  bool isGettingLocation = false;
+  bool isSaving = false;
 
   // SHOW INFO DIALOG
   Future<void> showInfoDialog() async {
@@ -103,11 +106,34 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
   }
 
   // GET ADDRESS
-  Future<void> getAddress(double lat, double long) async {
-    List<Placemark> placemarks = await placemarkFromCoordinates(lat, long);
+  Future<void> getAddress(double shopLatitude, double shopLongitude) async {
+    const apiKey = 'AIzaSyCTzhOTUtdVUx0qpAbcXdn1TQKSmqtJbZM';
+    final apiUrl =
+        'https://maps.googleapis.com/maps/api/geocode/json?latlng=$shopLatitude,$shopLongitude&key=$apiKey';
+
+    String? myAddress;
+    try {
+      final response = await http.get(Uri.parse(apiUrl));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['status'] == 'OK' && data['results'].isNotEmpty) {
+          myAddress = data['results'][0]['formatted_address'];
+        } else {
+          print('Failed to get address');
+        }
+      } else {
+        print('Failed to load data');
+      }
+    } catch (e) {
+      print(e.toString());
+    }
     setState(() {
-      address =
-          '${placemarks[0].name}, ${placemarks[0].locality}, ${placemarks[0].administrativeArea}';
+      address = myAddress?.isNotEmpty == true
+          ? myAddress!.length > 40
+              ? '${myAddress.substring(0, 40)}...'
+              : myAddress
+          : 'No address found';
     });
   }
 
@@ -253,6 +279,9 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                         // LOCATION
                         GestureDetector(
                           onTap: () async {
+                            setState(() {
+                              isGettingLocation = true;
+                            });
                             await getLocation().then((value) async {
                               if (value != null) {
                                 setState(() {
@@ -265,6 +294,9 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                                 }
                               }
                             });
+                            setState(() {
+                              isGettingLocation = false;
+                            });
                           },
                           child: Align(
                             alignment: Alignment.center,
@@ -275,14 +307,18 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                                 borderRadius: BorderRadius.circular(24),
                               ),
                               padding: EdgeInsets.all(width * 0.025),
-                              child: Text(
-                                address ?? 'Get Location',
-                                style: TextStyle(
-                                  fontSize: width * 0.045,
-                                  color: primaryDark2,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
+                              child: isGettingLocation
+                                  ? Center(
+                                      child: CircularProgressIndicator(),
+                                    )
+                                  : Text(
+                                      address ?? 'Get Location',
+                                      style: TextStyle(
+                                        fontSize: width * 0.045,
+                                        color: primaryDark2,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
                             ),
                           ),
                         ),

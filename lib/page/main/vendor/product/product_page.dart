@@ -45,7 +45,6 @@ class _ProductPageState extends State<ProductPage> {
   String? vendorType;
   bool isVendorHold = false;
   bool? isDiscount;
-  int likes = 0;
   bool isLiked = false;
   String? brandImageUrl;
   String? categoryImageUrl;
@@ -55,6 +54,7 @@ class _ProductPageState extends State<ProductPage> {
   double? previousRating;
   String? previousReview;
   String? newReview;
+  Map likesTimestamp = {};
   bool reviewAdded = false;
   Map<String, int>? allRatings;
   Map<String, dynamic>? allReviews;
@@ -63,12 +63,14 @@ class _ProductPageState extends State<ProductPage> {
   List<Map<String, dynamic>> otherVendorProductsDatas = [];
   bool otherVendorProductsAdded = false;
   double? distance;
+  Map<String, dynamic> discountData = {};
 
   // INIT STATE
   @override
   void initState() {
     getVendorInfo();
     getIfDiscount();
+    getDiscountAmount();
     getIfWishlist(widget.productData['productId']);
     getIfLiked();
     getBrandImage();
@@ -347,11 +349,15 @@ class _ProductPageState extends State<ProductPage> {
 
     final productData = productSnap.data()!;
 
-    List likesId = productData['productLikesId'];
+    Map<String, dynamic> productLikesTimestamp =
+        productData['productLikesTimestamp'];
 
     setState(() {
-      likes = likesId.length;
-      if (likesId.contains(auth.currentUser!.uid)) {
+      likesTimestamp = productLikesTimestamp;
+    });
+
+    setState(() {
+      if (productLikesTimestamp.keys.contains(auth.currentUser!.uid)) {
         isLiked = true;
       } else {
         isLiked = false;
@@ -370,15 +376,16 @@ class _ProductPageState extends State<ProductPage> {
 
     final productData = productSnap.data()!;
 
-    int likes = productData['productLikes'];
-    List likesId = productData['productLikesId'];
+    Map<String, dynamic> productLikesTimestamp =
+        productData['productLikesTimestamp'];
 
-    if (likesId.contains(auth.currentUser!.uid)) {
-      likes = likes - 1;
-      likesId.remove(auth.currentUser!.uid);
+    if (productLikesTimestamp.keys.contains(auth.currentUser!.uid)) {
+      productLikesTimestamp.remove(auth.currentUser!.uid);
     } else {
-      likes = likes + 1;
-      likesId.add(auth.currentUser!.uid);
+      print("Product Likes Timestamp: $productLikesTimestamp");
+      productLikesTimestamp.addAll({
+        auth.currentUser!.uid: Timestamp.fromDate(DateTime.now()),
+      });
     }
 
     await store
@@ -387,8 +394,7 @@ class _ProductPageState extends State<ProductPage> {
         .collection('Products')
         .doc(widget.productData['productId'])
         .update({
-      'productLikes': likes,
-      'productLikesId': likesId,
+      'productLikesTimestamp': productLikesTimestamp,
     });
 
     await getIfLiked();
@@ -959,6 +965,29 @@ class _ProductPageState extends State<ProductPage> {
               );
   }
 
+  // GET DISCOUNT AMOUNT
+  Future<void> getDiscountAmount() async {
+    final discountSnap = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Discounts')
+        .get();
+
+    discountSnap.docs.forEach((discount) {
+      final currentDiscountData = discount.data();
+
+      final vendorId = currentDiscountData['vendorId'];
+      final discountId = currentDiscountData['discountId'];
+      final Timestamp endDateTime = currentDiscountData['discountEndDateTime'];
+
+      if (vendorId == widget.productData['vendorId'] &&
+          endDateTime.toDate().isAfter(DateTime.now()) &&
+          discountId == widget.productData['discountId']) {
+        discountData = currentDiscountData;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final Map<String, dynamic> data = widget.productData;
@@ -1015,13 +1044,6 @@ class _ProductPageState extends State<ProductPage> {
     final bool gstInvoiceAvailable = data['gstInvoiceAvailable'];
     final bool refundAvailable = data['refundAvailable'];
     final int? refundRange = data['refundRange'];
-
-    final discountPriceFuture = store
-        .collection('Business')
-        .doc('Data')
-        .collection('Discounts')
-        .where('vendorId', isEqualTo: widget.productData['vendorId'])
-        .get();
 
     return Scaffold(
       body: SafeArea(
@@ -1232,36 +1254,22 @@ class _ProductPageState extends State<ProductPage> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 // DISCOUNT OFF
-                                FutureBuilder(
-                                  future: discountPriceFuture,
-                                  builder: ((context, snapshot) {
-                                    if (snapshot.hasData) {
-                                      final priceSnap = snapshot.data!;
-                                      Map<String, dynamic> data = {};
-
-                                      if (priceSnap.docs.isEmpty) {
-                                        return Container();
-                                      }
-
-                                      for (QueryDocumentSnapshot<
-                                              Map<String, dynamic>> doc
-                                          in priceSnap.docs) {
-                                        data = doc.data();
-                                      }
-
-                                      return Container(
-                                        // alignment: Alignment.center,
+                                discountData.isEmpty
+                                    ? Container()
+                                    : Container(
                                         decoration: const BoxDecoration(
                                           color: Colors.red,
                                         ),
-                                        padding:
-                                            EdgeInsets.all(width * 0.00625),
+                                        padding: EdgeInsets.all(
+                                          width * 0.00625,
+                                        ),
                                         margin: EdgeInsets.only(
                                           left: width * 0.0125,
                                         ),
                                         child: data['isPercent']
                                             ? Text(
                                                 '${data['discountAmount']}% off',
+                                                maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
                                                 style: TextStyle(
                                                   color: Colors.white,
@@ -1271,6 +1279,7 @@ class _ProductPageState extends State<ProductPage> {
                                               )
                                             : Text(
                                                 'Save Rs. ${data['discountAmount']}',
+                                                maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
                                                 style: TextStyle(
                                                   color: Colors.white,
@@ -1278,16 +1287,10 @@ class _ProductPageState extends State<ProductPage> {
                                                   fontWeight: FontWeight.w500,
                                                 ),
                                               ),
-                                      );
-                                    }
-                                    return const Center(
-                                      child: CircularProgressIndicator(),
-                                    );
-                                  }),
-                                ),
+                                      ),
 
                                 IconButton.filledTonal(
-                                  onPressed: () {},
+                                  onPressed: () async {},
                                   icon: const Icon(
                                     Icons.share_outlined,
                                   ),
@@ -1334,128 +1337,93 @@ class _ProductPageState extends State<ProductPage> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           isDiscount != null && isDiscount!
-                              ? FutureBuilder(
-                                  future: discountPriceFuture,
-                                  builder: (context, snapshot) {
-                                    if (snapshot.hasError) {
-                                      return const Center(
-                                        child: Text(
-                                          'Something went wrong',
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      );
-                                    }
-
-                                    if (snapshot.hasData) {
-                                      final priceSnap = snapshot.data!;
-                                      Map<String, dynamic> data = {};
-                                      for (QueryDocumentSnapshot<
-                                              Map<String, dynamic>> doc
-                                          in priceSnap.docs) {
-                                        data = doc.data();
-                                      }
-
-                                      return Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Padding(
-                                            padding: EdgeInsets.symmetric(
-                                              horizontal: width * 0.0225,
-                                            ),
-                                            child: price == '' || price == 'N/A'
-                                                ? Text(
-                                                    'N/A',
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    style: TextStyle(
-                                                      color: isAvailable
-                                                          ? black
-                                                          : darkGrey,
-                                                    ),
-                                                  )
-                                                : RichText(
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    text: TextSpan(
-                                                      text: 'Rs. ',
-                                                      style: TextStyle(
-                                                        color: isAvailable
-                                                            ? primaryDark
-                                                            : darkGrey,
-                                                        fontSize: 22,
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                      ),
-                                                      children: [
-                                                        TextSpan(
-                                                          text: data[
-                                                                  'isPercent']
-                                                              ? '${double.parse(price) * (100 - (data['discountAmount'])) / 100}  '
-                                                              : '${double.parse(price) - (data['discountAmount'])}  ',
-                                                          style: TextStyle(
-                                                            color: isAvailable
-                                                                ? Colors.green
-                                                                : darkGrey,
-                                                          ),
-                                                        ),
-                                                        TextSpan(
-                                                          text: price,
-                                                          style: TextStyle(
-                                                            fontSize: 20,
-                                                            color: isAvailable
-                                                                ? const Color
-                                                                    .fromRGBO(
-                                                                    255,
-                                                                    134,
-                                                                    125,
-                                                                    1,
-                                                                  )
-                                                                : darkGrey,
-                                                            decoration:
-                                                                TextDecoration
-                                                                    .lineThrough,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    maxLines: 1,
-                                                  ),
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.symmetric(
-                                              horizontal: width * 0.0275,
-                                              vertical: width * 0.0055,
-                                            ),
-                                            child: Text(
-                                              (data['discountEndDateTime']
-                                                              as Timestamp)
-                                                          .toDate()
-                                                          .difference(
-                                                              DateTime.now())
-                                                          .inHours <
-                                                      24
-                                                  ? '''${(data['discountEndDateTime'] as Timestamp).toDate().difference(DateTime.now()).inHours} Hours Left'''
-                                                  : '''${(data['discountEndDateTime'] as Timestamp).toDate().difference(DateTime.now()).inDays} Days Left''',
+                              ? Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: width * 0.0225,
+                                      ),
+                                      child: price == '' || price == 'N/A'
+                                          ? Text(
+                                              'N/A',
                                               overflow: TextOverflow.ellipsis,
                                               style: TextStyle(
                                                 color: isAvailable
-                                                    ? Colors.red
+                                                    ? black
                                                     : darkGrey,
-                                                fontWeight: FontWeight.w500,
                                               ),
+                                            )
+                                          : RichText(
+                                              overflow: TextOverflow.ellipsis,
+                                              text: TextSpan(
+                                                text: 'Rs. ',
+                                                style: TextStyle(
+                                                  color: isAvailable
+                                                      ? primaryDark
+                                                      : darkGrey,
+                                                  fontSize: 22,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                                children: [
+                                                  TextSpan(
+                                                    text: data['isPercent']
+                                                        ? '${double.parse(price) * (100 - (data['discountAmount'])) / 100}  '
+                                                        : '${double.parse(price) - (data['discountAmount'])}  ',
+                                                    style: TextStyle(
+                                                      color: isAvailable
+                                                          ? Colors.green
+                                                          : darkGrey,
+                                                    ),
+                                                  ),
+                                                  TextSpan(
+                                                    text: price,
+                                                    style: TextStyle(
+                                                      fontSize: 20,
+                                                      color: isAvailable
+                                                          ? const Color
+                                                              .fromRGBO(
+                                                              255,
+                                                              134,
+                                                              125,
+                                                              1,
+                                                            )
+                                                          : darkGrey,
+                                                      decoration: TextDecoration
+                                                          .lineThrough,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              maxLines: 1,
                                             ),
-                                          ),
-                                        ],
-                                      );
-                                    }
-
-                                    return const Center(
-                                      child: CircularProgressIndicator(),
-                                    );
-                                  })
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: width * 0.0275,
+                                        vertical: width * 0.0055,
+                                      ),
+                                      child: Text(
+                                        (data['discountEndDateTime']
+                                                        as Timestamp)
+                                                    .toDate()
+                                                    .difference(DateTime.now())
+                                                    .inHours <
+                                                24
+                                            ? '''${(data['discountEndDateTime'] as Timestamp).toDate().difference(DateTime.now()).inHours} Hours Left'''
+                                            : '''${(data['discountEndDateTime'] as Timestamp).toDate().difference(DateTime.now()).inDays} Days Left''',
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          color: isAvailable
+                                              ? Colors.red
+                                              : darkGrey,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                )
                               : Padding(
                                   padding: EdgeInsets.only(
                                     left: width * 0.02775,
@@ -1569,7 +1537,11 @@ class _ProductPageState extends State<ProductPage> {
                                     decoration: BoxDecoration(
                                       color: isLiked
                                           ? const Color.fromRGBO(
-                                              228, 228, 228, 1)
+                                              228,
+                                              228,
+                                              228,
+                                              1,
+                                            )
                                           : white,
                                       border: Border.all(
                                         width: 1,
@@ -1585,7 +1557,7 @@ class _ProductPageState extends State<ProductPage> {
                                           MainAxisAlignment.spaceAround,
                                       children: [
                                         Text(
-                                          likes.toString(),
+                                          likesTimestamp.length.toString(),
                                           style: const TextStyle(),
                                         ),
                                         SizedBox(width: width * 0.0225),

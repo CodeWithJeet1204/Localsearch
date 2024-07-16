@@ -1,7 +1,9 @@
+import 'dart:convert';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
-import 'package:geocoding/geocoding.dart';
+import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
 import 'package:localy_user/utils/colors.dart';
 import 'package:localy_user/widgets/button.dart';
@@ -38,9 +40,32 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
   }
 
   // GET ADDRESS
-  Future<String> getAddress(double lat, double long) async {
-    List<Placemark> placemarks = await placemarkFromCoordinates(lat, long);
-    return '${placemarks[0].name}, ${placemarks[0].locality}, ${placemarks[0].administrativeArea}';
+  Future<String> getAddress(double shopLatitude, double shopLongitude) async {
+    const apiKey = 'AIzaSyCTzhOTUtdVUx0qpAbcXdn1TQKSmqtJbZM';
+    final apiUrl =
+        'https://maps.googleapis.com/maps/api/geocode/json?latlng=$shopLatitude,$shopLongitude&key=$apiKey';
+
+    String? address;
+    try {
+      final response = await http.get(Uri.parse(apiUrl));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['status'] == 'OK' && data['results'].isNotEmpty) {
+          address = data['results'][0]['formatted_address'];
+        } else {
+          print('Failed to get address');
+        }
+      } else {
+        print('Failed to load data');
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+
+    address = address?.isNotEmpty == true ? address : 'No address found';
+
+    return address!.length > 30 ? '${address.substring(0, 30)}...' : address;
   }
 
   // GET LOCATION

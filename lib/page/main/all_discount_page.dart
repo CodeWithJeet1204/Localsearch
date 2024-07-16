@@ -47,8 +47,11 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
       final discountData = discount.data();
 
       final discountId = discount.id;
+      final Timestamp endDateTime = discountData['discountEndDateTime'];
 
-      myDiscounts[discountId] = discountData;
+      if (endDateTime.toDate().isAfter(DateTime.now())) {
+        myDiscounts[discountId] = discountData;
+      }
     }
 
     setState(() {

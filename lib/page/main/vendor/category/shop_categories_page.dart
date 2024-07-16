@@ -46,11 +46,7 @@ class _ShopCategoriesPageState extends State<ShopCategoriesPage> {
           ),
         ],
       ),
-      body: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: MediaQuery.of(context).size.width * 0.0125,
-          vertical: MediaQuery.of(context).size.width * 0.0166,
-        ),
+      body: SafeArea(
         child: GridView.builder(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
@@ -85,31 +81,33 @@ class _ShopCategoriesPageState extends State<ShopCategoriesPage> {
                     ),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: width * 0.0125,
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Image.network(
-                            imageUrl,
-                            fit: BoxFit.cover,
-                            width: width * 0.33,
-                            height: width * 0.33,
+                  margin: EdgeInsets.all(
+                    width * 0.006125,
+                  ),
+                  child: Stack(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(9),
+                        child: Image.network(
+                          imageUrl,
+                          fit: BoxFit.cover,
+                          width: width * 0.5,
+                          height: width * 0.5,
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(width * 0.0125),
+                        child: Text(
+                          name.toUpperCase(),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: width * 0.0475,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          name,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),

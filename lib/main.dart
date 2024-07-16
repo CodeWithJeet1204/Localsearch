@@ -1,4 +1,3 @@
-// ignore_for_file: avoid_print
 import 'package:localy_user/firebase_options.dart';
 import 'package:localy_user/page/auth/login_page.dart';
 import 'package:localy_user/page/auth/register_method_page.dart';
@@ -29,11 +28,6 @@ void main() async {
       child: const MyApp(),
     ),
   );
-  if (FirebaseAuth.instance.currentUser != null) {
-    print(FirebaseAuth.instance.currentUser!.uid);
-  } else {
-    print('No user');
-  }
 }
 
 class MyApp extends StatelessWidget {

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:localy_user/page/main/vendor/vendor_page.dart';
@@ -7,6 +8,7 @@ import 'package:localy_user/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:http/http.dart' as http;
 
 class FollowedPage extends StatefulWidget {
   const FollowedPage({super.key});
@@ -19,7 +21,7 @@ class _FollowedPageState extends State<FollowedPage>
     with TickerProviderStateMixin {
   final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
-  Map<String, List<String>> shops = {};
+  Map<String, List<dynamic>> shops = {};
   Map<String, List<String>> organizers = {};
   List<String> shopTypes = [];
   List<String> organizerTypes = [];
@@ -50,7 +52,7 @@ class _FollowedPageState extends State<FollowedPage>
 
   // GET SHOPS
   Future<void> getShops() async {
-    Map<String, List<String>> vendors = {};
+    Map<String, List<dynamic>> vendors = {};
 
     final userSnap =
         await store.collection('Users').doc(auth.currentUser!.uid).get();
@@ -70,10 +72,11 @@ class _FollowedPageState extends State<FollowedPage>
         final id = vendorId as String;
         final name = vendorData['Name'] as String;
         final imageUrl = vendorData['Image'] as String;
-        final address = vendorData['Address'] as String;
+        final latitude = vendorData['Latitude'] as double;
+        final longitude = vendorData['Longitude'] as double;
         final type = vendorData['Type'] as String;
 
-        vendors[id] = [name, imageUrl, address, type];
+        vendors[id] = [name, imageUrl, latitude, longitude, type];
       } else {
         myFollowedShops.remove(vendorId);
 
@@ -91,11 +94,12 @@ class _FollowedPageState extends State<FollowedPage>
   }
 
   // GET SHOP TYPES
-  void getShopTypes(Map<String, List<String>> shops) {
-    List<String> myTypes = ['Electronics'];
+  void getShopTypes(Map<String, List<dynamic>> shops) {
+    List<String> myTypes = [];
 
     shops.forEach((key, value) {
-      final myType = value[3];
+      final myType = value[4];
+      print("My Type: $myType");
       if (!myTypes.contains(myType)) {
         myTypes.add(myType);
       }
@@ -160,6 +164,35 @@ class _FollowedPageState extends State<FollowedPage>
       organizerTypes = myTypes;
       isOrganizersData = true;
     });
+  }
+
+  // GET ADDRESS
+  Future<String> getAddress(double shopLatitude, double shopLongitude) async {
+    const apiKey = 'AIzaSyCTzhOTUtdVUx0qpAbcXdn1TQKSmqtJbZM';
+    final apiUrl =
+        'https://maps.googleapis.com/maps/api/geocode/json?latlng=$shopLatitude,$shopLongitude&key=$apiKey';
+
+    String? address;
+    try {
+      final response = await http.get(Uri.parse(apiUrl));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['status'] == 'OK' && data['results'].isNotEmpty) {
+          address = data['results'][0]['formatted_address'];
+        } else {
+          print('Failed to get address');
+        }
+      } else {
+        print('Failed to load data');
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+
+    address = address?.isNotEmpty == true ? address : 'No address found';
+
+    return address!.length > 30 ? '${address.substring(0, 30)}...' : address;
   }
 
   // REMOVE
@@ -303,7 +336,7 @@ class _FollowedPageState extends State<FollowedPage>
                             ? shops
                             : Map.fromEntries(
                                 shops.entries.where((entry) =>
-                                    entry.value[3] == selectedShopType),
+                                    entry.value[4] == selectedShopType),
                               );
 
                         return SingleChildScrollView(
@@ -392,8 +425,13 @@ class _FollowedPageState extends State<FollowedPage>
                                                 .toList()[index][0];
                                             final imageUrl = currentShops.values
                                                 .toList()[index][1];
-                                            final address = currentShops.values
+                                            final latitude = currentShops.values
                                                 .toList()[index][2];
+                                            final longitude = currentShops
+                                                .values
+                                                .toList()[index][3];
+                                            print("Latitude: $latitude");
+                                            print("Longitude: $longitude");
 
                                             return Slidable(
                                               endActionPane: ActionPane(
@@ -445,7 +483,26 @@ class _FollowedPageState extends State<FollowedPage>
                                                         NetworkImage(imageUrl),
                                                   ),
                                                   title: Text(name),
-                                                  subtitle: Text(address),
+                                                  subtitle: FutureBuilder(
+                                                      future: getAddress(
+                                                        latitude,
+                                                        longitude,
+                                                      ),
+                                                      builder:
+                                                          (context, snapshot) {
+                                                        if (snapshot.hasError) {
+                                                          return Container();
+                                                        }
+
+                                                        if (snapshot.hasData) {
+                                                          return Text(
+                                                            snapshot.data!
+                                                                .toString(),
+                                                          );
+                                                        }
+
+                                                        return Container();
+                                                      }),
                                                   titleTextStyle: TextStyle(
                                                     color: primaryDark,
                                                     fontSize: width * 0.0475,

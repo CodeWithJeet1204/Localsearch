@@ -37,6 +37,7 @@ class _EventTypePageState extends State<EventTypePage> {
     final eventSnap = await store
         .collection('Events')
         .where('eventType', isEqualTo: widget.eventType)
+        .orderBy('eventViewsTimestamp', descending: true)
         .get();
 
     for (var event in eventSnap.docs) {

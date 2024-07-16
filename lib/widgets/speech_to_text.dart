@@ -1,5 +1,3 @@
-// ignore_for_file: avoid_print
-
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:localy_user/utils/colors.dart';
@@ -15,7 +13,7 @@ class SpeechToText extends StatefulWidget {
 
 class _SpeechToTextState extends State<SpeechToText> {
   late stt.SpeechToText speech;
-  bool isListening = true;
+  bool isListening = false;
   String text = 'Press the button to speak';
   double confidence = 1;
 

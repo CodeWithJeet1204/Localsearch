@@ -314,53 +314,55 @@ class _ProductHomePageState extends State<ProductHomePage> {
                       ),
 
                       // ONGOING DISCOUNTS
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                                builder: (context) => AllDiscountPage()),
-                          );
-                        },
-                        child: Container(
-                          width: width,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                Colors.red.shade300,
-                                Colors.orange.shade300,
-                                Colors.yellow.shade300,
-                                Colors.green.shade300,
-                                Colors.blue.shade300,
-                                Colors.indigo.shade300,
-                                Color.fromRGBO(143, 30, 255, 1),
-                              ],
+                      noOfDiscounts == 0
+                          ? Container()
+                          : GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                      builder: (context) => AllDiscountPage()),
+                                );
+                              },
+                              child: Container(
+                                width: width,
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Colors.red.shade300,
+                                      Colors.orange.shade300,
+                                      Colors.yellow.shade300,
+                                      Colors.green.shade300,
+                                      Colors.blue.shade300,
+                                      Colors.indigo.shade300,
+                                      Color.fromRGBO(143, 30, 255, 1),
+                                    ],
+                                  ),
+                                  border: Border.all(
+                                    width: 2,
+                                    color: primaryDark,
+                                  ),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                padding: EdgeInsets.symmetric(
+                                  vertical: 8,
+                                ),
+                                margin: EdgeInsets.symmetric(
+                                  horizontal: width * 0.0125,
+                                  vertical: 4,
+                                ),
+                                child: Text(
+                                  "ONGOING OFFERS - $noOfDiscounts",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: primaryDark,
+                                    fontSize: width * 0.066,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
                             ),
-                            border: Border.all(
-                              width: 2,
-                              color: primaryDark,
-                            ),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          padding: EdgeInsets.symmetric(
-                            vertical: 8,
-                          ),
-                          margin: EdgeInsets.symmetric(
-                            horizontal: width * 0.0125,
-                            vertical: 4,
-                          ),
-                          child: Text(
-                            "ONGOING OFFERS - $noOfDiscounts",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: primaryDark,
-                              fontSize: width * 0.066,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
 
-                      Divider(),
+                      noOfDiscounts == 0 ? Container() : Divider(),
 
                       // SHOP TYPES
                       Padding(

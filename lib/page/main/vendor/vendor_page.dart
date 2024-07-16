@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:intl/intl.dart';
 import 'package:localy_user/page/main/vendor/product/product_page.dart';
 import 'package:localy_user/page/main/vendor/brand/all_brand_page.dart';
 import 'package:localy_user/page/main/vendor/brand/brand_page.dart';
@@ -273,21 +274,17 @@ class _VendorPageState extends State<VendorPage> {
     double? yourLatitude;
     double? yourLongitude;
 
-    await getLocation().then((value) async {
-      if (value != null) {
-        yourLatitude = value.latitude;
-        yourLongitude = value.longitude;
-      }
-    });
+    final location = await getLocation();
+    if (location != null) {
+      yourLatitude = location.latitude;
+      yourLongitude = location.longitude;
+    } else {
+      return ['Failed to get location', null];
+    }
 
-    String? address;
-
-    print("Shop latitude: $shopLatitude");
-    print("Shop longitude: $shopLongitude");
-
-    double distance = await getDrivingDistance(
-      yourLatitude!,
-      yourLongitude!,
+    double? distance = await getDrivingDistance(
+      yourLatitude,
+      yourLongitude,
       shopLatitude,
       shopLongitude,
       'AIzaSyCTzhOTUtdVUx0qpAbcXdn1TQKSmqtJbZM',
@@ -297,51 +294,43 @@ class _VendorPageState extends State<VendorPage> {
     final apiUrl =
         'https://maps.googleapis.com/maps/api/geocode/json?latlng=$shopLatitude,$shopLongitude&key=$apiKey';
 
+    String? address;
     try {
       final response = await http.get(Uri.parse(apiUrl));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        if (data['status'] == 'OK') {
-          setState(() {
-            address = data['results'][0]['formatted_address'];
-          });
-        } else {
-          throw Exception('Failed to get location');
-        }
-      } else {
-        throw Exception('Failed to load data');
-      }
-    } catch (e) {
-      throw Exception(e.toString());
-    }
+        if (data['status'] == 'OK' && data['results'].isNotEmpty) {
+          address = data['results'][0]['formatted_address'];
+        } else {}
+      } else {}
+    } catch (e) {}
+
+    address = address?.isNotEmpty == true ? address : 'No address found';
 
     return [
-      address!.length > 30 ? '${address!.substring(0, 30)}...' : address,
+      address!.length > 30 ? '${address.substring(0, 30)}...' : address,
       distance,
     ];
   }
 
   // GET DISTANCE
-  Future<double> getDrivingDistance(double startLat, double startLng,
-      double endLat, double endLng, String apiKey) async {
-    final String url =
-        'https://maps.googleapis.com/maps/api/distancematrix/json?origins=$startLat,$startLng&destinations=$endLat,$endLng&key=$apiKey';
-
-    final response = await http.get(Uri.parse(url));
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-
-      if (data['rows'][0]['elements'][0]['status'] == 'OK') {
-        final distance = data['rows'][0]['elements'][0]['distance']['value'];
-        return distance / 1000;
-      } else {
-        throw Exception(
-            'Error fetching distance: ${data['rows'][0]['elements'][0]['status']}');
+  Future<double?> getDrivingDistance(double startLat, double startLong,
+      double endLat, double endLong, String apiKey) async {
+    String url =
+        'https://maps.googleapis.com/maps/api/distancematrix/json?origins=$startLat,$startLong&destinations=$endLat,$endLong&key=$apiKey';
+    try {
+      var response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['rows'].isNotEmpty && data['rows'][0]['elements'].isNotEmpty) {
+          final distance = data['rows'][0]['elements'][0]['distance']['value'];
+          return distance / 1000;
+        }
       }
-    } else {
-      throw Exception('Failed to fetch data');
+      return null;
+    } catch (e) {
+      return null;
     }
   }
 
@@ -555,13 +544,179 @@ class _VendorPageState extends State<VendorPage> {
     return availableHeight;
   }
 
+  // TIMEOFDAY TO DATETIME
+  DateTime timeOfDayToDateTime(TimeOfDay time, DateTime referenceDate) {
+    return DateTime(referenceDate.year, referenceDate.month, referenceDate.day,
+        time.hour, time.minute);
+  }
+
+  // GET TIMEOFDAY FROM STRING
+  TimeOfDay getTimeOfDay(String timeString) {
+    List<String> parts = timeString.split(':');
+    int hour = int.parse(parts[0]);
+    int minute = int.parse(parts[1]);
+    return TimeOfDay(hour: hour, minute: minute);
+  }
+
+  // IS SHOP OPEN
+  Future<bool> isShopOpen() async {
+    final vendorSnap = await store
+        .collection('Business')
+        .doc('Owners')
+        .collection('Shops')
+        .doc(widget.vendorId)
+        .get();
+
+    final vendorData = vendorSnap.data()!;
+
+    final weekdayStartTime = vendorData['weekdayStartTime'];
+    final weekdayEndTime = vendorData['weekdayEndTime'];
+    final saturdayStartTime = vendorData['saturdayStartTime'];
+    final saturdayEndTime = vendorData['saturdayEndTime'];
+    final sundayStartTime = vendorData['sundayStartTime'];
+    final sundayEndTime = vendorData['sundayEndTime'];
+
+    final now = DateTime.now();
+    final currentTime = timeOfDayToDateTime(TimeOfDay.now(), now);
+
+    switch (now.weekday) {
+      case DateTime.monday:
+      case DateTime.tuesday:
+      case DateTime.wednesday:
+      case DateTime.thursday:
+      case DateTime.friday:
+        if (weekdayStartTime != null && weekdayEndTime != null) {
+          final startTime =
+              timeOfDayToDateTime(getTimeOfDay(weekdayStartTime), now);
+          final endTime =
+              timeOfDayToDateTime(getTimeOfDay(weekdayEndTime), now);
+          return currentTime.isAfter(startTime) &&
+              currentTime.isBefore(endTime);
+        }
+        break;
+      case DateTime.saturday:
+        if (saturdayStartTime != null && saturdayEndTime != null) {
+          final startTime =
+              timeOfDayToDateTime(getTimeOfDay(saturdayStartTime), now);
+          final endTime =
+              timeOfDayToDateTime(getTimeOfDay(saturdayEndTime), now);
+          return currentTime.isAfter(startTime) &&
+              currentTime.isBefore(endTime);
+        }
+        break;
+      case DateTime.sunday:
+        if (sundayStartTime != null && sundayEndTime != null) {
+          final startTime =
+              timeOfDayToDateTime(getTimeOfDay(sundayStartTime), now);
+          final endTime = timeOfDayToDateTime(getTimeOfDay(sundayEndTime), now);
+          return currentTime.isAfter(startTime) &&
+              currentTime.isBefore(endTime);
+        }
+        break;
+    }
+    return false;
+  }
+
+  // GET NEXT DAY OF WEEK
+  DateTime getNextDayOfWeek(int dayOfWeek) {
+    final now = DateTime.now();
+    int daysUntilNext = dayOfWeek - now.weekday;
+    if (daysUntilNext <= 0) {
+      daysUntilNext += 7;
+    }
+    return now.add(Duration(days: daysUntilNext));
+  }
+
+  // FORMAT TIMEOFDAY
+  String formatTimeOfDay(TimeOfDay time) {
+    final now = DateTime.now();
+    final dateTime =
+        DateTime(now.year, now.month, now.day, time.hour, time.minute);
+    return DateFormat.jm().format(dateTime);
+  }
+
+  // FIND NEXT OPENING TIME OR CLOSING TIME
+  Future<String> findNextOpeningOrClosingTime() async {
+    final vendorSnap = await store
+        .collection('Business')
+        .doc('Owners')
+        .collection('Shops')
+        .doc(widget.vendorId)
+        .get();
+
+    final vendorData = vendorSnap.data()!;
+
+    final weekdayStartTime = vendorData['weekdayStartTime'];
+    final weekdayEndTime = vendorData['weekdayEndTime'];
+    final saturdayStartTime = vendorData['saturdayStartTime'];
+    final saturdayEndTime = vendorData['saturdayEndTime'];
+    final sundayStartTime = vendorData['sundayStartTime'];
+    final sundayEndTime = vendorData['sundayEndTime'];
+
+    final now = DateTime.now();
+    final currentTime = timeOfDayToDateTime(TimeOfDay.now(), now);
+
+    if (now.weekday >= DateTime.monday && now.weekday <= DateTime.friday) {
+      if (weekdayStartTime != null && weekdayEndTime != null) {
+        final startTime =
+            timeOfDayToDateTime(getTimeOfDay(weekdayStartTime), now);
+        final endTime = timeOfDayToDateTime(getTimeOfDay(weekdayEndTime), now);
+        if (currentTime.isAfter(startTime) && currentTime.isBefore(endTime)) {
+          return 'Open till ${formatTimeOfDay(getTimeOfDay(weekdayEndTime))} today';
+        } else if (currentTime.isBefore(startTime)) {
+          return 'Opens at ${formatTimeOfDay(getTimeOfDay(weekdayStartTime))} today';
+        }
+      }
+      if (now.weekday <= DateTime.friday && saturdayStartTime != null) {
+        return 'Opens at ${formatTimeOfDay(getTimeOfDay(saturdayStartTime))} on Saturday';
+      }
+      if (now.weekday <= DateTime.friday && sundayStartTime != null) {
+        return 'Opens at ${formatTimeOfDay(getTimeOfDay(sundayStartTime))} on Sunday';
+      }
+    }
+
+    if (now.weekday == DateTime.saturday) {
+      if (saturdayStartTime != null && saturdayEndTime != null) {
+        final startTime =
+            timeOfDayToDateTime(getTimeOfDay(saturdayStartTime), now);
+        final endTime = timeOfDayToDateTime(getTimeOfDay(saturdayEndTime), now);
+        if (currentTime.isAfter(startTime) && currentTime.isBefore(endTime)) {
+          return 'Open till ${formatTimeOfDay(getTimeOfDay(saturdayEndTime))} today';
+        } else if (currentTime.isBefore(startTime)) {
+          return 'Opens at ${formatTimeOfDay(getTimeOfDay(saturdayStartTime))} on Saturday';
+        }
+      }
+      if (sundayStartTime != null) {
+        return 'Opens at ${formatTimeOfDay(getTimeOfDay(sundayStartTime))} on Sunday';
+      }
+    }
+
+    if (now.weekday == DateTime.sunday) {
+      if (sundayStartTime != null && sundayEndTime != null) {
+        final startTime =
+            timeOfDayToDateTime(getTimeOfDay(sundayStartTime), now);
+        final endTime = timeOfDayToDateTime(getTimeOfDay(sundayEndTime), now);
+        if (currentTime.isAfter(startTime) && currentTime.isBefore(endTime)) {
+          return 'Open till ${formatTimeOfDay(getTimeOfDay(sundayEndTime))} today';
+        } else if (currentTime.isBefore(startTime)) {
+          return 'Opens at ${formatTimeOfDay(getTimeOfDay(sundayStartTime))} on Sunday';
+        }
+      }
+      if (weekdayStartTime != null) {
+        return 'Opens at ${formatTimeOfDay(getTimeOfDay(weekdayStartTime))} on Monday';
+      }
+    }
+
+    return 'No opening time found within the next week';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () async {},
             icon: const Icon(FeatherIcons.share2),
             tooltip: 'Share Shop',
           ),
@@ -655,29 +810,73 @@ class _VendorPageState extends State<VendorPage> {
                               ),
                               SizedBox(height: width * 0.045),
 
-                              // CLOSED
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: shopData!['Open']
-                                      ? Colors.green.withOpacity(0.2)
-                                      : Colors.red.withOpacity(0.2),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                padding: EdgeInsets.all(width * 0.0225),
-                                child: Text(
-                                  shopData!['Open'] ? 'OPEN' : 'CLOSED',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    color: shopData!['Open']
-                                        ? Colors.green
-                                        : Colors.red,
-                                    fontSize: width * 0.05,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                              SizedBox(height: width * 0.045),
+                              // OPEN / CLOSED
+                              FutureBuilder(
+                                  future: isShopOpen(),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.hasError) {
+                                      return Container();
+                                    }
+
+                                    if (snapshot.hasData) {
+                                      final isOpen = snapshot.data!;
+
+                                      return Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Container(
+                                            decoration: BoxDecoration(
+                                              color: isOpen && shopData!['Open']
+                                                  ? Colors.green
+                                                      .withOpacity(0.2)
+                                                  : Colors.red.withOpacity(0.2),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            padding:
+                                                EdgeInsets.all(width * 0.0225),
+                                            child: Text(
+                                              isOpen && shopData!['Open']
+                                                  ? 'OPEN'
+                                                  : 'CLOSED',
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                color:
+                                                    isOpen && shopData!['Open']
+                                                        ? Colors.green
+                                                        : Colors.red,
+                                                fontSize: width * 0.05,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(height: width * 0.02),
+                                          FutureBuilder(
+                                            future:
+                                                findNextOpeningOrClosingTime(),
+                                            builder: (context, snapshot) {
+                                              if (snapshot.hasError) {
+                                                return Container();
+                                              }
+
+                                              if (snapshot.hasData) {
+                                                final text = snapshot.data!;
+
+                                                return Text(text);
+                                              }
+
+                                              return Container();
+                                            },
+                                          ),
+                                          SizedBox(height: width * 0.035),
+                                        ],
+                                      );
+                                    }
+
+                                    return Container();
+                                  }),
 
                               // OPTIONS
                               Row(
@@ -919,15 +1118,16 @@ class _VendorPageState extends State<VendorPage> {
                                     if (snapshot.hasError) {
                                       return const Center(
                                         child: Text(
-                                            'Something went wrong while finding Location'),
+                                          'Something went wrong while finding Location',
+                                        ),
                                       );
                                     }
 
                                     if (snapshot.hasData) {
-                                      print("Snapshot data: ${snapshot.data}");
                                       return Padding(
                                         padding: EdgeInsets.symmetric(
-                                            horizontal: width * 0.0125),
+                                          horizontal: width * 0.0125,
+                                        ),
                                         child: GestureDetector(
                                           onTap: () async {
                                             Uri mapsUrl = Uri.parse(
@@ -962,14 +1162,15 @@ class _VendorPageState extends State<VendorPage> {
                                                         Text(snapshot.data![0]),
                                                   ),
                                                   Text(
-                                                    '${shopData!['Latitude'].toStringAsFixed(5)}, ${shopData!['Longitude'].toStringAsFixed(5)}',
+                                                    '${snapshot.data![1]} km',
                                                   ),
                                                 ],
                                               ),
                                               IconButton(
                                                 onPressed: () async {
                                                   Uri mapsUrl = Uri.parse(
-                                                      'https://www.google.com/maps/search/?api=1&query=${shopData!['Latitude']},${shopData!['Longitude']}');
+                                                    'https://www.google.com/maps/search/?api=1&query=${shopData!['Latitude']},${shopData!['Longitude']}',
+                                                  );
 
                                                   if (await canLaunchUrl(
                                                       mapsUrl)) {
@@ -984,7 +1185,8 @@ class _VendorPageState extends State<VendorPage> {
                                                   }
                                                 },
                                                 icon: const Icon(
-                                                    FeatherIcons.mapPin),
+                                                  FeatherIcons.mapPin,
+                                                ),
                                                 tooltip: 'Locate on Maps',
                                               ),
                                             ],

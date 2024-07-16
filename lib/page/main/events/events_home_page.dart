@@ -63,9 +63,12 @@ class _EventsHomePageState extends State<EventsHomePage> {
       final id = eventData['eventId'];
       final name = eventData['eventName'];
       final imageUrl = eventData['imageUrl'][0];
+      final views = eventData['eventViewsTimestamp'];
 
-      myNearEvents[id] = [name, imageUrl];
+      myNearEvents[id] = [name, imageUrl, views];
     }
+    myNearEvents = Map.fromEntries(myNearEvents.entries.toList()
+      ..sort((e2, e1) => e1.value[2].length.compareTo(e2.value[2].length)));
 
     setState(() {
       nearEvents = myNearEvents;
@@ -88,14 +91,17 @@ class _EventsHomePageState extends State<EventsHomePage> {
       final id = eventData['eventId'];
       final name = eventData['eventName'];
       final imageUrl = eventData['imageUrl'][0];
+      final views = eventData['eventViewsTimestamp'];
 
       final Timestamp startDate = eventData['startDate'];
       final Timestamp endDate = eventData['endDate'];
 
       if (DateTime.now().isBefore(endDate.toDate()) &&
           DateTime.now().isAfter(startDate.toDate())) {
-        myTodayEvents[id] = [name, imageUrl];
+        myTodayEvents[id] = [name, imageUrl, views];
       }
+      myTodayEvents = Map.fromEntries(myTodayEvents.entries.toList()
+        ..sort((e2, e1) => e1.value[2].length.compareTo(e2.value[2].length)));
 
       setState(() {
         todayEvents = myTodayEvents;
@@ -121,9 +127,12 @@ class _EventsHomePageState extends State<EventsHomePage> {
       final id = organizer.id;
       final name = organizerData['Name'];
       final imageUrl = organizerData['Image'];
+      final views = organizerData['ViewsTimestamp'];
 
-      myOrganizers[id] = [name, imageUrl];
+      myOrganizers[id] = [name, imageUrl, views];
     }
+    myOrganizers = Map.fromEntries(myOrganizers.entries.toList()
+      ..sort((e2, e1) => e1.value[2].length.compareTo(e2.value[2].length)));
 
     setState(() {
       organizers = myOrganizers;
@@ -146,6 +155,7 @@ class _EventsHomePageState extends State<EventsHomePage> {
       final id = eventData['eventId'];
       final name = eventData['eventName'];
       final imageUrl = eventData['imageUrl'][0];
+      final views = eventData['eventViewsTimestamp'];
 
       final String type = eventData['eventType'];
 
@@ -155,13 +165,15 @@ class _EventsHomePageState extends State<EventsHomePage> {
           type == 'Yoga Retreats' ||
           type == 'Cycling Events' ||
           type == 'Fitness Competitions') {
-        mySportsEvents[id] = [name, imageUrl];
+        mySportsEvents[id] = [name, imageUrl, views];
       }
-
-      setState(() {
-        sportsEvents = mySportsEvents;
-      });
     }
+    mySportsEvents = Map.fromEntries(mySportsEvents.entries.toList()
+      ..sort((e2, e1) => e1.value[2].length.compareTo(e2.value[2].length)));
+
+    setState(() {
+      sportsEvents = mySportsEvents;
+    });
   }
 
   // GET MUSIC EVENTS
@@ -180,12 +192,15 @@ class _EventsHomePageState extends State<EventsHomePage> {
       final id = eventData['eventId'];
       final name = eventData['eventName'];
       final imageUrl = eventData['imageUrl'][0];
+      final views = eventData['eventViewsTimestamp'];
 
       final String type = eventData['eventType'];
 
       if (type == 'Music and Dance Performances') {
-        myMusicEvents[id] = [name, imageUrl];
+        myMusicEvents[id] = [name, imageUrl, views];
       }
+      myMusicEvents = Map.fromEntries(myMusicEvents.entries.toList()
+        ..sort((e2, e1) => e1.value[2].length.compareTo(e2.value[2].length)));
 
       setState(() {
         musicEvents = myMusicEvents;
@@ -209,12 +224,15 @@ class _EventsHomePageState extends State<EventsHomePage> {
       final id = eventData['eventId'];
       final name = eventData['eventName'];
       final imageUrl = eventData['imageUrl'][0];
+      final views = eventData['eventViewsTimestamp'];
 
       final String type = eventData['eventType'];
 
       if (type == 'Trade Shows/Exhibitions' || type == 'Art Exhibitions') {
-        myExhibitionEvents[id] = [name, imageUrl];
+        myExhibitionEvents[id] = [name, imageUrl, views];
       }
+      myExhibitionEvents = Map.fromEntries(myExhibitionEvents.entries.toList()
+        ..sort((e2, e1) => e1.value[2].length.compareTo(e2.value[2].length)));
 
       setState(() {
         exhibitionEvents = myExhibitionEvents;
@@ -530,7 +548,8 @@ class _EventsHomePageState extends State<EventsHomePage> {
                                                     ClipRRect(
                                                       borderRadius:
                                                           BorderRadius.circular(
-                                                              12),
+                                                        12,
+                                                      ),
                                                       child: Image.network(
                                                         imageUrl,
                                                         fit: BoxFit.cover,
