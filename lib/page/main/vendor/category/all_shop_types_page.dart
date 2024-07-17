@@ -1,33 +1,94 @@
-import 'package:localy_user/models/business_categories.dart';
-import 'package:localy_user/models/household_categories.dart';
-import 'package:localy_user/page/main/vendor/category/shop_categories_page.dart';
-import 'package:localy_user/utils/colors.dart';
-import 'package:localy_user/widgets/video_tutorial.dart';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:image/image.dart' as img;
+import 'package:flutter/services.dart' show NetworkAssetBundle;
+import 'package:localy_user/models/business_categories.dart';
+import 'package:localy_user/page/main/vendor/category/shop_categories_page.dart';
+import 'package:localy_user/widgets/skeleton_container.dart';
 
 class AllShopTypesPage extends StatefulWidget {
-  const AllShopTypesPage({super.key});
+  const AllShopTypesPage({Key? key}) : super(key: key);
 
   @override
   State<AllShopTypesPage> createState() => _AllShopTypesPageState();
 }
 
 class _AllShopTypesPageState extends State<AllShopTypesPage> {
+  List<List<dynamic>> businessCategory = List.from(
+    businessCategories as List<List<dynamic>>,
+  );
+  bool isData = false;
+
+  // INIT STATE
+  @override
+  void initState() {
+    getCategoryColors();
+    super.initState();
+  }
+
+  // GET CATEGORY COLORS
+  Future<void> getCategoryColors() async {
+    List<List<dynamic>> tempCategories = [];
+
+    for (int i = 0; i < businessCategories.length; i++) {
+      final String name = businessCategories[i][0];
+      final String imageUrl = businessCategories[i][1];
+
+      final Color color = await calculateTopLineColor(imageUrl);
+
+      tempCategories.add([name, imageUrl, color]);
+      if (mounted) {
+        setState(() {
+          businessCategory = tempCategories;
+          isData = true;
+        });
+      }
+    }
+  }
+
+  // CALCULATE TOP LINE COLOR
+  Future<Color> calculateTopLineColor(String imageUrl) async {
+    try {
+      final ByteData imageData =
+          await NetworkAssetBundle(Uri.parse(imageUrl)).load('');
+      final Uint8List imageBytes = imageData.buffer.asUint8List();
+      final img.Image image = img.decodeImage(imageBytes)!;
+
+      double redSum = 0, greenSum = 0, blueSum = 0;
+      final int width = image.width;
+
+      for (int x = 0; x < width; x++) {
+        final color = image.getPixel(x, 0);
+        redSum += color.r;
+        greenSum += color.g;
+        blueSum += color.b;
+      }
+
+      final int pixelCount = width;
+      final Color averageColor = Color.fromRGBO(
+        redSum ~/ pixelCount,
+        greenSum ~/ pixelCount,
+        blueSum ~/ pixelCount,
+        1.0,
+      );
+
+      return averageColor;
+    } catch (e) {
+      print('Error calculating top line color: $e');
+      return Colors.black;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('All Shop Types'),
         actions: [
           IconButton(
-            onPressed: () async {
-              await showYouTubePlayerDialog(
-                context,
-                getYoutubeVideoId(
-                  '',
-                ),
-              );
-            },
+            onPressed: () async {},
             icon: const Icon(
               Icons.question_mark_outlined,
             ),
@@ -35,202 +96,103 @@ class _AllShopTypesPageState extends State<AllShopTypesPage> {
           ),
         ],
       ),
-      body: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: MediaQuery.of(context).size.width * 0.0125,
-          vertical: MediaQuery.of(context).size.width * 0.0166,
-        ),
-        child: LayoutBuilder(
-          builder: ((context, constraints) {
-            final width = constraints.maxWidth;
-
-            return SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // BUSINESS
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: width * 0.0375,
-                      vertical: width * 0.0125,
+      body: !isData
+          ? SizedBox(
+              width: width,
+              child: GridView.builder(
+                shrinkWrap: true,
+                physics: const ClampingScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 0.7525,
+                ),
+                itemCount: 17,
+                itemBuilder: ((context, index) {
+                  return Padding(
+                    padding: EdgeInsets.all(8),
+                    child: SkeletonContainer(
+                      width: width,
+                      height: width,
                     ),
-                    child: Text(
-                      'Business',
-                      style: TextStyle(
-                        fontSize: width * 0.045,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-
-                  // BUSINESS SHOPS
-                  SizedBox(
-                    width: width,
-                    child: GridView.builder(
-                      shrinkWrap: true,
-                      physics: const ClampingScrollPhysics(),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        childAspectRatio: 1.125,
-                      ),
-                      itemCount: businessCategories.length,
-                      itemBuilder: ((context, index) {
-                        final String name = businessCategories[index][0];
-                        final String imageUrl = businessCategories[index][1];
-
-                        return Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: width * 0.025,
-                            vertical: width * 0.015,
-                          ),
-                          child: InkWell(
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => ShopCategoriesPage(
-                                    shopName: name,
-                                  ),
-                                ),
-                              );
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: white,
-                                border: Border.all(
-                                  color: primaryDark,
-                                  width: 0.25,
-                                ),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: width * 0.0125,
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(12),
-                                      child: Image.network(
-                                        imageUrl,
-                                        fit: BoxFit.cover,
-                                        width: width * 0.15,
-                                        height: width * 0.15,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      name,
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      }),
-                    ),
-                  ),
-
-                  const Divider(),
-
-                  // HOME
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: width * 0.0375,
-                      vertical: width * 0.0125,
-                    ),
-                    child: Text(
-                      'Household',
-                      style: TextStyle(
-                        fontSize: width * 0.045,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-
-                  // HOME SHOPS
-                  SizedBox(
-                    width: width,
-                    child: GridView.builder(
-                      shrinkWrap: true,
-                      physics: const ClampingScrollPhysics(),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        childAspectRatio: 1.125,
-                      ),
-                      itemCount: householdCategories.length,
-                      itemBuilder: ((context, index) {
-                        final String name = householdCategories[index][0];
-                        final String imageUrl = householdCategories[index][1];
-
-                        return Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: width * 0.015,
-                            vertical: width * 0.015,
-                          ),
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => ShopCategoriesPage(
-                                    shopName: name,
-                                  ),
-                                ),
-                              );
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: white,
-                                border: Border.all(
-                                  color: primaryDark,
-                                  width: 0.25,
-                                ),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: width * 0.0125,
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(12),
-                                      child: Image.network(
-                                        imageUrl,
-                                        fit: BoxFit.cover,
-                                        width: width * 0.15,
-                                        height: width * 0.15,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      name,
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      }),
-                    ),
-                  ),
-                ],
+                  );
+                }),
               ),
-            );
-          }),
-        ),
-      ),
+            )
+          : SafeArea(
+              child: GridView.builder(
+                  shrinkWrap: true,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.7525,
+                  ),
+                  physics: ClampingScrollPhysics(),
+                  itemCount: businessCategory.length,
+                  itemBuilder: (context, index) {
+                    final String name = businessCategory[index][0];
+                    final String imageUrl = businessCategory[index][1];
+                    final Color color = businessCategory[index][2];
+
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => ShopCategoriesPage(
+                              shopName: name,
+                            ),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(
+                            color: Colors.black,
+                            width: 0.25,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        margin: const EdgeInsets.all(8),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Expanded(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: color,
+                                  borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(8),
+                                  ),
+                                ),
+                                padding: EdgeInsets.all(width * 0.025),
+                                child: Text(
+                                  name.toUpperCase(),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: width * 0.045,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            ClipRRect(
+                              borderRadius: BorderRadius.vertical(
+                                bottom: Radius.circular(8),
+                              ),
+                              child: Image.network(
+                                imageUrl,
+                                fit: BoxFit.cover,
+                                filterQuality: FilterQuality.low,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
+            ),
     );
   }
 }

@@ -429,22 +429,37 @@ class _VendorPageState extends State<VendorPage> {
   // GET CATEGORIES
   Future<void> getCategories() async {
     Map<String, String> category = {};
-    final categoriesSnap = await store
-        .collection('Business')
-        .doc('Special Categories')
-        .collection(shopData!['Type'])
-        .get();
+    final shopList = shopData!['Type'];
 
-    for (var categoryData in categoriesSnap.docs) {
-      final List vendorIds = categoryData['vendorId'];
-      if (vendorIds.contains(widget.vendorId)) {
-        final name = categoryData['specialCategoryName'] as String;
-        final imageUrl = categoryData['specialCategoryImageUrl'] as String;
+    for (var shop in shopList) {
+      final categoriesSnap = await store
+          .collection('Business')
+          .doc('Special Categories')
+          .collection(shop)
+          .get();
 
-        category[name] = imageUrl;
+      final vendorSnap = await store
+          .collection('Business')
+          .doc('Owners')
+          .collection('Shops')
+          .doc(widget.vendorId)
+          .get();
+
+      final vendorData = vendorSnap.data()!;
+
+      final List categories = vendorData['Categories'];
+
+      for (var shopCategory in categories) {
+        for (var categoryData in categoriesSnap.docs) {
+          final name = categoryData['specialCategoryName'] as String;
+          final imageUrl = categoryData['specialCategoryImageUrl'] as String;
+
+          if (shopCategory == name) {
+            category[name] = imageUrl;
+          }
+        }
       }
     }
-
     setState(() {
       categories = category;
     });
@@ -710,6 +725,24 @@ class _VendorPageState extends State<VendorPage> {
     return 'No opening time found within the next week';
   }
 
+  // GET SHOP TYPES
+  String getShopTypes(List shopList) {
+    String type = '';
+    int i = 0;
+    int length = shopList.length;
+    shopList.forEach((shopType) {
+      if (i == length - 1) {
+        type = type + shopType;
+      } else {
+        type = type + '$shopType, ';
+      }
+
+      i++;
+    });
+
+    return type;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -801,7 +834,7 @@ class _VendorPageState extends State<VendorPage> {
 
                               // TYPE
                               Text(
-                                shopData!['Type'],
+                                getShopTypes(shopData!['Type']),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(

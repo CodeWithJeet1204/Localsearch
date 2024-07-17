@@ -50,6 +50,7 @@ class _ShopCategoriesPageState extends State<ShopCategoriesPage> {
         child: GridView.builder(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
+            childAspectRatio: 0.825,
           ),
           itemCount: currentShopCategories.length,
           itemBuilder: ((context, index) {
@@ -74,37 +75,47 @@ class _ShopCategoriesPageState extends State<ShopCategoriesPage> {
                 },
                 child: Container(
                   decoration: BoxDecoration(
-                    color: white,
+                    color: Colors.white,
                     border: Border.all(
-                      color: primaryDark,
+                      color: Colors.black,
                       width: 0.25,
                     ),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  margin: EdgeInsets.all(
-                    width * 0.006125,
-                  ),
-                  child: Stack(
+                  margin: const EdgeInsets.all(8),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: white,
+                            borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(8),
+                            ),
+                          ),
+                          padding: const EdgeInsets.all(8),
+                          child: Text(
+                            name.toUpperCase(),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize:
+                                  MediaQuery.of(context).size.width * 0.045,
+                              fontWeight: FontWeight.bold,
+                              color: black,
+                            ),
+                          ),
+                        ),
+                      ),
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(9),
+                        borderRadius: BorderRadius.vertical(
+                          bottom: Radius.circular(8),
+                        ),
                         child: Image.network(
                           imageUrl,
                           fit: BoxFit.cover,
-                          width: width * 0.5,
-                          height: width * 0.5,
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.all(width * 0.0125),
-                        child: Text(
-                          name.toUpperCase(),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: width * 0.0475,
-                            fontWeight: FontWeight.w600,
-                          ),
                         ),
                       ),
                     ],

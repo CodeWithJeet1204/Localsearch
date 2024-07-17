@@ -36,8 +36,9 @@ class _NameContainerState extends State<NameContainer> {
           borderRadius: BorderRadius.circular(12),
           image: DecorationImage(
             image: NetworkImage(widget.imageUrl),
-            fit: BoxFit.cover,
             opacity: 0.33,
+            fit: BoxFit.cover,
+            filterQuality: FilterQuality.low,
           ),
         ),
         padding: EdgeInsets.symmetric(

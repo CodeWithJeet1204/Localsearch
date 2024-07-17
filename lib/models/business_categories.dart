@@ -1,70 +1,70 @@
 List<List<String>> businessCategories = [
   [
     'Grocery',
-    'https://img.freepik.com/free-vector/shopping-supermarket-cart-with-grocery-pictogram_1284-11697.jpg?w=900&t=st=1703744028~exp=1703744628~hmac=8ecb07b2ac7039f42237fac31c67aed4444ae3b408b108bcab242967aacd94a5',
+    'https://firebasestorage.googleapis.com/v0/b/localy-1204.appspot.com/o/Special%20Categories%2FGrocery%2FGrocery.png?alt=media&token=061d4a24-3520-401c-abe2-582fc540480c',
   ],
   [
     'Pharmacies',
-    'https://img.freepik.com/free-vector/many-medical-equipments-medicine-white-background_1308-43331.jpg?w=900&t=st=1703745508~exp=1703746108~hmac=79e0e04b4ddac44a89642fe6863e7d487ed7c398dcf5c396b85bc26416fe30e0',
+    'https://firebasestorage.googleapis.com/v0/b/localy-1204.appspot.com/o/Special%20Categories%2FPharmacies%2FPharmacies.png?alt=media&token=00bf316d-5430-4406-ad3c-12a8461053ce',
   ],
   [
     'Electronics',
-    'https://img.freepik.com/free-vector/screens-isometric-electronic-devices_23-2147647441.jpg?w=900&t=st=1703745999~exp=1703746599~hmac=acfb9d457613e5eddf313b3f6a687c81c8de223c6b853d4337ab31f971fcf1a8',
+    'https://firebasestorage.googleapis.com/v0/b/localy-1204.appspot.com/o/Special%20Categories%2FElectronics%2FElectronics.png?alt=media&token=8c732f44-a8aa-4905-a689-4c97c4a4e466',
   ],
   [
     'Clothing and Apparel',
-    'https://img.freepik.com/free-vector/summer-clothes-set_74855-446.jpg?w=900&t=st=1703745733~exp=1703746333~hmac=af9371783944f70aabf240d93d31f5324950e7f99e726bd673cdd05d567a14bc',
+    'https://firebasestorage.googleapis.com/v0/b/localy-1204.appspot.com/o/Special%20Categories%2FClothing%20and%20Apparel%2FClothing%20and%20Apparel.png?alt=media&token=5c204850-4e8b-4166-91ec-56186d6eac2b',
   ],
   [
     'Restaurant & Cafes',
-    'https://img.freepik.com/free-vector/coloured-chefdesign_1152-72.jpg?w=900&t=st=1703745841~exp=1703746441~hmac=b912ab2b88f44ce54eb3d7a87409667fc16d440adb858bc078fd25e952bbbcbb',
+    'https://firebasestorage.googleapis.com/v0/b/localy-1204.appspot.com/o/Special%20Categories%2FRestaurant%20%26%20Cafes%2FRestaurant%20%26%20Cafes.png?alt=media&token=9860272e-cebe-4819-bdc3-782d6b046e73s',
   ],
   [
     'Beauty and Cosmetics',
-    'https://img.freepik.com/free-vector/bag-with-cosmetics-realistic-composition-with-isolated-image-open-vanity-case-with-brushes-lipstick-illustration_1284-57081.jpg?w=900&t=st=1703744445~exp=1703745045~hmac=9bc19cc419c442935f88504227a10b739f91d35abe6b2d4616d705bf10ffb725',
+    'https://firebasestorage.googleapis.com/v0/b/localy-1204.appspot.com/o/Special%20Categories%2FBeauty%20and%20Cosmetics%2FBeauty%20and%20Cosmetics.png?alt=media&token=c08a0ffa-1446-49ed-b64e-70e9ebb50f3c',
   ],
   [
     'Furniture',
-    'https://img.freepik.com/free-vector/wicker-hanging-chairs-swing-hanging-chain-with-cushions_1284-45541.jpg?w=900&t=st=1703744303~exp=1703744903~hmac=3ce38a23b08257998a9f3a2705456c53a7186d79c300b2864e2d3889bfd05fe5',
+    'https://firebasestorage.googleapis.com/v0/b/localy-1204.appspot.com/o/Special%20Categories%2FFurniture%2FFurniture.png?alt=media&token=8ae2751e-9c31-4a64-ba26-43d8bc25d168',
   ],
   [
     'Jewelry',
-    'https://img.freepik.com/free-vector/gold-chains-background-silver-hanging-link-metallic-shiny_1284-41506.jpg?w=900&t=st=1703744367~exp=1703744967~hmac=1ffd17bf435eef64091e1b53a08d5538a9c63b85c0ec22ddde6c7338a20a2c34',
+    'https://firebasestorage.googleapis.com/v0/b/localy-1204.appspot.com/o/Special%20Categories%2FJewelry%2FJewelry.png?alt=media&token=371aafbd-fadb-4f26-8c06-48745fc4ae7c',
   ],
   [
     'Decorations',
-    'https://img.freepik.com/free-vector/decorative-colorful-party-slingers-pennants-red-blue-yellow-orange-pink-against-white-background-realistic-image_1284-31977.jpg?w=900&t=st=1703744412~exp=1703745012~hmac=a2bc3b7bfecb79974674e959cc42c9116fc3c6289d6f9b2f8198238a8db7e2d6',
+    'https://firebasestorage.googleapis.com/v0/b/localy-1204.appspot.com/o/Special%20Categories%2FDecorations%2FDecorations.png?alt=media&token=95b6b8c1-3683-4843-8289-b443af37bfec',
   ],
   [
     'Bookstores and Stationery',
-    'https://img.freepik.com/free-vector/school-backpack-with-colourful-stationery-flying-out_1284-59399.jpg?w=900&t=st=1703744486~exp=1703745086~hmac=ce781f89f732a8498d42d06334fe9b2be7505ea019bf215d011db60b929404f9',
+    'https://firebasestorage.googleapis.com/v0/b/localy-1204.appspot.com/o/Special%20Categories%2FBookstores%20and%20Stationery%2FBookstores%20and%20Stationery.png?alt=media&token=fc19ddaf-56b8-469f-a727-45ff7a84afff',
   ],
   [
     'Building Materials and Hardware',
-    'https://img.freepik.com/free-vector/building-material-heaps-set_74855-938.jpg',
+    'https://firebasestorage.googleapis.com/v0/b/localy-1204.appspot.com/o/Special%20Categories%2FBuilding%20Materials%20and%20Hardware%2FBuilding%20Materials%20and%20Hardware.png?alt=media&token=17a34360-1a49-4ffd-9fd6-d525e0086161',
   ],
   [
     'Automobile Parts and Accessories',
-    'https://img.freepik.com/free-vector/auto-service-illustration_1284-20618.jpg?w=826&t=st=1707971210~exp=1707971810~hmac=d1d2c429d46718ab43418591140bf9733430ce71c9fbc5178047a14b3693c235',
+    'https://firebasestorage.googleapis.com/v0/b/localy-1204.appspot.com/o/Special%20Categories%2FAutomobile%20Parts%20and%20Accessories%2FAutomobile%20Parts%20and%20Accessories.png?alt=media&token=a533d831-23e7-4f76-ac5f-b5c5d7b02c57',
   ],
   [
     'Gifts and Novelty',
-    'https://img.freepik.com/free-photo/3d-render-gift-box-with-ribbon-present-package_107791-15904.jpg?w=900&t=st=1703744608~exp=1703745208~hmac=b7ff4ce63b9ec57c3c6506f75c526aabb5eef821ca6ac2c4f3fd4d7a9a9b53e5',
+    'https://firebasestorage.googleapis.com/v0/b/localy-1204.appspot.com/o/Special%20Categories%2FGifts%20and%20Novelty%2FGifts%20and%20Novelty.png?alt=media&token=3df062fb-9729-4989-a12f-946005d6d070',
   ],
   [
     'Toys',
-    'https://img.freepik.com/free-vector/baby-items-icon-set-with-toys-accessory-kids-cartoon-style_24797-2159.jpg?w=826&t=st=1707971299~exp=1707971899~hmac=85e43cd39b57c55842532714743dc429eedd39946abfa3e433e4c212ef69f3dd',
+    'https://firebasestorage.googleapis.com/v0/b/localy-1204.appspot.com/o/Special%20Categories%2FToys%2FToys.png?alt=media&token=9c908ac6-0fda-4877-a2c3-dd31075834f7',
   ],
   [
     'Sports Goods',
-    'https://img.freepik.com/free-vector/soccer-ball-net-pictogram_1284-11698.jpg?w=900&t=st=1703744961~exp=1703745561~hmac=1330870dcaa077a0caf90be7dab385a2597cc4f698c899c534aee9745559fe07',
+    'https://firebasestorage.googleapis.com/v0/b/localy-1204.appspot.com/o/Special%20Categories%2FSports%20Goods%2FSports%20Goods.png?alt=media&token=23769e7b-d06d-49f8-bab6-107fb65ac739',
   ],
   [
     'Agriculture and Farm Supply',
-    'https://img.freepik.com/free-vector/gardening-tools-set_1284-9208.jpg?w=900&t=st=1703745404~exp=1703746004~hmac=a3d2ffcd1d38aa09aac09ea71fa9e2d615b082cbdb99a7e7cc0495f91d14de37',
+    'https://firebasestorage.googleapis.com/v0/b/localy-1204.appspot.com/o/Special%20Categories%2FAgriculture%20and%20Farm%20Supply%2FAgriculture%20and%20Farm%20Supply.png?alt=media&token=3a228139-501f-4fcf-a733-5f5797a6cc39',
   ],
   [
     'Other',
-    'https://img.freepik.com/free-vector/cartoon-style-cafe-front-shop-view_134830-697.jpg?w=900&t=st=1703745580~exp=1703746180~hmac=4ebf9c9454d8f035ac5932033df5f8fe7647fe8d94a2eed709a1ff3a88ef2258',
+    'https://firebasestorage.googleapis.com/v0/b/localy-1204.appspot.com/o/Special%20Categories%2FOther%2FOther.png?alt=media&token=e8593908-79dd-4f17-98ff-e672edccf246',
   ]
 ];

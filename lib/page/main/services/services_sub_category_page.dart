@@ -70,7 +70,7 @@ class _ServicesSubCategoryPageState extends State<ServicesSubCategoryPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('123'),
+        title: Text(widget.subCategory),
         actions: [
           IconButton(
             onPressed: () async {
@@ -94,7 +94,7 @@ class _ServicesSubCategoryPageState extends State<ServicesSubCategoryPage> {
             )
           : serviceman.isEmpty
               ? const Center(
-                  child: Text('No One Available'),
+                  child: Text('Nothing Here'),
                 )
               : SafeArea(
                   child: Padding(

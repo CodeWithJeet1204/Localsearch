@@ -74,7 +74,7 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.categoryName * 2),
+        title: Text(widget.categoryName),
         actions: [
           IconButton(
             onPressed: () async {
@@ -132,121 +132,130 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
                   );
                 }),
               )
-            : GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 0.7,
-                ),
-                itemCount: products.length,
-                itemBuilder: ((context, index) {
-                  final name = products.values.toList()[index][0];
-                  final price = products.values.toList()[index][1];
-                  final imageUrl = products.values.toList()[index][2];
-                  final ratings = products.values.toList()[index][3];
-                  final productData = products.values.toList()[index][4];
-
-                  return Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: width * 0.01,
-                      vertical: width * 0.01,
+            : products.isEmpty
+                ? Center(
+                    child: Text('No Products'),
+                  )
+                : GridView.builder(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 0.7,
                     ),
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: ((context) => ProductPage(
-                                  productData: productData,
-                                )),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: white,
-                          border: Border.all(
-                            color: primaryDark,
-                            width: 0.25,
-                          ),
-                          borderRadius: BorderRadius.circular(2),
+                    itemCount: products.length,
+                    itemBuilder: ((context, index) {
+                      final name = products.values.toList()[index][0];
+                      final price = products.values.toList()[index][1];
+                      final imageUrl = products.values.toList()[index][2];
+                      final ratings = products.values.toList()[index][3];
+                      final productData = products.values.toList()[index][4];
+
+                      return Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: width * 0.01,
+                          vertical: width * 0.01,
                         ),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: width * 0.0125,
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Stack(
-                                alignment: Alignment.topRight,
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: ((context) => ProductPage(
+                                      productData: productData,
+                                    )),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: white,
+                              border: Border.all(
+                                color: primaryDark,
+                                width: 0.25,
+                              ),
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: width * 0.0125,
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Center(
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(2),
-                                      clipBehavior: Clip.antiAlias,
-                                      child: Image.network(
-                                        imageUrl,
-                                        fit: BoxFit.cover,
-                                        width:
-                                            MediaQuery.of(context).size.width *
+                                  Stack(
+                                    alignment: Alignment.topRight,
+                                    children: [
+                                      Center(
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(2),
+                                          clipBehavior: Clip.antiAlias,
+                                          child: Image.network(
+                                            imageUrl,
+                                            fit: BoxFit.cover,
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
                                                 0.5,
-                                        height:
-                                            MediaQuery.of(context).size.width *
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
                                                 0.5,
+                                          ),
+                                        ),
                                       ),
-                                    ),
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          color: const Color.fromRGBO(
+                                            255,
+                                            92,
+                                            78,
+                                            1,
+                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(4),
+                                        ),
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: width * 0.0125,
+                                          vertical: width * 0.00625,
+                                        ),
+                                        margin: EdgeInsets.all(
+                                          width * 0.00625,
+                                        ),
+                                        child: Text(
+                                          '${(ratings as Map).isEmpty ? '--' : ((ratings.values.map((e) => e?[0] ?? 0).toList().reduce((a, b) => a + b) / (ratings.values.isEmpty ? 1 : ratings.values.length)) as double).toStringAsFixed(1)} ⭐',
+                                          style: const TextStyle(
+                                            color: white,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      color: const Color.fromRGBO(
-                                        255,
-                                        92,
-                                        78,
-                                        1,
-                                      ),
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: width * 0.0125,
-                                      vertical: width * 0.00625,
-                                    ),
-                                    margin: EdgeInsets.all(
-                                      width * 0.00625,
-                                    ),
-                                    child: Text(
-                                      '${(ratings as Map).isEmpty ? '--' : ((ratings.values.map((e) => e?[0] ?? 0).toList().reduce((a, b) => a + b) / (ratings.values.isEmpty ? 1 : ratings.values.length)) as double).toStringAsFixed(1)} ⭐',
-                                      style: const TextStyle(
-                                        color: white,
-                                      ),
-                                    ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    name,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
+                                  const SizedBox(height: 4),
+                                  price == ''
+                                      ? Container()
+                                      : Text(
+                                          'Rs. $price',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
                                 ],
                               ),
-                              const SizedBox(height: 8),
-                              Text(
-                                name,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 4),
-                              price == ''
-                                  ? Container()
-                                  : Text(
-                                      'Rs. $price',
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                            ],
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                  );
-                }),
-              ),
+                      );
+                    }),
+                  ),
       ),
     );
   }
