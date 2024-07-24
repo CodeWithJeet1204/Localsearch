@@ -9,6 +9,7 @@ import 'package:localy_user/page/main/vendor/brand/all_brand_page.dart';
 import 'package:localy_user/page/main/vendor/brand/brand_page.dart';
 import 'package:localy_user/page/main/vendor/category/all_category_page.dart';
 import 'package:localy_user/page/main/vendor/category/category_page.dart';
+import 'package:localy_user/page/main/vendor/vendor_products_page.dart';
 import 'package:localy_user/utils/colors.dart';
 import 'package:localy_user/widgets/image_show.dart';
 import 'package:localy_user/widgets/see_more_text.dart';
@@ -725,8 +726,8 @@ class _VendorPageState extends State<VendorPage> {
     return 'No opening time found within the next week';
   }
 
-  // GET SHOP TYPES
-  String getShopTypes(List shopList) {
+  // GET TYPES
+  String getTypes(List shopList) {
     String type = '';
     int i = 0;
     int length = shopList.length;
@@ -830,18 +831,41 @@ class _VendorPageState extends State<VendorPage> {
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
-                              SizedBox(height: width * 0.025),
+                              SizedBox(height: width * 0.035),
 
                               // TYPE
                               Text(
-                                getShopTypes(shopData!['Type']),
-                                maxLines: 1,
+                                getTypes(shopData!['Type']),
+                                maxLines: 3,
                                 overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: width * 0.04,
                                 ),
                               ),
-                              SizedBox(height: width * 0.045),
+                              SizedBox(height: width * 0.0125),
+
+                              // VIEW PRODUCTS
+                              (shopData!['Products'] as List).isEmpty
+                                  ? Container()
+                                  : MyTextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                VendorProductsPage(
+                                              vendorId: widget.vendorId,
+                                              products: shopData!['Products'],
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      text: 'View Products',
+                                      textColor: primaryDark,
+                                    ),
+                              (shopData!['Products'] as List).isEmpty
+                                  ? Container()
+                                  : SizedBox(height: width * 0.045),
 
                               // OPEN / CLOSED
                               FutureBuilder(

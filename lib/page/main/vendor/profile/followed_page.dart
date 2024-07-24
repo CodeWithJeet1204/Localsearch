@@ -74,7 +74,7 @@ class _FollowedPageState extends State<FollowedPage>
         final imageUrl = vendorData['Image'] as String;
         final latitude = vendorData['Latitude'] as double;
         final longitude = vendorData['Longitude'] as double;
-        final type = vendorData['Type'] as String;
+        final type = vendorData['Type'] as List;
 
         vendors[id] = [name, imageUrl, latitude, longitude, type];
       } else {
@@ -98,10 +98,11 @@ class _FollowedPageState extends State<FollowedPage>
     List<String> myTypes = [];
 
     shops.forEach((key, value) {
-      final myType = value[4];
-      print("My Type: $myType");
-      if (!myTypes.contains(myType)) {
-        myTypes.add(myType);
+      final List myType = value[4];
+      for (var everyMyType in myType) {
+        if (!myTypes.contains(myType)) {
+          myTypes.add(everyMyType);
+        }
       }
     });
 
@@ -430,8 +431,6 @@ class _FollowedPageState extends State<FollowedPage>
                                             final longitude = currentShops
                                                 .values
                                                 .toList()[index][3];
-                                            print("Latitude: $latitude");
-                                            print("Longitude: $longitude");
 
                                             return Slidable(
                                               endActionPane: ActionPane(
