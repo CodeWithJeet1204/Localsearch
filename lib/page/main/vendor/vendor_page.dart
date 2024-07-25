@@ -288,7 +288,6 @@ class _VendorPageState extends State<VendorPage> {
       yourLongitude,
       shopLatitude,
       shopLongitude,
-      'AIzaSyCTzhOTUtdVUx0qpAbcXdn1TQKSmqtJbZM',
     );
 
     const apiKey = 'AIzaSyCTzhOTUtdVUx0qpAbcXdn1TQKSmqtJbZM';
@@ -316,10 +315,14 @@ class _VendorPageState extends State<VendorPage> {
   }
 
   // GET DISTANCE
-  Future<double?> getDrivingDistance(double startLat, double startLong,
-      double endLat, double endLong, String apiKey) async {
+  Future<double?> getDrivingDistance(
+    double startLat,
+    double startLong,
+    double endLat,
+    double endLong,
+  ) async {
     String url =
-        'https://maps.googleapis.com/maps/api/distancematrix/json?origins=$startLat,$startLong&destinations=$endLat,$endLong&key=$apiKey';
+        'https://maps.googleapis.com/maps/api/distancematrix/json?origins=$startLat,$startLong&destinations=$endLat,$endLong&key=AIzaSyCTzhOTUtdVUx0qpAbcXdn1TQKSmqtJbZM';
     try {
       var response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {

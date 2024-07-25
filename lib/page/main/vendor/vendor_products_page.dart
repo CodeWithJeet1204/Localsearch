@@ -23,8 +23,8 @@ class _VendorProductsPageState extends State<VendorProductsPage> {
 
   @override
   void initState() {
-    super.initState();
     getData();
+    super.initState();
   }
 
   Future<void> getData() async {

@@ -4,11 +4,9 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:localy_user/page/auth/login_page.dart';
 import 'package:localy_user/page/auth/register_details_page.dart';
 import 'package:localy_user/page/auth/verify/email_verify.dart';
-import 'package:localy_user/page/main/events/events_home_page.dart';
 import 'package:localy_user/page/main/product_home_page.dart';
 import 'package:localy_user/page/main/post_home_page.dart';
 import 'package:localy_user/page/main/vendor/profile/profile_page.dart';
-import 'package:localy_user/page/main/services/services_home_page.dart';
 import 'package:localy_user/page/main/vendor/shorts_page.dart';
 import 'package:localy_user/utils/colors.dart';
 import 'package:localy_user/utils/notification_handler.dart';
@@ -36,8 +34,8 @@ class _MainPageState extends State<MainPage>
     const PostsPage(),
     const ProductHomePage(),
     const ShortsPage(),
-    const ServicesHomePage(),
-    const EventsHomePage(),
+    // const ServicesHomePage(),
+    // const EventsHomePage(),
     const ProfilePage(),
   ];
 
@@ -53,6 +51,7 @@ class _MainPageState extends State<MainPage>
     _fetchUserDetailsAndSaveToken();
   }
 
+  // INITIALIZE NOTIFICATIONS
   void _initializeNotifications() {
     _notificationHandler.initialize();
   }
@@ -182,8 +181,8 @@ class _MainPageState extends State<MainPage>
                   FeatherIcons.home,
                 ),
                 activeIcon: Icon(FeatherIcons.home),
-                label: 'Products',
-                tooltip: 'PRODUCTS',
+                label: 'Home',
+                tooltip: 'HOME',
               ),
               BottomNavigationBarItem(
                 icon: Icon(
@@ -193,20 +192,20 @@ class _MainPageState extends State<MainPage>
                 label: 'Shorts',
                 tooltip: 'SHORTS',
               ),
-              BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.handyman_outlined,
-                ),
-                activeIcon: Icon(Icons.handyman_outlined),
-                label: 'Services',
-                tooltip: 'SERVICES',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(FeatherIcons.calendar),
-                activeIcon: Icon(FeatherIcons.calendar),
-                label: 'Events',
-                tooltip: 'EVENTS',
-              ),
+              // BottomNavigationBarItem(
+              //   icon: Icon(
+              //     Icons.handyman_outlined,
+              //   ),
+              //   activeIcon: Icon(Icons.handyman_outlined),
+              //   label: 'Services',
+              //   tooltip: 'SERVICES',
+              // ),
+              // BottomNavigationBarItem(
+              //   icon: Icon(FeatherIcons.calendar),
+              //   activeIcon: Icon(FeatherIcons.calendar),
+              //   label: 'Events',
+              //   tooltip: 'EVENTS',
+              // ),
               BottomNavigationBarItem(
                 icon: Icon(FeatherIcons.user),
                 activeIcon: Icon(FeatherIcons.user),

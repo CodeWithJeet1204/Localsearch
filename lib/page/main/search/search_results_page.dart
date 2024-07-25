@@ -1,13 +1,14 @@
 import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:localy_user/page/main/vendor/product/product_page.dart';
 import 'package:localy_user/page/main/vendor/vendor_page.dart';
 import 'package:localy_user/utils/colors.dart';
 import 'package:localy_user/widgets/product_quick_view.dart';
 import 'package:localy_user/widgets/skeleton_container.dart';
+import 'package:localy_user/widgets/snack_bar.dart';
 import 'package:localy_user/widgets/speech_to_text.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -32,9 +33,12 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
   bool isSearchPressed = false;
   Map searchedShops = {};
   Map searchedProducts = {};
-  bool getShopsData = false;
-  bool getProductsData = false;
+  Map rangeShops = {};
+  Map rangeProducts = {};
+  bool isShopsData = false;
+  bool isProductsData = false;
   String? productSort = 'Recently Added';
+  RangeValues distanceRange = RangeValues(0, 5);
 
   // INIT STATE
   @override
@@ -111,6 +115,87 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
         .doc('Owners')
         .collection('Shops')
         .get();
+
+    double? yourLatitude = null;
+    double? yourLongitude = null;
+
+    Future<Position?> getLocation() async {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+
+      if (!serviceEnabled) {
+        if (mounted) {
+          mySnackBar('Turn ON Location Services to Continue', context);
+        }
+        return null;
+      } else {
+        LocationPermission permission = await Geolocator.checkPermission();
+
+        // LOCATION PERMISSION GIVEN
+        Future<Position> locationPermissionGiven() async {
+          return await Geolocator.getCurrentPosition();
+        }
+
+        if (permission == LocationPermission.denied) {
+          permission = await Geolocator.requestPermission();
+          if (permission == LocationPermission.denied) {
+            if (mounted) {
+              mySnackBar('Pls give Location Permission to Continue', context);
+            }
+          }
+          permission = await Geolocator.requestPermission();
+          if (permission == LocationPermission.deniedForever) {
+            yourLatitude = 0;
+            yourLongitude = 0;
+            if (mounted) {
+              mySnackBar(
+                'Because Location permission is denied, We are continuing without Location',
+                context,
+              );
+            }
+          } else {
+            return await locationPermissionGiven();
+          }
+        } else {
+          return await locationPermissionGiven();
+        }
+      }
+      return null;
+    }
+
+    Future<double?> getDrivingDistance(
+      double startLat,
+      double startLong,
+      double endLat,
+      double endLong,
+    ) async {
+      String url =
+          'https://maps.googleapis.com/maps/api/distancematrix/json?origins=$startLat,$startLong&destinations=$endLat,$endLong&key=AIzaSyCTzhOTUtdVUx0qpAbcXdn1TQKSmqtJbZM';
+      try {
+        var response = await http.get(Uri.parse(url));
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body);
+          if (data['rows'].isNotEmpty &&
+              data['rows'][0]['elements'].isNotEmpty) {
+            final distance =
+                data['rows'][0]['elements'][0]['distance']['value'];
+            return distance / 1000;
+          }
+        }
+        return null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    await getLocation().then((value) async {
+      if (value != null) {
+        setState(() {
+          yourLatitude = value.latitude;
+          yourLongitude = value.longitude;
+        });
+      }
+    });
+
     for (var shopSnap in shopSnap.docs) {
       final shopData = shopSnap.data();
 
@@ -119,8 +204,21 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
       final double latitude = shopData['Latitude'];
       final double longitude = shopData['Longitude'];
       final String vendorId = shopSnap.id;
+      double distance = 0;
 
-      allShops[vendorId] = [name, imageUrl, latitude, longitude];
+      if (yourLatitude != null && yourLongitude != null) {
+        distance = await getDrivingDistance(
+              yourLatitude!,
+              yourLongitude!,
+              latitude,
+              longitude,
+            ) ??
+            0;
+      }
+
+      if (distance * 0.925 < 5) {
+        allShops[vendorId] = [name, imageUrl, latitude, longitude, distance];
+      }
     }
     searchedShops.clear();
 
@@ -144,9 +242,10 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
     });
     for (var entry in relevanceScores) {
       searchedShops[entry.key] = allShops[entry.key];
+      rangeShops[entry.key] = allShops[entry.key];
     }
     setState(() {
-      getShopsData = true;
+      isShopsData = true;
     });
   }
 
@@ -170,6 +269,88 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
         .collection('Products')
         .get();
 
+    double? yourLatitude = null;
+    double? yourLongitude = null;
+
+    // GET LOCATION
+    Future<Position?> getLocation() async {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+
+      if (!serviceEnabled) {
+        if (mounted) {
+          mySnackBar('Turn ON Location Services to Continue', context);
+        }
+        return null;
+      } else {
+        LocationPermission permission = await Geolocator.checkPermission();
+
+        // LOCATION PERMISSION GIVEN
+        Future<Position> locationPermissionGiven() async {
+          return await Geolocator.getCurrentPosition();
+        }
+
+        if (permission == LocationPermission.denied) {
+          permission = await Geolocator.requestPermission();
+          if (permission == LocationPermission.denied) {
+            if (mounted) {
+              mySnackBar('Pls give Location Permission to Continue', context);
+            }
+          }
+          permission = await Geolocator.requestPermission();
+          if (permission == LocationPermission.deniedForever) {
+            yourLatitude = 0;
+            yourLongitude = 0;
+            if (mounted) {
+              mySnackBar(
+                'Because Location permission is denied, We are continuing without Location',
+                context,
+              );
+            }
+          } else {
+            return await locationPermissionGiven();
+          }
+        } else {
+          return await locationPermissionGiven();
+        }
+      }
+      return null;
+    }
+
+    // GET DRIVING DISTANCE
+    Future<double?> getDrivingDistance(
+      double startLat,
+      double startLong,
+      double endLat,
+      double endLong,
+    ) async {
+      String url =
+          'https://maps.googleapis.com/maps/api/distancematrix/json?origins=$startLat,$startLong&destinations=$endLat,$endLong&key=AIzaSyCTzhOTUtdVUx0qpAbcXdn1TQKSmqtJbZM';
+      try {
+        var response = await http.get(Uri.parse(url));
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body);
+          if (data['rows'].isNotEmpty &&
+              data['rows'][0]['elements'].isNotEmpty) {
+            final distance =
+                data['rows'][0]['elements'][0]['distance']['value'];
+            return distance / 1000;
+          }
+        }
+        return null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    await getLocation().then((value) async {
+      if (value != null) {
+        setState(() {
+          yourLatitude = value.latitude;
+          yourLongitude = value.longitude;
+        });
+      }
+    });
+
     for (var productSnap in productsSnap.docs) {
       final productData = productSnap.data();
 
@@ -182,6 +363,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
       final Map<String, dynamic> ratings = productData['ratings'];
       final Timestamp datetime = productData['datetime'];
       final int views = productData['productViews'];
+      double distance = 0;
 
       final vendorSnap = await store
           .collection('Business')
@@ -193,38 +375,65 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
       final vendorData = vendorSnap.data()!;
 
       final String vendor = vendorData['Name'];
+      final double latitude = vendorData['Latitude'];
+      final double longitude = vendorData['Longitude'];
 
       final productNameLower = productName.toLowerCase();
       final searchLower = widget.search.toLowerCase();
+      if (yourLatitude != null && yourLongitude != null) {
+        distance = await getDrivingDistance(
+              yourLatitude!,
+              yourLongitude!,
+              latitude,
+              longitude,
+            ) ??
+            0;
+      }
 
-      if (productNameLower.contains(searchLower) ||
-          tags.any(
-              (tag) => tag.toString().toLowerCase().contains(searchLower))) {
-        int relevanceScore = calculateRelevanceScore(
-          productNameLower,
-          searchLower,
-          tags,
-          searchLower,
-        );
+      if (distance * 0.925 < 5) {
+        if (productNameLower.contains(searchLower) ||
+            tags.any(
+                (tag) => tag.toString().toLowerCase().contains(searchLower))) {
+          int relevanceScore = calculateRelevanceScore(
+            productNameLower,
+            searchLower,
+            tags,
+            searchLower,
+          );
 
-        searchedProducts[productName] = [
-          imageUrl,
-          vendor,
-          productPrice,
-          productId,
-          relevanceScore,
-          ratings,
-          datetime,
-          views,
-        ];
+          searchedProducts[productName] = [
+            imageUrl,
+            vendor,
+            productPrice,
+            productId,
+            relevanceScore,
+            ratings,
+            datetime,
+            views,
+            distance,
+          ];
+          rangeProducts[productName] = [
+            imageUrl,
+            vendor,
+            productPrice,
+            productId,
+            relevanceScore,
+            ratings,
+            datetime,
+            views,
+            distance,
+          ];
+        }
       }
     }
 
     searchedProducts = Map.fromEntries(searchedProducts.entries.toList()
       ..sort((a, b) => b.value[4].compareTo(a.value[4])));
+    rangeProducts = Map.fromEntries(searchedProducts.entries.toList()
+      ..sort((a, b) => b.value[4].compareTo(a.value[4])));
 
     setState(() {
-      getProductsData = true;
+      isProductsData = true;
     });
   }
 
@@ -393,9 +602,52 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
     return address!.length > 30 ? '${address.substring(0, 30)}...' : address;
   }
 
+  // UPDATE SHOPS
+  void updateShops(double endDistance) {
+    Map tempShops = {};
+
+    rangeShops.clear();
+
+    searchedShops.forEach((key, value) {
+      final double distance = value[4];
+      print("Distance: $distance");
+      if (distance * 0.925 <= endDistance) {
+        tempShops[key] = value;
+      }
+    });
+
+    setState(() {
+      rangeShops = tempShops;
+    });
+  }
+
+  // UPDATE SHOPS
+  void updateProducts(double endDistance) {
+    Map tempProducts = {};
+
+    rangeProducts.clear();
+
+    searchedProducts.forEach((key, value) {
+      final double distance = value[8];
+      print("Distance: $distance");
+      if (distance * 0.925 <= endDistance) {
+        tempProducts[key] = value;
+      }
+    });
+
+    setState(() {
+      rangeProducts = tempProducts;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
+
+    RangeLabels distanceLables = RangeLabels(
+      '0',
+      distanceRange.end.toString(),
+    );
 
     return Scaffold(
       body: SafeArea(
@@ -596,13 +848,42 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                         ),
                       ),
 
-                      // FILTERS
-                      // ListView.builder(
-                      //   scrollDirection: Axis.horizontal,
-                      //   itemCount: 4,
-                      //   itemBuilder: ((context, index) {
-                      //   }),
-                      // ),
+                      // DISTANCE
+                      Padding(
+                        padding: EdgeInsets.only(left: width * 0.025),
+                        child: Text(
+                          'Distance',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+
+                      // RANGE SLIDER
+                      Center(
+                        child: RangeSlider(
+                          min: 0,
+                          max: 50,
+                          labels: distanceLables,
+                          divisions: 20,
+                          values: RangeValues(0, distanceRange.end),
+                          activeColor: primaryDark,
+                          inactiveColor: Color.fromRGBO(197, 243, 255, 1),
+                          onChanged: (newValue) {
+                            setState(() {
+                              isShopsData = false;
+                              isProductsData = false;
+                              distanceRange = RangeValues(0, newValue.end);
+                            });
+                            updateShops(distanceRange.end);
+                            updateProducts(distanceRange.end);
+                            setState(() {
+                              isShopsData = true;
+                              isProductsData = true;
+                            });
+                          },
+                        ),
+                      ),
 
                       // SHOP
                       Column(
@@ -610,12 +891,12 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // SHOPS
-                          !getShopsData
+                          !isShopsData
                               ? SkeletonContainer(
                                   width: width * 0.2,
                                   height: 20,
                                 )
-                              : searchedShops.isEmpty
+                              : rangeShops.isEmpty
                                   ? Container()
                                   : Column(
                                       crossAxisAlignment:
@@ -640,7 +921,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                     ),
 
                           // SHOPS LIST
-                          !getShopsData
+                          !isShopsData
                               ? SizedBox(
                                   width: width,
                                   child: ListView.builder(
@@ -707,8 +988,8 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                     }),
                                   ),
                                 )
-                              : searchedShops.isEmpty
-                                  ? searchedProducts.isEmpty
+                              : rangeShops.isEmpty
+                                  ? rangeProducts.isEmpty
                                       ? const Center(
                                           child: Padding(
                                             padding: EdgeInsets.only(top: 40),
@@ -723,12 +1004,12 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                       shrinkWrap: true,
                                       physics:
                                           const NeverScrollableScrollPhysics(),
-                                      itemCount: searchedShops.length > 3
+                                      itemCount: rangeShops.length > 3
                                           ? 3
-                                          : searchedShops.length,
+                                          : rangeShops.length,
                                       itemBuilder: ((context, index) {
                                         final currentShop =
-                                            searchedShops.keys.toList()[index];
+                                            rangeShops.keys.toList()[index];
 
                                         return Padding(
                                           padding: EdgeInsets.symmetric(
@@ -760,20 +1041,20 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                             ),
                                             leading: CircleAvatar(
                                               backgroundImage: NetworkImage(
-                                                searchedShops[currentShop][1],
+                                                rangeShops[currentShop][1],
                                               ),
                                               radius: width * 0.0575,
                                             ),
                                             title: Text(
-                                              searchedShops[currentShop][0],
+                                              rangeShops[currentShop][0],
                                               style: TextStyle(
                                                 fontSize: width * 0.06125,
                                               ),
                                             ),
                                             subtitle: FutureBuilder(
                                                 future: getAddress(
-                                                  searchedShops[currentShop][2],
-                                                  searchedShops[currentShop][3],
+                                                  rangeShops[currentShop][2],
+                                                  rangeShops[currentShop][3],
                                                 ),
                                                 builder: (context, snapshot) {
                                                   if (snapshot.hasError) {
@@ -805,12 +1086,12 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // PRODUCTS
-                          !getProductsData
+                          !isProductsData
                               ? SkeletonContainer(
                                   width: width * 0.2,
                                   height: 20,
                                 )
-                              : searchedProducts.isEmpty
+                              : rangeProducts.isEmpty
                                   ? const Center(
                                       child: Padding(
                                         padding: EdgeInsets.only(top: 40),
@@ -893,7 +1174,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                     ),
 
                           // PRODUCTS LIST
-                          !getProductsData
+                          !isProductsData
                               ? SizedBox(
                                   width: width,
                                   child: GridView.builder(
@@ -953,7 +1234,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                     }),
                                   ),
                                 )
-                              : searchedProducts.isEmpty
+                              : rangeProducts.isEmpty
                                   ? Container()
                                   : GridView.builder(
                                       shrinkWrap: true,
@@ -963,12 +1244,12 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                         crossAxisCount: 2,
                                         childAspectRatio: width * 0.6 / width,
                                       ),
-                                      itemCount: searchedProducts.length,
+                                      itemCount: rangeProducts.length,
                                       itemBuilder: ((context, index) {
                                         return StreamBuilder<bool>(
                                           stream: getIfWishlist(
-                                            searchedProducts.values
-                                                .toList()[index][3],
+                                            rangeProducts.values.toList()[index]
+                                                [3],
                                           ),
                                           builder: (context, snapshot) {
                                             if (snapshot.hasError) {
@@ -979,28 +1260,27 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                               );
                                             }
 
-                                            final currentProduct =
-                                                searchedProducts.keys
-                                                    .toList()[index]
-                                                    .toString();
+                                            final currentProduct = rangeProducts
+                                                .keys
+                                                .toList()[index]
+                                                .toString();
 
                                             final image =
-                                                searchedProducts[currentProduct]
+                                                rangeProducts[currentProduct]
                                                     [0];
 
-                                            final productId = searchedProducts
+                                            final productId = rangeProducts
                                                 .values
                                                 .toList()[index][3];
 
-                                            final ratings = searchedProducts
-                                                .values
+                                            final ratings = rangeProducts.values
                                                 .toList()[index][5];
 
-                                            final price = searchedProducts[
+                                            final price = rangeProducts[
                                                         currentProduct][2] ==
                                                     ''
                                                 ? 'N/A'
-                                                : 'Rs. ${searchedProducts[currentProduct][2]}';
+                                                : 'Rs. ${rangeProducts[currentProduct][2]}';
                                             final isWishListed =
                                                 snapshot.data ?? false;
 
