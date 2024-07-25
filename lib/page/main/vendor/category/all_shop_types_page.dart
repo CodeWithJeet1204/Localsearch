@@ -4,10 +4,11 @@ import 'package:image/image.dart' as img;
 import 'package:flutter/services.dart' show NetworkAssetBundle;
 import 'package:localy_user/models/business_categories.dart';
 import 'package:localy_user/page/main/vendor/category/shop_categories_page.dart';
+import 'package:localy_user/utils/colors.dart';
 import 'package:localy_user/widgets/skeleton_container.dart';
 
 class AllShopTypesPage extends StatefulWidget {
-  const AllShopTypesPage({Key? key}) : super(key: key);
+  const AllShopTypesPage({super.key});
 
   @override
   State<AllShopTypesPage> createState() => _AllShopTypesPageState();
@@ -74,8 +75,7 @@ class _AllShopTypesPageState extends State<AllShopTypesPage> {
 
       return averageColor;
     } catch (e) {
-      print('Error calculating top line color: $e');
-      return Colors.black;
+      return white;
     }
   }
 
@@ -109,7 +109,7 @@ class _AllShopTypesPageState extends State<AllShopTypesPage> {
                 itemCount: 17,
                 itemBuilder: ((context, index) {
                   return Padding(
-                    padding: EdgeInsets.all(8),
+                    padding: EdgeInsets.all(width * 0.0225),
                     child: SkeletonContainer(
                       width: width,
                       height: width,
@@ -125,7 +125,7 @@ class _AllShopTypesPageState extends State<AllShopTypesPage> {
                     crossAxisCount: 2,
                     childAspectRatio: 0.7525,
                   ),
-                  physics: ClampingScrollPhysics(),
+                  physics: const ClampingScrollPhysics(),
                   itemCount: businessCategory.length,
                   itemBuilder: (context, index) {
                     final String name = businessCategory[index][0];
@@ -160,7 +160,7 @@ class _AllShopTypesPageState extends State<AllShopTypesPage> {
                               child: Container(
                                 decoration: BoxDecoration(
                                   color: color,
-                                  borderRadius: BorderRadius.vertical(
+                                  borderRadius: const BorderRadius.vertical(
                                     top: Radius.circular(8),
                                   ),
                                 ),
@@ -178,7 +178,7 @@ class _AllShopTypesPageState extends State<AllShopTypesPage> {
                               ),
                             ),
                             ClipRRect(
-                              borderRadius: BorderRadius.vertical(
+                              borderRadius: const BorderRadius.vertical(
                                 bottom: Radius.circular(8),
                               ),
                               child: Image.network(

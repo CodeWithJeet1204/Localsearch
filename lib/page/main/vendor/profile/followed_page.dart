@@ -4,6 +4,7 @@ import 'package:feather_icons/feather_icons.dart';
 import 'package:localy_user/page/main/vendor/vendor_page.dart';
 import 'package:localy_user/utils/colors.dart';
 import 'package:localy_user/widgets/skeleton_container.dart';
+import 'package:localy_user/widgets/snack_bar.dart';
 import 'package:localy_user/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -100,7 +101,7 @@ class _FollowedPageState extends State<FollowedPage>
     shops.forEach((key, value) {
       final List myType = value[4];
       for (var everyMyType in myType) {
-        if (!myTypes.contains(myType)) {
+        if (!myTypes.contains(everyMyType)) {
           myTypes.add(everyMyType);
         }
       }
@@ -182,13 +183,19 @@ class _FollowedPageState extends State<FollowedPage>
         if (data['status'] == 'OK' && data['results'].isNotEmpty) {
           address = data['results'][0]['formatted_address'];
         } else {
-          print('Failed to get address');
+          if (mounted) {
+            mySnackBar('Failed to get address', context);
+          }
         }
       } else {
-        print('Failed to load data');
+        if (mounted) {
+          mySnackBar('Failed to load data', context);
+        }
       }
     } catch (e) {
-      print(e.toString());
+      if (mounted) {
+        mySnackBar(e.toString(), context);
+      }
     }
 
     address = address?.isNotEmpty == true ? address : 'No address found';

@@ -244,15 +244,16 @@ class _VendorPageState extends State<VendorPage> {
         .update({
       'Followers': followers,
     });
-
-    Navigator.of(context).pop();
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: ((context) => VendorPage(
-              vendorId: widget.vendorId,
-            )),
-      ),
-    );
+    if (mounted) {
+      Navigator.of(context).pop();
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: ((context) => VendorPage(
+                vendorId: widget.vendorId,
+              )),
+        ),
+      );
+    }
   }
 
   // CALL VENDOR
@@ -302,9 +303,21 @@ class _VendorPageState extends State<VendorPage> {
         final data = json.decode(response.body);
         if (data['status'] == 'OK' && data['results'].isNotEmpty) {
           address = data['results'][0]['formatted_address'];
-        } else {}
-      } else {}
-    } catch (e) {}
+        } else {
+          if (mounted) {
+            mySnackBar('Failed to get address', context);
+          }
+        }
+      } else {
+        if (mounted) {
+          mySnackBar('Failed to load data', context);
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        mySnackBar(e.toString(), context);
+      }
+    }
 
     address = address?.isNotEmpty == true ? address : 'No address found';
 
@@ -734,15 +747,15 @@ class _VendorPageState extends State<VendorPage> {
     String type = '';
     int i = 0;
     int length = shopList.length;
-    shopList.forEach((shopType) {
+    for (var shopType in shopList) {
       if (i == length - 1) {
         type = type + shopType;
       } else {
-        type = type + '$shopType, ';
+        type = '$type$shopType, ';
       }
 
       i++;
-    });
+    }
 
     return type;
   }
@@ -1115,7 +1128,7 @@ class _VendorPageState extends State<VendorPage> {
                                       MainAxisAlignment.spaceBetween,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    Text(
+                                    const Text(
                                       "Followers",
                                     ),
                                     Padding(
@@ -1149,7 +1162,7 @@ class _VendorPageState extends State<VendorPage> {
                                       MainAxisAlignment.spaceBetween,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    Text(
+                                    const Text(
                                       "Total Products",
                                     ),
                                     Padding(

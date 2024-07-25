@@ -86,8 +86,6 @@ class _WishlistPageState extends State<WishlistPage>
         final String shopType = vendorData['Type'];
 
         if (productCategoryName != '0') {
-          print("Shop Type: $shopType");
-          print("Product Category name: $productCategoryName");
           final categorySnap = await store
               .collection('Business')
               .doc('Special Categories')

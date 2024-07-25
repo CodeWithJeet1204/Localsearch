@@ -26,16 +26,12 @@ class _SpeechToTextState extends State<SpeechToText> {
 
   // LISTEN
   Future<void> listen() async {
-    print(1);
     if (!isListening) {
-      print(2);
       bool available = await speech.initialize(
-        onStatus: (status) => print('Status: $status'),
-        onError: (errorNotification) =>
-            print('Error Notification: $errorNotification'),
+        onStatus: (status) {},
+        onError: (errorNotification) {},
       );
       if (available) {
-        print(3);
         setState(() {
           isListening = true;
         });

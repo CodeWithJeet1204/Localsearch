@@ -320,7 +320,8 @@ class _ProductHomePageState extends State<ProductHomePage> {
                               onTap: () {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
-                                      builder: (context) => AllDiscountPage()),
+                                      builder: (context) =>
+                                          const AllDiscountPage()),
                                 );
                               },
                               child: Container(
@@ -334,7 +335,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                       Colors.green.shade300,
                                       Colors.blue.shade300,
                                       Colors.indigo.shade300,
-                                      Color.fromRGBO(143, 30, 255, 1),
+                                      const Color.fromRGBO(143, 30, 255, 1),
                                     ],
                                   ),
                                   border: Border.all(
@@ -343,7 +344,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                   ),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
-                                padding: EdgeInsets.symmetric(
+                                padding: const EdgeInsets.symmetric(
                                   vertical: 8,
                                 ),
                                 margin: EdgeInsets.symmetric(
@@ -362,7 +363,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                               ),
                             ),
 
-                      noOfDiscounts == 0 ? Container() : Divider(),
+                      noOfDiscounts == 0 ? Container() : const Divider(),
 
                       // SHOP TYPES
                       Padding(
@@ -460,7 +461,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                                 name,
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
-                                                style: TextStyle(
+                                                style: const TextStyle(
                                                   color: primaryDark,
                                                   fontWeight: FontWeight.w500,
                                                 ),

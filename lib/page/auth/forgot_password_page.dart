@@ -26,7 +26,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Forgot Password'),
+        title: const Text('Forgot Password'),
       ),
       body: SafeArea(
         child: Padding(
@@ -44,9 +44,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   controller: emailController,
                   borderRadius: 12,
                   horizontalPadding: 0,
-                  autoFillHints: [],
+                  autoFillHints: const [],
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 MyButton(
                   text: 'FORGET',
                   onTap: () async {
@@ -58,13 +58,13 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       List myEmails = [];
                       final userSnap = await store.collection('Users').get();
 
-                      userSnap.docs.forEach((user) {
+                      for (var user in userSnap.docs) {
                         final userData = user.data();
 
                         final email = userData['Email'];
 
                         myEmails.add(email);
-                      });
+                      }
 
                       if (myEmails.contains(emailController.text)) {
                         try {
@@ -75,34 +75,40 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                             isForget = false;
                             isSent = true;
                           });
-                          mySnackBar('Password Reset Email Sent', context);
+                          if (context.mounted) {
+                            mySnackBar('Password Reset Email Sent', context);
+                          }
                         } catch (e) {
                           setState(() {
                             isForget = false;
                           });
-                          mySnackBar(e.toString(), context);
+                          if (context.mounted) {
+                            mySnackBar(e.toString(), context);
+                          }
                         }
                       } else {
                         setState(() {
                           isForget = false;
                         });
-                        return mySnackBar(
-                          'This email was not used to create User account\nRegister first',
-                          context,
-                        );
+                        if (context.mounted) {
+                          return mySnackBar(
+                            'This email was not used to create User account\nRegister first',
+                            context,
+                          );
+                        }
                       }
                     }
                   },
                   isLoading: isForget,
                   horizontalPadding: 0,
                 ),
-                !isSent ? Container() : SizedBox(height: 12),
+                !isSent ? Container() : const SizedBox(height: 12),
                 !isSent
                     ? Container()
-                    : Text(
+                    : const Text(
                         'After resetting password, click below to Login',
                       ),
-                !isSent ? Container() : SizedBox(height: 12),
+                !isSent ? Container() : const SizedBox(height: 12),
                 !isSent
                     ? Container()
                     : MyButton(

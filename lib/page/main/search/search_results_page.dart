@@ -38,7 +38,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
   bool isShopsData = false;
   bool isProductsData = false;
   String? productSort = 'Recently Added';
-  RangeValues distanceRange = RangeValues(0, 5);
+  RangeValues distanceRange = const RangeValues(0, 5);
 
   // INIT STATE
   @override
@@ -116,8 +116,8 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
         .collection('Shops')
         .get();
 
-    double? yourLatitude = null;
-    double? yourLongitude = null;
+    double? yourLatitude;
+    double? yourLongitude;
 
     Future<Position?> getLocation() async {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -269,8 +269,8 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
         .collection('Products')
         .get();
 
-    double? yourLatitude = null;
-    double? yourLongitude = null;
+    double? yourLatitude;
+    double? yourLongitude;
 
     // GET LOCATION
     Future<Position?> getLocation() async {
@@ -588,13 +588,19 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
         if (data['status'] == 'OK' && data['results'].isNotEmpty) {
           address = data['results'][0]['formatted_address'];
         } else {
-          print('Failed to get address');
+          if (mounted) {
+            mySnackBar('Failed to get address', context);
+          }
         }
       } else {
-        print('Failed to load data');
+        if (mounted) {
+          mySnackBar('Failed to load data', context);
+        }
       }
     } catch (e) {
-      print(e.toString());
+      if (mounted) {
+        mySnackBar(e.toString(), context);
+      }
     }
 
     address = address?.isNotEmpty == true ? address : 'No address found';
@@ -610,7 +616,6 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
 
     searchedShops.forEach((key, value) {
       final double distance = value[4];
-      print("Distance: $distance");
       if (distance * 0.925 <= endDistance) {
         tempShops[key] = value;
       }
@@ -629,7 +634,6 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
 
     searchedProducts.forEach((key, value) {
       final double distance = value[8];
-      print("Distance: $distance");
       if (distance * 0.925 <= endDistance) {
         tempProducts[key] = value;
       }
@@ -851,7 +855,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                       // DISTANCE
                       Padding(
                         padding: EdgeInsets.only(left: width * 0.025),
-                        child: Text(
+                        child: const Text(
                           'Distance',
                           style: TextStyle(
                             fontWeight: FontWeight.w500,
@@ -868,7 +872,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                           divisions: 20,
                           values: RangeValues(0, distanceRange.end),
                           activeColor: primaryDark,
-                          inactiveColor: Color.fromRGBO(197, 243, 255, 1),
+                          inactiveColor: const Color.fromRGBO(197, 243, 255, 1),
                           onChanged: (newValue) {
                             setState(() {
                               isShopsData = false;

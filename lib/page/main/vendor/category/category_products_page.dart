@@ -133,7 +133,7 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
                 }),
               )
             : products.isEmpty
-                ? Center(
+                ? const Center(
                     child: Text('No Products'),
                   )
                 : GridView.builder(

@@ -120,13 +120,19 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
         if (data['status'] == 'OK' && data['results'].isNotEmpty) {
           myAddress = data['results'][0]['formatted_address'];
         } else {
-          print('Failed to get address');
+          if (mounted) {
+            mySnackBar('Failed to get address', context);
+          }
         }
       } else {
-        print('Failed to load data');
+        if (mounted) {
+          mySnackBar('Failed to load data', context);
+        }
       }
     } catch (e) {
-      print(e.toString());
+      if (mounted) {
+        mySnackBar(e.toString(), context);
+      }
     }
     setState(() {
       address = myAddress?.isNotEmpty == true
@@ -308,7 +314,7 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                               ),
                               padding: EdgeInsets.all(width * 0.025),
                               child: isGettingLocation
-                                  ? Center(
+                                  ? const Center(
                                       child: CircularProgressIndicator(),
                                     )
                                   : Text(

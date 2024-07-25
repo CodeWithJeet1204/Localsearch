@@ -55,7 +55,7 @@ class _EventCommentsPageState extends State<EventCommentsPage> {
     Map<String, dynamic> comments = eventData['eventComments'];
 
     if (commentController.text.isNotEmpty) {
-      final commentId = Uuid().v4();
+      final commentId = const Uuid().v4();
 
       comments.addAll({
         commentId: [
@@ -143,8 +143,9 @@ class _EventCommentsPageState extends State<EventCommentsPage> {
     await store.collection('Events').doc(widget.eventId).update({
       'eventComments': comments,
     });
-
-    Navigator.of(context).pop();
+    if (mounted) {
+      Navigator.of(context).pop();
+    }
   }
 
   // REPLY COMMENT
@@ -156,7 +157,7 @@ class _EventCommentsPageState extends State<EventCommentsPage> {
 
     Map<String, dynamic> comments = eventData['eventComments'];
 
-    final newCommentId = Uuid().v4();
+    final newCommentId = const Uuid().v4();
 
     (comments[commentId][2] as Map<String, dynamic>).addAll({
       newCommentId: [
@@ -205,7 +206,7 @@ class _EventCommentsPageState extends State<EventCommentsPage> {
             horizontal: width * 0.0225,
             vertical: width * 0.015,
           ),
-          margin: EdgeInsets.symmetric(
+          margin: const EdgeInsets.symmetric(
             vertical: 4,
           ),
           child: Row(
@@ -227,7 +228,7 @@ class _EventCommentsPageState extends State<EventCommentsPage> {
                         ),
                         builder: (context, snapshot) {
                           if (snapshot.hasError) {
-                            return Text('User');
+                            return const Text('User');
                           }
 
                           if (snapshot.hasData) {
@@ -244,7 +245,7 @@ class _EventCommentsPageState extends State<EventCommentsPage> {
 
                           return Container();
                         }),
-                    SizedBox(height: 6),
+                    const SizedBox(height: 6),
                     Text(
                       replyComment,
                       style: TextStyle(
@@ -269,7 +270,7 @@ class _EventCommentsPageState extends State<EventCommentsPage> {
                               parentReplyCommentId,
                             );
                           },
-                          icon: Icon(
+                          icon: const Icon(
                             FeatherIcons.trash,
                             color: Colors.red,
                           ),
@@ -299,7 +300,7 @@ class _EventCommentsPageState extends State<EventCommentsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Comments'),
+        title: const Text('Comments'),
       ),
       bottomSheet: Container(
         width: width,
@@ -334,7 +335,7 @@ class _EventCommentsPageState extends State<EventCommentsPage> {
                       )
                     : await addComment();
               },
-              icon: Icon(
+              icon: const Icon(
                 FeatherIcons.send,
               ),
             ),
@@ -358,7 +359,7 @@ class _EventCommentsPageState extends State<EventCommentsPage> {
                       stream: commentsStream,
                       builder: (context, snapshot) {
                         if (snapshot.hasError) {
-                          return Center(
+                          return const Center(
                             child: Text("Something Went Wrong"),
                           );
                         }
@@ -370,12 +371,12 @@ class _EventCommentsPageState extends State<EventCommentsPage> {
                               eventData['eventComments'];
 
                           return comments.isEmpty
-                              ? Center(
+                              ? const Center(
                                   child: Text('No Comments'),
                                 )
                               : ListView.builder(
                                   shrinkWrap: true,
-                                  physics: ClampingScrollPhysics(),
+                                  physics: const ClampingScrollPhysics(),
                                   itemCount: comments.length,
                                   itemBuilder: ((context, index) {
                                     final commentId =
@@ -441,7 +442,8 @@ class _EventCommentsPageState extends State<EventCommentsPage> {
                                                             snapshot) {
                                                           if (snapshot
                                                               .hasError) {
-                                                            return Text('User');
+                                                            return const Text(
+                                                                'User');
                                                           }
 
                                                           if (snapshot
@@ -451,7 +453,8 @@ class _EventCommentsPageState extends State<EventCommentsPage> {
 
                                                             return Text(
                                                               commenter,
-                                                              style: TextStyle(
+                                                              style:
+                                                                  const TextStyle(
                                                                 color:
                                                                     primaryDark2,
                                                                 fontWeight:
@@ -463,7 +466,7 @@ class _EventCommentsPageState extends State<EventCommentsPage> {
 
                                                           return Container();
                                                         }),
-                                                    SizedBox(height: 6),
+                                                    const SizedBox(height: 6),
                                                     Text(
                                                       comment,
                                                       style: TextStyle(
@@ -493,7 +496,7 @@ class _EventCommentsPageState extends State<EventCommentsPage> {
                                                               null,
                                                             );
                                                           },
-                                                          icon: Icon(
+                                                          icon: const Icon(
                                                             FeatherIcons.trash,
                                                             color: Colors.red,
                                                           ),
@@ -522,7 +525,7 @@ class _EventCommentsPageState extends State<EventCommentsPage> {
                                                         isReplying = true;
                                                       });
                                                     },
-                                                    icon: Icon(
+                                                    icon: const Icon(
                                                       FeatherIcons.cornerUpLeft,
                                                       color: primaryDark2,
                                                     ),
@@ -544,7 +547,7 @@ class _EventCommentsPageState extends State<EventCommentsPage> {
                                                 child: ListView.builder(
                                                   shrinkWrap: true,
                                                   physics:
-                                                      ClampingScrollPhysics(),
+                                                      const ClampingScrollPhysics(),
                                                   itemCount: replyCommentWidget(
                                                     replyComments,
                                                     commentId,
@@ -568,7 +571,7 @@ class _EventCommentsPageState extends State<EventCommentsPage> {
 
                         return ListView.builder(
                           shrinkWrap: true,
-                          physics: ClampingScrollPhysics(),
+                          physics: const ClampingScrollPhysics(),
                           itemCount: 8,
                           itemBuilder: ((context, index) {
                             return Padding(
@@ -580,7 +583,8 @@ class _EventCommentsPageState extends State<EventCommentsPage> {
                                     width: width,
                                     height: 88,
                                     decoration: BoxDecoration(
-                                      color: Color.fromRGBO(195, 195, 195, 1),
+                                      color: const Color.fromRGBO(
+                                          195, 195, 195, 1),
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                   ),
@@ -599,7 +603,7 @@ class _EventCommentsPageState extends State<EventCommentsPage> {
                                           width: width * 0.33,
                                           height: 12,
                                         ),
-                                        SizedBox(height: 12),
+                                        const SizedBox(height: 12),
                                         SkeletonContainer(
                                           width: width * 0.75,
                                           height: 48,

@@ -21,7 +21,7 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
   Map<String, Map<String, dynamic>> allDiscounts = {};
   Map<String, Map<String, dynamic>> currentDiscounts = {};
   final searchController = TextEditingController();
-  RangeValues distanceRange = RangeValues(0, 5);
+  RangeValues distanceRange = const RangeValues(0, 5);
   bool isGridView = true;
   bool isData = false;
 
@@ -48,8 +48,8 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
         .collection('Discounts')
         .get();
 
-    double? yourLatitude = null;
-    double? yourLongitude = null;
+    double? yourLatitude;
+    double? yourLongitude;
 
     // GET LOCATION
     Future<Position?> getLocation() async {
@@ -136,7 +136,7 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
       final discountId = discount.id;
       final Timestamp endDateTime = discountData['discountEndDateTime'];
       final String vendorId = discountData['vendorId'];
-      double? distance = null;
+      double? distance;
 
       final vendorSnap = await store
           .collection('Business')
@@ -176,7 +176,6 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
     setState(() {
       currentDiscounts = myDiscounts;
       allDiscounts = myDiscounts;
-      print("all discount: $allDiscounts");
       isData = true;
     });
   }
@@ -184,8 +183,6 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
   // UPDATE DISCOUNTS
   void updateDiscounts(double endDistance) {
     Map<String, Map<String, dynamic>> tempDiscounts = {};
-    print("all discounts1: $allDiscounts");
-    print("all discounts2: $allDiscounts");
     allDiscounts.forEach((key, value) {
       final double distance = value['distance'];
       if (distance * 0.925 <= endDistance) {
@@ -249,9 +246,9 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
 
                           filteredDiscounts.forEach((key, discountData) {
                             if (!discountData['discountName']
-                                    .toString()
-                                    .toLowerCase()
-                                    .contains(value.toLowerCase().trim())) {
+                                .toString()
+                                .toLowerCase()
+                                .contains(value.toLowerCase().trim())) {
                               keysToRemove.add(key);
                             }
                           });
@@ -320,7 +317,7 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
                           // DISTANCE
                           Padding(
                             padding: EdgeInsets.only(left: width * 0.025),
-                            child: Text(
+                            child: const Text(
                               'Distance',
                               style: TextStyle(
                                 fontWeight: FontWeight.w500,
@@ -337,9 +334,9 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
                               divisions: 20,
                               values: RangeValues(0, distanceRange.end),
                               activeColor: primaryDark,
-                              inactiveColor: Color.fromRGBO(197, 243, 255, 1),
+                              inactiveColor:
+                                  const Color.fromRGBO(197, 243, 255, 1),
                               onChanged: (newValue) {
-                                print('all discounts: $allDiscounts');
                                 setState(() {
                                   isData = false;
                                   distanceRange = RangeValues(0, newValue.end);
@@ -360,7 +357,7 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
                                       width: width,
                                       child: GridView.builder(
                                         shrinkWrap: true,
-                                        physics: ClampingScrollPhysics(),
+                                        physics: const ClampingScrollPhysics(),
                                         gridDelegate:
                                             const SliverGridDelegateWithFixedCrossAxisCount(
                                           crossAxisCount: 1,
@@ -613,7 +610,7 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
                                       width: width,
                                       child: ListView.builder(
                                         shrinkWrap: true,
-                                        physics: ClampingScrollPhysics(),
+                                        physics: const ClampingScrollPhysics(),
                                         itemCount: currentDiscounts.length,
                                         itemBuilder: ((context, index) {
                                           final discountData = currentDiscounts[

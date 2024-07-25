@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:localy_user/models/household_special_categories.dart';
+import 'package:localy_user/widgets/snack_bar.dart';
 
 class VendorProductsPage extends StatefulWidget {
   const VendorProductsPage({
@@ -67,7 +68,7 @@ class _VendorProductsPageState extends State<VendorProductsPage> {
         isData = true;
       });
     } catch (e) {
-      print('Error fetching data: $e');
+      mySnackBar('Error fetching data: $e', context);
     }
   }
 
@@ -139,11 +140,11 @@ class _VendorProductsPageState extends State<VendorProductsPage> {
                                         ),
                                       ),
                                     );
-                                  }).toList(),
+                                  }),
                                 ],
                               ),
                             );
-                          }).toList(),
+                          }),
                         ],
                       ),
                     );

@@ -89,7 +89,7 @@ class _ShopCategoriesPageState extends State<ShopCategoriesPage> {
                     children: [
                       Expanded(
                         child: Container(
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             color: white,
                             borderRadius: BorderRadius.vertical(
                               top: Radius.circular(8),
@@ -110,7 +110,7 @@ class _ShopCategoriesPageState extends State<ShopCategoriesPage> {
                         ),
                       ),
                       ClipRRect(
-                        borderRadius: BorderRadius.vertical(
+                        borderRadius: const BorderRadius.vertical(
                           bottom: Radius.circular(8),
                         ),
                         child: Image.network(

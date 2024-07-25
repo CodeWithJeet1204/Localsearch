@@ -382,7 +382,6 @@ class _ProductPageState extends State<ProductPage> {
     if (productLikesTimestamp.keys.contains(auth.currentUser!.uid)) {
       productLikesTimestamp.remove(auth.currentUser!.uid);
     } else {
-      print("Product Likes Timestamp: $productLikesTimestamp");
       productLikesTimestamp.addAll({
         auth.currentUser!.uid: Timestamp.fromDate(DateTime.now()),
       });
@@ -973,7 +972,7 @@ class _ProductPageState extends State<ProductPage> {
         .collection('Discounts')
         .get();
 
-    discountSnap.docs.forEach((discount) {
+    for (var discount in discountSnap.docs) {
       final currentDiscountData = discount.data();
 
       final vendorId = currentDiscountData['vendorId'];
@@ -985,7 +984,7 @@ class _ProductPageState extends State<ProductPage> {
           discountId == widget.productData['discountId']) {
         discountData = currentDiscountData;
       }
-    });
+    }
   }
 
   @override

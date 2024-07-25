@@ -36,13 +36,13 @@ class _DiscountPageState extends State<DiscountPage> {
         .collection('Products')
         .get();
 
-    productsSnap.docs.forEach((product) {
+    for (var product in productsSnap.docs) {
       final productData = product.data();
 
       if (productData['discountId'] == widget.discountId) {
         myProducts.add(productData);
       }
-    });
+    }
 
     return myProducts;
   }
@@ -57,13 +57,13 @@ class _DiscountPageState extends State<DiscountPage> {
         .collection('Brands')
         .get();
 
-    brandsSnap.docs.forEach((brand) {
+    for (var brand in brandsSnap.docs) {
       final brandData = brand.data();
 
       if (brandData['discountId'] == widget.discountId) {
         myBrands.add(brandData);
       }
-    });
+    }
 
     return myBrands;
   }
@@ -89,7 +89,7 @@ class _DiscountPageState extends State<DiscountPage> {
         .collection(type)
         .get();
 
-    categorySnap.docs.forEach((category) {
+    for (var category in categorySnap.docs) {
       final categoryData = category.data();
 
       final categoryName = categoryData['specialCategoryName'];
@@ -101,7 +101,7 @@ class _DiscountPageState extends State<DiscountPage> {
           categoryName: categoryImageUrl,
         });
       }
-    });
+    }
 
     return myCategories;
   }
@@ -143,7 +143,6 @@ class _DiscountPageState extends State<DiscountPage> {
 
                 if (snapshot.hasData) {
                   final discountData = snapshot.data!;
-                  print("Discount Data: ${discountData.data()}");
 
                   return Padding(
                     padding: EdgeInsets.symmetric(
@@ -210,11 +209,11 @@ class _DiscountPageState extends State<DiscountPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
+                              const Text(
                                 'NAME',
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: primaryDark2,
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -250,11 +249,11 @@ class _DiscountPageState extends State<DiscountPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
+                              const Text(
                                 'AMOUNT',
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: primaryDark2,
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -610,7 +609,7 @@ class _DiscountPageState extends State<DiscountPage> {
                                                 : ListView.builder(
                                                     shrinkWrap: true,
                                                     physics:
-                                                        ClampingScrollPhysics(),
+                                                        const ClampingScrollPhysics(),
                                                     itemCount:
                                                         snapshot.data!.length,
                                                     itemBuilder:
@@ -767,7 +766,7 @@ class _DiscountPageState extends State<DiscountPage> {
                                               : ListView.builder(
                                                   shrinkWrap: true,
                                                   physics:
-                                                      ClampingScrollPhysics(),
+                                                      const ClampingScrollPhysics(),
                                                   itemCount: 4,
                                                   itemBuilder:
                                                       (context, index) {
@@ -1002,7 +1001,7 @@ class _DiscountPageState extends State<DiscountPage> {
                                                     : ListView.builder(
                                                         shrinkWrap: true,
                                                         physics:
-                                                            ClampingScrollPhysics(),
+                                                            const ClampingScrollPhysics(),
                                                         itemCount: snapshot
                                                             .data!.length,
                                                         itemBuilder:
@@ -1142,7 +1141,7 @@ class _DiscountPageState extends State<DiscountPage> {
                                                   : ListView.builder(
                                                       shrinkWrap: true,
                                                       physics:
-                                                          ClampingScrollPhysics(),
+                                                          const ClampingScrollPhysics(),
                                                       itemCount: 4,
                                                       itemBuilder:
                                                           (context, index) {
@@ -1286,7 +1285,7 @@ class _DiscountPageState extends State<DiscountPage> {
                                                     ? GridView.builder(
                                                         shrinkWrap: true,
                                                         gridDelegate:
-                                                            SliverGridDelegateWithFixedCrossAxisCount(
+                                                            const SliverGridDelegateWithFixedCrossAxisCount(
                                                           crossAxisCount: 2,
                                                           childAspectRatio:
                                                               0.68,

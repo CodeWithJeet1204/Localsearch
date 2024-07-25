@@ -7,6 +7,7 @@ import 'package:localy_user/page/main/events/event_page.dart';
 import 'package:localy_user/page/main/events/events_organizer_page.dart';
 import 'package:localy_user/utils/colors.dart';
 import 'package:localy_user/widgets/skeleton_container.dart';
+import 'package:localy_user/widgets/snack_bar.dart';
 import 'package:localy_user/widgets/speech_to_text.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -320,13 +321,19 @@ class _EventsSearchResultsPageState extends State<EventsSearchResultsPage> {
         if (data['status'] == 'OK' && data['results'].isNotEmpty) {
           address = data['results'][0]['formatted_address'];
         } else {
-          print('Failed to get address');
+          if (mounted) {
+            mySnackBar('Failed to get address', context);
+          }
         }
       } else {
-        print('Failed to load data');
+        if (mounted) {
+          mySnackBar('Failed to load data', context);
+        }
       }
     } catch (e) {
-      print(e.toString());
+      if (mounted) {
+        mySnackBar(e.toString(), context);
+      }
     }
 
     address = address?.isNotEmpty == true ? address : 'No address found';

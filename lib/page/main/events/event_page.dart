@@ -105,13 +105,19 @@ class _EventPageState extends State<EventPage> {
         if (data['status'] == 'OK' && data['results'].isNotEmpty) {
           address = data['results'][0]['formatted_address'];
         } else {
-          print('Failed to get address');
+          if (mounted) {
+            mySnackBar('Failed to get address', context);
+          }
         }
       } else {
-        print('Failed to load data');
+        if (mounted) {
+          mySnackBar('Failed to load data', context);
+        }
       }
     } catch (e) {
-      print(e.toString());
+      if (mounted) {
+        mySnackBar(e.toString(), context);
+      }
     }
 
     address = address?.isNotEmpty == true ? address : 'No address found';
@@ -427,7 +433,7 @@ class _EventPageState extends State<EventPage> {
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
-                                  Icon(FeatherIcons.chevronRight),
+                                  const Icon(FeatherIcons.chevronRight),
                                 ],
                               ),
                             ),
@@ -544,7 +550,7 @@ class _EventPageState extends State<EventPage> {
                                       );
                                     }
 
-                                    return Center(
+                                    return const Center(
                                       child: CircularProgressIndicator(),
                                     );
                                   }),
