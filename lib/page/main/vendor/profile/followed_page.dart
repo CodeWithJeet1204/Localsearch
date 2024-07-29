@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
+import 'package:localy_user/page/main/events/events_organizer_page.dart';
 import 'package:localy_user/page/main/vendor/vendor_page.dart';
 import 'package:localy_user/utils/colors.dart';
 import 'package:localy_user/widgets/skeleton_container.dart';
@@ -343,8 +344,10 @@ class _FollowedPageState extends State<FollowedPage>
                         final currentShops = selectedShopType == null
                             ? shops
                             : Map.fromEntries(
-                                shops.entries.where((entry) =>
-                                    entry.value[4] == selectedShopType),
+                                shops.entries.where(
+                                  (entry) => (entry.value[4] as List)
+                                      .contains(selectedShopType),
+                                ),
                               );
 
                         return SingleChildScrollView(
@@ -708,8 +711,8 @@ class _FollowedPageState extends State<FollowedPage>
                                                   Navigator.of(context).push(
                                                     MaterialPageRoute(
                                                       builder: ((context) =>
-                                                          VendorPage(
-                                                            vendorId: id,
+                                                          EventsOrganizerPage(
+                                                            organizerId: id,
                                                           )),
                                                     ),
                                                   );

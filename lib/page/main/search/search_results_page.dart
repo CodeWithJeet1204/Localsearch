@@ -3,8 +3,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
+import 'package:localy_user/page/main/location_change_page.dart';
 import 'package:localy_user/page/main/vendor/product/product_page.dart';
 import 'package:localy_user/page/main/vendor/vendor_page.dart';
+import 'package:localy_user/providers/location_provider.dart';
 import 'package:localy_user/utils/colors.dart';
 import 'package:localy_user/widgets/product_quick_view.dart';
 import 'package:localy_user/widgets/skeleton_container.dart';
@@ -12,6 +14,7 @@ import 'package:localy_user/widgets/snack_bar.dart';
 import 'package:localy_user/widgets/speech_to_text.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class SearchResultsPage extends StatefulWidget {
   const SearchResultsPage({
@@ -38,15 +41,23 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
   bool isShopsData = false;
   bool isProductsData = false;
   String? productSort = 'Recently Added';
-  RangeValues distanceRange = const RangeValues(0, 5);
+  double distanceRange = 5;
 
   // INIT STATE
   @override
   void initState() {
     setSearch();
     super.initState();
-    getProducts();
-    getShops();
+  }
+
+  // DID CHANGE DEPENDENCIES
+  @override
+  void didChangeDependencies() {
+    final locationProvider = Provider.of<LocationProvider>(context);
+
+    getShops(locationProvider);
+    getProducts(locationProvider);
+    super.didChangeDependencies();
   }
 
   // SET SEARCH
@@ -108,7 +119,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
   }
 
   // GET SHOPS
-  Future<void> getShops() async {
+  Future<void> getShops(LocationProvider locationProvider) async {
     var allShops = {};
     final shopSnap = await store
         .collection('Business')
@@ -119,6 +130,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
     double? yourLatitude;
     double? yourLongitude;
 
+    // GET LOCATION
     Future<Position?> getLocation() async {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
 
@@ -162,6 +174,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
       return null;
     }
 
+    // GET DRIVING DISTANCE
     Future<double?> getDrivingDistance(
       double startLat,
       double startLong,
@@ -187,37 +200,102 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
       }
     }
 
-    await getLocation().then((value) async {
-      if (value != null) {
-        setState(() {
-          yourLatitude = value.latitude;
-          yourLongitude = value.longitude;
-        });
+    if (locationProvider.cityName == 'Your Location') {
+      await getLocation().then((value) async {
+        if (value != null) {
+          setState(() {
+            yourLatitude = value.latitude;
+            yourLongitude = value.longitude;
+          });
+        }
+      });
+
+      for (var shopSnap in shopSnap.docs) {
+        final shopData = shopSnap.data();
+
+        final String name = shopData['Name'];
+        final String imageUrl = shopData['Image'];
+        final double vendorLatitude = shopData['Latitude'];
+        final double vendorLongitude = shopData['Longitude'];
+        final String vendorId = shopSnap.id;
+        double distance = 0;
+
+        if (yourLatitude != null && yourLongitude != null) {
+          distance = await getDrivingDistance(
+                yourLatitude!,
+                yourLongitude!,
+                vendorLatitude,
+                vendorLongitude,
+              ) ??
+              0;
+        }
+
+        if (distance * 0.925 < 5) {
+          allShops[vendorId] = [
+            name,
+            imageUrl,
+            vendorLatitude,
+            vendorLongitude,
+            distance
+          ];
+        }
       }
-    });
+    } else {
+      for (var shopSnap in shopSnap.docs) {
+        final shopData = shopSnap.data();
 
-    for (var shopSnap in shopSnap.docs) {
-      final shopData = shopSnap.data();
+        final String name = shopData['Name'];
+        final String imageUrl = shopData['Image'];
+        final double vendorLatitude = shopData['Latitude'];
+        final double vendorLongitude = shopData['Longitude'];
+        final String vendorId = shopSnap.id;
 
-      final String name = shopData['Name'];
-      final String imageUrl = shopData['Image'];
-      final double latitude = shopData['Latitude'];
-      final double longitude = shopData['Longitude'];
-      final String vendorId = shopSnap.id;
-      double distance = 0;
+        try {
+          final url =
+              'https://maps.googleapis.com/maps/api/geocode/json?latlng=$vendorLatitude,$vendorLongitude&key=AIzaSyCTzhOTUtdVUx0qpAbcXdn1TQKSmqtJbZM';
 
-      if (yourLatitude != null && yourLongitude != null) {
-        distance = await getDrivingDistance(
-              yourLatitude!,
-              yourLongitude!,
-              latitude,
-              longitude,
-            ) ??
-            0;
-      }
+          final response = await http.get(Uri.parse(url));
 
-      if (distance * 0.925 < 5) {
-        allShops[vendorId] = [name, imageUrl, latitude, longitude, distance];
+          if (response.statusCode == 200) {
+            final data = json.decode(response.body);
+            String? cityName;
+
+            if (data['status'] == 'OK') {
+              for (var result in data['results']) {
+                for (var component in result['address_components']) {
+                  if (component['types'].contains('locality')) {
+                    cityName = component['long_name'];
+                    break;
+                  } else if (component['types'].contains('sublocality')) {
+                    cityName = component['long_name'];
+                  } else if (component['types'].contains('neighborhood')) {
+                    cityName = component['long_name'];
+                  } else if (component['types'].contains('route')) {
+                    cityName = component['long_name'];
+                  } else if (component['types']
+                      .contains('administrative_area_level_3')) {
+                    cityName = component['long_name'];
+                  }
+                }
+                if (cityName != null) break;
+              }
+
+              if (cityName == locationProvider.cityName) {
+                allShops[vendorId] = [
+                  name,
+                  imageUrl,
+                  vendorLatitude,
+                  vendorLongitude,
+                ];
+              }
+            }
+          }
+        } catch (e) {
+          mySnackBar(
+            'Failed to fetch your City: ${e.toString()}',
+            context,
+          );
+        }
       }
     }
     searchedShops.clear();
@@ -262,7 +340,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
   }
 
   // GET PRODUCTS
-  Future<void> getProducts() async {
+  Future<void> getProducts(LocationProvider locationProvider) async {
     final productsSnap = await store
         .collection('Business')
         .doc('Data')
@@ -342,87 +420,191 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
       }
     }
 
-    await getLocation().then((value) async {
-      if (value != null) {
-        setState(() {
-          yourLatitude = value.latitude;
-          yourLongitude = value.longitude;
-        });
+    if (locationProvider.cityName == 'Your Location') {
+      await getLocation().then((value) async {
+        if (value != null) {
+          setState(() {
+            yourLatitude = value.latitude;
+            yourLongitude = value.longitude;
+          });
+        }
+      });
+
+      for (var productSnap in productsSnap.docs) {
+        final productData = productSnap.data();
+
+        final String productName = productData['productName'].toString();
+        final List tags = productData['Tags'];
+        final String imageUrl = productData['images'][0].toString();
+        final String productPrice = productData['productPrice'].toString();
+        final String productId = productData['productId'].toString();
+        final String vendorId = productData['vendorId'].toString();
+        final Map<String, dynamic> ratings = productData['ratings'];
+        final Timestamp datetime = productData['datetime'];
+        final int views = productData['productViews'];
+        double distance = 0;
+
+        final vendorSnap = await store
+            .collection('Business')
+            .doc('Owners')
+            .collection('Shops')
+            .doc(vendorId)
+            .get();
+
+        final vendorData = vendorSnap.data()!;
+
+        final String vendor = vendorData['Name'];
+        final double vendorLatitude = vendorData['Latitude'];
+        final double vendorLongitude = vendorData['Longitude'];
+
+        final productNameLower = productName.toLowerCase();
+        final searchLower = widget.search.toLowerCase();
+
+        if (yourLatitude != null && yourLongitude != null) {
+          distance = await getDrivingDistance(
+                yourLatitude!,
+                yourLongitude!,
+                vendorLatitude,
+                vendorLongitude,
+              ) ??
+              0;
+        }
+
+        if (distance * 0.925 < 5) {
+          if (productNameLower.contains(searchLower) ||
+              tags.any((tag) =>
+                  tag.toString().toLowerCase().contains(searchLower))) {
+            int relevanceScore = calculateRelevanceScore(
+              productNameLower,
+              searchLower,
+              tags,
+              searchLower,
+            );
+
+            searchedProducts[productName] = [
+              imageUrl,
+              vendor,
+              productPrice,
+              productId,
+              relevanceScore,
+              ratings,
+              datetime,
+              views,
+              distance,
+            ];
+            rangeProducts[productName] = [
+              imageUrl,
+              vendor,
+              productPrice,
+              productId,
+              relevanceScore,
+              ratings,
+              datetime,
+              views,
+              distance,
+            ];
+          }
+        }
       }
-    });
+    } else {
+      for (var productSnap in productsSnap.docs) {
+        final productData = productSnap.data();
 
-    for (var productSnap in productsSnap.docs) {
-      final productData = productSnap.data();
+        final String productName = productData['productName'].toString();
+        final List tags = productData['Tags'];
+        final String imageUrl = productData['images'][0].toString();
+        final String productPrice = productData['productPrice'].toString();
+        final String productId = productData['productId'].toString();
+        final String vendorId = productData['vendorId'].toString();
+        final Map<String, dynamic> ratings = productData['ratings'];
+        final Timestamp datetime = productData['datetime'];
+        final int views = productData['productViews'];
 
-      final String productName = productData['productName'].toString();
-      final List tags = productData['Tags'];
-      final String imageUrl = productData['images'][0].toString();
-      final String productPrice = productData['productPrice'].toString();
-      final String productId = productData['productId'].toString();
-      final String vendorId = productData['vendorId'].toString();
-      final Map<String, dynamic> ratings = productData['ratings'];
-      final Timestamp datetime = productData['datetime'];
-      final int views = productData['productViews'];
-      double distance = 0;
+        final vendorSnap = await store
+            .collection('Business')
+            .doc('Owners')
+            .collection('Shops')
+            .doc(vendorId)
+            .get();
 
-      final vendorSnap = await store
-          .collection('Business')
-          .doc('Owners')
-          .collection('Shops')
-          .doc(vendorId)
-          .get();
+        final vendorData = vendorSnap.data()!;
+        final String vendor = vendorData['Name'];
+        final vendorLatitude = vendorData['Latitude'];
+        final vendorLongitude = vendorData['Longitude'];
 
-      final vendorData = vendorSnap.data()!;
+        final productNameLower = productName.toLowerCase();
+        final searchLower = widget.search.toLowerCase();
 
-      final String vendor = vendorData['Name'];
-      final double latitude = vendorData['Latitude'];
-      final double longitude = vendorData['Longitude'];
+        try {
+          final url =
+              'https://maps.googleapis.com/maps/api/geocode/json?latlng=$vendorLatitude,$vendorLongitude&key=AIzaSyCTzhOTUtdVUx0qpAbcXdn1TQKSmqtJbZM';
 
-      final productNameLower = productName.toLowerCase();
-      final searchLower = widget.search.toLowerCase();
-      if (yourLatitude != null && yourLongitude != null) {
-        distance = await getDrivingDistance(
-              yourLatitude!,
-              yourLongitude!,
-              latitude,
-              longitude,
-            ) ??
-            0;
-      }
+          final response = await http.get(Uri.parse(url));
 
-      if (distance * 0.925 < 5) {
-        if (productNameLower.contains(searchLower) ||
-            tags.any(
-                (tag) => tag.toString().toLowerCase().contains(searchLower))) {
-          int relevanceScore = calculateRelevanceScore(
-            productNameLower,
-            searchLower,
-            tags,
-            searchLower,
+          if (response.statusCode == 200) {
+            final data = json.decode(response.body);
+            String? name;
+
+            if (data['status'] == 'OK') {
+              for (var result in data['results']) {
+                for (var component in result['address_components']) {
+                  if (component['types'].contains('locality')) {
+                    name = component['long_name'];
+                    break;
+                  } else if (component['types'].contains('sublocality')) {
+                    name = component['long_name'];
+                  } else if (component['types'].contains('neighborhood')) {
+                    name = component['long_name'];
+                  } else if (component['types'].contains('route')) {
+                    name = component['long_name'];
+                  } else if (component['types']
+                      .contains('administrative_area_level_3')) {
+                    name = component['long_name'];
+                  }
+                }
+                if (name != null) break;
+              }
+
+              if (name == locationProvider.cityName) {
+                if (productNameLower.contains(searchLower) ||
+                    tags.any((tag) =>
+                        tag.toString().toLowerCase().contains(searchLower))) {
+                  int relevanceScore = calculateRelevanceScore(
+                    productNameLower,
+                    searchLower,
+                    tags,
+                    searchLower,
+                  );
+
+                  searchedProducts[productName] = [
+                    imageUrl,
+                    vendor,
+                    productPrice,
+                    productId,
+                    relevanceScore,
+                    ratings,
+                    datetime,
+                    views,
+                  ];
+                  rangeProducts[productName] = [
+                    imageUrl,
+                    vendor,
+                    productPrice,
+                    productId,
+                    relevanceScore,
+                    ratings,
+                    datetime,
+                    views,
+                  ];
+                }
+              }
+            }
+          }
+        } catch (e) {
+          mySnackBar(
+            'Failed to fetch your City: ${e.toString()}',
+            context,
           );
-
-          searchedProducts[productName] = [
-            imageUrl,
-            vendor,
-            productPrice,
-            productId,
-            relevanceScore,
-            ratings,
-            datetime,
-            views,
-            distance,
-          ];
-          rangeProducts[productName] = [
-            imageUrl,
-            vendor,
-            productPrice,
-            productId,
-            relevanceScore,
-            ratings,
-            datetime,
-            views,
-            distance,
-          ];
         }
       }
     }
@@ -626,7 +808,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
     });
   }
 
-  // UPDATE SHOPS
+  // UPDATE PRODUCTS
   void updateProducts(double endDistance) {
     Map tempProducts = {};
 
@@ -647,11 +829,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
-
-    RangeLabels distanceLables = RangeLabels(
-      '0',
-      distanceRange.end.toString(),
-    );
+    final locationProvider = Provider.of<LocationProvider>(context);
 
     return Scaffold(
       body: SafeArea(
@@ -852,42 +1030,106 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                         ),
                       ),
 
-                      // DISTANCE
+                      // SELECT LOCATION
                       Padding(
-                        padding: EdgeInsets.only(left: width * 0.025),
-                        child: const Text(
-                          'Distance',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
+                        padding: EdgeInsets.all(width * 0.0225),
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => LocationChangePage(
+                                  page: SearchResultsPage(
+                                    search: widget.search,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                          child: Text(
+                            locationProvider.cityName == null ||
+                                    locationProvider.cityName == 'Your Location'
+                                ? 'Your Location▽'
+                                : locationProvider.cityName!.length > 15
+                                    ? '${locationProvider.cityName!.substring(0, 15)}...▽'
+                                    : '${locationProvider.cityName}▽',
+                            style: TextStyle(
+                              fontSize: width * 0.04,
+                              fontWeight: FontWeight.w300,
+                            ),
                           ),
                         ),
                       ),
 
-                      // RANGE SLIDER
-                      Center(
-                        child: RangeSlider(
-                          min: 0,
-                          max: 50,
-                          labels: distanceLables,
-                          divisions: 20,
-                          values: RangeValues(0, distanceRange.end),
-                          activeColor: primaryDark,
-                          inactiveColor: const Color.fromRGBO(197, 243, 255, 1),
-                          onChanged: (newValue) {
-                            setState(() {
-                              isShopsData = false;
-                              isProductsData = false;
-                              distanceRange = RangeValues(0, newValue.end);
-                            });
-                            updateShops(distanceRange.end);
-                            updateProducts(distanceRange.end);
-                            setState(() {
-                              isShopsData = true;
-                              isProductsData = true;
-                            });
-                          },
-                        ),
-                      ),
+                      // DISTANCE
+                      locationProvider.cityName != 'Your Location'
+                          ? Container()
+                          : Padding(
+                              padding: EdgeInsets.only(left: width * 0.025),
+                              child: const Text(
+                                'Distance (km)',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+
+                      // DISTANCE SLIDER
+                      locationProvider.cityName != 'Your Location'
+                          ? Container()
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Expanded(
+                                  child: Slider(
+                                    min: 0,
+                                    max: 50,
+                                    divisions: 20,
+                                    value: distanceRange,
+                                    activeColor: primaryDark,
+                                    inactiveColor:
+                                        const Color.fromRGBO(197, 243, 255, 1),
+                                    onChanged: (newValue) {
+                                      setState(() {
+                                        isShopsData = false;
+                                        isProductsData = false;
+                                        distanceRange = newValue;
+                                      });
+                                      updateShops(distanceRange);
+                                      updateProducts(distanceRange);
+                                      setState(() {
+                                        isShopsData = true;
+                                        isProductsData = true;
+                                      });
+                                    },
+                                  ),
+                                ),
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: primaryDark,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  padding: EdgeInsets.all(width * 0.035),
+                                  child: Text(
+                                    distanceRange
+                                            .toString()
+                                            .endsWith('.500000000000004')
+                                        ? distanceRange.toString().replaceFirst(
+                                            '.500000000000004', '')
+                                        : distanceRange.toString().endsWith('0')
+                                            ? distanceRange
+                                                .toString()
+                                                .replaceFirst('.0', '')
+                                            : distanceRange.toString(),
+                                    style: TextStyle(
+                                      color: white,
+                                      fontSize: width * 0.055,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
 
                       // SHOP
                       Column(

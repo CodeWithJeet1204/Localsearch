@@ -2,6 +2,7 @@ import 'package:localy_user/firebase_options.dart';
 import 'package:localy_user/page/auth/login_page.dart';
 import 'package:localy_user/page/auth/register_method_page.dart';
 import 'package:localy_user/page/main/main_page.dart';
+import 'package:localy_user/providers/location_provider.dart';
 import 'package:localy_user/providers/register_details_provider.dart';
 import 'package:localy_user/providers/verification_provider.dart';
 import 'package:localy_user/utils/colors.dart';
@@ -15,11 +16,15 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.android,
   );
+
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(
           create: (_) => VerificationProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => LocationProvider(),
         ),
         ChangeNotifierProvider(
           create: (_) => RegisterDetailsProvider(),
@@ -35,6 +40,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // final locationProvider = Provider.of<LocationProvider>(context);
+
+    // locationProvider.changeCity({
+    //   'Your Location': {
+    //     'cityId': 'Your Location',
+    //     'cityName': 'Your Location',
+    //     'cityLatitude': 19.81972624925867,
+    //     'cityLongitude': 76.02556666960275,
+    //   },
+    // });
+
     return MaterialApp(
       title: 'Localy User',
       theme: ThemeData(

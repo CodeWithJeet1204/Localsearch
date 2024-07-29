@@ -184,8 +184,8 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
     });
   }
 
-  // CALL SHOP
-  Future<void> callShop() async {
+  // CALL ORGANIZER
+  Future<void> callOrganizer() async {
     final Uri url = Uri(
       scheme: 'tel',
       path: organizerData['Phone Number'],
@@ -220,10 +220,11 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
   }
 
   // GET ADDRESS
-  Future<String> getAddress(double shopLatitude, double shopLongitude) async {
+  Future<String> getAddress(
+      double organizerLatitude, double organizerLongitude) async {
     const apiKey = 'AIzaSyCTzhOTUtdVUx0qpAbcXdn1TQKSmqtJbZM';
     final apiUrl =
-        'https://maps.googleapis.com/maps/api/geocode/json?latlng=$shopLatitude,$shopLongitude&key=$apiKey';
+        'https://maps.googleapis.com/maps/api/geocode/json?latlng=$organizerLatitude,$organizerLongitude&key=$apiKey';
 
     String? address;
     try {
@@ -387,7 +388,7 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
                               // CALL
                               GestureDetector(
                                 onTap: () async {
-                                  await callShop();
+                                  await callOrganizer();
                                 },
                                 child: Container(
                                   width: width * 0.25,

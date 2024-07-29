@@ -5,9 +5,12 @@ import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:localy_user/page/main/discount_page.dart';
+import 'package:localy_user/page/main/location_change_page.dart';
+import 'package:localy_user/providers/location_provider.dart';
 import 'package:localy_user/utils/colors.dart';
 import 'package:localy_user/widgets/shimmer_skeleton_container.dart';
 import 'package:localy_user/widgets/snack_bar.dart';
+import 'package:provider/provider.dart';
 
 class AllDiscountPage extends StatefulWidget {
   const AllDiscountPage({super.key});
@@ -21,15 +24,16 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
   Map<String, Map<String, dynamic>> allDiscounts = {};
   Map<String, Map<String, dynamic>> currentDiscounts = {};
   final searchController = TextEditingController();
-  RangeValues distanceRange = const RangeValues(0, 5);
+  double distanceRange = 5;
   bool isGridView = true;
   bool isData = false;
 
-  // INIT STATE
+  // DID CHANGE DEPENDENCIES
   @override
-  void initState() {
-    getData();
-    super.initState();
+  void didChangeDependencies() {
+    final locationProvider = Provider.of<LocationProvider>(context);
+    getData(locationProvider);
+    super.didChangeDependencies();
   }
 
   // DISPOSE
@@ -40,7 +44,7 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
   }
 
   // GET DATA
-  Future<void> getData() async {
+  Future<void> getData(LocationProvider locationProvider) async {
     Map<String, Map<String, dynamic>> myDiscounts = {};
     final discountSnap = await store
         .collection('Business')
@@ -121,63 +125,142 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
       }
     }
 
-    await getLocation().then((value) async {
-      if (value != null) {
-        setState(() {
-          yourLatitude = value.latitude;
-          yourLongitude = value.longitude;
-        });
-      }
-    });
+    if (locationProvider.cityName == null ||
+        locationProvider.cityName == 'Your Location') {
+      await getLocation().then((value) async {
+        if (value != null) {
+          setState(() {
+            yourLatitude = value.latitude;
+            yourLongitude = value.longitude;
+          });
+        }
+      });
 
-    for (var discount in discountSnap.docs) {
-      final discountData = discount.data();
+      for (var discount in discountSnap.docs) {
+        final discountData = discount.data();
 
-      final discountId = discount.id;
-      final Timestamp endDateTime = discountData['discountEndDateTime'];
-      final String vendorId = discountData['vendorId'];
-      double? distance;
+        final discountId = discount.id;
+        final Timestamp endDateTime = discountData['discountEndDateTime'];
+        final String vendorId = discountData['vendorId'];
+        double? distance;
 
-      final vendorSnap = await store
-          .collection('Business')
-          .doc('Owners')
-          .collection('Shops')
-          .doc(vendorId)
-          .get();
+        final vendorSnap = await store
+            .collection('Business')
+            .doc('Owners')
+            .collection('Shops')
+            .doc(vendorId)
+            .get();
 
-      final vendorData = vendorSnap.data()!;
+        final vendorData = vendorSnap.data()!;
 
-      final vendorName = vendorData['Name'];
-      final latitude = vendorData['Latitude'];
-      final longitude = vendorData['Longitude'];
+        final vendorName = vendorData['Name'];
+        final vendorLatitude = vendorData['Latitude'];
+        final vendorLongitude = vendorData['Longitude'];
 
-      if (yourLatitude != null && yourLongitude != null) {
-        distance = await getDrivingDistance(
-          yourLatitude!,
-          yourLongitude!,
-          latitude,
-          longitude,
-        );
-      }
+        if (yourLatitude != null && yourLongitude != null) {
+          distance = await getDrivingDistance(
+            yourLatitude!,
+            yourLongitude!,
+            vendorLatitude,
+            vendorLongitude,
+          );
+        }
 
-      if (distance != null) {
-        if (distance * 0.925 < 5) {
-          if (endDateTime.toDate().isAfter(DateTime.now())) {
-            discountData.addAll({
-              'vendorName': vendorName,
-              'distance': distance,
-            });
-            myDiscounts[discountId] = discountData;
+        if (distance != null) {
+          if (distance * 0.925 < 5) {
+            if (endDateTime.toDate().isAfter(DateTime.now())) {
+              discountData.addAll({
+                'vendorName': vendorName,
+                'distance': distance,
+              });
+              myDiscounts[discountId] = discountData;
+            }
           }
         }
       }
-    }
 
-    setState(() {
-      currentDiscounts = myDiscounts;
-      allDiscounts = myDiscounts;
-      isData = true;
-    });
+      setState(() {
+        currentDiscounts = myDiscounts;
+        allDiscounts = myDiscounts;
+        isData = true;
+      });
+    } else {
+      try {
+        for (var discount in discountSnap.docs) {
+          final discountData = discount.data();
+
+          final discountId = discount.id;
+          final Timestamp endDateTime = discountData['discountEndDateTime'];
+          final String vendorId = discountData['vendorId'];
+          double? distance;
+
+          final vendorSnap = await store
+              .collection('Business')
+              .doc('Owners')
+              .collection('Shops')
+              .doc(vendorId)
+              .get();
+
+          final vendorData = vendorSnap.data()!;
+
+          final vendorName = vendorData['Name'];
+          final vendorLatitude = vendorData['Latitude'];
+          final vendorLongitude = vendorData['Longitude'];
+
+          final url =
+              'https://maps.googleapis.com/maps/api/geocode/json?latlng=$vendorLatitude,$vendorLongitude&key=AIzaSyCTzhOTUtdVUx0qpAbcXdn1TQKSmqtJbZM';
+
+          final response = await http.get(Uri.parse(url));
+
+          if (response.statusCode == 200) {
+            final data = json.decode(response.body);
+            String? name;
+
+            if (data['status'] == 'OK') {
+              for (var result in data['results']) {
+                for (var component in result['address_components']) {
+                  if (component['types'].contains('locality')) {
+                    name = component['long_name'];
+                    break;
+                  } else if (component['types'].contains('sublocality')) {
+                    name = component['long_name'];
+                  } else if (component['types'].contains('neighborhood')) {
+                    name = component['long_name'];
+                  } else if (component['types'].contains('route')) {
+                    name = component['long_name'];
+                  } else if (component['types']
+                      .contains('administrative_area_level_3')) {
+                    name = component['long_name'];
+                  }
+                }
+                if (name != null) break;
+              }
+
+              if (name == locationProvider.cityName) {
+                if (endDateTime.toDate().isAfter(DateTime.now())) {
+                  discountData.addAll({
+                    'vendorName': vendorName,
+                    'distance': distance,
+                  });
+                  myDiscounts[discountId] = discountData;
+                }
+              }
+            }
+          }
+        }
+
+        setState(() {
+          currentDiscounts = myDiscounts;
+          allDiscounts = myDiscounts;
+          isData = true;
+        });
+      } catch (e) {
+        mySnackBar(
+          'Failed to fetch your City: ${e.toString()}',
+          context,
+        );
+      }
+    }
   }
 
   // UPDATE DISCOUNTS
@@ -197,10 +280,7 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    RangeLabels distanceLables = RangeLabels(
-      '0',
-      distanceRange.end.toString(),
-    );
+    final locationProvider = Provider.of<LocationProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -209,10 +289,7 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
           'ALL DISCOUNTS',
         ),
         bottom: PreferredSize(
-          preferredSize: Size(
-            MediaQuery.of(context).size.width,
-            MediaQuery.of(context).size.width * 0.2,
-          ),
+          preferredSize: Size(width, width * 0.2),
           child: Padding(
             padding: EdgeInsets.symmetric(
               horizontal: MediaQuery.of(context).size.width * 0.0166,
@@ -314,43 +391,116 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // DISTANCE
+                          // SELECT LOCATION
                           Padding(
-                            padding: EdgeInsets.only(left: width * 0.025),
-                            child: const Text(
-                              'Distance',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w500,
+                            padding: EdgeInsets.all(width * 0.0225),
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => LocationChangePage(
+                                      page: AllDiscountPage(),
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Text(
+                                locationProvider.cityName == null ||
+                                        locationProvider.cityName ==
+                                            'Your Location'
+                                    ? 'Your Location▽'
+                                    : locationProvider.cityName!.length > 15
+                                        ? '${locationProvider.cityName!.substring(0, 15)}...▽'
+                                        : '${locationProvider.cityName}▽',
+                                style: TextStyle(
+                                  fontSize: width * 0.04,
+                                  fontWeight: FontWeight.w300,
+                                ),
                               ),
                             ),
                           ),
 
-                          // RANGE SLIDER
-                          Center(
-                            child: RangeSlider(
-                              min: 0,
-                              max: 50,
-                              labels: distanceLables,
-                              divisions: 20,
-                              values: RangeValues(0, distanceRange.end),
-                              activeColor: primaryDark,
-                              inactiveColor:
-                                  const Color.fromRGBO(197, 243, 255, 1),
-                              onChanged: (newValue) {
-                                setState(() {
-                                  isData = false;
-                                  distanceRange = RangeValues(0, newValue.end);
-                                });
-                                updateDiscounts(distanceRange.end);
-                                setState(() {
-                                  isData = true;
-                                });
-                              },
-                            ),
-                          ),
+                          // DISTANCE
+                          locationProvider.cityName != null &&
+                                  locationProvider.cityName != 'Your Location'
+                              ? Container()
+                              : Padding(
+                                  padding: EdgeInsets.only(left: width * 0.025),
+                                  child: const Text(
+                                    'Distance (km)',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+
+                          // DISTANCE SLIDER
+                          locationProvider.cityName != null &&
+                                  locationProvider.cityName != 'Your Location'
+                              ? Container()
+                              : Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Expanded(
+                                      child: Slider(
+                                        min: 0,
+                                        max: 50,
+                                        divisions: 20,
+                                        value: distanceRange,
+                                        activeColor: primaryDark,
+                                        inactiveColor: const Color.fromRGBO(
+                                            197, 243, 255, 1),
+                                        onChanged: (newValue) {
+                                          setState(() {
+                                            isData = false;
+                                            distanceRange = newValue;
+                                          });
+                                          updateDiscounts(distanceRange);
+                                          setState(() {
+                                            isData = true;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: primaryDark,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      padding: EdgeInsets.all(width * 0.035),
+                                      child: Text(
+                                        distanceRange
+                                                .toString()
+                                                .endsWith('.500000000000004')
+                                            ? distanceRange
+                                                .toString()
+                                                .replaceFirst(
+                                                    '.500000000000004', '')
+                                            : distanceRange
+                                                    .toString()
+                                                    .endsWith('0')
+                                                ? distanceRange
+                                                    .toString()
+                                                    .replaceFirst('.0', '')
+                                                : distanceRange.toString(),
+                                        style: TextStyle(
+                                          color: white,
+                                          fontSize: width * 0.055,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+
                           currentDiscounts.isEmpty
-                              ? const Center(
-                                  child: Text('No Discounts'),
+                              ? SizedBox(
+                                  height: 80,
+                                  child: const Center(
+                                    child: Text('No Discounts'),
+                                  ),
                                 )
                               : isGridView
                                   ? SizedBox(
