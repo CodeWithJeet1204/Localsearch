@@ -564,6 +564,7 @@ class _EventsSearchResultsPageState extends State<EventsSearchResultsPage> {
                               child: ListView.builder(
                                 shrinkWrap: true,
                                 itemCount: 2,
+                                physics: ClampingScrollPhysics(),
                                 itemBuilder: ((context, index) {
                                   return Container(
                                     width: width,
@@ -767,6 +768,7 @@ class _EventsSearchResultsPageState extends State<EventsSearchResultsPage> {
                                   height: 50,
                                   child: ListView.builder(
                                     shrinkWrap: true,
+                                    physics: ClampingScrollPhysics(),
                                     scrollDirection: Axis.horizontal,
                                     itemCount: eventCategories.length,
                                     itemBuilder: ((context, index) {

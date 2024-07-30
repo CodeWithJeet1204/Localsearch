@@ -55,7 +55,6 @@ class _LocationChangePageState extends State<LocationChangePage> {
   // UPDATE CITIES
   void updateCities(String search) async {
     Map<String, Map<String, dynamic>> tempCities = {};
-    print('search: $search');
 
     if (search.isEmpty) {
       setState(() {
@@ -205,7 +204,6 @@ class _LocationChangePageState extends State<LocationChangePage> {
                             onTap: () async {
                               await getLocation().then((value) async {
                                 if (value != null) {
-                                  print('not null');
                                   locationProvider.changeCity({
                                     'Your Location': {
                                       'cityId': 'Your Location',

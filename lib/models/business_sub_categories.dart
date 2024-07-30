@@ -1,4 +1,4 @@
-Map<String, Map<String, String>> shopCategories = {
+Map<String, Map<String, String>> businessCategories = {
   // grocery == done
   'Grocery': {
     'Fruits':

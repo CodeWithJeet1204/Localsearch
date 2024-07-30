@@ -499,9 +499,9 @@ class _EventsHomePageState extends State<EventsHomePage> {
                                     height: width * 0.3,
                                     child: ListView.builder(
                                       shrinkWrap: true,
-                                      scrollDirection: Axis.horizontal,
                                       physics:
                                           const NeverScrollableScrollPhysics(),
+                                      scrollDirection: Axis.horizontal,
                                       itemCount: 4,
                                       itemBuilder: ((context, index) {
                                         final String name = eventCategories.keys

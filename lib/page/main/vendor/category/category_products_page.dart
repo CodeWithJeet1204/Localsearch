@@ -104,6 +104,7 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
                   childAspectRatio: 0.85,
                 ),
                 itemCount: 6,
+                physics: ClampingScrollPhysics(),
                 itemBuilder: ((context, index) {
                   return Padding(
                     padding: EdgeInsets.all(width * 0.0225),
@@ -143,6 +144,7 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
                       childAspectRatio: 0.7,
                     ),
                     itemCount: products.length,
+                    physics: ClampingScrollPhysics(),
                     itemBuilder: ((context, index) {
                       final name = products.values.toList()[index][0];
                       final price = products.values.toList()[index][1];

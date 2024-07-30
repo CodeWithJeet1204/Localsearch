@@ -31,7 +31,7 @@ class _MainPageState extends State<MainPage>
   Widget? detailsPage;
 
   List<Widget> items = [
-    const PostsPage(),
+    const PostHomePage(),
     const ProductHomePage(),
     const ShortsPage(),
     // const ServicesHomePage(),

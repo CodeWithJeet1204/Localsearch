@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:localy_user/models/household_special_categories.dart';
+import 'package:localy_user/models/household_type_category_subCategory.dart';
 import 'package:localy_user/widgets/snack_bar.dart';
 
 class VendorProductsPage extends StatefulWidget {
@@ -38,8 +38,8 @@ class _VendorProductsPageState extends State<VendorProductsPage> {
         String? category;
         String? shopType;
 
-        for (var type in householdSpecialCategories.keys) {
-          final categories = householdSpecialCategories[type];
+        for (var type in householdTypeCategorySubCategory.keys) {
+          final categories = householdTypeCategorySubCategory[type];
           if (categories != null) {
             for (var cat in categories.keys) {
               if (categories[cat]!.contains(product)) {

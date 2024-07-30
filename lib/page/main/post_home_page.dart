@@ -9,14 +9,14 @@ import 'package:localy_user/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class PostsPage extends StatefulWidget {
-  const PostsPage({super.key});
+class PostHomePage extends StatefulWidget {
+  const PostHomePage({super.key});
 
   @override
-  State<PostsPage> createState() => _PostsPageState();
+  State<PostHomePage> createState() => _PostHomePageState();
 }
 
-class _PostsPageState extends State<PostsPage> {
+class _PostHomePageState extends State<PostHomePage> {
   final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
   Map<String, dynamic> posts = {};
@@ -42,21 +42,25 @@ class _PostsPageState extends State<PostsPage> {
 
     for (final postSnap in postsSnap.docs) {
       final postData = postSnap.data();
-      final String productId = postData['postProductId'];
-      final String name = postData['postProductName'];
-      final String price = postData['postProductPrice'];
+      final bool isLinked = postData['isLinked'];
+      print(
+          'postId: 1: ${postData['postId']}, 2: ${postData['postProductId']}');
+      final String postId = postData[!isLinked ? 'postId' : 'postProductId'];
+      final String name = postData[!isLinked ? 'post' : 'postProductName'];
+      final String? price = postData['postProductPrice'];
       final bool isTextPost = postData['isTextPost'];
-      final List imageUrl = isTextPost ? [] : postData['postProductImages'];
+      final List? imageUrl = isTextPost ? [] : postData['postProductImages'];
       final String vendorId = postData['postVendorId'];
       final Timestamp datetime = postData['postDateTime'];
 
-      myPosts[isTextPost ? '${productId}text' : '${productId}image'] = [
+      myPosts[isTextPost ? '${postId}text' : '${postId}image'] = [
         name,
         price,
         imageUrl,
         vendorId,
         isTextPost,
         datetime,
+        isLinked,
       ];
 
       myPosts = Map.fromEntries(
@@ -69,7 +73,7 @@ class _PostsPageState extends State<PostsPage> {
       );
 
       await getVendorInfo(vendorId);
-      await getPostProductData(productId, isTextPost);
+      await getPostProductData(postId, isTextPost);
     }
 
     setState(() {
@@ -152,6 +156,7 @@ class _PostsPageState extends State<PostsPage> {
               child: ListView.builder(
                 shrinkWrap: true,
                 itemCount: 4,
+                physics: ClampingScrollPhysics(),
                 itemBuilder: ((context, index) {
                   return Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -189,9 +194,9 @@ class _PostsPageState extends State<PostsPage> {
                             final String id = posts.keys.toList()[index];
 
                             final String name = posts.values.toList()[index][0];
-                            final String price =
+                            final String? price =
                                 posts.values.toList()[index][1];
-                            final List imageUrl =
+                            final List? imageUrl =
                                 posts.values.toList()[index][2];
                             final String vendorId =
                                 posts.values.toList()[index][3];
@@ -202,17 +207,20 @@ class _PostsPageState extends State<PostsPage> {
                             final String vendorImageUrl =
                                 vendors.isEmpty ? '' : vendors[vendorId][1];
                             final productData = productsData[id];
+                            bool isLinked = posts.values.toList()[index][6];
 
                             return GestureDetector(
-                              onTap: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: ((context) => ProductPage(
-                                          productData: productData!,
-                                        )),
-                                  ),
-                                );
-                              },
+                              onTap: !isLinked
+                                  ? null
+                                  : () {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: ((context) => ProductPage(
+                                                productData: productData!,
+                                              )),
+                                        ),
+                                      );
+                                    },
                               child: Container(
                                 width: width,
                                 decoration: const BoxDecoration(
@@ -307,76 +315,82 @@ class _PostsPageState extends State<PostsPage> {
                                     // IMAGES
                                     isTextPost
                                         ? Container()
-                                        : Stack(
-                                            alignment: Alignment.bottomCenter,
-                                            children: [
-                                              Container(
-                                                width: width,
-                                                height: width,
-                                                decoration: const BoxDecoration(
-                                                  color: Color.fromARGB(
-                                                      255, 237, 237, 237),
-                                                ),
-                                                child: CarouselSlider(
-                                                  items: (imageUrl)
-                                                      .map(
-                                                        (e) => Image.network(
-                                                          e,
-                                                          width: width,
-                                                          height: width,
-                                                        ),
-                                                      )
-                                                      .toList(),
-                                                  options: CarouselOptions(
-                                                    enableInfiniteScroll:
-                                                        imageUrl.length > 1
-                                                            ? true
-                                                            : false,
-                                                    viewportFraction: 1,
-                                                    aspectRatio: 0.7875,
-                                                    enlargeCenterPage: false,
+                                        : isTextPost
+                                            ? Container()
+                                            : Stack(
+                                                alignment:
+                                                    Alignment.bottomCenter,
+                                                children: [
+                                                  Container(
+                                                    width: width,
+                                                    height: width,
+                                                    decoration:
+                                                        const BoxDecoration(
+                                                      color: Color.fromRGBO(
+                                                          237, 237, 237, 1),
+                                                    ),
+                                                    child: CarouselSlider(
+                                                      items: imageUrl!
+                                                          .map(
+                                                            (e) =>
+                                                                Image.network(
+                                                              e,
+                                                              width: width,
+                                                              height: width,
+                                                              fit: BoxFit.cover,
+                                                            ),
+                                                          )
+                                                          .toList(),
+                                                      options: CarouselOptions(
+                                                        enableInfiniteScroll:
+                                                            imageUrl.length > 1
+                                                                ? true
+                                                                : false,
+                                                        viewportFraction: 1,
+                                                        aspectRatio: 0.7875,
+                                                        enlargeCenterPage:
+                                                            false,
+                                                      ),
+                                                    ),
                                                   ),
-                                                ),
+
+                                                  // DOTS
+                                                  // isTextPost
+                                                  //     ? Container()
+                                                  //     : Padding(
+                                                  //         padding: const EdgeInsets.only(
+                                                  //           bottom: 8,
+                                                  //         ),
+                                                  //         child: Row(
+                                                  //           mainAxisAlignment:
+                                                  //               MainAxisAlignment.center,
+                                                  //           crossAxisAlignment:
+                                                  //               CrossAxisAlignment.center,
+                                                  //           children: (imageUrl).map((e) {
+                                                  //             int index = imageUrl.indexOf(e);
+
+                                                  //             return Container(
+                                                  //               width: 8,
+                                                  //               height: 8,
+                                                  //               margin: const EdgeInsets.all(4),
+                                                  //               decoration: BoxDecoration(
+                                                  //                 shape: BoxShape.circle,
+                                                  //                 color: currentIndex == index
+                                                  //                     ? primaryDark
+                                                  //                     : primary2,
+                                                  //               ),
+                                                  //             );
+                                                  //           }).toList(),
+                                                  //         ),
+                                                  //       ),
+                                                ],
                                               ),
-
-                                              // DOTS
-                                              // isTextPost
-                                              //     ? Container()
-                                              //     : Padding(
-                                              //         padding: const EdgeInsets.only(
-                                              //           bottom: 8,
-                                              //         ),
-                                              //         child: Row(
-                                              //           mainAxisAlignment:
-                                              //               MainAxisAlignment.center,
-                                              //           crossAxisAlignment:
-                                              //               CrossAxisAlignment.center,
-                                              //           children: (imageUrl).map((e) {
-                                              //             int index = imageUrl.indexOf(e);
-
-                                              //             return Container(
-                                              //               width: 8,
-                                              //               height: 8,
-                                              //               margin: const EdgeInsets.all(4),
-                                              //               decoration: BoxDecoration(
-                                              //                 shape: BoxShape.circle,
-                                              //                 color: currentIndex == index
-                                              //                     ? primaryDark
-                                              //                     : primary2,
-                                              //               ),
-                                              //             );
-                                              //           }).toList(),
-                                              //         ),
-                                              //       ),
-                                            ],
-                                          ),
 
                                     // NAME
                                     Padding(
                                       padding: EdgeInsets.all(width * 0.0125),
                                       child: SizedBox(
                                         width: width,
-                                        height: isTextPost ? null : 40,
                                         child: Text(
                                           name,
                                           maxLines: isTextPost ? null : 2,
@@ -388,7 +402,7 @@ class _PostsPageState extends State<PostsPage> {
                                     ),
 
                                     // PRICE
-                                    price == ''
+                                    price == '' || price == null
                                         ? Container()
                                         : Padding(
                                             padding: EdgeInsets.symmetric(

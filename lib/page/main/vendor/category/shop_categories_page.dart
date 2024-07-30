@@ -24,7 +24,7 @@ class _ShopCategoriesPageState extends State<ShopCategoriesPage> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     Map<String, String> currentShopCategories =
-        shopCategories[widget.shopName]!;
+        businessCategories[widget.shopName]!;
 
     return Scaffold(
       appBar: AppBar(
@@ -53,6 +53,7 @@ class _ShopCategoriesPageState extends State<ShopCategoriesPage> {
             childAspectRatio: 0.825,
           ),
           itemCount: currentShopCategories.length,
+          physics: ClampingScrollPhysics(),
           itemBuilder: ((context, index) {
             final name = currentShopCategories.keys.toList()[index];
             final imageUrl = currentShopCategories.values.toList()[index];

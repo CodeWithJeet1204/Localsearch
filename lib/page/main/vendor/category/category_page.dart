@@ -14,7 +14,7 @@ class CategoryPage extends StatefulWidget {
   });
 
   final String categoryName;
-  final String vendorType;
+  final List vendorType;
 
   @override
   State<CategoryPage> createState() => _CategoryPageState();
@@ -37,21 +37,23 @@ class _CategoryPageState extends State<CategoryPage> {
 
   // GET DATA
   Future<void> getData() async {
-    final categorySnap = await store
-        .collection('Business')
-        .doc('Special Categories')
-        .collection(widget.vendorType)
-        .doc(widget.categoryName)
-        .get();
+    for (var type in widget.vendorType) {
+      final categorySnap = await store
+          .collection('Business')
+          .doc('Special Categories')
+          .collection(type)
+          .doc(widget.categoryName)
+          .get();
 
-    final categoryData = categorySnap.data()!;
-    final categoryName = categoryData['specialCategoryName'];
-    final categoryImageUrl = categoryData['specialCategoryImageUrl'];
+      final categoryData = categorySnap.data()!;
+      final categoryName = categoryData['specialCategoryName'];
+      final categoryImageUrl = categoryData['specialCategoryImageUrl'];
 
-    setState(() {
-      name = categoryName;
-      imageUrl = categoryImageUrl;
-    });
+      setState(() {
+        name = categoryName;
+        imageUrl = categoryImageUrl;
+      });
+    }
   }
 
   // GET PRODUCTS

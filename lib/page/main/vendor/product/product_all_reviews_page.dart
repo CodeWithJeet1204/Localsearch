@@ -66,6 +66,7 @@ class _ProductAllReviewPageState extends State<ProductAllReviewPage> {
                         child: ListView.builder(
                           shrinkWrap: true,
                           itemCount: reviews.length,
+                          physics: ClampingScrollPhysics(),
                           itemBuilder: ((context, index) {
                             final name = reviews.keys.toList()[index];
                             final rating = reviews.values.toList()[index][0];

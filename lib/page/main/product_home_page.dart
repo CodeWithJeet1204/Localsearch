@@ -8,6 +8,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:localy_user/models/business_categories.dart';
 import 'package:localy_user/page/main/all_discount_page.dart';
 import 'package:localy_user/page/main/location_change_page.dart';
+import 'package:localy_user/page/main/main_page.dart';
 import 'package:localy_user/page/main/vendor/category/all_shop_types_page.dart';
 import 'package:localy_user/page/main/vendor/category/shop_categories_page.dart';
 import 'package:localy_user/page/main/vendor/product/product_page.dart';
@@ -47,11 +48,14 @@ class _ProductHomePageState extends State<ProductHomePage> {
   Map<String, dynamic> currentWishlist = {};
   Map<String, dynamic> allFollowedShops = {};
   Map<String, dynamic> currentFollowedShops = {};
+  Map<String, dynamic> posts = {};
+  Map<String, dynamic> vendors = {};
+  Map<String, dynamic> productsData = {};
   bool getRecentData = false;
   bool getWishlistData = false;
   bool getFollowedData = false;
+  bool isPostData = false;
   double distanceRange = 5;
-  bool isDiscount = false;
   List<int> numbers = [0, 1, 2, 3];
   List<int> reverseNumbers = [4, 5, 6, 7];
 
@@ -60,6 +64,8 @@ class _ProductHomePageState extends State<ProductHomePage> {
   void initState() {
     getName();
     getRecentShop();
+    getPosts();
+
     super.initState();
   }
 
@@ -167,7 +173,6 @@ class _ProductHomePageState extends State<ProductHomePage> {
   //       return null;
   //     }
   //   }
-  //   print('location city: ${locationProvider.cityName}');
   //   if (locationProvider.cityName == 'Your Location') {
   //     final position = await getLocation();
   //     if (position != null) {
@@ -197,7 +202,6 @@ class _ProductHomePageState extends State<ProductHomePage> {
   //           );
   //           if (dist != null) {
   //             if (dist < 5) {
-  //               print('distance: $dist');
   //               if (endDateTime.toDate().isAfter(DateTime.now())) {
   //                 completer.complete(true);
   //                 return true;
@@ -855,6 +859,100 @@ class _ProductHomePageState extends State<ProductHomePage> {
     });
   }
 
+  // GET POSTS
+  Future<void> getPosts() async {
+    Map<String, dynamic> myPosts = {};
+    final postsSnap = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Posts')
+        .get();
+
+    for (final postSnap in postsSnap.docs) {
+      final postData = postSnap.data();
+      final String productId = postData['postProductId'];
+      final String name = postData['postProductName'];
+      final String price = postData['postProductPrice'];
+      final bool isTextPost = postData['isTextPost'];
+      final List imageUrl = isTextPost ? [] : postData['postProductImages'];
+      final String vendorId = postData['postVendorId'];
+      final Timestamp datetime = postData['postDateTime'];
+
+      myPosts[isTextPost ? '${productId}text' : '${productId}image'] = [
+        name,
+        price,
+        imageUrl,
+        vendorId,
+        isTextPost,
+        datetime,
+      ];
+
+      print('my posts: $myPosts');
+
+      myPosts = Map.fromEntries(
+        myPosts.entries.toList()
+          ..sort(
+            (a, b) => (b.value[5] as Timestamp).compareTo(
+              a.value[5] as Timestamp,
+            ),
+          ),
+      );
+
+      await getVendorInfo(vendorId);
+      await getPostProductData(productId, isTextPost);
+    }
+
+    setState(() {
+      posts = myPosts;
+      isPostData = true;
+    });
+    print('posts: $posts');
+  }
+
+  // GET POST PRODUCT DATA
+  Future<Map<String, dynamic>?> getPostProductData(
+      String productId, bool isTextPost,
+      {bool? wantData}) async {
+    final productSnap = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Products')
+        .doc(productId)
+        .get();
+
+    final productData = productSnap.data();
+    productsData[isTextPost ? '${productId}text' : '${productId}image'] =
+        productData;
+
+    if (wantData != null) {
+      return productsData[isTextPost ? productId : productId];
+    } else {
+      return null;
+    }
+  }
+
+  // GET VENDOR INFO
+  Future<void> getVendorInfo(String vendorId) async {
+    final vendorSnap = await store
+        .collection('Business')
+        .doc('Owners')
+        .collection('Shops')
+        .doc(vendorId)
+        .get();
+
+    final vendorData = vendorSnap.data();
+
+    if (vendorData != null) {
+      final id = vendorSnap.id;
+      final name = vendorData['Name'];
+      final imageUrl = vendorData['Image'];
+
+      setState(() {
+        vendors[id] = [name, imageUrl];
+      });
+    }
+  }
+
   // UPDATE WISHLIST
   void updateWishlist(double endDistance) {
     Map<String, dynamic> tempWishlist = {};
@@ -885,147 +983,132 @@ class _ProductHomePageState extends State<ProductHomePage> {
   }
 
   // UPDATE DISCOUNTS
-  void updateDiscounts(
-    double endDistance,
-    LocationProvider locationProvider,
-  ) async {
-    final discountSnap = await store
-        .collection('Business')
-        .doc('Data')
-        .collection('Discounts')
-        .get();
-
-    double? yourLatitude;
-    double? yourLongitude;
-
-    // GET LOCATION
-    Future<Position?> getLocation() async {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-
-      if (!serviceEnabled) {
-        if (mounted) {
-          mySnackBar('Turn ON Location Services to Continue', context);
-        }
-        return null;
-      } else {
-        LocationPermission permission = await Geolocator.checkPermission();
-
-        // LOCATION PERMISSION GIVEN
-        Future<Position> locationPermissionGiven() async {
-          return await Geolocator.getCurrentPosition();
-        }
-
-        if (permission == LocationPermission.denied) {
-          permission = await Geolocator.requestPermission();
-          if (permission == LocationPermission.denied) {
-            if (mounted) {
-              mySnackBar('Pls give Location Permission to Continue', context);
-            }
-          }
-          permission = await Geolocator.requestPermission();
-          if (permission == LocationPermission.deniedForever) {
-            setState(() {
-              yourLatitude = 0;
-              yourLongitude = 0;
-            });
-            if (mounted) {
-              mySnackBar(
-                'Because Location permission is denied, We are continuing without Location',
-                context,
-              );
-            }
-          } else {
-            return await locationPermissionGiven();
-          }
-        } else {
-          return await locationPermissionGiven();
-        }
-      }
-      return null;
-    }
-
-    // GET DISTANCE
-    Future<double?> getDrivingDistance(
-      double startLat,
-      double startLong,
-      double endLat,
-      double endLong,
-    ) async {
-      String url =
-          'https://maps.googleapis.com/maps/api/distancematrix/json?origins=$startLat,$startLong&destinations=$endLat,$endLong&key=AIzaSyCTzhOTUtdVUx0qpAbcXdn1TQKSmqtJbZM';
-      try {
-        var response = await http.get(Uri.parse(url));
-        if (response.statusCode == 200) {
-          final data = jsonDecode(response.body);
-          if (data['rows'].isNotEmpty &&
-              data['rows'][0]['elements'].isNotEmpty) {
-            final distance =
-                data['rows'][0]['elements'][0]['distance']['value'];
-            return distance / 1000;
-          }
-        }
-        return null;
-      } catch (e) {
-        return null;
-      }
-    }
-
-    if (locationProvider.cityName == null) {
-      await getLocation().then((value) async {
-        if (value != null) {
-          setState(() {
-            yourLatitude = value.latitude;
-            yourLongitude = value.longitude;
-          });
-          for (var discount in discountSnap.docs) {
-            final discountData = discount.data();
-
-            final Timestamp endDateTime = discountData['discountEndDateTime'];
-            final vendorId = discountData['vendorId'];
-
-            final vendorSnap = await store
-                .collection('Business')
-                .doc('Owners')
-                .collection('Shops')
-                .doc(vendorId)
-                .get();
-
-            final vendorData = vendorSnap.data()!;
-
-            final vendorLatitude = vendorData['Latitude'];
-            final vendorLongitude = vendorData['Longitude'];
-
-            try {
-              final dist = await getDrivingDistance(
-                yourLatitude!,
-                yourLongitude!,
-                vendorLatitude,
-                vendorLongitude,
-              );
-
-              if (dist != null) {
-                if (dist < endDistance) {
-                  if (endDateTime.toDate().isAfter(DateTime.now())) {
-                    setState(() {
-                      isDiscount = true;
-                    });
-                    ;
-                  }
-                }
-              }
-            } catch (e) {}
-          }
-        }
-      });
-    }
-  }
+  // void updateDiscounts(
+  //   double endDistance,
+  //   LocationProvider locationProvider,
+  // ) async {
+  //   final discountSnap = await store
+  //       .collection('Business')
+  //       .doc('Data')
+  //       .collection('Discounts')
+  //       .get();
+  //   double? yourLatitude;
+  //   double? yourLongitude;
+  //   // GET LOCATION
+  //   Future<Position?> getLocation() async {
+  //     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  //     if (!serviceEnabled) {
+  //       if (mounted) {
+  //         mySnackBar('Turn ON Location Services to Continue', context);
+  //       }
+  //       return null;
+  //     } else {
+  //       LocationPermission permission = await Geolocator.checkPermission();
+  //       // LOCATION PERMISSION GIVEN
+  //       Future<Position> locationPermissionGiven() async {
+  //         return await Geolocator.getCurrentPosition();
+  //       }
+  //       if (permission == LocationPermission.denied) {
+  //         permission = await Geolocator.requestPermission();
+  //         if (permission == LocationPermission.denied) {
+  //           if (mounted) {
+  //             mySnackBar('Pls give Location Permission to Continue', context);
+  //           }
+  //         }
+  //         permission = await Geolocator.requestPermission();
+  //         if (permission == LocationPermission.deniedForever) {
+  //           setState(() {
+  //             yourLatitude = 0;
+  //             yourLongitude = 0;
+  //           });
+  //           if (mounted) {
+  //             mySnackBar(
+  //               'Because Location permission is denied, We are continuing without Location',
+  //               context,
+  //             );
+  //           }
+  //         } else {
+  //           return await locationPermissionGiven();
+  //         }
+  //       } else {
+  //         return await locationPermissionGiven();
+  //       }
+  //     }
+  //     return null;
+  //   }
+  //   // GET DISTANCE
+  //   Future<double?> getDrivingDistance(
+  //     double startLat,
+  //     double startLong,
+  //     double endLat,
+  //     double endLong,
+  //   ) async {
+  //     String url =
+  //         'https://maps.googleapis.com/maps/api/distancematrix/json?origins=$startLat,$startLong&destinations=$endLat,$endLong&key=AIzaSyCTzhOTUtdVUx0qpAbcXdn1TQKSmqtJbZM';
+  //     try {
+  //       var response = await http.get(Uri.parse(url));
+  //       if (response.statusCode == 200) {
+  //         final data = jsonDecode(response.body);
+  //         if (data['rows'].isNotEmpty &&
+  //             data['rows'][0]['elements'].isNotEmpty) {
+  //           final distance =
+  //               data['rows'][0]['elements'][0]['distance']['value'];
+  //           return distance / 1000;
+  //         }
+  //       }
+  //       return null;
+  //     } catch (e) {
+  //       return null;
+  //     }
+  //   }
+  //   if (locationProvider.cityName == null) {
+  //     await getLocation().then((value) async {
+  //       if (value != null) {
+  //         setState(() {
+  //           yourLatitude = value.latitude;
+  //           yourLongitude = value.longitude;
+  //         });
+  //         for (var discount in discountSnap.docs) {
+  //           final discountData = discount.data();
+  //           final Timestamp endDateTime = discountData['discountEndDateTime'];
+  //           final vendorId = discountData['vendorId'];
+  //           final vendorSnap = await store
+  //               .collection('Business')
+  //               .doc('Owners')
+  //               .collection('Shops')
+  //               .doc(vendorId)
+  //               .get();
+  //           final vendorData = vendorSnap.data()!;
+  //           final vendorLatitude = vendorData['Latitude'];
+  //           final vendorLongitude = vendorData['Longitude'];
+  //           try {
+  //             final dist = await getDrivingDistance(
+  //               yourLatitude!,
+  //               yourLongitude!,
+  //               vendorLatitude,
+  //               vendorLongitude,
+  //             );
+  //             if (dist != null) {
+  //               if (dist < endDistance) {
+  //                 if (endDateTime.toDate().isAfter(DateTime.now())) {
+  //                   setState(() {
+  //                     isDiscount = true;
+  //                   });
+  //                   ;
+  //                 }
+  //               }
+  //             }
+  //           } catch (e) {}
+  //         }
+  //       }
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final locationProvider = Provider.of<LocationProvider>(context);
-    print(locationProvider.cityLatitude);
-    print(locationProvider.cityLongitude);
 
     return Scaffold(
       appBar: AppBar(
@@ -1065,7 +1148,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) => LocationChangePage(
-                          page: ProductHomePage(),
+                          page: MainPage(),
                         ),
                       ),
                     );
@@ -1219,10 +1302,10 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                       });
                                       updateWishlist(newValue);
                                       updateFollowed(newValue);
-                                      updateDiscounts(
-                                        newValue,
-                                        locationProvider,
-                                      );
+                                      // updateDiscounts(
+                                      //   newValue,
+                                      //   locationProvider,
+                                      // );
                                       setState(() {
                                         getWishlistData = true;
                                         getFollowedData = true;
@@ -1344,8 +1427,8 @@ class _ProductHomePageState extends State<ProductHomePage> {
                               height: width * 0.3,
                               child: ListView.builder(
                                 shrinkWrap: true,
-                                scrollDirection: Axis.horizontal,
                                 physics: const NeverScrollableScrollPhysics(),
+                                scrollDirection: Axis.horizontal,
                                 itemCount: 4,
                                 itemBuilder: ((context, index) {
                                   final String name =
@@ -1423,9 +1506,9 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                   height: width * 0.3,
                                   child: ListView.builder(
                                     shrinkWrap: true,
-                                    scrollDirection: Axis.horizontal,
                                     physics:
                                         const NeverScrollableScrollPhysics(),
+                                    scrollDirection: Axis.horizontal,
                                     itemCount: 3,
                                     itemBuilder: ((context, index) {
                                       final String name = businessCategories[
@@ -1543,6 +1626,182 @@ class _ProductHomePageState extends State<ProductHomePage> {
                         ),
                       ),
 
+                      // posts.length < 2 ? Container() : Divider(),
+
+                      // // POSTS
+                      // posts.length < 2
+                      //     ? Container()
+                      //     : SizedBox(
+                      //         width: width,
+                      //         height: width * 0.3,
+                      //         child: ListView.builder(
+                      //           shrinkWrap: true,
+                      //           physics: ClampingScrollPhysics(),
+                      //           scrollDirection: Axis.horizontal,
+                      //           itemCount:
+                      //               posts.length > 10 ? 11 : posts.length,
+                      //           itemBuilder: (context, index) {
+                      //             final String id = posts.keys.toList()[index];
+
+                      //             final String name =
+                      //                 posts.values.toList()[index][0];
+                      //             final String price =
+                      //                 posts.values.toList()[index][1];
+                      //             final List imageUrl =
+                      //                 posts.values.toList()[index][2];
+                      //             final String vendorId =
+                      //                 posts.values.toList()[index][3];
+                      //             final bool isTextPost =
+                      //                 posts.values.toList()[index][4];
+                      //             final String vendorName = vendors.isEmpty
+                      //                 ? ''
+                      //                 : vendors[vendorId][0];
+                      //             final String vendorImageUrl = vendors.isEmpty
+                      //                 ? ''
+                      //                 : vendors[vendorId][1];
+                      //             final productData = productsData[id];
+
+                      //             return index != (posts.length - 1)
+                      //                 ? Padding(
+                      //                     padding: EdgeInsets.symmetric(
+                      //                       horizontal: width * 0.0125,
+                      //                     ),
+                      //                     child: InkWell(
+                      //                       onTap: () {
+                      //                         Navigator.of(context).push(
+                      //                           MaterialPageRoute(
+                      //                             builder: (context) =>
+                      //                                 PostPageView(
+                      //                               currentIndex: index,
+                      //                               posts: posts,
+                      //                               vendors: vendors,
+                      //                               products: productsData,
+                      //                             ),
+                      //                           ),
+                      //                         );
+                      //                       },
+                      //                       customBorder:
+                      //                           RoundedRectangleBorder(
+                      //                         borderRadius:
+                      //                             BorderRadius.circular(4),
+                      //                       ),
+                      //                       child: Padding(
+                      //                         padding: EdgeInsets.symmetric(
+                      //                           horizontal: width * 0.0125,
+                      //                         ),
+                      //                         child: SizedBox(
+                      //                           width: width * 0.2,
+                      //                           height: width * 0.3,
+                      //                           child: Column(
+                      //                             mainAxisAlignment:
+                      //                                 MainAxisAlignment
+                      //                                     .spaceAround,
+                      //                             crossAxisAlignment:
+                      //                                 CrossAxisAlignment.center,
+                      //                             children: [
+                      //                               Container(
+                      //                                 width: width * 0.2,
+                      //                                 height: width * 0.2,
+                      //                                 decoration: BoxDecoration(
+                      //                                   color: primary2,
+                      //                                   shape: BoxShape.circle,
+                      //                                   border: Border.all(
+                      //                                     width: 2,
+                      //                                     color: primaryDark2,
+                      //                                   ),
+                      //                                 ),
+                      //                                 padding: EdgeInsets.all(
+                      //                                   width * 0.00306125,
+                      //                                 ),
+                      //                                 child: ClipRRect(
+                      //                                   borderRadius:
+                      //                                       BorderRadius
+                      //                                           .circular(
+                      //                                     100,
+                      //                                   ),
+                      //                                   child: Image.network(
+                      //                                     vendorImageUrl,
+                      //                                     width: width * 0.2,
+                      //                                     height: width * 0.2,
+                      //                                     fit: BoxFit.cover,
+                      //                                   ),
+                      //                                 ),
+                      //                               ),
+                      //                               SizedBox(
+                      //                                 width: width * 0.2,
+                      //                                 child: AutoSizeText(
+                      //                                   vendorName,
+                      //                                   maxLines: 1,
+                      //                                   overflow: TextOverflow
+                      //                                       .ellipsis,
+                      //                                   style: TextStyle(
+                      //                                     fontWeight:
+                      //                                         FontWeight.w500,
+                      //                                   ),
+                      //                                 ),
+                      //                               ),
+                      //                             ],
+                      //                           ),
+                      //                         ),
+                      //                       ),
+                      //                     ),
+                      //                   )
+                      //                 : posts.length < 11
+                      //                     ? Container()
+                      //                     : GestureDetector(
+                      //                         onTap: () {
+                      //                           Navigator.of(context).push(
+                      //                             MaterialPageRoute(
+                      //                               builder: ((context) =>
+                      //                                   const PostHomePage()),
+                      //                             ),
+                      //                           );
+                      //                         },
+                      //                         child: Container(
+                      //                           width: width * 0.225,
+                      //                           height: width * 0.25,
+                      //                           decoration: BoxDecoration(
+                      //                             color: primary2
+                      //                                 .withOpacity(0.125),
+                      //                             border: Border.all(
+                      //                               width: 0.125,
+                      //                               color: primaryDark,
+                      //                             ),
+                      //                             borderRadius:
+                      //                                 BorderRadius.circular(12),
+                      //                           ),
+                      //                           child: const Column(
+                      //                             mainAxisAlignment:
+                      //                                 MainAxisAlignment.center,
+                      //                             crossAxisAlignment:
+                      //                                 CrossAxisAlignment.center,
+                      //                             children: [
+                      //                               Icon(
+                      //                                 FeatherIcons.grid,
+                      //                                 color: primaryDark,
+                      //                               ),
+                      //                               SizedBox(height: 8),
+                      //                               Text(
+                      //                                 'See All',
+                      //                                 style: TextStyle(
+                      //                                   fontWeight:
+                      //                                       FontWeight.w500,
+                      //                                 ),
+                      //                               )
+                      //                             ],
+                      //                           ),
+                      //                         ),
+                      //                       );
+                      //           },
+                      //         ),
+                      //       ),
+
+                      recentShop == null
+                          ? Container()
+                          : !getRecentData
+                              ? Container()
+                              : Divider(),
+
                       // CONTINUE SHOPPING
                       recentShop == null
                           ? Container()
@@ -1578,6 +1837,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                   height: width * 0.425,
                                   child: ListView.builder(
                                     shrinkWrap: true,
+                                    physics: ClampingScrollPhysics(),
                                     scrollDirection: Axis.horizontal,
                                     itemCount: 4,
                                     itemBuilder: ((context, index) {
@@ -1615,6 +1875,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                   height: width * 0.425,
                                   child: ListView.builder(
                                     shrinkWrap: true,
+                                    physics: ClampingScrollPhysics(),
                                     scrollDirection: Axis.horizontal,
                                     itemCount:
                                         recentShopProductsImages.length > 4
@@ -1722,6 +1983,8 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                   ),
                                 ),
 
+                      currentWishlist.isEmpty ? Container() : Divider(),
+
                       // WISHLIST PRODUCTS
                       currentWishlist.isEmpty
                           ? Container()
@@ -1731,6 +1994,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                   height: width * 0.425,
                                   child: ListView.builder(
                                     shrinkWrap: true,
+                                    physics: ClampingScrollPhysics(),
                                     scrollDirection: Axis.horizontal,
                                     itemCount: 4,
                                     itemBuilder: ((context, index) {
@@ -1770,6 +2034,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                   height: width * 0.425,
                                   child: ListView.builder(
                                     shrinkWrap: true,
+                                    physics: ClampingScrollPhysics(),
                                     scrollDirection: Axis.horizontal,
                                     itemCount: currentWishlist.length > 4
                                         ? 4
@@ -1852,6 +2117,8 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                   ),
                                 ),
 
+                      currentFollowedShops.isEmpty ? Container() : Divider(),
+
                       // FOLLOWED
                       currentFollowedShops.isEmpty
                           ? Container()
@@ -1887,6 +2154,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                   height: width * 0.425,
                                   child: ListView.builder(
                                     shrinkWrap: true,
+                                    physics: ClampingScrollPhysics(),
                                     scrollDirection: Axis.horizontal,
                                     itemCount: 4,
                                     itemBuilder: ((context, index) {
@@ -1926,6 +2194,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                   height: width * 0.425,
                                   child: ListView.builder(
                                     shrinkWrap: true,
+                                    physics: ClampingScrollPhysics(),
                                     scrollDirection: Axis.horizontal,
                                     itemCount: currentFollowedShops.length > 4
                                         ? 4

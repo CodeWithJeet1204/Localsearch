@@ -1173,6 +1173,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                   child: ListView.builder(
                                     shrinkWrap: true,
                                     itemCount: 2,
+                                    physics: ClampingScrollPhysics(),
                                     itemBuilder: ((context, index) {
                                       return Container(
                                         width: width,

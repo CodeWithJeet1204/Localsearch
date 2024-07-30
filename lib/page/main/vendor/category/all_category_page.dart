@@ -135,6 +135,7 @@ class _AllCategoryPageState extends State<AllCategoryPage> {
                 childAspectRatio: 0.8,
               ),
               itemCount: categories.length,
+              physics: ClampingScrollPhysics(),
               itemBuilder: ((context, index) {
                 final name = categories.keys.toList()[index];
                 final imageUrl = categories.values.toList()[index];

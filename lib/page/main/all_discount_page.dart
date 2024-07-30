@@ -360,6 +360,7 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
           ? SafeArea(
               child: GridView.builder(
               shrinkWrap: true,
+              physics: ClampingScrollPhysics(),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 1,
                 crossAxisSpacing: 0,

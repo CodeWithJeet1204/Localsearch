@@ -861,7 +861,7 @@ class _VendorPageState extends State<VendorPage> {
                               ),
                               SizedBox(height: width * 0.0125),
 
-                              // VIEW PRODUCTS
+                              // VIEW CATALOGUE
                               (shopData!['Products'] as List).isEmpty
                                   ? Container()
                                   : MyTextButton(
@@ -876,7 +876,7 @@ class _VendorPageState extends State<VendorPage> {
                                           ),
                                         );
                                       },
-                                      text: 'View Products',
+                                      text: 'View Catalogue',
                                       textColor: primaryDark,
                                     ),
                               (shopData!['Products'] as List).isEmpty
@@ -1820,7 +1820,7 @@ class DiscountsWidget extends StatefulWidget {
 
   final int noOfDiscounts;
   final List allDiscount;
-  final String vendorType;
+  final List vendorType;
 
   @override
   State<DiscountsWidget> createState() => _DiscountsWidgetState();

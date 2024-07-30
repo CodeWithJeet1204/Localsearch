@@ -53,8 +53,9 @@ class InfoBox extends StatelessWidget {
               width: width,
               height: 50,
               child: ListView.builder(
-                scrollDirection: Axis.horizontal,
                 shrinkWrap: true,
+                scrollDirection: Axis.horizontal,
+                physics: ClampingScrollPhysics(),
                 itemCount: 1,
                 itemBuilder: (context, index) {
                   return Row(

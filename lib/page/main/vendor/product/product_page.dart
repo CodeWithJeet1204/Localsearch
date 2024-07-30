@@ -1265,9 +1265,9 @@ class _ProductPageState extends State<ProductPage> {
                                         margin: EdgeInsets.only(
                                           left: width * 0.0125,
                                         ),
-                                        child: data['isPercent']
+                                        child: discountData['isPercent']
                                             ? Text(
-                                                '${data['discountAmount']}% off',
+                                                '${discountData['discountAmount']}% off',
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
                                                 style: TextStyle(
@@ -1277,7 +1277,7 @@ class _ProductPageState extends State<ProductPage> {
                                                 ),
                                               )
                                             : Text(
-                                                'Save Rs. ${data['discountAmount']}',
+                                                'Save Rs. ${discountData['discountAmount']}',
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
                                                 style: TextStyle(
@@ -1367,9 +1367,10 @@ class _ProductPageState extends State<ProductPage> {
                                                 ),
                                                 children: [
                                                   TextSpan(
-                                                    text: data['isPercent']
-                                                        ? '${double.parse(price) * (100 - (data['discountAmount'])) / 100}  '
-                                                        : '${double.parse(price) - (data['discountAmount'])}  ',
+                                                    text: discountData[
+                                                            'isPercent']
+                                                        ? '${double.parse(price) * (100 - (discountData['discountAmount'])) / 100}  '
+                                                        : '${double.parse(price) - (discountData['discountAmount'])}  ',
                                                     style: TextStyle(
                                                       color: isAvailable
                                                           ? Colors.green
@@ -1404,14 +1405,14 @@ class _ProductPageState extends State<ProductPage> {
                                         vertical: width * 0.0055,
                                       ),
                                       child: Text(
-                                        (data['discountEndDateTime']
+                                        (discountData['discountEndDateTime']
                                                         as Timestamp)
                                                     .toDate()
                                                     .difference(DateTime.now())
                                                     .inHours <
                                                 24
-                                            ? '''${(data['discountEndDateTime'] as Timestamp).toDate().difference(DateTime.now()).inHours} Hours Left'''
-                                            : '''${(data['discountEndDateTime'] as Timestamp).toDate().difference(DateTime.now()).inDays} Days Left''',
+                                            ? '''${(discountData['discountEndDateTime'] as Timestamp).toDate().difference(DateTime.now()).inHours} Hours Left'''
+                                            : '''${(discountData['discountEndDateTime'] as Timestamp).toDate().difference(DateTime.now()).inDays} Days Left''',
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
                                           color: isAvailable
@@ -2074,6 +2075,7 @@ class _ProductPageState extends State<ProductPage> {
                                     child: ListView.builder(
                                       shrinkWrap: true,
                                       scrollDirection: Axis.horizontal,
+                                      physics: ClampingScrollPhysics(),
                                       itemCount:
                                           otherVendorProductsDatas.length,
                                       itemBuilder: ((context, index) {
@@ -2215,6 +2217,7 @@ class _ProductPageState extends State<ProductPage> {
                                     child: ListView.builder(
                                       shrinkWrap: true,
                                       scrollDirection: Axis.horizontal,
+                                      physics: ClampingScrollPhysics(),
                                       itemCount: similarProductsDatas.length,
                                       itemBuilder: ((context, index) {
                                         final data =
@@ -2799,6 +2802,7 @@ class _AllDiscountsWidgetState extends State<AllDiscountsWidget> {
                 child: ListView.builder(
                   shrinkWrap: true,
                   scrollDirection: Axis.horizontal,
+                  physics: ClampingScrollPhysics(),
                   itemCount: widget.allDiscount.length,
                   itemBuilder: ((context, index) {
                     final currentDiscount = widget.allDiscount[index];
