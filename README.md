@@ -1,6 +1,6 @@
-# Localy User
+# Localsearch
 
-Localy User is a SaaS (Software as a Service) application designed to help users discover nearby shops, products, services, and events effortlessly. With its intuitive interface and comprehensive features, users can explore, interact, and stay updated with everything available in their local vicinity.
+Localsearch is a SaaS (Software as a Service) application designed to help users discover nearby shops, products, services, and events effortlessly. With its intuitive interface and comprehensive features, users can explore, interact, and stay updated with everything available in their local vicinity.
 
 ## Features
 
@@ -20,20 +20,20 @@ Localy User is a SaaS (Software as a Service) application designed to help users
 
 ## Main Use
 
-The main purpose of Localy User is to simplify the process of finding everything that is locally available. Whether it's shopping for products, hiring servicemen, or attending events, this app provides users with the tools they need to explore their local community conveniently.
+The main purpose of Localsearch is to simplify the process of finding everything that is locally available. Whether it's shopping for products, hiring servicemen, or attending events, this app provides users with the tools they need to explore their local community conveniently.
 
 ## Usage
 
-To use Localy User, simply download the app from the [Google Play Store](#) and create an account. Once logged in, you can start exploring nearby shops, products, services, and events right away.
+To use Localsearch, simply download the app from the [Google Play Store](#) and create an account. Once logged in, you can start exploring nearby shops, products, services, and events right away.
 
 ## Contributing
 
-We welcome contributions from the community to enhance the functionality and user experience of Localy User. If you have any suggestions, bug reports, or feature requests, please feel free to submit them through our [GitHub repository](#).
+We welcome contributions from the community to enhance the functionality and user experience of Localsearch. If you have any suggestions, bug reports, or feature requests, please feel free to submit them through our [GitHub repository](#).
 
 ## Support
 
-For any inquiries or assistance regarding Localy User, you can reach out to our support team at [support@findeasyuser.com](mailto:support@findeasyuser.com).
+For any inquiries or assistance regarding Localsearch, you can reach out to our support team at [support@findeasyuser.com](mailto:support@findeasyuser.com).
 
 ## License
 
-Localy User is licensed under the [MIT License](LICENSE).
+Localsearch is licensed under the [MIT License](LICENSE).

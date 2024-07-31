@@ -1,13 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
-import 'package:localy_user/models/services_image_map.dart';
-import 'package:localy_user/models/services_map.dart';
-import 'package:localy_user/page/main/services/services_sub_category_page.dart';
-import 'package:localy_user/page/main/services/services_place_page.dart';
-import 'package:localy_user/page/main/services/services_category_page.dart';
-import 'package:localy_user/utils/colors.dart';
-import 'package:localy_user/widgets/name_container.dart';
-import 'package:localy_user/widgets/speech_to_text.dart';
+import 'package:Localsearch_User/models/services_image_map.dart';
+import 'package:Localsearch_User/models/services_map.dart';
+import 'package:Localsearch_User/page/main/services/services_sub_category_page.dart';
+import 'package:Localsearch_User/page/main/services/services_place_page.dart';
+import 'package:Localsearch_User/page/main/services/services_category_page.dart';
+import 'package:Localsearch_User/utils/colors.dart';
+import 'package:Localsearch_User/widgets/name_container.dart';
+import 'package:Localsearch_User/widgets/speech_to_text.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 

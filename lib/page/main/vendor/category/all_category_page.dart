@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:localy_user/page/main/vendor/category/category_page.dart';
-import 'package:localy_user/widgets/video_tutorial.dart';
+import 'package:Localsearch_User/page/main/vendor/category/category_page.dart';
+import 'package:Localsearch_User/widgets/video_tutorial.dart';
 import 'package:flutter/material.dart';
 
 class AllCategoryPage extends StatefulWidget {

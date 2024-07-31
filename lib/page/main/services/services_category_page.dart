@@ -1,8 +1,8 @@
-import 'package:localy_user/models/services_image_map.dart';
-import 'package:localy_user/models/services_map.dart';
-import 'package:localy_user/page/main/services/services_sub_category_page.dart';
-import 'package:localy_user/widgets/name_container.dart';
-import 'package:localy_user/widgets/video_tutorial.dart';
+import 'package:Localsearch_User/models/services_image_map.dart';
+import 'package:Localsearch_User/models/services_map.dart';
+import 'package:Localsearch_User/page/main/services/services_sub_category_page.dart';
+import 'package:Localsearch_User/widgets/name_container.dart';
+import 'package:Localsearch_User/widgets/video_tutorial.dart';
 import 'package:flutter/material.dart';
 
 class ServicesCategoryPage extends StatefulWidget {

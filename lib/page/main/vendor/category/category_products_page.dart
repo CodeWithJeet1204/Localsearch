@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:localy_user/page/main/vendor/product/product_page.dart';
-import 'package:localy_user/utils/colors.dart';
-import 'package:localy_user/widgets/skeleton_container.dart';
-import 'package:localy_user/widgets/video_tutorial.dart';
+import 'package:Localsearch_User/page/main/vendor/product/product_page.dart';
+import 'package:Localsearch_User/utils/colors.dart';
+import 'package:Localsearch_User/widgets/skeleton_container.dart';
+import 'package:Localsearch_User/widgets/video_tutorial.dart';
 import 'package:flutter/material.dart';
 
 class CategoryProductsPage extends StatefulWidget {

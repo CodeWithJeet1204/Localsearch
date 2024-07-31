@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:localy_user/firebase/auth_methods.dart';
-import 'package:localy_user/page/auth/register_details_page.dart';
-import 'package:localy_user/utils/colors.dart';
-import 'package:localy_user/widgets/button.dart';
-import 'package:localy_user/widgets/snack_bar.dart';
+import 'package:Localsearch_User/firebase/auth_methods.dart';
+import 'package:Localsearch_User/page/auth/register_details_page.dart';
+import 'package:Localsearch_User/utils/colors.dart';
+import 'package:Localsearch_User/widgets/button.dart';
+import 'package:Localsearch_User/widgets/snack_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 

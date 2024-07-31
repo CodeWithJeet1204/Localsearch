@@ -1,8 +1,8 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:localy_user/page/main/vendor/vendor_page.dart';
-import 'package:localy_user/utils/colors.dart';
+import 'package:Localsearch_User/page/main/vendor/vendor_page.dart';
+import 'package:Localsearch_User/utils/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 

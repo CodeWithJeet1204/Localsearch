@@ -2,8 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:localy_user/utils/colors.dart';
-import 'package:localy_user/widgets/skeleton_container.dart';
+import 'package:Localsearch_User/utils/colors.dart';
+import 'package:Localsearch_User/widgets/skeleton_container.dart';
 import 'package:uuid/uuid.dart';
 
 class EventCommentsPage extends StatefulWidget {

@@ -1,11 +1,11 @@
-import 'package:localy_user/firebase_options.dart';
-import 'package:localy_user/page/auth/login_page.dart';
-import 'package:localy_user/page/auth/register_method_page.dart';
-import 'package:localy_user/page/main/main_page.dart';
-import 'package:localy_user/providers/location_provider.dart';
-import 'package:localy_user/providers/register_details_provider.dart';
-import 'package:localy_user/providers/verification_provider.dart';
-import 'package:localy_user/utils/colors.dart';
+import 'package:Localsearch_User/firebase_options.dart';
+import 'package:Localsearch_User/page/auth/login_page.dart';
+import 'package:Localsearch_User/page/auth/register_method_page.dart';
+import 'package:Localsearch_User/page/main/main_page.dart';
+import 'package:Localsearch_User/providers/location_provider.dart';
+import 'package:Localsearch_User/providers/register_details_provider.dart';
+import 'package:Localsearch_User/providers/verification_provider.dart';
+import 'package:Localsearch_User/utils/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -52,7 +52,7 @@ class MyApp extends StatelessWidget {
     // });
 
     return MaterialApp(
-      title: 'Localy User',
+      title: 'Localsearch',
       theme: ThemeData(
         progressIndicatorTheme: const ProgressIndicatorThemeData(
           color: primaryDark2,

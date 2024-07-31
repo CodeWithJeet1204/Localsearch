@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:localy_user/page/auth/login_email_after_forget_password.dart';
-import 'package:localy_user/widgets/button.dart';
-import 'package:localy_user/widgets/snack_bar.dart';
-import 'package:localy_user/widgets/text_form_field.dart';
+import 'package:Localsearch_User/page/auth/login_email_after_forget_password.dart';
+import 'package:Localsearch_User/widgets/button.dart';
+import 'package:Localsearch_User/widgets/snack_bar.dart';
+import 'package:Localsearch_User/widgets/text_form_field.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});

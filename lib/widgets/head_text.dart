@@ -1,4 +1,4 @@
-import 'package:localy_user/utils/colors.dart';
+import 'package:Localsearch_User/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 

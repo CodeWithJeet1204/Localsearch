@@ -4,18 +4,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
-import 'package:localy_user/page/main/vendor/product/product_page.dart';
-import 'package:localy_user/page/main/vendor/brand/all_brand_page.dart';
-import 'package:localy_user/page/main/vendor/brand/brand_page.dart';
-import 'package:localy_user/page/main/vendor/category/all_category_page.dart';
-import 'package:localy_user/page/main/vendor/category/category_page.dart';
-import 'package:localy_user/page/main/vendor/vendor_products_page.dart';
-import 'package:localy_user/utils/colors.dart';
-import 'package:localy_user/widgets/image_show.dart';
-import 'package:localy_user/widgets/see_more_text.dart';
-import 'package:localy_user/widgets/snack_bar.dart';
-import 'package:localy_user/widgets/text_button.dart';
-import 'package:localy_user/widgets/video_tutorial.dart';
+import 'package:Localsearch_User/page/main/vendor/product/product_page.dart';
+import 'package:Localsearch_User/page/main/vendor/brand/all_brand_page.dart';
+import 'package:Localsearch_User/page/main/vendor/brand/brand_page.dart';
+import 'package:Localsearch_User/page/main/vendor/category/all_category_page.dart';
+import 'package:Localsearch_User/page/main/vendor/category/category_page.dart';
+import 'package:Localsearch_User/page/main/vendor/vendor_catalogue_page.dart';
+import 'package:Localsearch_User/utils/colors.dart';
+import 'package:Localsearch_User/widgets/image_show.dart';
+import 'package:Localsearch_User/widgets/see_more_text.dart';
+import 'package:Localsearch_User/widgets/snack_bar.dart';
+import 'package:Localsearch_User/widgets/text_button.dart';
+import 'package:Localsearch_User/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -869,7 +869,7 @@ class _VendorPageState extends State<VendorPage> {
                                         Navigator.of(context).push(
                                           MaterialPageRoute(
                                             builder: (context) =>
-                                                VendorProductsPage(
+                                                VendorCataloguePage(
                                               vendorId: widget.vendorId,
                                               products: shopData!['Products'],
                                             ),

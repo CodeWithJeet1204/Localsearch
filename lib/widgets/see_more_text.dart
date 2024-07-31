@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:localy_user/utils/colors.dart';
+import 'package:Localsearch_User/utils/colors.dart';
 
 class SeeMoreText extends StatefulWidget {
   const SeeMoreText(

@@ -1,19 +1,19 @@
 // ignore_for_file: unnecessary_null_comparison
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:localy_user/firebase/auth_methods.dart';
-import 'package:localy_user/page/auth/forgot_password_page.dart';
-import 'package:localy_user/page/auth/register_method_page.dart';
-import 'package:localy_user/page/auth/verify/number_verify.dart';
-import 'package:localy_user/page/main/main_page.dart';
-import 'package:localy_user/utils/colors.dart';
-import 'package:localy_user/utils/size.dart';
-import 'package:localy_user/widgets/button.dart';
-import 'package:localy_user/widgets/collapse_container.dart';
-import 'package:localy_user/widgets/head_text.dart';
-import 'package:localy_user/widgets/snack_bar.dart';
-import 'package:localy_user/widgets/text_button.dart';
-import 'package:localy_user/widgets/text_form_field.dart';
+import 'package:Localsearch_User/firebase/auth_methods.dart';
+import 'package:Localsearch_User/page/auth/forgot_password_page.dart';
+import 'package:Localsearch_User/page/auth/register_method_page.dart';
+import 'package:Localsearch_User/page/auth/verify/number_verify.dart';
+import 'package:Localsearch_User/page/main/main_page.dart';
+import 'package:Localsearch_User/utils/colors.dart';
+import 'package:Localsearch_User/utils/size.dart';
+import 'package:Localsearch_User/widgets/button.dart';
+import 'package:Localsearch_User/widgets/collapse_container.dart';
+import 'package:Localsearch_User/widgets/head_text.dart';
+import 'package:Localsearch_User/widgets/snack_bar.dart';
+import 'package:Localsearch_User/widgets/text_button.dart';
+import 'package:Localsearch_User/widgets/text_form_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

@@ -1,5 +1,5 @@
-import 'package:localy_user/widgets/review_container.dart';
-import 'package:localy_user/widgets/video_tutorial.dart';
+import 'package:Localsearch_User/widgets/review_container.dart';
+import 'package:Localsearch_User/widgets/video_tutorial.dart';
 import 'package:flutter/material.dart';
 
 class ProductAllReviewPage extends StatefulWidget {

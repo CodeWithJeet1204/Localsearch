@@ -1,5 +1,5 @@
-import 'package:localy_user/utils/colors.dart';
-import 'package:localy_user/widgets/skeleton_container.dart';
+import 'package:Localsearch_User/utils/colors.dart';
+import 'package:Localsearch_User/widgets/skeleton_container.dart';
 import 'package:flutter/material.dart';
 
 class PostSkeletonContainer extends StatelessWidget {

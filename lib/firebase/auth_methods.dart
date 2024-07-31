@@ -1,6 +1,6 @@
-import 'package:localy_user/page/auth/register_details_page.dart';
-import 'package:localy_user/page/auth/verify/number_verify.dart';
-import 'package:localy_user/widgets/snack_bar.dart';
+import 'package:Localsearch_User/page/auth/register_details_page.dart';
+import 'package:Localsearch_User/page/auth/verify/number_verify.dart';
+import 'package:Localsearch_User/widgets/snack_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

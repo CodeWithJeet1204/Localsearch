@@ -4,12 +4,12 @@ import 'package:http/http.dart' as http;
 import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:localy_user/page/main/discount_page.dart';
-import 'package:localy_user/page/main/location_change_page.dart';
-import 'package:localy_user/providers/location_provider.dart';
-import 'package:localy_user/utils/colors.dart';
-import 'package:localy_user/widgets/shimmer_skeleton_container.dart';
-import 'package:localy_user/widgets/snack_bar.dart';
+import 'package:Localsearch_User/page/main/discount_page.dart';
+import 'package:Localsearch_User/page/main/location_change_page.dart';
+import 'package:Localsearch_User/providers/location_provider.dart';
+import 'package:Localsearch_User/utils/colors.dart';
+import 'package:Localsearch_User/widgets/shimmer_skeleton_container.dart';
+import 'package:Localsearch_User/widgets/snack_bar.dart';
 import 'package:provider/provider.dart';
 
 class AllDiscountPage extends StatefulWidget {

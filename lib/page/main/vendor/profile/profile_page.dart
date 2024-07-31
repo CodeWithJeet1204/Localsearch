@@ -1,13 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
-import 'package:localy_user/page/auth/login_page.dart';
-import 'package:localy_user/page/main/vendor/profile/followed_page.dart';
-import 'package:localy_user/page/main/vendor/profile/user_details_page.dart';
-import 'package:localy_user/page/main/vendor/profile/wishlist_page.dart';
-import 'package:localy_user/utils/colors.dart';
-import 'package:localy_user/widgets/small_text_container.dart';
-import 'package:localy_user/widgets/snack_bar.dart';
-import 'package:localy_user/widgets/video_tutorial.dart';
+import 'package:Localsearch_User/page/auth/login_page.dart';
+import 'package:Localsearch_User/page/main/vendor/profile/followed_page.dart';
+import 'package:Localsearch_User/page/main/vendor/profile/user_details_page.dart';
+import 'package:Localsearch_User/page/main/vendor/profile/wishlist_page.dart';
+import 'package:Localsearch_User/utils/colors.dart';
+import 'package:Localsearch_User/widgets/small_text_container.dart';
+import 'package:Localsearch_User/widgets/snack_bar.dart';
+import 'package:Localsearch_User/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 

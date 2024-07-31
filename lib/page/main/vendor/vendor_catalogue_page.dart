@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:localy_user/models/household_type_category_subCategory.dart';
-import 'package:localy_user/widgets/snack_bar.dart';
+import 'package:Localsearch_User/models/household_type_category_subCategory.dart';
+import 'package:Localsearch_User/widgets/snack_bar.dart';
 
-class VendorProductsPage extends StatefulWidget {
-  const VendorProductsPage({
+class VendorCataloguePage extends StatefulWidget {
+  const VendorCataloguePage({
     super.key,
     required this.vendorId,
     required this.products,
@@ -14,10 +14,10 @@ class VendorProductsPage extends StatefulWidget {
   final List products;
 
   @override
-  State<VendorProductsPage> createState() => _VendorProductsPageState();
+  State<VendorCataloguePage> createState() => _VendorCataloguePageState();
 }
 
-class _VendorProductsPageState extends State<VendorProductsPage> {
+class _VendorCataloguePageState extends State<VendorCataloguePage> {
   final store = FirebaseFirestore.instance;
   Map<String, Map<String, List<String>>> categorizedProducts = {};
   bool isData = false;
