@@ -430,7 +430,7 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
                                   final String phoneNumber =
                                       organizerData['Phone Number'];
                                   const String message =
-                                      'Hey, I found you on Localy\n';
+                                      'Hey, I found you on Localsearch\n';
                                   final url =
                                       'https://wa.me/$phoneNumber?text=$message';
 

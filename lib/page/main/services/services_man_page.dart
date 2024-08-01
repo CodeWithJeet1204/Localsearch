@@ -379,7 +379,7 @@ class _ServicesManPageState extends State<ServicesManPage> {
                                   final String phoneNumber =
                                       servicemanData['Phone Number'];
                                   const String message =
-                                      'Hey, I found you on Localy\n';
+                                      'Hey, I found you on Localsearch\n';
                                   final url =
                                       'https://wa.me/$phoneNumber?text=$message';
 

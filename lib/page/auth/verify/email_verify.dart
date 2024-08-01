@@ -19,11 +19,12 @@ class EmailVerifyPage extends StatefulWidget {
 
 class _EmailVerifyPageState extends State<EmailVerifyPage> {
   // ignore: no_leading_underscores_for_local_identifiers
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseAuth auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
-  final AuthMethods auth = AuthMethods();
+  final AuthMethods authMethods = AuthMethods();
   bool checkingEmailVerified = false;
   bool canResendEmail = false;
+  Timer? timer;
   bool isEmailVerified = false;
 
   // INIT STATE
@@ -31,6 +32,13 @@ class _EmailVerifyPageState extends State<EmailVerifyPage> {
   void initState() {
     super.initState();
     sendEmailVerification();
+    isEmailVerified = auth.currentUser!.emailVerified;
+
+    if (!isEmailVerified) {
+      timer = Timer.periodic(const Duration(seconds: 2), (_) async {
+        await checkEmailVerification(fromButton: false);
+      });
+    }
   }
 
   // CHECK EMAIL VERIFICATION
@@ -94,7 +102,7 @@ class _EmailVerifyPageState extends State<EmailVerifyPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              _auth.currentUser!.email!,
+              auth.currentUser!.email!,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: primaryDark,

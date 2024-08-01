@@ -64,7 +64,6 @@ class _ProductHomePageState extends State<ProductHomePage> {
   void initState() {
     getName();
     getRecentShop();
-    getPosts();
 
     super.initState();
   }
@@ -860,98 +859,98 @@ class _ProductHomePageState extends State<ProductHomePage> {
   }
 
   // GET POSTS
-  Future<void> getPosts() async {
-    Map<String, dynamic> myPosts = {};
-    final postsSnap = await store
-        .collection('Business')
-        .doc('Data')
-        .collection('Posts')
-        .get();
+  // Future<void> getPosts() async {
+  //   Map<String, dynamic> myPosts = {};
+  //   final postsSnap = await store
+  //       .collection('Business')
+  //       .doc('Data')
+  //       .collection('Posts')
+  //       .get();
 
-    for (final postSnap in postsSnap.docs) {
-      final postData = postSnap.data();
-      final String productId = postData['postProductId'];
-      final String name = postData['postProductName'];
-      final String price = postData['postProductPrice'];
-      final bool isTextPost = postData['isTextPost'];
-      final List imageUrl = isTextPost ? [] : postData['postProductImages'];
-      final String vendorId = postData['postVendorId'];
-      final Timestamp datetime = postData['postDateTime'];
+  //   for (final postSnap in postsSnap.docs) {
+  //     final postData = postSnap.data();
+  //     final String productId = postData['postProductId'];
+  //     final String name = postData['postProductName'];
+  //     final String price = postData['postProductPrice'];
+  //     final bool isTextPost = postData['isTextPost'];
+  //     final List imageUrl = isTextPost ? [] : postData['postProductImages'];
+  //     final String vendorId = postData['postVendorId'];
+  //     final Timestamp datetime = postData['postDateTime'];
 
-      myPosts[isTextPost ? '${productId}text' : '${productId}image'] = [
-        name,
-        price,
-        imageUrl,
-        vendorId,
-        isTextPost,
-        datetime,
-      ];
+  //     myPosts[isTextPost ? '${productId}text' : '${productId}image'] = [
+  //       name,
+  //       price,
+  //       imageUrl,
+  //       vendorId,
+  //       isTextPost,
+  //       datetime,
+  //     ];
 
-      print('my posts: $myPosts');
+  //     print('my posts: $myPosts');
 
-      myPosts = Map.fromEntries(
-        myPosts.entries.toList()
-          ..sort(
-            (a, b) => (b.value[5] as Timestamp).compareTo(
-              a.value[5] as Timestamp,
-            ),
-          ),
-      );
+  //     myPosts = Map.fromEntries(
+  //       myPosts.entries.toList()
+  //         ..sort(
+  //           (a, b) => (b.value[5] as Timestamp).compareTo(
+  //             a.value[5] as Timestamp,
+  //           ),
+  //         ),
+  //     );
 
-      await getVendorInfo(vendorId);
-      await getPostProductData(productId, isTextPost);
-    }
+  //     await getVendorInfo(vendorId);
+  //     await getPostProductData(productId, isTextPost);
+  //   }
 
-    setState(() {
-      posts = myPosts;
-      isPostData = true;
-    });
-    print('posts: $posts');
-  }
+  //   setState(() {
+  //     posts = myPosts;
+  //     isPostData = true;
+  //   });
+  //   print('posts: $posts');
+  // }
 
-  // GET POST PRODUCT DATA
-  Future<Map<String, dynamic>?> getPostProductData(
-      String productId, bool isTextPost,
-      {bool? wantData}) async {
-    final productSnap = await store
-        .collection('Business')
-        .doc('Data')
-        .collection('Products')
-        .doc(productId)
-        .get();
+  // // GET POST PRODUCT DATA
+  // Future<Map<String, dynamic>?> getPostProductData(
+  //     String productId, bool isTextPost,
+  //     {bool? wantData}) async {
+  //   final productSnap = await store
+  //       .collection('Business')
+  //       .doc('Data')
+  //       .collection('Products')
+  //       .doc(productId)
+  //       .get();
 
-    final productData = productSnap.data();
-    productsData[isTextPost ? '${productId}text' : '${productId}image'] =
-        productData;
+  //   final productData = productSnap.data();
+  //   productsData[isTextPost ? '${productId}text' : '${productId}image'] =
+  //       productData;
 
-    if (wantData != null) {
-      return productsData[isTextPost ? productId : productId];
-    } else {
-      return null;
-    }
-  }
+  //   if (wantData != null) {
+  //     return productsData[isTextPost ? productId : productId];
+  //   } else {
+  //     return null;
+  //   }
+  // }
 
-  // GET VENDOR INFO
-  Future<void> getVendorInfo(String vendorId) async {
-    final vendorSnap = await store
-        .collection('Business')
-        .doc('Owners')
-        .collection('Shops')
-        .doc(vendorId)
-        .get();
+  // // GET VENDOR INFO
+  // Future<void> getVendorInfo(String vendorId) async {
+  //   final vendorSnap = await store
+  //       .collection('Business')
+  //       .doc('Owners')
+  //       .collection('Shops')
+  //       .doc(vendorId)
+  //       .get();
 
-    final vendorData = vendorSnap.data();
+  //   final vendorData = vendorSnap.data();
 
-    if (vendorData != null) {
-      final id = vendorSnap.id;
-      final name = vendorData['Name'];
-      final imageUrl = vendorData['Image'];
+  //   if (vendorData != null) {
+  //     final id = vendorSnap.id;
+  //     final name = vendorData['Name'];
+  //     final imageUrl = vendorData['Image'];
 
-      setState(() {
-        vendors[id] = [name, imageUrl];
-      });
-    }
-  }
+  //     setState(() {
+  //       vendors[id] = [name, imageUrl];
+  //     });
+  //   }
+  // }
 
   // UPDATE WISHLIST
   void updateWishlist(double endDistance) {

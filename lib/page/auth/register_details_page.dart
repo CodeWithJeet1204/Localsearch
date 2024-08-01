@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:Localsearch_User/page/main/main_page.dart';
@@ -117,6 +116,7 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+        print('data: $data');
         if (data['status'] == 'OK' && data['results'].isNotEmpty) {
           myAddress = data['results'][0]['formatted_address'];
         } else {
@@ -294,6 +294,8 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                                   latitude = value.latitude;
                                   longitude = value.longitude;
                                 });
+                                print('latitude: $latitude');
+                                print('longitude: $longitude');
 
                                 if (latitude != null && longitude != null) {
                                   await getAddress(latitude!, longitude!);

@@ -114,43 +114,43 @@ class _VendorPageState extends State<VendorPage> {
     Timer(
       const Duration(seconds: 5),
       () async {
-        await setRecentAndUpdate();
+        // await setRecentAndUpdate();
       },
     );
   }
 
   // SET RECENT AND UPDATE
-  Future<void> setRecentAndUpdate() async {
-    await store.collection('Users').doc(auth.currentUser!.uid).update({
-      'recentShop': widget.vendorId,
-    });
+  // Future<void> setRecentAndUpdate() async {
+  //   await store.collection('Users').doc(auth.currentUser!.uid).update({
+  //     'recentShop': widget.vendorId,
+  //   });
 
-    final vendorSnap = await store
-        .collection('Business')
-        .doc('Owners')
-        .collection('Shops')
-        .doc(widget.vendorId)
-        .get();
+  //   final vendorSnap = await store
+  //       .collection('Business')
+  //       .doc('Owners')
+  //       .collection('Shops')
+  //       .doc(widget.vendorId)
+  //       .get();
 
-    final vendorData = vendorSnap.data()!;
+  //   final vendorData = vendorSnap.data()!;
 
-    int views = vendorData['Views'] ?? 0;
-    List viewsTimestamp = vendorData['viewsTimestamp'] ?? [];
+  //   int views = vendorData['Views'] ?? 0;
+  //   List viewsTimestamp = vendorData['viewsTimestamp'] ?? [];
 
-    viewsTimestamp.add(DateTime.now());
+  //   viewsTimestamp.add(DateTime.now());
 
-    views = views + 1;
+  //   views = views + 1;
 
-    await store
-        .collection('Business')
-        .doc('Owners')
-        .collection('Shops')
-        .doc(widget.vendorId)
-        .update({
-      'Views': views,
-      'viewsTimestamp': viewsTimestamp,
-    });
-  }
+  //   await store
+  //       .collection('Business')
+  //       .doc('Owners')
+  //       .collection('Shops')
+  //       .doc(widget.vendorId)
+  //       .update({
+  //     'Views': views,
+  //     'viewsTimestamp': viewsTimestamp,
+  //   });
+  // }
 
   // GET IF FOLLOWING
   Future<void> getIfFollowing() async {
@@ -179,7 +179,10 @@ class _VendorPageState extends State<VendorPage> {
         .doc(widget.vendorId)
         .get();
 
-    final currentShopData = shopSnap.data()!;
+    print('vendorId: ${widget.vendorId}');
+    print('exists: ${shopSnap.exists}');
+
+    final currentShopData = shopSnap.data();
 
     setState(() {
       shopData = currentShopData;
@@ -192,7 +195,7 @@ class _VendorPageState extends State<VendorPage> {
         .doc(widget.vendorId)
         .get();
 
-    final currentOwnerData = ownerSnap.data()!;
+    final currentOwnerData = ownerSnap.data();
 
     setState(() {
       ownerData = currentOwnerData;
@@ -1029,7 +1032,7 @@ class _VendorPageState extends State<VendorPage> {
                                       final String phoneNumber =
                                           ownerData!['Phone Number'];
                                       const String message =
-                                          'Hey, I found you on Localy\n';
+                                          'Hey, I found you on Localsearch\n';
                                       final url =
                                           'https://wa.me/$phoneNumber?text=$message';
 
