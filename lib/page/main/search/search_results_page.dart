@@ -182,7 +182,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
       double endLong,
     ) async {
       String url =
-          'https://maps.googleapis.com/maps/api/distancematrix/json?origins=$startLat,$startLong&destinations=$endLat,$endLong&key=AIzaSyCTzhOTUtdVUx0qpAbcXdn1TQKSmqtJbZM';
+          'https://maps.googleapis.com/maps/api/distancematrix/json?origins=$startLat,$startLong&destinations=$endLat,$endLong&key=AIzaSyA-CD3MgDBzAsjmp_FlDbofynMMmW6fPsU';
       try {
         var response = await http.get(Uri.parse(url));
         if (response.statusCode == 200) {
@@ -252,7 +252,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
 
         try {
           final url =
-              'https://maps.googleapis.com/maps/api/geocode/json?latlng=$vendorLatitude,$vendorLongitude&key=AIzaSyCTzhOTUtdVUx0qpAbcXdn1TQKSmqtJbZM';
+              'https://maps.googleapis.com/maps/api/geocode/json?latlng=$vendorLatitude,$vendorLongitude&key=AIzaSyA-CD3MgDBzAsjmp_FlDbofynMMmW6fPsU';
 
           final response = await http.get(Uri.parse(url));
 
@@ -402,7 +402,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
       double endLong,
     ) async {
       String url =
-          'https://maps.googleapis.com/maps/api/distancematrix/json?origins=$startLat,$startLong&destinations=$endLat,$endLong&key=AIzaSyCTzhOTUtdVUx0qpAbcXdn1TQKSmqtJbZM';
+          'https://maps.googleapis.com/maps/api/distancematrix/json?origins=$startLat,$startLong&destinations=$endLat,$endLong&key=AIzaSyA-CD3MgDBzAsjmp_FlDbofynMMmW6fPsU';
       try {
         var response = await http.get(Uri.parse(url));
         if (response.statusCode == 200) {
@@ -537,7 +537,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
 
         try {
           final url =
-              'https://maps.googleapis.com/maps/api/geocode/json?latlng=$vendorLatitude,$vendorLongitude&key=AIzaSyCTzhOTUtdVUx0qpAbcXdn1TQKSmqtJbZM';
+              'https://maps.googleapis.com/maps/api/geocode/json?latlng=$vendorLatitude,$vendorLongitude&key=AIzaSyA-CD3MgDBzAsjmp_FlDbofynMMmW6fPsU';
 
           final response = await http.get(Uri.parse(url));
 
@@ -757,7 +757,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
 
   // GET ADDRESS
   Future<String> getAddress(double shopLatitude, double shopLongitude) async {
-    const apiKey = 'AIzaSyCTzhOTUtdVUx0qpAbcXdn1TQKSmqtJbZM';
+    const apiKey = 'AIzaSyA-CD3MgDBzAsjmp_FlDbofynMMmW6fPsU';
     final apiUrl =
         'https://maps.googleapis.com/maps/api/geocode/json?latlng=$shopLatitude,$shopLongitude&key=$apiKey';
 

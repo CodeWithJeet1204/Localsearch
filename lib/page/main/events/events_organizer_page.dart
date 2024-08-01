@@ -222,7 +222,7 @@ class _EventsOrganizerPageState extends State<EventsOrganizerPage> {
   // GET ADDRESS
   Future<String> getAddress(
       double organizerLatitude, double organizerLongitude) async {
-    const apiKey = 'AIzaSyCTzhOTUtdVUx0qpAbcXdn1TQKSmqtJbZM';
+    const apiKey = 'AIzaSyA-CD3MgDBzAsjmp_FlDbofynMMmW6fPsU';
     final apiUrl =
         'https://maps.googleapis.com/maps/api/geocode/json?latlng=$organizerLatitude,$organizerLongitude&key=$apiKey';
 

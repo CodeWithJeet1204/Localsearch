@@ -107,7 +107,7 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
       double endLong,
     ) async {
       String url =
-          'https://maps.googleapis.com/maps/api/distancematrix/json?origins=$startLat,$startLong&destinations=$endLat,$endLong&key=AIzaSyCTzhOTUtdVUx0qpAbcXdn1TQKSmqtJbZM';
+          'https://maps.googleapis.com/maps/api/distancematrix/json?origins=$startLat,$startLong&destinations=$endLat,$endLong&key=AIzaSyA-CD3MgDBzAsjmp_FlDbofynMMmW6fPsU';
       try {
         var response = await http.get(Uri.parse(url));
         if (response.statusCode == 200) {
@@ -208,7 +208,7 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
           final vendorLongitude = vendorData['Longitude'];
 
           final url =
-              'https://maps.googleapis.com/maps/api/geocode/json?latlng=$vendorLatitude,$vendorLongitude&key=AIzaSyCTzhOTUtdVUx0qpAbcXdn1TQKSmqtJbZM';
+              'https://maps.googleapis.com/maps/api/geocode/json?latlng=$vendorLatitude,$vendorLongitude&key=AIzaSyA-CD3MgDBzAsjmp_FlDbofynMMmW6fPsU';
 
           final response = await http.get(Uri.parse(url));
 

@@ -106,7 +106,7 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
 
   // GET ADDRESS
   Future<void> getAddress(double shopLatitude, double shopLongitude) async {
-    const apiKey = 'AIzaSyCTzhOTUtdVUx0qpAbcXdn1TQKSmqtJbZM';
+    const apiKey = 'AIzaSyA-CD3MgDBzAsjmp_FlDbofynMMmW6fPsU';
     final apiUrl =
         'https://maps.googleapis.com/maps/api/geocode/json?latlng=$shopLatitude,$shopLongitude&key=$apiKey';
 

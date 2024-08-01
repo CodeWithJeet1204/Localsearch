@@ -294,7 +294,7 @@ class _VendorPageState extends State<VendorPage> {
       shopLongitude,
     );
 
-    const apiKey = 'AIzaSyCTzhOTUtdVUx0qpAbcXdn1TQKSmqtJbZM';
+    const apiKey = 'AIzaSyA-CD3MgDBzAsjmp_FlDbofynMMmW6fPsU';
     final apiUrl =
         'https://maps.googleapis.com/maps/api/geocode/json?latlng=$shopLatitude,$shopLongitude&key=$apiKey';
 
@@ -338,7 +338,7 @@ class _VendorPageState extends State<VendorPage> {
     double endLong,
   ) async {
     String url =
-        'https://maps.googleapis.com/maps/api/distancematrix/json?origins=$startLat,$startLong&destinations=$endLat,$endLong&key=AIzaSyCTzhOTUtdVUx0qpAbcXdn1TQKSmqtJbZM';
+        'https://maps.googleapis.com/maps/api/distancematrix/json?origins=$startLat,$startLong&destinations=$endLat,$endLong&key=AIzaSyA-CD3MgDBzAsjmp_FlDbofynMMmW6fPsU';
     try {
       var response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
