@@ -1,7 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:Localsearch_User/page/main/vendor/vendor_posts_tab_page.dart';
+import 'package:Localsearch_User/page/main/vendor/vendor_products_tab_page.dart';
+import 'package:Localsearch_User/page/main/vendor/vendor_shorts_tab_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:Localsearch_User/page/main/vendor/product/product_page.dart';
@@ -41,13 +45,15 @@ class VendorPage extends StatefulWidget {
   State<VendorPage> createState() => _VendorPageState();
 }
 
-class _VendorPageState extends State<VendorPage> {
+class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
   final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
   Map<String, dynamic>? shopData;
   Map<String, dynamic>? ownerData;
   bool isFollowing = false;
   Map brands = {};
+  Map<String, List> posts = {};
+  Map<String, List> shorts = {};
   List? allDiscounts;
   Map<String, String>? categories;
   Map<String, dynamic> products = {};
@@ -63,7 +69,7 @@ class _VendorPageState extends State<VendorPage> {
   @override
   void initState() {
     getVendorInfo();
-    getIfFollowing();
+    // getIfFollowing();
     getLocation().then((value) async {
       if (value != null) {
         setState(() {
@@ -81,10 +87,12 @@ class _VendorPageState extends State<VendorPage> {
     getBrands();
     getDiscounts();
     getProducts();
+    getPosts();
+    getShorts();
     sortProducts(EventSorting.recentlyAdded);
     super.initState();
     scrollController.addListener(scrollListener);
-    setRecentShop();
+    // setRecentShop();
   }
 
   // DISPOSE
@@ -124,23 +132,17 @@ class _VendorPageState extends State<VendorPage> {
   //   await store.collection('Users').doc(auth.currentUser!.uid).update({
   //     'recentShop': widget.vendorId,
   //   });
-
   //   final vendorSnap = await store
   //       .collection('Business')
   //       .doc('Owners')
   //       .collection('Shops')
   //       .doc(widget.vendorId)
   //       .get();
-
   //   final vendorData = vendorSnap.data()!;
-
   //   int views = vendorData['Views'] ?? 0;
   //   List viewsTimestamp = vendorData['viewsTimestamp'] ?? [];
-
   //   viewsTimestamp.add(DateTime.now());
-
   //   views = views + 1;
-
   //   await store
   //       .collection('Business')
   //       .doc('Owners')
@@ -153,22 +155,19 @@ class _VendorPageState extends State<VendorPage> {
   // }
 
   // GET IF FOLLOWING
-  Future<void> getIfFollowing() async {
-    final userSnap =
-        await store.collection('Users').doc(auth.currentUser!.uid).get();
-
-    final userData = userSnap.data()!;
-
-    final following = userData['followedShops'];
-
-    setState(() {
-      if ((following as List).contains(widget.vendorId)) {
-        isFollowing = true;
-      } else {
-        isFollowing = false;
-      }
-    });
-  }
+  // Future<void> getIfFollowing() async {
+  //   final userSnap =
+  //       await store.collection('Users').doc(auth.currentUser!.uid).get();
+  //   final userData = userSnap.data()!;
+  //   final following = userData['followedShops'];
+  //   setState(() {
+  //     if ((following as List).contains(widget.vendorId)) {
+  //       isFollowing = true;
+  //     } else {
+  //       isFollowing = false;
+  //     }
+  //   });
+  // }
 
   // GET VENDOR INFO
   Future<void> getVendorInfo() async {
@@ -178,9 +177,6 @@ class _VendorPageState extends State<VendorPage> {
         .collection('Shops')
         .doc(widget.vendorId)
         .get();
-
-    print('vendorId: ${widget.vendorId}');
-    print('exists: ${shopSnap.exists}');
 
     final currentShopData = shopSnap.data();
 
@@ -204,60 +200,51 @@ class _VendorPageState extends State<VendorPage> {
   }
 
   // FOLLOW SHOP
-  Future<void> followShop() async {
-    final userSnap =
-        await store.collection('Users').doc(auth.currentUser!.uid).get();
-
-    final userData = userSnap.data()!;
-
-    final followedShops = userData['followedShops'] as List;
-
-    if (followedShops.contains(widget.vendorId)) {
-      followedShops.remove(widget.vendorId);
-    } else {
-      followedShops.add(widget.vendorId);
-    }
-
-    await store.collection('Users').doc(auth.currentUser!.uid).update({
-      'followedShops': followedShops,
-    });
-
-    final vendorSnap = await store
-        .collection('Business')
-        .doc('Owners')
-        .collection('Shops')
-        .doc(widget.vendorId)
-        .get();
-
-    final vendorData = vendorSnap.data()!;
-
-    List followers = vendorData['Followers'];
-
-    if (followers.contains(auth.currentUser!.uid)) {
-      followers.remove(auth.currentUser!.uid);
-    } else {
-      followers.add(auth.currentUser!.uid);
-    }
-
-    await store
-        .collection('Business')
-        .doc('Owners')
-        .collection('Shops')
-        .doc(widget.vendorId)
-        .update({
-      'Followers': followers,
-    });
-    if (mounted) {
-      Navigator.of(context).pop();
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: ((context) => VendorPage(
-                vendorId: widget.vendorId,
-              )),
-        ),
-      );
-    }
-  }
+  // Future<void> followShop() async {
+  //   final userSnap =
+  //       await store.collection('Users').doc(auth.currentUser!.uid).get();
+  //   final userData = userSnap.data()!;
+  //   final followedShops = userData['followedShops'] as List;
+  //   if (followedShops.contains(widget.vendorId)) {
+  //     followedShops.remove(widget.vendorId);
+  //   } else {
+  //     followedShops.add(widget.vendorId);
+  //   }
+  //   await store.collection('Users').doc(auth.currentUser!.uid).update({
+  //     'followedShops': followedShops,
+  //   });
+  //   final vendorSnap = await store
+  //       .collection('Business')
+  //       .doc('Owners')
+  //       .collection('Shops')
+  //       .doc(widget.vendorId)
+  //       .get();
+  //   final vendorData = vendorSnap.data()!;
+  //   List followers = vendorData['Followers'];
+  //   if (followers.contains(auth.currentUser!.uid)) {
+  //     followers.remove(auth.currentUser!.uid);
+  //   } else {
+  //     followers.add(auth.currentUser!.uid);
+  //   }
+  //   await store
+  //       .collection('Business')
+  //       .doc('Owners')
+  //       .collection('Shops')
+  //       .doc(widget.vendorId)
+  //       .update({
+  //     'Followers': followers,
+  //   });
+  //   if (mounted) {
+  //     Navigator.of(context).pop();
+  //     Navigator.of(context).push(
+  //       MaterialPageRoute(
+  //         builder: ((context) => VendorPage(
+  //               vendorId: widget.vendorId,
+  //             )),
+  //       ),
+  //     );
+  //   }
+  // }
 
   // CALL VENDOR
   Future<void> callVendor() async {
@@ -503,7 +490,7 @@ class _VendorPageState extends State<VendorPage> {
       final price = productData['productPrice'];
       final ratings = productData['ratings'];
       final datetime = productData['datetime'];
-      final views = productData['productViews'];
+      final views = productData['productViewsTimestamp'];
       final data = productData.data();
 
       productsData[id] = [
@@ -522,6 +509,42 @@ class _VendorPageState extends State<VendorPage> {
     });
   }
 
+  // GET POSTS
+  Future<void> getPosts() async {
+    Map<String, List> myPosts = {};
+    final postsSnap = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Posts')
+        .where('postVendorId', isEqualTo: widget.vendorId)
+        .where('isLinked', isEqualTo: false)
+        .get();
+
+    postsSnap.docs.forEach((post) {
+      final postData = post.data();
+
+      final postId = postData['postId'];
+      final postText = postData['post'];
+      final isTextPost = postData['isTextPost'];
+      final postImages = postData['postImages'];
+      final postDateTime = postData['postDateTime'];
+
+      myPosts[postId] = [
+        postText,
+        isTextPost,
+        postImages,
+        postDateTime,
+      ];
+    });
+
+    myPosts = Map.fromEntries(myPosts.entries.toList()
+      ..sort((a, b) => (b.value[3] as Timestamp).compareTo(a.value[3])));
+
+    setState(() {
+      posts = myPosts;
+    });
+  }
+
   // SORT PRODUCTS
   void sortProducts(EventSorting sorting) {
     setState(() {
@@ -537,7 +560,7 @@ class _VendorPageState extends State<VendorPage> {
           break;
         case EventSorting.mostViewed:
           products = Map.fromEntries(products.entries.toList()
-            ..sort((a, b) => (b.value[5] as int).compareTo(a.value[5])));
+            ..sort((a, b) => (b.value[5].length).compareTo(a.value[5].length)));
           break;
         case EventSorting.lowestPrice:
           products = Map.fromEntries(products.entries.toList()
@@ -567,15 +590,13 @@ class _VendorPageState extends State<VendorPage> {
   }
 
   // GET SCREEN HEIGHT
-  double getScreenHeight(double width) {
+  double getScreenHeight() {
     final mediaQuery = MediaQuery.of(context);
     final screenHeight = mediaQuery.size.height;
     final paddingTop = mediaQuery.padding.top;
     final paddingBottom = mediaQuery.padding.bottom;
-    final searchBarHeight = width * 0.125;
 
-    final availableHeight =
-        screenHeight - paddingTop - paddingBottom - searchBarHeight;
+    final availableHeight = screenHeight - paddingTop - paddingBottom;
     return availableHeight;
   }
 
@@ -763,8 +784,64 @@ class _VendorPageState extends State<VendorPage> {
     return type;
   }
 
+  // GET SHORTS
+  Future<void> getShorts() async {
+    Map<String, List> myShorts = {};
+    final shortsSnap = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Shorts')
+        .where('vendorId', isEqualTo: widget.vendorId)
+        .get();
+
+    print('length: ${shortsSnap.docs.length}');
+
+    shortsSnap.docs.forEach((short) async {
+      final shortsData = short.data();
+
+      final shortsId = short.id;
+      final datetime = shortsData['datetime'];
+      final productId = shortsData['productId'];
+      final shortsUrl = shortsData['shortsURL'];
+      final vendorId = widget.vendorId;
+      print('productId: $productId');
+
+      Reference thumbnailRef = FirebaseStorage.instance
+          .ref()
+          .child('Data/Thumbnails')
+          .child(productId);
+
+      String thumbnailDownloadUrl = await thumbnailRef.getDownloadURL();
+
+      print('thumbnail: $thumbnailDownloadUrl');
+
+      myShorts[shortsId] = [
+        shortsUrl,
+        productId,
+        datetime,
+        thumbnailDownloadUrl,
+        vendorId,
+      ];
+    });
+
+    myShorts = Map.fromEntries(myShorts.entries.toList()
+      ..sort((a, b) => (b.value[2] as Timestamp).compareTo(a.value[2])));
+
+    setState(() {
+      shorts = myShorts;
+    });
+    print('shorts: $shorts');
+  }
+
   @override
   Widget build(BuildContext context) {
+    final TabController tabController = TabController(
+      initialIndex: 1,
+      length: 3,
+      vsync: this,
+      animationDuration: const Duration(milliseconds: 400),
+    );
+
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -963,7 +1040,7 @@ class _VendorPageState extends State<VendorPage> {
                                   // FOLLOW
                                   GestureDetector(
                                     onTap: () async {
-                                      await followShop();
+                                      // await followShop();
                                     },
                                     child: Container(
                                       width: width * 0.4125,
@@ -1238,7 +1315,9 @@ class _VendorPageState extends State<VendorPage> {
                                                         Text(snapshot.data![0]),
                                                   ),
                                                   Text(
-                                                    '${snapshot.data![1]} km',
+                                                    snapshot.data![1] == null
+                                                        ? '-- km'
+                                                        : '${snapshot.data![1]} km',
                                                   ),
                                                 ],
                                               ),
@@ -1603,205 +1682,76 @@ class _VendorPageState extends State<VendorPage> {
                                 ? Container()
                                 : const Divider(),
 
-                        // PRODUCT & FILTER
-                        products.isEmpty
-                            ? Container()
-                            : Padding(
-                                padding: EdgeInsets.symmetric(
-                                  vertical: width * 0.01,
-                                  horizontal: width * 0.0125,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'Products',
-                                      style: TextStyle(
-                                        fontSize: width * 0.0425,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    Container(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: width * 0.0125,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: primary3,
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: DropdownButton<String>(
-                                        underline: const SizedBox(),
-                                        dropdownColor: primary2,
-                                        value: productSort,
-                                        iconEnabledColor: primaryDark,
-                                        items: [
-                                          'Recently Added',
-                                          'Highest Rated',
-                                          'Most Viewed',
-                                          'Price - Highest to Lowest',
-                                          'Price - Lowest to Highest'
-                                        ]
-                                            .map(
-                                                (e) => DropdownMenuItem<String>(
-                                                      value: e,
-                                                      child: Text(e),
-                                                    ))
-                                            .toList(),
-                                        onChanged: (value) {
-                                          sortProducts(
-                                            value == 'Recently Added'
-                                                ? EventSorting.recentlyAdded
-                                                : value == 'Highest Rated'
-                                                    ? EventSorting.highestRated
-                                                    : value == 'Most Viewed'
-                                                        ? EventSorting
-                                                            .mostViewed
-                                                        : value ==
-                                                                'Price - Highest to Lowest'
-                                                            ? EventSorting
-                                                                .highestPrice
-                                                            : EventSorting
-                                                                .lowestPrice,
-                                          );
-                                          setState(() {
-                                            productSort = value;
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                        // TABS
+                        TabBar(
+                          indicator: BoxDecoration(
+                            color: primary2,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: primaryDark.withOpacity(0.8),
+                            ),
+                          ),
+                          isScrollable: false,
+                          indicatorPadding: EdgeInsets.only(
+                            bottom: MediaQuery.of(context).size.width * 0.0266,
+                            top: MediaQuery.of(context).size.width * 0.0225,
+                            left: -MediaQuery.of(context).size.width * 0.045,
+                            right: -MediaQuery.of(context).size.width * 0.045,
+                          ),
+                          automaticIndicatorColorAdjustment: false,
+                          indicatorWeight: 2,
+                          indicatorSize: TabBarIndicatorSize.label,
+                          labelColor: primaryDark,
+                          labelStyle: const TextStyle(
+                            letterSpacing: 1,
+                            fontWeight: FontWeight.w800,
+                          ),
+                          unselectedLabelStyle: const TextStyle(
+                            letterSpacing: 0,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          dividerColor: primary,
+                          indicatorColor: primaryDark,
+                          controller: tabController,
+                          tabs: const [
+                            Tab(
+                              text: 'PRODUCTS',
+                            ),
+                            Tab(
+                              text: 'POSTS',
+                            ),
+                            Tab(
+                              text: 'SHORTS',
+                            ),
+                          ],
+                        ),
 
-                        // PRODUCTS
-                        products.isEmpty
-                            ? Container()
-                            : SizedBox(
+                        SizedBox(
+                          width: width,
+                          height: getScreenHeight() * 0.725,
+                          child: TabBarView(
+                            controller: tabController,
+                            children: [
+                              VendorProductsTabPage(
                                 width: width,
-                                height: getScreenHeight(width) -
-                                    getScreenHeight(width) * 0.1,
-                                child: ListView.builder(
-                                  shrinkWrap: true,
-                                  physics: const ClampingScrollPhysics(),
-                                  itemCount: numProductsLoaded > products.length
-                                      ? products.length
-                                      : numProductsLoaded,
-                                  itemBuilder: ((context, index) {
-                                    final name =
-                                        products.values.toList()[index][0];
-                                    final imageUrl =
-                                        products.values.toList()[index][1];
-                                    final price =
-                                        products.values.toList()[index][2];
-                                    final ratings =
-                                        products.values.toList()[index][3];
-                                    final productData =
-                                        products.values.toList()[index][6];
-                                    final rating =
-                                        calculateAverageRating(ratings);
-
-                                    return GestureDetector(
-                                      onTap: () {
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: ((context) => ProductPage(
-                                                  productData: productData,
-                                                )),
-                                          ),
-                                        );
-                                      },
-                                      child: Container(
-                                        width: width,
-                                        // height: 150,
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: width * 0.0125,
-                                          vertical: width * 0.0125,
-                                        ),
-                                        margin: EdgeInsets.all(
-                                          width * 0.00625,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          border: Border(
-                                            top: index == 0
-                                                ? const BorderSide(
-                                                    color: darkGrey,
-                                                    width: 0.25,
-                                                  )
-                                                : BorderSide.none,
-                                            bottom: const BorderSide(
-                                              color: darkGrey,
-                                              width: 0.25,
-                                            ),
-                                          ),
-                                        ),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              children: [
-                                                ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
-                                                  child: Image.network(
-                                                    imageUrl,
-                                                    width: width * 0.3,
-                                                    height: width * 0.3,
-                                                    fit: BoxFit.cover,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 4),
-                                                rating == 0
-                                                    ? Text(
-                                                        'No Reviews',
-                                                        style: TextStyle(
-                                                          fontSize:
-                                                              width * 0.03,
-                                                        ),
-                                                      )
-                                                    : Text('$rating ⭐'),
-                                              ],
-                                            ),
-                                            Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                SizedBox(
-                                                  width: width * 0.6,
-                                                  child: Text(
-                                                    name,
-                                                    style: TextStyle(
-                                                      fontSize: width * 0.05,
-                                                    ),
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 8),
-                                                Text(
-                                                  price == ''
-                                                      ? 'Rs. --'
-                                                      : 'Rs. $price',
-                                                  style: TextStyle(
-                                                    fontSize: width * 0.04,
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    );
-                                  }),
-                                ),
+                                myProducts: products,
+                                myNumProductsLoaded: numProductsLoaded,
+                                myProductSort: productSort,
+                                height: constraints.maxHeight,
                               ),
+                              VendorPostsTabPage(
+                                posts: posts,
+                                width: width,
+                              ),
+                              VendorShortsTabPage(
+                                width: width,
+                                shorts: shorts,
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // PRODUCT & FILTER
                       ],
                     ),
                   );

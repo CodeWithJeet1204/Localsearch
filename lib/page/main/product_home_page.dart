@@ -886,8 +886,6 @@ class _ProductHomePageState extends State<ProductHomePage> {
   //       datetime,
   //     ];
 
-  //     print('my posts: $myPosts');
-
   //     myPosts = Map.fromEntries(
   //       myPosts.entries.toList()
   //         ..sort(
@@ -905,7 +903,6 @@ class _ProductHomePageState extends State<ProductHomePage> {
   //     posts = myPosts;
   //     isPostData = true;
   //   });
-  //   print('posts: $posts');
   // }
 
   // // GET POST PRODUCT DATA

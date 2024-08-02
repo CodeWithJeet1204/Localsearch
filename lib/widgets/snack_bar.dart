@@ -8,11 +8,11 @@ void mySnackBar(String text, BuildContext context) {
       content: Text(
         text,
         style: const TextStyle(
-          color: primaryDark,
+          color: const Color.fromARGB(255, 240, 252, 255),
         ),
       ),
       elevation: 2,
-      backgroundColor: const Color.fromARGB(255, 240, 252, 255),
+      backgroundColor: primaryDark,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),

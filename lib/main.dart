@@ -1,13 +1,10 @@
 import 'package:Localsearch_User/firebase_options.dart';
-import 'package:Localsearch_User/page/auth/login_page.dart';
 import 'package:Localsearch_User/page/auth/register_method_page.dart';
-import 'package:Localsearch_User/page/main/main_page.dart';
 import 'package:Localsearch_User/page/main/vendor/vendor_page.dart';
 import 'package:Localsearch_User/providers/location_provider.dart';
 import 'package:Localsearch_User/providers/register_details_provider.dart';
 import 'package:Localsearch_User/providers/verification_provider.dart';
 import 'package:Localsearch_User/utils/colors.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -133,7 +130,7 @@ class MyApp extends StatelessWidget {
           //     return const LoginPage();
           //   }),
           // ),
-          VendorPage(vendorId: 'K84DSqUT7RSdHEDKtYxIJzpDj0s2'),
+          VendorPage(vendorId: 'rb3RIkTdllMmhyJedMrDnTLCY1l2'),
           // const ConnectivityNotificationWidget(),
         ],
       ),

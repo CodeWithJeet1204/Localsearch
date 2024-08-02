@@ -608,7 +608,7 @@ class _ProductPageState extends State<ProductPage> {
     final Map<String, dynamic> reviews =
         Map<String, dynamic>.from(productData['ratings']);
 
-    if (reviews.containsKey(auth.currentUser!.uid)) {
+    if (reviews.containsKey(auth.currentUser?.uid)) {
       setState(() {
         previousRating = reviews[auth.currentUser!.uid][0].toDouble();
         previousReview = reviews[auth.currentUser!.uid][1];
