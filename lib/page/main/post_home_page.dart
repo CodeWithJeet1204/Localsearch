@@ -49,7 +49,7 @@ class _PostHomePageState extends State<PostHomePage> {
       final String name = postData[!isLinked ? 'post' : 'postProductName'];
       final String? price = postData['postProductPrice'];
       final bool isTextPost = postData['isTextPost'];
-      final List? imageUrl = isTextPost ? [] : postData['postProductImages'];
+      final List? imageUrl = isTextPost ? [] : postData['postImages'];
       final String vendorId = postData['postVendorId'];
       final Timestamp datetime = postData['postDateTime'];
 

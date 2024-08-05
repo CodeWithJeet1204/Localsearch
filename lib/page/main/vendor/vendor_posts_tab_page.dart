@@ -17,7 +17,7 @@ class VendorPostsTabPage extends StatefulWidget {
 }
 
 class _VendorPostsTabPageState extends State<VendorPostsTabPage> {
-  Map<String, dynamic> currentPosts = {};
+  // Map<String, dynamic> currentPosts = {};
   Map<String, dynamic> textPosts = {};
   Map<String, dynamic> imagePosts = {};
   String type = 'Image';
@@ -32,7 +32,7 @@ class _VendorPostsTabPageState extends State<VendorPostsTabPage> {
         imagePosts.addAll({key: value});
       }
     });
-    updateCurrentPosts();
+    // updateCurrentPosts();
     setState(() {});
     super.initState();
   }
@@ -48,16 +48,16 @@ class _VendorPostsTabPageState extends State<VendorPostsTabPage> {
     return availableHeight;
   }
 
-  // UPDATE CURRENT POSTS
-  void updateCurrentPosts() {
-    setState(() {
-      if (type == 'Image') {
-        currentPosts = imagePosts;
-      } else {
-        currentPosts = textPosts;
-      }
-    });
-  }
+  // // UPDATE CURRENT POSTS
+  // void updateCurrentPosts() {
+  //   setState(() {
+  //     if (type == 'Image') {
+  //       currentPosts = imagePosts;
+  //     } else {
+  //       currentPosts = textPosts;
+  //     }
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {

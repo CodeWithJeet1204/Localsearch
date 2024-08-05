@@ -1,7 +1,7 @@
+import 'package:Localsearch_User/models/household_types.dart';
 import 'package:flutter/material.dart';
 // import 'package:image/image.dart' as img;
 // import 'package:flutter/services.dart' show NetworkAssetBundle;
-import 'package:Localsearch_User/models/business_categories.dart';
 import 'package:Localsearch_User/page/main/vendor/category/shop_categories_page.dart';
 import 'package:Localsearch_User/utils/colors.dart';
 
@@ -13,10 +13,6 @@ class AllShopTypesPage extends StatefulWidget {
 }
 
 class _AllShopTypesPageState extends State<AllShopTypesPage> {
-  List<List<dynamic>> businessCategory = List.from(
-    businessCategories as List<List<dynamic>>,
-  );
-
   // INIT STATE
   @override
   void initState() {
@@ -124,10 +120,10 @@ class _AllShopTypesPageState extends State<AllShopTypesPage> {
               childAspectRatio: 0.7525,
             ),
             physics: const ClampingScrollPhysics(),
-            itemCount: businessCategories.length,
+            itemCount: householdTypes.length,
             itemBuilder: (context, index) {
-              final String name = businessCategories[index][0];
-              final String imageUrl = businessCategories[index][1];
+              final String name = householdTypes.keys.toList()[index];
+              final String imageUrl = householdTypes.values.toList()[index];
               // final Color color = businessCategories[index][2];
 
               return GestureDetector(

@@ -1,10 +1,12 @@
 import 'package:Localsearch_User/firebase_options.dart';
+import 'package:Localsearch_User/page/auth/login_page.dart';
 import 'package:Localsearch_User/page/auth/register_method_page.dart';
-import 'package:Localsearch_User/page/main/vendor/vendor_page.dart';
+import 'package:Localsearch_User/page/main/main_page.dart';
 import 'package:Localsearch_User/providers/location_provider.dart';
 import 'package:Localsearch_User/providers/register_details_provider.dart';
 import 'package:Localsearch_User/providers/verification_provider.dart';
 import 'package:Localsearch_User/utils/colors.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -112,25 +114,25 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: Stack(
         children: [
-          // StreamBuilder(
-          //   stream: FirebaseAuth.instance.authStateChanges(),
-          //   builder: ((context, snapshot) {
-          //     if (snapshot.connectionState == ConnectionState.waiting) {
-          //       return const Center(
-          //         child: CircularProgressIndicator(
-          //           color: primaryDark,
-          //         ),
-          //       );
-          //     }
+          StreamBuilder(
+            stream: FirebaseAuth.instance.authStateChanges(),
+            builder: ((context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: CircularProgressIndicator(
+                    color: primaryDark,
+                  ),
+                );
+              }
 
-          //     if (snapshot.hasData) {
-          //       return const MainPage();
-          //     }
+              if (snapshot.hasData) {
+                return const MainPage();
+              }
 
-          //     return const LoginPage();
-          //   }),
-          // ),
-          VendorPage(vendorId: 'rb3RIkTdllMmhyJedMrDnTLCY1l2'),
+              return const LoginPage();
+            }),
+          ),
+          // VendorPage(vendorId: 'rb3RIkTdllMmhyJedMrDnTLCY1l2'),
           // const ConnectivityNotificationWidget(),
         ],
       ),

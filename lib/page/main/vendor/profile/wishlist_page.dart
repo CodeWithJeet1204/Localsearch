@@ -83,30 +83,32 @@ class _WishlistPageState extends State<WishlistPage>
 
         final vendorData = vendorSnap.data()!;
 
-        final String shopType = vendorData['Type'];
+        final List shopType = vendorData['Type'];
 
         if (productCategoryName != '0') {
-          final categorySnap = await store
-              .collection('Business')
-              .doc('Special Categories')
-              .collection(shopType)
-              .doc(productCategoryName)
-              .get();
+          for (var type in shopType) {
+            final categorySnap = await store
+                .collection('Business')
+                .doc('Special Categories')
+                .collection(type)
+                .doc(productCategoryName)
+                .get();
 
-          final categoryData = categorySnap.data()!;
+            final categoryData = categorySnap.data()!;
 
-          final categoryName = categoryData['specialCategoryName'];
+            final categoryName = categoryData['specialCategoryName'];
 
-          if (!categories.contains(categoryName)) {
-            categories.add(categoryName);
+            if (!categories.contains(categoryName)) {
+              categories.add(categoryName);
+            }
+            wishlist[id] = [
+              name,
+              imageUrl,
+              price,
+              categoryName,
+              productData,
+            ];
           }
-          wishlist[id] = [
-            name,
-            imageUrl,
-            price,
-            categoryName,
-            productData,
-          ];
         } else {
           wishlist[id] = [
             name,

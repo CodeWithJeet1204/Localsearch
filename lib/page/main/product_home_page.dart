@@ -1,11 +1,10 @@
 // ignore_for_file: avoid_function_literals_in_foreach_calls, unused_local_variable
-
 import 'dart:async';
 import 'dart:convert';
+import 'package:Localsearch_User/models/household_types.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:Localsearch_User/models/business_categories.dart';
 import 'package:Localsearch_User/page/main/all_discount_page.dart';
 import 'package:Localsearch_User/page/main/location_change_page.dart';
 import 'package:Localsearch_User/page/main/main_page.dart';
@@ -304,120 +303,122 @@ class _ProductHomePageState extends State<ProductHomePage> {
 
     final myRecentShop = userData['recentShop'];
 
-    final vendorSnap = await store
-        .collection('Business')
-        .doc('Owners')
-        .collection('Shops')
-        .doc(myRecentShop)
-        .get();
+    if (myRecentShop != '') {
+      final vendorSnap = await store
+          .collection('Business')
+          .doc('Owners')
+          .collection('Shops')
+          .doc(myRecentShop)
+          .get();
 
-    final vendorData = vendorSnap.data()!;
+      final vendorData = vendorSnap.data()!;
 
-    final vendorLatitude = vendorData['Latitude'];
-    final vendorLongitude = vendorData['Longitude'];
+      final vendorLatitude = vendorData['Latitude'];
+      final vendorLongitude = vendorData['Longitude'];
 
-    double? yourLatitude;
-    double? yourLongitude;
+      double? yourLatitude;
+      double? yourLongitude;
 
-    // GET LOCATION
-    Future<Position?> getLocation() async {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      // GET LOCATION
+      Future<Position?> getLocation() async {
+        bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
 
-      if (!serviceEnabled) {
-        if (mounted) {
-          mySnackBar('Turn ON Location Services to Continue', context);
-        }
-        return null;
-      } else {
-        LocationPermission permission = await Geolocator.checkPermission();
-
-        // LOCATION PERMISSION GIVEN
-        Future<Position> locationPermissionGiven() async {
-          return await Geolocator.getCurrentPosition();
-        }
-
-        if (permission == LocationPermission.denied) {
-          permission = await Geolocator.requestPermission();
-          if (permission == LocationPermission.denied) {
-            if (mounted) {
-              mySnackBar('Pls give Location Permission to Continue', context);
-            }
+        if (!serviceEnabled) {
+          if (mounted) {
+            mySnackBar('Turn ON Location Services to Continue', context);
           }
-          permission = await Geolocator.requestPermission();
-          if (permission == LocationPermission.deniedForever) {
-            setState(() {
-              yourLatitude = 0;
-              yourLongitude = 0;
-            });
-            if (mounted) {
-              mySnackBar(
-                'Because Location permission is denied, We are continuing without Location',
-                context,
-              );
+          return null;
+        } else {
+          LocationPermission permission = await Geolocator.checkPermission();
+
+          // LOCATION PERMISSION GIVEN
+          Future<Position> locationPermissionGiven() async {
+            return await Geolocator.getCurrentPosition();
+          }
+
+          if (permission == LocationPermission.denied) {
+            permission = await Geolocator.requestPermission();
+            if (permission == LocationPermission.denied) {
+              if (mounted) {
+                mySnackBar('Pls give Location Permission to Continue', context);
+              }
+            }
+            permission = await Geolocator.requestPermission();
+            if (permission == LocationPermission.deniedForever) {
+              setState(() {
+                yourLatitude = 0;
+                yourLongitude = 0;
+              });
+              if (mounted) {
+                mySnackBar(
+                  'Because Location permission is denied, We are continuing without Location',
+                  context,
+                );
+              }
+            } else {
+              return await locationPermissionGiven();
             }
           } else {
             return await locationPermissionGiven();
           }
-        } else {
-          return await locationPermissionGiven();
-        }
-      }
-      return null;
-    }
-
-    // GET DISTANCE
-    Future<double?> getDrivingDistance(
-      double startLat,
-      double startLong,
-      double endLat,
-      double endLong,
-    ) async {
-      String url =
-          'https://maps.googleapis.com/maps/api/distancematrix/json?origins=$startLat,$startLong&destinations=$endLat,$endLong&key=AIzaSyA-CD3MgDBzAsjmp_FlDbofynMMmW6fPsU';
-      try {
-        var response = await http.get(Uri.parse(url));
-        if (response.statusCode == 200) {
-          final data = jsonDecode(response.body);
-          if (data['rows'].isNotEmpty &&
-              data['rows'][0]['elements'].isNotEmpty) {
-            final distance =
-                data['rows'][0]['elements'][0]['distance']['value'];
-            return distance / 1000;
-          }
         }
         return null;
-      } catch (e) {
-        return null;
       }
-    }
 
-    await getLocation().then((value) async {
-      if (value != null) {
-        setState(() {
-          yourLatitude = value.latitude;
-          yourLongitude = value.longitude;
-        });
-
+      // GET DISTANCE
+      Future<double?> getDrivingDistance(
+        double startLat,
+        double startLong,
+        double endLat,
+        double endLong,
+      ) async {
+        String url =
+            'https://maps.googleapis.com/maps/api/distancematrix/json?origins=$startLat,$startLong&destinations=$endLat,$endLong&key=AIzaSyA-CD3MgDBzAsjmp_FlDbofynMMmW6fPsU';
         try {
-          final dist = await getDrivingDistance(
-            yourLatitude!,
-            yourLongitude!,
-            vendorLatitude,
-            vendorLongitude,
-          );
-
-          if (dist != null) {
-            if (dist < 5) {
-              setState(() {
-                recentShop = myRecentShop;
-              });
+          var response = await http.get(Uri.parse(url));
+          if (response.statusCode == 200) {
+            final data = jsonDecode(response.body);
+            if (data['rows'].isNotEmpty &&
+                data['rows'][0]['elements'].isNotEmpty) {
+              final distance =
+                  data['rows'][0]['elements'][0]['distance']['value'];
+              return distance / 1000;
             }
           }
-        } catch (e) {}
+          return null;
+        } catch (e) {
+          return null;
+        }
       }
-    });
 
-    await getNoOfProductsOfRecentShop();
+      await getLocation().then((value) async {
+        if (value != null) {
+          setState(() {
+            yourLatitude = value.latitude;
+            yourLongitude = value.longitude;
+          });
+
+          try {
+            final dist = await getDrivingDistance(
+              yourLatitude!,
+              yourLongitude!,
+              vendorLatitude,
+              vendorLongitude,
+            );
+
+            if (dist != null) {
+              if (dist < 5) {
+                setState(() {
+                  recentShop = myRecentShop;
+                });
+              }
+            }
+          } catch (e) {}
+        }
+      });
+
+      await getNoOfProductsOfRecentShop();
+    }
   }
 
   // GET NO OF PRODUCTS OF RECENT SHOP
@@ -873,7 +874,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
   //     final String name = postData['postProductName'];
   //     final String price = postData['postProductPrice'];
   //     final bool isTextPost = postData['isTextPost'];
-  //     final List imageUrl = isTextPost ? [] : postData['postProductImages'];
+  //     final List imageUrl = isTextPost ? [] : postData['postImages'];
   //     final String vendorId = postData['postVendorId'];
   //     final Timestamp datetime = postData['postDateTime'];
 
@@ -1428,9 +1429,9 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                 itemCount: 4,
                                 itemBuilder: ((context, index) {
                                   final String name =
-                                      businessCategories[numbers[index]][0];
+                                      householdTypes.keys.toList()[index];
                                   final String imageUrl =
-                                      businessCategories[numbers[index]][1];
+                                      householdTypes.values.toList()[index];
 
                                   return Padding(
                                     padding: EdgeInsets.symmetric(
@@ -1507,11 +1508,11 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                     scrollDirection: Axis.horizontal,
                                     itemCount: 3,
                                     itemBuilder: ((context, index) {
-                                      final String name = businessCategories[
-                                          reverseNumbers[index]][0];
-                                      final String imageUrl =
-                                          businessCategories[
-                                              reverseNumbers[index]][1];
+                                      final String name = householdTypes.keys
+                                          .toList()[index + 4];
+                                      final String imageUrl = householdTypes
+                                          .values
+                                          .toList()[index + 4];
 
                                       return Padding(
                                         padding: EdgeInsets.symmetric(
@@ -1551,7 +1552,8 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                                   ClipRRect(
                                                     borderRadius:
                                                         BorderRadius.circular(
-                                                            12),
+                                                      12,
+                                                    ),
                                                     child: Image.network(
                                                       imageUrl,
                                                       height: width * 0.175,
@@ -1563,6 +1565,11 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                                     overflow:
                                                         TextOverflow.ellipsis,
                                                     maxLines: 1,
+                                                    style: TextStyle(
+                                                      color: primaryDark,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
                                                   ),
                                                 ],
                                               ),

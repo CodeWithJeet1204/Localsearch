@@ -1,4 +1,4 @@
-import 'package:Localsearch_User/models/business_sub_categories.dart';
+import 'package:Localsearch_User/models/household_sub_category.dart';
 import 'package:Localsearch_User/page/main/vendor/category/category_products_page.dart';
 import 'package:Localsearch_User/utils/colors.dart';
 import 'package:Localsearch_User/widgets/video_tutorial.dart';
@@ -24,7 +24,7 @@ class _ShopCategoriesPageState extends State<ShopCategoriesPage> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     Map<String, String> currentShopCategories =
-        businessCategories[widget.shopName]!;
+        householdSubCategories[widget.shopName]!;
 
     return Scaffold(
       appBar: AppBar(

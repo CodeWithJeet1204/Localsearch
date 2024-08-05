@@ -37,8 +37,7 @@ class _VendorShortsTabTileState extends State<VendorShortsTabTile> {
   // INIT STATE
   @override
   void initState() {
-    // TODO: UNCOMMENT THIS AFTERWARDS
-    // getIfWishlist(widget.data.values.toList()[0][1]);
+    getIfWishlist(widget.data.values.toList()[0][1]);
     flickManager = FlickManager(
       videoPlayerController: VideoPlayerController.networkUrl(
         Uri.parse(
@@ -82,22 +81,22 @@ class _VendorShortsTabTileState extends State<VendorShortsTabTile> {
   }
 
   // GET IF WISHLIST
-  // Future<void> getIfWishlist(String productId) async {
-  //   final userSnap =
-  //       await store.collection('Users').doc(auth.currentUser!.uid).get();
+  Future<void> getIfWishlist(String productId) async {
+    final userSnap =
+        await store.collection('Users').doc(auth.currentUser!.uid).get();
 
-  //   final userData = userSnap.data()!;
-  //   final userWishlist = userData['wishlists'] as List;
+    final userData = userSnap.data()!;
+    final userWishlist = userData['wishlists'] as List;
 
-  //   setState(() {
-  //     if (userWishlist.contains(productId)) {
-  //       isWishListed = true;
-  //     } else {
-  //       isWishListed = false;
-  //     }
-  //     isData = true;
-  //   });
-  // }
+    setState(() {
+      if (userWishlist.contains(productId)) {
+        isWishListed = true;
+      } else {
+        isWishListed = false;
+      }
+      isData = true;
+    });
+  }
 
   // WISHLIST PRODUCT
   Future<void> wishlistProduct(String productId) async {

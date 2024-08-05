@@ -1,19 +1,22 @@
 Map<String, String> householdTypes = {
-  'Fashion & Clothing':
-      'https://img.freepik.com/free-vector/summer-clothes-set_74855-446.jpg?w=2000&t=st=1718869923~exp=1718870523~hmac=97e04a8138e75ef843ac83c9736247c4795a7ecdea011e9b00862ce93af27b7e',
-  'Foot Wear':
-      'https://img.freepik.com/free-vector/summer-clothes-set_74855-446.jpg?w=2000&t=st=1718869923~exp=1718870523~hmac=97e04a8138e75ef843ac83c9736247c4795a7ecdea011e9b00862ce93af27b7e',
-  'Food':
-      'https://img.freepik.com/free-vector/fruit-salad-bowl-concept_23-2148505162.jpg?t=st=1718870086~exp=1718873686~hmac=e7b6278caa657907ffd158351bc1eb41abcf777f6a1d63ed753114e1e85d6f08&w=1800',
+  'Art & Craft':
+      'https://firebasestorage.googleapis.com/v0/b/find-easy-1204.appspot.com/o/Household%20Categories%2FArt%20%26%20Craft%2FArt%20%26%20Craft.png?alt=media&token=1317cb10-4648-458a-a1f4-dea3e405a023',
   'Beauty & Care':
-      'https://img.freepik.com/free-vector/realistic-make-up-brushes-composition_1284-25929.jpg?t=st=1718870259~exp=1718873859~hmac=71fe8976879a0aa5887a2f1dd4d52f1839f76327b8769d2290b439be8835c5a8&w=1480',
-  'Home Essentials': '',
-  'Jewelry':
-      'https://img.freepik.com/free-vector/hand-drawn-diamond-ring-cartoon-illustration_23-2150903773.jpg?t=st=1718870463~exp=1718874063~hmac=e678e629a783e15fc6c6b6a61b425725a773c7b66910cf4de633cd05b98bba9a&w=1800',
-  'Home Decor & Furnishing':
-      'https://img.freepik.com/free-vector/realistic-wedding-elements-set_1284-21364.jpg?t=st=1718870603~exp=1718874203~hmac=273c37370166bf3ca0eb5dcacde99b76e5a7a19e59944b5765b5312fa2187a1b&w=1800',
+      'https://firebasestorage.googleapis.com/v0/b/find-easy-1204.appspot.com/o/Household%20Categories%2FBeauty%20%26%20Care%2FBeauty%20%26%20Care.png?alt=media&token=bc65981b-84ae-430e-a001-c78e9f6ce7d2',
+  'Fashion & Clothing':
+      'https://firebasestorage.googleapis.com/v0/b/find-easy-1204.appspot.com/o/Household%20Categories%2FFashion%20%26%20Clothing%2FFashion%20%26%20Clothing.png?alt=media&token=7253959e-9931-49a2-becf-cf721236ffaf',
   'Festive Essentials':
-      'https://img.freepik.com/free-vector/hand-drawn-design-elements-collection-diwali-festival-celebration_23-2150945324.jpg?t=st=1718870645~exp=1718874245~hmac=f44d0eed3a44f3f71e2e0d1cc9275d1c1236deda1e59566d675c89abc6f6529c&w=1800',
-  'Health Care': '',
-  'Art & Craft': '',
+      'https://firebasestorage.googleapis.com/v0/b/find-easy-1204.appspot.com/o/Household%20Categories%2FFestive%20Essentials%2FFestive%20Essentials.png?alt=media&token=031e2f17-3865-48d5-891c-ae78cedc9b8b',
+  'Food':
+      'https://firebasestorage.googleapis.com/v0/b/find-easy-1204.appspot.com/o/Household%20Categories%2FFood%2FFood.png?alt=media&token=526c0113-11be-4699-a678-cddf7fed1179',
+  'Foot Wear':
+      'https://firebasestorage.googleapis.com/v0/b/find-easy-1204.appspot.com/o/Household%20Categories%2FFoot%20Wear%2FFoot%20Wear.png?alt=media&token=bf4c2871-1a0e-49da-8f51-c3c4eb89a07c',
+  'Health Care':
+      'https://firebasestorage.googleapis.com/v0/b/find-easy-1204.appspot.com/o/Household%20Categories%2FHealth%20Care%2FHealth%20Care.png?alt=media&token=56568efc-9843-4cfe-ba37-acc12e516dbb',
+  'Home Decor & Furnishing':
+      'https://firebasestorage.googleapis.com/v0/b/find-easy-1204.appspot.com/o/Household%20Categories%2FHome%20Decor%20%26%20Furnishing%2FHome%20Decor%20%26%20Furnishing.png?alt=media&token=ae453770-ee84-4e71-9802-2ff7b840c04c',
+  'Home Essentials':
+      'https://firebasestorage.googleapis.com/v0/b/find-easy-1204.appspot.com/o/Household%20Categories%2FHome%20Essentials%2FHome%20Essentials.png?alt=media&token=04b5d0df-6c90-47b4-a942-8d99e6b68457',
+  'Jewelry':
+      'https://firebasestorage.googleapis.com/v0/b/find-easy-1204.appspot.com/o/Household%20Categories%2FHome%20Essentials%2FHome%20Essentials.png?alt=media&token=04b5d0df-6c90-47b4-a942-8d99e6b68457',
 };
