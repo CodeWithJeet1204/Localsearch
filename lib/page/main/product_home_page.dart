@@ -50,20 +50,21 @@ class _ProductHomePageState extends State<ProductHomePage> {
   Map<String, dynamic> posts = {};
   Map<String, dynamic> vendors = {};
   Map<String, dynamic> productsData = {};
+  Map<String, Map<String, Map<String, dynamic>>> featured1 = {};
+  Map<String, Map<String, Map<String, dynamic>>> featured2 = {};
+  Map<String, Map<String, Map<String, dynamic>>> featured3 = {};
   bool getRecentData = false;
   bool getWishlistData = false;
   bool getFollowedData = false;
   bool isPostData = false;
   double distanceRange = 5;
-  List<int> numbers = [0, 1, 2, 3];
-  List<int> reverseNumbers = [4, 5, 6, 7];
 
   // INIT STATE
   @override
   void initState() {
     getName();
     getRecentShop();
-
+    getFeatured();
     super.initState();
   }
 
@@ -867,7 +868,6 @@ class _ProductHomePageState extends State<ProductHomePage> {
   //       .doc('Data')
   //       .collection('Posts')
   //       .get();
-
   //   for (final postSnap in postsSnap.docs) {
   //     final postData = postSnap.data();
   //     final String productId = postData['postProductId'];
@@ -877,7 +877,6 @@ class _ProductHomePageState extends State<ProductHomePage> {
   //     final List imageUrl = isTextPost ? [] : postData['postImages'];
   //     final String vendorId = postData['postVendorId'];
   //     final Timestamp datetime = postData['postDateTime'];
-
   //     myPosts[isTextPost ? '${productId}text' : '${productId}image'] = [
   //       name,
   //       price,
@@ -886,7 +885,6 @@ class _ProductHomePageState extends State<ProductHomePage> {
   //       isTextPost,
   //       datetime,
   //     ];
-
   //     myPosts = Map.fromEntries(
   //       myPosts.entries.toList()
   //         ..sort(
@@ -895,11 +893,9 @@ class _ProductHomePageState extends State<ProductHomePage> {
   //           ),
   //         ),
   //     );
-
   //     await getVendorInfo(vendorId);
   //     await getPostProductData(productId, isTextPost);
   //   }
-
   //   setState(() {
   //     posts = myPosts;
   //     isPostData = true;
@@ -916,11 +912,9 @@ class _ProductHomePageState extends State<ProductHomePage> {
   //       .collection('Products')
   //       .doc(productId)
   //       .get();
-
   //   final productData = productSnap.data();
   //   productsData[isTextPost ? '${productId}text' : '${productId}image'] =
   //       productData;
-
   //   if (wantData != null) {
   //     return productsData[isTextPost ? productId : productId];
   //   } else {
@@ -936,14 +930,11 @@ class _ProductHomePageState extends State<ProductHomePage> {
   //       .collection('Shops')
   //       .doc(vendorId)
   //       .get();
-
   //   final vendorData = vendorSnap.data();
-
   //   if (vendorData != null) {
   //     final id = vendorSnap.id;
   //     final name = vendorData['Name'];
   //     final imageUrl = vendorData['Image'];
-
   //     setState(() {
   //       vendors[id] = [name, imageUrl];
   //     });
@@ -1101,6 +1092,78 @@ class _ProductHomePageState extends State<ProductHomePage> {
   //     });
   //   }
   // }
+
+  // GET FEATURED
+  Future<void> getFeatured() async {
+    Map<String, Map<String, Map<String, dynamic>>> myFeatured1 = {};
+    Map<String, Map<String, Map<String, dynamic>>> myFeatured2 = {};
+    Map<String, Map<String, Map<String, dynamic>>> myFeatured3 = {};
+
+    final featuredSnap = await store.collection('Featured').doc('Vendor').get();
+
+    final featuredData = featuredSnap.data()!;
+
+    final category1 = featuredData['category1'];
+    final category2 = featuredData['category2'];
+    final category3 = featuredData['category3'];
+
+    final productSnap1 = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Products')
+        .where('categoryName', isEqualTo: category1)
+        .get();
+
+    productSnap1.docs.forEach((product1) {
+      final productId1 = product1.id;
+
+      final productData1 = product1.data();
+
+      myFeatured1[category1] = {
+        productId1: productData1,
+      };
+    });
+
+    final productSnap2 = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Products')
+        .where('categoryName', isEqualTo: category2)
+        .get();
+
+    productSnap2.docs.forEach((product2) {
+      final productId2 = product2.id;
+
+      final productData2 = product2.data();
+
+      myFeatured2[category2] = {
+        productId2: productData2,
+      };
+    });
+
+    final productSnap3 = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Products')
+        .where('categoryName', isEqualTo: category3)
+        .get();
+
+    productSnap3.docs.forEach((product3) {
+      final productId3 = product3.id;
+
+      final productData3 = product3.data();
+
+      myFeatured3[category3] = {
+        productId3: productData3,
+      };
+    });
+
+    setState(() {
+      featured1 = myFeatured1;
+      featured2 = myFeatured2;
+      featured3 = myFeatured3;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1645,7 +1708,6 @@ class _ProductHomePageState extends State<ProductHomePage> {
                       //               posts.length > 10 ? 11 : posts.length,
                       //           itemBuilder: (context, index) {
                       //             final String id = posts.keys.toList()[index];
-
                       //             final String name =
                       //                 posts.values.toList()[index][0];
                       //             final String price =
@@ -1663,7 +1725,6 @@ class _ProductHomePageState extends State<ProductHomePage> {
                       //                 ? ''
                       //                 : vendors[vendorId][1];
                       //             final productData = productsData[id];
-
                       //             return index != (posts.length - 1)
                       //                 ? Padding(
                       //                     padding: EdgeInsets.symmetric(
@@ -2279,6 +2340,336 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                     }),
                                   ),
                                 ),
+
+                      // FEATURED 1
+                      featured1.isEmpty ? Container() : Divider(),
+
+                      // FEATURED CATEGORY 1
+                      featured1.isEmpty
+                          ? Container()
+                          : Padding(
+                              padding: EdgeInsets.all(
+                                width * 0.0125,
+                              ),
+                              child: Text(
+                                featured1.keys.toList()[0],
+                                style: TextStyle(
+                                  color: primaryDark,
+                                  fontSize: width * 0.06,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+
+                      // FEATURED PRODUCTS 1
+                      featured1.isEmpty
+                          ? Container()
+                          : SizedBox(
+                              width: width,
+                              height: width * 0.425,
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                physics: ClampingScrollPhysics(),
+                                scrollDirection: Axis.horizontal,
+                                itemCount: featured1.length,
+                                itemBuilder: (context, index) {
+                                  final name1 = featured1.values
+                                      .toList()[index]
+                                      .values
+                                      .toList()[index]['productName'];
+                                  final imageUrl1 = featured1.values
+                                      .toList()[index]
+                                      .values
+                                      .toList()[index]['images'][0];
+                                  final productData1 = featured1.values
+                                      .toList()[index]
+                                      .values
+                                      .toList()[index];
+
+                                  return GestureDetector(
+                                    onTap: () {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: ((context) => ProductPage(
+                                                productData: productData1,
+                                              )),
+                                        ),
+                                      );
+                                    },
+                                    child: Container(
+                                      width: width * 0.3,
+                                      height: width * 0.3975,
+                                      decoration: BoxDecoration(
+                                        color: white,
+                                        border: Border.all(
+                                          width: 0.25,
+                                        ),
+                                        borderRadius: BorderRadius.circular(2),
+                                      ),
+                                      padding: EdgeInsets.all(
+                                        width * 0.00625,
+                                      ),
+                                      margin: EdgeInsets.all(
+                                        width * 0.0125,
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(2),
+                                            child: Image.network(
+                                              imageUrl1,
+                                              fit: BoxFit.cover,
+                                              width: width * 0.3,
+                                              height: width * 0.3,
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: EdgeInsets.only(
+                                              top: width * 0.00625,
+                                              left: width * 0.0125,
+                                            ),
+                                            child: Text(
+                                              name1,
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                              style: TextStyle(
+                                                fontSize: width * 0.05,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+
+                      // FEATURED 2
+                      featured2.isEmpty ? Container() : Divider(),
+
+                      // FEATURED CATEGORY 2
+                      featured2.isEmpty
+                          ? Container()
+                          : Padding(
+                              padding: EdgeInsets.all(
+                                width * 0.0125,
+                              ),
+                              child: Text(
+                                featured2.keys.toList()[0],
+                                style: TextStyle(
+                                  color: primaryDark,
+                                  fontSize: width * 0.06,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+
+                      // FEATURED PRODUCTS 2
+                      featured2.isEmpty
+                          ? Container()
+                          : SizedBox(
+                              width: width,
+                              height: width * 0.425,
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                physics: ClampingScrollPhysics(),
+                                scrollDirection: Axis.horizontal,
+                                itemCount: featured2.length,
+                                itemBuilder: (context, index) {
+                                  final name2 = featured2.values
+                                      .toList()[index]
+                                      .values
+                                      .toList()[index]['productName'];
+                                  final imageUrl2 = featured2.values
+                                      .toList()[index]
+                                      .values
+                                      .toList()[index]['images'][0];
+                                  final productData2 = featured2.values
+                                      .toList()[index]
+                                      .values
+                                      .toList()[index];
+
+                                  return GestureDetector(
+                                    onTap: () {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: ((context) => ProductPage(
+                                                productData: productData2,
+                                              )),
+                                        ),
+                                      );
+                                    },
+                                    child: Container(
+                                      width: width * 0.3,
+                                      height: width * 0.3975,
+                                      decoration: BoxDecoration(
+                                        color: white,
+                                        border: Border.all(
+                                          width: 0.25,
+                                        ),
+                                        borderRadius: BorderRadius.circular(2),
+                                      ),
+                                      padding: EdgeInsets.all(
+                                        width * 0.00625,
+                                      ),
+                                      margin: EdgeInsets.all(
+                                        width * 0.0125,
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(2),
+                                            child: Image.network(
+                                              imageUrl2,
+                                              fit: BoxFit.cover,
+                                              width: width * 0.3,
+                                              height: width * 0.3,
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: EdgeInsets.only(
+                                              top: width * 0.00625,
+                                              left: width * 0.0125,
+                                            ),
+                                            child: Text(
+                                              name2,
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                              style: TextStyle(
+                                                fontSize: width * 0.05,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+
+                      // FEATURED 3
+                      featured3.isEmpty ? Container() : Divider(),
+
+                      // FEATURED CATEGORY 3
+                      featured3.isEmpty
+                          ? Container()
+                          : Padding(
+                              padding: EdgeInsets.all(
+                                width * 0.0125,
+                              ),
+                              child: Text(
+                                featured3.keys.toList()[0],
+                                style: TextStyle(
+                                  color: primaryDark,
+                                  fontSize: width * 0.06,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+
+                      // FEATURED PRODUCTS 3
+                      featured3.isEmpty
+                          ? Container()
+                          : SizedBox(
+                              width: width,
+                              height: width * 0.425,
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                physics: ClampingScrollPhysics(),
+                                scrollDirection: Axis.horizontal,
+                                itemCount: featured3.length,
+                                itemBuilder: (context, index) {
+                                  final name3 = featured3.values
+                                      .toList()[index]
+                                      .values
+                                      .toList()[index]['productName'];
+                                  final imageUrl3 = featured3.values
+                                      .toList()[index]
+                                      .values
+                                      .toList()[index]['images'][0];
+                                  final productData3 = featured3.values
+                                      .toList()[index]
+                                      .values
+                                      .toList()[index];
+
+                                  return GestureDetector(
+                                    onTap: () {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: ((context) => ProductPage(
+                                                productData: productData3,
+                                              )),
+                                        ),
+                                      );
+                                    },
+                                    child: Container(
+                                      width: width * 0.3,
+                                      height: width * 0.3975,
+                                      decoration: BoxDecoration(
+                                        color: white,
+                                        border: Border.all(
+                                          width: 0.25,
+                                        ),
+                                        borderRadius: BorderRadius.circular(2),
+                                      ),
+                                      padding: EdgeInsets.all(
+                                        width * 0.00625,
+                                      ),
+                                      margin: EdgeInsets.all(
+                                        width * 0.0125,
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(2),
+                                            child: Image.network(
+                                              imageUrl3,
+                                              fit: BoxFit.cover,
+                                              width: width * 0.3,
+                                              height: width * 0.3,
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: EdgeInsets.only(
+                                              top: width * 0.00625,
+                                              left: width * 0.0125,
+                                            ),
+                                            child: Text(
+                                              name3,
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                              style: TextStyle(
+                                                fontSize: width * 0.05,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
                     ],
                   ),
                 );

@@ -441,7 +441,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
         final String vendorId = productData['vendorId'].toString();
         final Map<String, dynamic> ratings = productData['ratings'];
         final Timestamp datetime = productData['datetime'];
-        final int views = productData['productViews'];
+        final List views = productData['productViewsTimestamp'];
         double distance = 0;
 
         final vendorSnap = await store
@@ -726,7 +726,8 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
           break;
         case EventSorting.mostViewed:
           searchedProducts = Map.fromEntries(searchedProducts.entries.toList()
-            ..sort((a, b) => (b.value[7] as int).compareTo(a.value[7])));
+            ..sort((a, b) => ((b.value[7] as List).length)
+                .compareTo((a.value[7] as List).length)));
           break;
         case EventSorting.lowestPrice:
           searchedProducts = Map.fromEntries(searchedProducts.entries.toList()
