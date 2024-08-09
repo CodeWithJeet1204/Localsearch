@@ -1,7 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
-import 'package:Localsearch_User/page/main/vendor/product/product_page.dart';
 import 'package:Localsearch_User/page/main/vendor/vendor_page.dart';
 import 'package:Localsearch_User/utils/colors.dart';
 import 'package:Localsearch_User/widgets/post_skeleton_container.dart';
@@ -21,7 +20,6 @@ class _PostHomePageState extends State<PostHomePage> {
   final store = FirebaseFirestore.instance;
   Map<String, dynamic> posts = {};
   Map<String, dynamic> vendors = {};
-  Map<String, dynamic> productsData = {};
   bool isData = false;
 
   // INIT STATE
@@ -42,12 +40,8 @@ class _PostHomePageState extends State<PostHomePage> {
 
     for (final postSnap in postsSnap.docs) {
       final postData = postSnap.data();
-      final bool isLinked = postData['isLinked'];
-      print(
-          'postId: 1: ${postData['postId']}, 2: ${postData['postProductId']}');
-      final String postId = postData[!isLinked ? 'postId' : 'postProductId'];
-      final String name = postData[!isLinked ? 'post' : 'postProductName'];
-      final String? price = postData['postProductPrice'];
+      final String postId = postData['postId'];
+      final String name = postData['post'];
       final bool isTextPost = postData['isTextPost'];
       final List? imageUrl = isTextPost ? [] : postData['postImages'];
       final String vendorId = postData['postVendorId'];
@@ -55,12 +49,10 @@ class _PostHomePageState extends State<PostHomePage> {
 
       myPosts[isTextPost ? '${postId}text' : '${postId}image'] = [
         name,
-        price,
         imageUrl,
         vendorId,
         isTextPost,
         datetime,
-        isLinked,
       ];
 
       myPosts = Map.fromEntries(
@@ -73,35 +65,12 @@ class _PostHomePageState extends State<PostHomePage> {
       );
 
       await getVendorInfo(vendorId);
-      await getPostProductData(postId, isTextPost);
     }
 
     setState(() {
       posts = myPosts;
       isData = true;
     });
-  }
-
-  // GET POST PRODUCT DATA
-  Future<Map<String, dynamic>?> getPostProductData(
-      String productId, bool isTextPost,
-      {bool? wantData}) async {
-    final productSnap = await store
-        .collection('Business')
-        .doc('Data')
-        .collection('Products')
-        .doc(productId)
-        .get();
-
-    final productData = productSnap.data();
-    productsData[isTextPost ? '${productId}text' : '${productId}image'] =
-        productData;
-
-    if (wantData != null) {
-      return productsData[isTextPost ? productId : productId];
-    } else {
-      return null;
-    }
   }
 
   // GET VENDOR INFO
@@ -191,241 +160,195 @@ class _PostHomePageState extends State<PostHomePage> {
                           physics: const ClampingScrollPhysics(),
                           itemCount: posts.length,
                           itemBuilder: ((context, index) {
-                            final String id = posts.keys.toList()[index];
+                            // final String id = posts.keys.toList()[index];
 
                             final String name = posts.values.toList()[index][0];
-                            final String? price =
-                                posts.values.toList()[index][1];
                             final List? imageUrl =
-                                posts.values.toList()[index][2];
+                                posts.values.toList()[index][1];
                             final String vendorId =
-                                posts.values.toList()[index][3];
+                                posts.values.toList()[index][2];
                             final bool isTextPost =
-                                posts.values.toList()[index][4];
+                                posts.values.toList()[index][3];
                             final String vendorName =
                                 vendors.isEmpty ? '' : vendors[vendorId][0];
                             final String vendorImageUrl =
                                 vendors.isEmpty ? '' : vendors[vendorId][1];
-                            final productData = productsData[id];
-                            bool isLinked = posts.values.toList()[index][6];
 
-                            return GestureDetector(
-                              onTap: !isLinked
-                                  ? null
-                                  : () {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: ((context) => ProductPage(
-                                                productData: productData!,
-                                              )),
-                                        ),
-                                      );
-                                    },
-                              child: Container(
-                                width: width,
-                                decoration: const BoxDecoration(
-                                  border: Border(
-                                    left: BorderSide(
-                                      width: 0.06125,
-                                      color: black,
-                                    ),
-                                    right: BorderSide(
-                                      width: 0.06125,
-                                      color: black,
-                                    ),
-                                    top: BorderSide(
-                                      width: 0.06125,
-                                      color: black,
-                                    ),
+                            return Container(
+                              width: width,
+                              decoration: const BoxDecoration(
+                                border: Border(
+                                  left: BorderSide(
+                                    width: 0.06125,
+                                    color: black,
+                                  ),
+                                  right: BorderSide(
+                                    width: 0.06125,
+                                    color: black,
+                                  ),
+                                  top: BorderSide(
+                                    width: 0.06125,
+                                    color: black,
                                   ),
                                 ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const SizedBox(height: 4),
-                                    // VENDOR INFO
-                                    vendors.isEmpty
-                                        ? Container()
-                                        : Padding(
-                                            padding: EdgeInsets.symmetric(
-                                              horizontal: width * 0.0125,
-                                            ),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(height: 4),
+                                  // VENDOR INFO
+                                  vendors.isEmpty
+                                      ? Container()
+                                      : Padding(
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: width * 0.0125,
+                                          ),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              GestureDetector(
+                                                onTap: () {
+                                                  Navigator.of(context).push(
+                                                    MaterialPageRoute(
+                                                      builder: ((context) =>
+                                                          VendorPage(
+                                                            vendorId: vendorId,
+                                                          )),
+                                                    ),
+                                                  );
+                                                },
+                                                child: Row(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  children: [
+                                                    CircleAvatar(
+                                                      radius: width * 0.04,
+                                                      backgroundColor: primary2,
+                                                      backgroundImage:
+                                                          NetworkImage(
+                                                        vendorImageUrl,
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                      width: width * 0.0125,
+                                                    ),
+                                                    Text(
+                                                      vendorName,
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: const TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+
+                                              // SHARE
+                                              IconButton(
+                                                onPressed: () {},
+                                                icon: const Icon(
+                                                  FeatherIcons.share2,
+                                                ),
+                                                tooltip: 'Share Post',
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+
+                                  // IMAGES
+                                  isTextPost
+                                      ? Container()
+                                      : isTextPost
+                                          ? Container()
+                                          : Stack(
+                                              alignment: Alignment.bottomCenter,
                                               children: [
-                                                GestureDetector(
-                                                  onTap: () {
-                                                    Navigator.of(context).push(
-                                                      MaterialPageRoute(
-                                                        builder: ((context) =>
-                                                            VendorPage(
-                                                              vendorId:
-                                                                  vendorId,
-                                                            )),
-                                                      ),
-                                                    );
-                                                  },
-                                                  child: Row(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      CircleAvatar(
-                                                        radius: width * 0.04,
-                                                        backgroundColor:
-                                                            primary2,
-                                                        backgroundImage:
-                                                            NetworkImage(
-                                                          vendorImageUrl,
-                                                        ),
-                                                      ),
-                                                      SizedBox(
-                                                        width: width * 0.0125,
-                                                      ),
-                                                      Text(
-                                                        vendorName,
-                                                        maxLines: 1,
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                        style: const TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.w500,
-                                                        ),
-                                                      ),
-                                                    ],
+                                                Container(
+                                                  width: width,
+                                                  height: width,
+                                                  decoration:
+                                                      const BoxDecoration(
+                                                    color: Color.fromRGBO(
+                                                        237, 237, 237, 1),
+                                                  ),
+                                                  child: CarouselSlider(
+                                                    items: imageUrl!
+                                                        .map(
+                                                          (e) => Image.network(
+                                                            e,
+                                                            width: width,
+                                                            height: width,
+                                                            fit: BoxFit.cover,
+                                                          ),
+                                                        )
+                                                        .toList(),
+                                                    options: CarouselOptions(
+                                                      enableInfiniteScroll:
+                                                          imageUrl.length > 1
+                                                              ? true
+                                                              : false,
+                                                      viewportFraction: 1,
+                                                      aspectRatio: 0.7875,
+                                                      enlargeCenterPage: false,
+                                                    ),
                                                   ),
                                                 ),
 
-                                                // SHARE
-                                                IconButton(
-                                                  onPressed: () {},
-                                                  icon: const Icon(
-                                                    FeatherIcons.share2,
-                                                  ),
-                                                  tooltip: 'Share Product',
-                                                ),
+                                                // DOTS
+                                                // isTextPost
+                                                //     ? Container()
+                                                //     : Padding(
+                                                //         padding: const EdgeInsets.only(
+                                                //           bottom: 8,
+                                                //         ),
+                                                //         child: Row(
+                                                //           mainAxisAlignment:
+                                                //               MainAxisAlignment.center,
+                                                //           crossAxisAlignment:
+                                                //               CrossAxisAlignment.center,
+                                                //           children: (imageUrl).map((e) {
+                                                //             int index = imageUrl.indexOf(e);
+
+                                                //             return Container(
+                                                //               width: 8,
+                                                //               height: 8,
+                                                //               margin: const EdgeInsets.all(4),
+                                                //               decoration: BoxDecoration(
+                                                //                 shape: BoxShape.circle,
+                                                //                 color: currentIndex == index
+                                                //                     ? primaryDark
+                                                //                     : primary2,
+                                                //               ),
+                                                //             );
+                                                //           }).toList(),
+                                                //         ),
+                                                //       ),
                                               ],
                                             ),
-                                          ),
 
-                                    // IMAGES
-                                    isTextPost
-                                        ? Container()
-                                        : isTextPost
-                                            ? Container()
-                                            : Stack(
-                                                alignment:
-                                                    Alignment.bottomCenter,
-                                                children: [
-                                                  Container(
-                                                    width: width,
-                                                    height: width,
-                                                    decoration:
-                                                        const BoxDecoration(
-                                                      color: Color.fromRGBO(
-                                                          237, 237, 237, 1),
-                                                    ),
-                                                    child: CarouselSlider(
-                                                      items: imageUrl!
-                                                          .map(
-                                                            (e) =>
-                                                                Image.network(
-                                                              e,
-                                                              width: width,
-                                                              height: width,
-                                                              fit: BoxFit.cover,
-                                                            ),
-                                                          )
-                                                          .toList(),
-                                                      options: CarouselOptions(
-                                                        enableInfiniteScroll:
-                                                            imageUrl.length > 1
-                                                                ? true
-                                                                : false,
-                                                        viewportFraction: 1,
-                                                        aspectRatio: 0.7875,
-                                                        enlargeCenterPage:
-                                                            false,
-                                                      ),
-                                                    ),
-                                                  ),
-
-                                                  // DOTS
-                                                  // isTextPost
-                                                  //     ? Container()
-                                                  //     : Padding(
-                                                  //         padding: const EdgeInsets.only(
-                                                  //           bottom: 8,
-                                                  //         ),
-                                                  //         child: Row(
-                                                  //           mainAxisAlignment:
-                                                  //               MainAxisAlignment.center,
-                                                  //           crossAxisAlignment:
-                                                  //               CrossAxisAlignment.center,
-                                                  //           children: (imageUrl).map((e) {
-                                                  //             int index = imageUrl.indexOf(e);
-
-                                                  //             return Container(
-                                                  //               width: 8,
-                                                  //               height: 8,
-                                                  //               margin: const EdgeInsets.all(4),
-                                                  //               decoration: BoxDecoration(
-                                                  //                 shape: BoxShape.circle,
-                                                  //                 color: currentIndex == index
-                                                  //                     ? primaryDark
-                                                  //                     : primary2,
-                                                  //               ),
-                                                  //             );
-                                                  //           }).toList(),
-                                                  //         ),
-                                                  //       ),
-                                                ],
-                                              ),
-
-                                    // NAME
-                                    Padding(
-                                      padding: EdgeInsets.all(width * 0.0125),
-                                      child: SizedBox(
-                                        width: width,
-                                        child: Text(
-                                          name,
-                                          maxLines: isTextPost ? null : 2,
-                                          overflow: isTextPost
-                                              ? null
-                                              : TextOverflow.ellipsis,
-                                        ),
+                                  // NAME
+                                  Padding(
+                                    padding: EdgeInsets.all(width * 0.0125),
+                                    child: SizedBox(
+                                      width: width,
+                                      child: Text(
+                                        name,
+                                        maxLines: isTextPost ? null : 2,
+                                        overflow: isTextPost
+                                            ? null
+                                            : TextOverflow.ellipsis,
                                       ),
                                     ),
+                                  ),
 
-                                    // PRICE
-                                    price == '' || price == null
-                                        ? Container()
-                                        : Padding(
-                                            padding: EdgeInsets.symmetric(
-                                              horizontal: width * 0.0125,
-                                              vertical: width * 0.00625,
-                                            ),
-                                            child: SizedBox(
-                                              width: width * 0.75,
-                                              child: Text(
-                                                'Rs. $price',
-                                                maxLines: isTextPost ? null : 2,
-                                                overflow: isTextPost
-                                                    ? null
-                                                    : TextOverflow.ellipsis,
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                    const SizedBox(height: 4),
-                                  ],
-                                ),
+                                  const SizedBox(height: 4),
+                                ],
                               ),
                             );
                           }),
