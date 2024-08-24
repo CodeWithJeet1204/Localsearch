@@ -52,7 +52,7 @@ class MyApp extends StatelessWidget {
     // });
 
     return MaterialApp(
-      title: 'Localsearch User',
+      title: 'Localsearch',
       theme: ThemeData(
         progressIndicatorTheme: const ProgressIndicatorThemeData(
           color: primaryDark2,

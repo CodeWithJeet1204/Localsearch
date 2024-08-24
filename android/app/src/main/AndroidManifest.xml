@@ -14,7 +14,7 @@
         </intent>
     </queries>
     <application
-        android:label="Localsearch User"
+        android:label="Localsearch"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
