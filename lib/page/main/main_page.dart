@@ -31,8 +31,8 @@ class _MainPageState extends State<MainPage>
   Widget? detailsPage;
 
   List<Widget> items = [
-    const ProductsScrollPage(),
     const ProductHomePage(),
+    const ProductsScrollPage(),
     const ShortsPage(),
     // const ServicesHomePage(),
     // const EventsHomePage(),
@@ -170,14 +170,6 @@ class _MainPageState extends State<MainPage>
             items: const [
               BottomNavigationBarItem(
                 icon: Icon(
-                  FeatherIcons.compass,
-                ),
-                activeIcon: Icon(FeatherIcons.box),
-                label: 'Products',
-                tooltip: 'PRODUCTS',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(
                   FeatherIcons.home,
                 ),
                 activeIcon: Icon(FeatherIcons.home),
@@ -186,7 +178,15 @@ class _MainPageState extends State<MainPage>
               ),
               BottomNavigationBarItem(
                 icon: Icon(
-                  FeatherIcons.video,
+                  FeatherIcons.box,
+                ),
+                activeIcon: Icon(FeatherIcons.box),
+                label: 'Products',
+                tooltip: 'PRODUCTS',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(
+                  FeatherIcons.playCircle,
                 ),
                 activeIcon: Icon(FeatherIcons.playCircle),
                 label: 'Shorts',
