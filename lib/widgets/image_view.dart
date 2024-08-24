@@ -1,6 +1,6 @@
-import 'package:carousel_slider/carousel_slider.dart' as cs;
 import 'package:Localsearch_User/utils/colors.dart';
 import 'package:Localsearch_User/widgets/video_tutorial.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flick_video_player/flick_video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
@@ -22,7 +22,7 @@ class ImageView extends StatefulWidget {
 }
 
 class _ImageViewState extends State<ImageView> {
-  final controller = cs.CarouselSliderController();
+  final controller = CarouselSliderController();
   late FlickManager flickManager;
   int currentIndex = 0;
 
@@ -88,7 +88,7 @@ class _ImageViewState extends State<ImageView> {
 
           return Column(
             children: [
-              cs.CarouselSlider(
+              CarouselSlider(
                 carouselController: controller,
                 items: widget.imagesUrl
                     .map((e) => e == widget.shortsURL
@@ -117,12 +117,17 @@ class _ImageViewState extends State<ImageView> {
                             ),
                           ))
                     .toList(),
-                options: cs.CarouselOptions(
+                options: CarouselOptions(
                   enableInfiniteScroll: false,
                   aspectRatio: 0.6125,
                   enlargeCenterPage: true,
                   onPageChanged: (index, reason) {
                     setState(() {
+                      // controller.animateTo(
+                      //   index.toDouble(),
+                      //   duration: Duration(milliseconds: 100),
+                      //   curve: Curves.bounceInOut,
+                      // );
                       controller.animateToPage(index);
                     });
                   },
@@ -146,6 +151,11 @@ class _ImageViewState extends State<ImageView> {
                         child: GestureDetector(
                           onTap: () {
                             setState(() {
+                              // controller.animateTo(
+                              //   index.toDouble(),
+                              //   duration: Duration(milliseconds: 100),
+                              //   curve: Curves.bounceInOut,
+                              // );
                               controller.animateToPage(index);
                             });
                           },

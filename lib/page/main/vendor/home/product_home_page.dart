@@ -9,7 +9,7 @@ import 'package:Localsearch_User/page/main/all_discount_page.dart';
 import 'package:Localsearch_User/page/main/location_change_page.dart';
 import 'package:Localsearch_User/page/main/main_page.dart';
 import 'package:Localsearch_User/page/main/vendor/category/all_shop_types_page.dart';
-import 'package:Localsearch_User/page/main/vendor/category/shop_categories_page.dart';
+import 'package:Localsearch_User/page/main/vendor/home/shop_categories_page.dart';
 import 'package:Localsearch_User/page/main/vendor/product/product_page.dart';
 import 'package:Localsearch_User/page/main/search/search_page.dart';
 import 'package:Localsearch_User/page/main/vendor/vendor_page.dart';

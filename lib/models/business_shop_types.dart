@@ -1,4 +1,4 @@
-List<List<String>> businessCategories = [
+List<List<String>> businessShopTypes = [
   [
     'Grocery',
     'https://firebasestorage.googleapis.com/v0/b/localy-1204.appspot.com/o/Special%20Categories%2FGrocery%2FGrocery.png?alt=media&token=061d4a24-3520-401c-abe2-582fc540480c',

@@ -1,65 +1,63 @@
+import 'package:Localsearch_User/widgets/post_skeleton_container.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:Localsearch_User/page/main/vendor/vendor_page.dart';
 import 'package:Localsearch_User/utils/colors.dart';
-import 'package:Localsearch_User/widgets/post_skeleton_container.dart';
 import 'package:Localsearch_User/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class PostHomePage extends StatefulWidget {
-  const PostHomePage({super.key});
+class ProductsScrollPage extends StatefulWidget {
+  const ProductsScrollPage({super.key});
 
   @override
-  State<PostHomePage> createState() => _PostHomePageState();
+  State<ProductsScrollPage> createState() => _ProductsScrollPageState();
 }
 
-class _PostHomePageState extends State<PostHomePage> {
+class _ProductsScrollPageState extends State<ProductsScrollPage> {
   final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
-  Map<String, dynamic> posts = {};
+  Map<String, dynamic> products = {};
   Map<String, dynamic> vendors = {};
   bool isData = false;
 
   // INIT STATE
   @override
   void initState() {
-    getPosts();
+    getProducts();
     super.initState();
   }
 
   // GET POSTS
-  Future<void> getPosts() async {
-    Map<String, dynamic> myPosts = {};
-    final postsSnap = await store
+  Future<void> getProducts() async {
+    Map<String, dynamic> myProducts = {};
+    final productsSnap = await store
         .collection('Business')
         .doc('Data')
-        .collection('Posts')
+        .collection('Products')
         .get();
 
-    for (final postSnap in postsSnap.docs) {
-      final postData = postSnap.data();
-      final String postId = postData['postId'];
-      final String name = postData['post'];
-      final bool isTextPost = postData['isTextPost'];
-      final List? imageUrl = isTextPost ? [] : postData['postImages'];
-      final String vendorId = postData['postVendorId'];
-      final Timestamp datetime = postData['postDateTime'];
+    for (final productSnap in productsSnap.docs) {
+      final productData = productSnap.data();
+      final String productId = productData['productId'];
+      final String name = productData['productName'];
+      final List? imageUrl = productData['images'];
+      final String vendorId = productData['vendorId'];
+      final Timestamp datetime = productData['datetime'];
 
-      myPosts[isTextPost ? '${postId}text' : '${postId}image'] = [
+      myProducts[productId] = [
         name,
         imageUrl,
         vendorId,
-        isTextPost,
         datetime,
       ];
 
-      myPosts = Map.fromEntries(
-        myPosts.entries.toList()
+      myProducts = Map.fromEntries(
+        myProducts.entries.toList()
           ..sort(
-            (a, b) => (b.value[5] as Timestamp).compareTo(
-              a.value[5] as Timestamp,
+            (a, b) => (b.value[3] as Timestamp).compareTo(
+              a.value[3] as Timestamp,
             ),
           ),
       );
@@ -68,7 +66,7 @@ class _PostHomePageState extends State<PostHomePage> {
     }
 
     setState(() {
-      posts = myPosts;
+      products = myProducts;
       isData = true;
     });
   }
@@ -137,14 +135,14 @@ class _PostHomePageState extends State<PostHomePage> {
                 }),
               ),
             )
-          : posts.isEmpty
+          : products.isEmpty
               ? const Center(
                   child: Text('No Posts Available'),
                 )
               : SafeArea(
                   child: RefreshIndicator(
                     onRefresh: () async {
-                      await getPosts();
+                      await getProducts();
                     },
                     color: primaryDark,
                     backgroundColor: const Color.fromARGB(255, 243, 253, 255),
@@ -158,17 +156,16 @@ class _PostHomePageState extends State<PostHomePage> {
                         child: ListView.builder(
                           shrinkWrap: true,
                           physics: const ClampingScrollPhysics(),
-                          itemCount: posts.length,
+                          itemCount: products.length,
                           itemBuilder: ((context, index) {
-                            // final String id = posts.keys.toList()[index];
+                            // final String id = products.keys.toList()[index];
 
-                            final String name = posts.values.toList()[index][0];
+                            final String name =
+                                products.values.toList()[index][0];
                             final List? imageUrl =
-                                posts.values.toList()[index][1];
+                                products.values.toList()[index][1];
                             final String vendorId =
-                                posts.values.toList()[index][2];
-                            final bool isTextPost =
-                                posts.values.toList()[index][3];
+                                products.values.toList()[index][2];
                             final String vendorName =
                                 vendors.isEmpty ? '' : vendors[vendorId][0];
                             final String vendorImageUrl =
@@ -262,75 +259,70 @@ class _PostHomePageState extends State<PostHomePage> {
                                         ),
 
                                   // IMAGES
-                                  isTextPost
-                                      ? Container()
-                                      : isTextPost
-                                          ? Container()
-                                          : Stack(
-                                              alignment: Alignment.bottomCenter,
-                                              children: [
-                                                Container(
+                                  Stack(
+                                    alignment: Alignment.bottomCenter,
+                                    children: [
+                                      Container(
+                                        width: width,
+                                        height: width,
+                                        decoration: const BoxDecoration(
+                                          color:
+                                              Color.fromRGBO(237, 237, 237, 1),
+                                        ),
+                                        child: CarouselSlider(
+                                          items: imageUrl!
+                                              .map(
+                                                (e) => Image.network(
+                                                  e,
                                                   width: width,
                                                   height: width,
-                                                  decoration:
-                                                      const BoxDecoration(
-                                                    color: Color.fromRGBO(
-                                                        237, 237, 237, 1),
-                                                  ),
-                                                  child: CarouselSlider(
-                                                    items: imageUrl!
-                                                        .map(
-                                                          (e) => Image.network(
-                                                            e,
-                                                            width: width,
-                                                            height: width,
-                                                            fit: BoxFit.cover,
-                                                          ),
-                                                        )
-                                                        .toList(),
-                                                    options: CarouselOptions(
-                                                      enableInfiniteScroll:
-                                                          imageUrl.length > 1
-                                                              ? true
-                                                              : false,
-                                                      viewportFraction: 1,
-                                                      aspectRatio: 0.7875,
-                                                      enlargeCenterPage: false,
-                                                    ),
-                                                  ),
+                                                  fit: BoxFit.cover,
                                                 ),
+                                              )
+                                              .toList(),
+                                          options: CarouselOptions(
+                                            enableInfiniteScroll:
+                                                imageUrl.length > 1
+                                                    ? true
+                                                    : false,
+                                            viewportFraction: 1,
+                                            aspectRatio: 0.7875,
+                                            enlargeCenterPage: false,
+                                          ),
+                                        ),
+                                      ),
 
-                                                // DOTS
-                                                // isTextPost
-                                                //     ? Container()
-                                                //     : Padding(
-                                                //         padding: const EdgeInsets.only(
-                                                //           bottom: 8,
-                                                //         ),
-                                                //         child: Row(
-                                                //           mainAxisAlignment:
-                                                //               MainAxisAlignment.center,
-                                                //           crossAxisAlignment:
-                                                //               CrossAxisAlignment.center,
-                                                //           children: (imageUrl).map((e) {
-                                                //             int index = imageUrl.indexOf(e);
+                                      // DOTS
+                                      // isTextPost
+                                      //     ? Container()
+                                      //     : Padding(
+                                      //         padding: const EdgeInsets.only(
+                                      //           bottom: 8,
+                                      //         ),
+                                      //         child: Row(
+                                      //           mainAxisAlignment:
+                                      //               MainAxisAlignment.center,
+                                      //           crossAxisAlignment:
+                                      //               CrossAxisAlignment.center,
+                                      //           children: (imageUrl).map((e) {
+                                      //             int index = imageUrl.indexOf(e);
 
-                                                //             return Container(
-                                                //               width: 8,
-                                                //               height: 8,
-                                                //               margin: const EdgeInsets.all(4),
-                                                //               decoration: BoxDecoration(
-                                                //                 shape: BoxShape.circle,
-                                                //                 color: currentIndex == index
-                                                //                     ? primaryDark
-                                                //                     : primary2,
-                                                //               ),
-                                                //             );
-                                                //           }).toList(),
-                                                //         ),
-                                                //       ),
-                                              ],
-                                            ),
+                                      //             return Container(
+                                      //               width: 8,
+                                      //               height: 8,
+                                      //               margin: const EdgeInsets.all(4),
+                                      //               decoration: BoxDecoration(
+                                      //                 shape: BoxShape.circle,
+                                      //                 color: currentIndex == index
+                                      //                     ? primaryDark
+                                      //                     : primary2,
+                                      //               ),
+                                      //             );
+                                      //           }).toList(),
+                                      //         ),
+                                      //       ),
+                                    ],
+                                  ),
 
                                   // NAME
                                   Padding(
@@ -339,10 +331,8 @@ class _PostHomePageState extends State<PostHomePage> {
                                       width: width,
                                       child: Text(
                                         name,
-                                        maxLines: isTextPost ? null : 2,
-                                        overflow: isTextPost
-                                            ? null
-                                            : TextOverflow.ellipsis,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
                                   ),

@@ -2,7 +2,7 @@ import 'package:Localsearch_User/models/household_types.dart';
 import 'package:flutter/material.dart';
 // import 'package:image/image.dart' as img;
 // import 'package:flutter/services.dart' show NetworkAssetBundle;
-import 'package:Localsearch_User/page/main/vendor/category/shop_categories_page.dart';
+import 'package:Localsearch_User/page/main/vendor/home/shop_categories_page.dart';
 import 'package:Localsearch_User/utils/colors.dart';
 
 class AllShopTypesPage extends StatefulWidget {

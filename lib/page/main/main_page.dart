@@ -4,8 +4,8 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:Localsearch_User/page/auth/login_page.dart';
 import 'package:Localsearch_User/page/auth/register_details_page.dart';
 import 'package:Localsearch_User/page/auth/verify/email_verify.dart';
-import 'package:Localsearch_User/page/main/product_home_page.dart';
-import 'package:Localsearch_User/page/main/post_home_page.dart';
+import 'package:Localsearch_User/page/main/vendor/home/product_home_page.dart';
+import 'package:Localsearch_User/page/main/product_scroll_page.dart';
 import 'package:Localsearch_User/page/main/vendor/profile/profile_page.dart';
 import 'package:Localsearch_User/page/main/vendor/shorts_page.dart';
 import 'package:Localsearch_User/utils/colors.dart';
@@ -31,7 +31,7 @@ class _MainPageState extends State<MainPage>
   Widget? detailsPage;
 
   List<Widget> items = [
-    const PostHomePage(),
+    const ProductsScrollPage(),
     const ProductHomePage(),
     const ShortsPage(),
     // const ServicesHomePage(),
@@ -172,9 +172,9 @@ class _MainPageState extends State<MainPage>
                 icon: Icon(
                   FeatherIcons.compass,
                 ),
-                activeIcon: Icon(FeatherIcons.compass),
-                label: 'Posts',
-                tooltip: 'POSTS',
+                activeIcon: Icon(FeatherIcons.box),
+                label: 'Products',
+                tooltip: 'PRODUCTS',
               ),
               BottomNavigationBarItem(
                 icon: Icon(
@@ -188,7 +188,7 @@ class _MainPageState extends State<MainPage>
                 icon: Icon(
                   FeatherIcons.video,
                 ),
-                activeIcon: Icon(FeatherIcons.video),
+                activeIcon: Icon(FeatherIcons.playCircle),
                 label: 'Shorts',
                 tooltip: 'SHORTS',
               ),
