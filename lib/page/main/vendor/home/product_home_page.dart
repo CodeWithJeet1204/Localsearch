@@ -2,6 +2,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:Localsearch_User/models/household_types.dart';
+import 'package:Localsearch_User/page/main/vendor/post_page_view.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:geolocator/geolocator.dart';
@@ -47,9 +49,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
   Map<String, dynamic> currentWishlist = {};
   Map<String, dynamic> allFollowedShops = {};
   Map<String, dynamic> currentFollowedShops = {};
-  Map<String, dynamic> posts = {};
-  Map<String, dynamic> vendors = {};
-  Map<String, dynamic> productsData = {};
+  Map<String, Map<String, dynamic>> posts = {};
   Map<String, Map<String, Map<String, dynamic>>> featured1 = {};
   Map<String, Map<String, Map<String, dynamic>>> featured2 = {};
   Map<String, Map<String, Map<String, dynamic>>> featured3 = {};
@@ -63,6 +63,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
   @override
   void initState() {
     getName();
+    getPosts();
     getRecentShop();
     getFeatured();
     super.initState();
@@ -93,6 +94,146 @@ class _ProductHomePageState extends State<ProductHomePage> {
     }
 
     return newCapitalName;
+  }
+
+  // GET POSTS
+  Future<void> getPosts() async {
+    Map<String, Map<String, dynamic>> myPosts = {};
+
+    final postSnap = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Posts')
+        .get();
+
+    Future.forEach(
+      postSnap.docs,
+      (post) async {
+        bool isViewed = false;
+        final String postId = post.id;
+
+        final postData = post.data();
+
+        final String postText = postData['postText'];
+        final String vendorId = postData['postVendorId'];
+        final String postImage = postData['postImage'];
+        final String postViews =
+            (postData['postViews'] as List).length.toString();
+
+        if (postViews.contains(auth.currentUser!.uid)) {
+          isViewed = true;
+        }
+
+        final vendorSnap = await store
+            .collection('Business')
+            .doc('Owners')
+            .collection('Shops')
+            .doc(vendorId)
+            .get();
+
+        final vendorData = vendorSnap.data()!;
+
+        final String vendorName = vendorData['Name'];
+        final String vendorImageUrl = vendorData['Image'];
+
+        if (myPosts.containsKey(vendorId)) {
+          myPosts[vendorId]!['posts']![postId] = {
+            'postText': postText,
+            'postImage': postImage,
+            'postViews': postViews,
+            'isViewed': isViewed,
+          };
+        } else {
+          myPosts[vendorId] = {
+            'vendorName': vendorName,
+            'vendorImageUrl': vendorImageUrl,
+            'posts': {
+              postId: {
+                'postText': postText,
+                'postImage': postImage,
+                'postViews': postViews,
+                'isViewed': isViewed,
+              },
+            },
+          };
+        }
+      },
+    );
+
+    // myPosts = {
+    //   'vendorId1': {
+    //     'postId1': {
+    //       'postText': 'postText1',
+    //       'postImage': 'postImage1',
+    //       'postViews': 'postViews1',
+    //       'isViewed': 'isViewed1',
+    //     },
+    //     'postId2': {
+    //       'postText': 'postText2',
+    //       'postImage': 'postImage2',
+    //       'postViews': 'postViews2',
+    //       'isViewed': 'isViewed2',
+    //     },
+    //     'postId3': {
+    //       'postText': 'postText3',
+    //       'postImage': 'postImage3',
+    //       'postViews': 'postViews3',
+    //       'isViewed': 'isViewed3',
+    //     },
+    //   },
+    //   'vendorId2': {
+    //     'postId1': {
+    //       'postText': 'postText1',
+    //       'postImage': 'postImage1',
+    //       'postViews': 'postViews1',
+    //       'isViewed': 'isViewed1',
+    //     },
+    //   },
+    //   'vendorId3': {
+    //     'postId1': {
+    //       'postText': 'postText1',
+    //       'postImage': 'postImage1',
+    //       'postViews': 'postViews1',
+    //       'isViewed': 'isViewed1',
+    //     },
+    //     'postId2': {
+    //       'postText': 'postText2',
+    //       'postImage': 'postImage2',
+    //       'postViews': 'postViews2',
+    //       'isViewed': 'isViewed2',
+    //     },
+    //     'postId3': {
+    //       'postText': 'postText3',
+    //       'postImage': 'postImage3',
+    //       'postViews': 'postViews3',
+    //       'isViewed': 'isViewed3',
+    //     },
+    //   },
+    // };
+
+    final sortedEntries = myPosts.entries.toList()
+      ..sort((a, b) {
+        final aTotalViews = a.value.values.fold<int>(
+          0,
+          (sum, post) => sum + (int.parse(post['postViews'] as String)),
+        );
+
+        final bTotalViews = b.value.values.fold<int>(
+          0,
+          (sum, post) => sum + (int.parse(post['postViews'] as String)),
+        );
+
+        return bTotalViews.compareTo(aTotalViews);
+      });
+
+    myPosts = Map<String, Map<String, dynamic>>.fromEntries(
+      sortedEntries,
+    );
+
+    setState(() {
+      posts = myPosts;
+      isPostData = true;
+    });
   }
 
   // GET NO OF DISCOUNTS
@@ -874,7 +1015,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
   //     final String name = postData['postProductName'];
   //     final String price = postData['postProductPrice'];
   //     final bool isTextPost = postData['isTextPost'];
-  //     final List imageUrl = isTextPost ? [] : postData['postImages'];
+  //     final List imageUrl = isTextPost ? [] : postData['postImage'];
   //     final String vendorId = postData['postVendorId'];
   //     final Timestamp datetime = postData['postDateTime'];
   //     myPosts[isTextPost ? '${productId}text' : '${productId}image'] = [
@@ -1321,6 +1462,136 @@ class _ProductHomePageState extends State<ProductHomePage> {
                         ),
                       ),
 
+                      // POSTS
+                      !isPostData
+                          ? SizedBox(
+                              width: width,
+                              height: width * 0.3,
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                physics: ClampingScrollPhysics(),
+                                scrollDirection: Axis.horizontal,
+                                itemCount: 6,
+                                itemBuilder: (context, index) {
+                                  return Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: width * 0.025,
+                                    ),
+                                    child: SkeletonContainer(
+                                      width: width * 0.2,
+                                      height: width * 0.3,
+                                    ),
+                                  );
+                                },
+                              ),
+                            )
+                          : posts.isEmpty
+                              ? Container()
+                              : SizedBox(
+                                  width: width,
+                                  height: width * 0.3,
+                                  child: ListView.builder(
+                                    shrinkWrap: true,
+                                    physics: ClampingScrollPhysics(),
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount:
+                                        posts.length > 9 ? 10 : posts.length,
+                                    itemBuilder: (context, index) {
+                                      final String vendorId =
+                                          posts.keys.toList()[index];
+                                      final String vendorName = posts.values
+                                          .toList()[index]['vendorName'];
+                                      final String vendorImageUrl = posts.values
+                                          .toList()[index]['vendorImageUrl'];
+                                      final bool isViewed =
+                                          (posts[vendorId]!['posts'] as Map<
+                                                  String, Map<String, dynamic>>)
+                                              .values
+                                              .every(
+                                                (post) =>
+                                                    post['isViewed'] == true,
+                                              );
+
+                                      /*index != (posts.length - 1)
+                                      ?*/
+                                      return Padding(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: width * 0.025,
+                                        ),
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    PostPageView(
+                                                  currentIndex: index,
+                                                  posts: posts,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          child: SizedBox(
+                                            width: width * 0.2,
+                                            height: width * 0.3,
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.spaceAround,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                Opacity(
+                                                  opacity: isViewed ? 0.75 : 1,
+                                                  child: Container(
+                                                    width: width * 0.2,
+                                                    height: width * 0.2,
+                                                    decoration: BoxDecoration(
+                                                      color: primary2,
+                                                      shape: BoxShape.circle,
+                                                      border: Border.all(
+                                                        width: 2,
+                                                        color: primaryDark2,
+                                                      ),
+                                                    ),
+                                                    padding: EdgeInsets.all(
+                                                      width * 0.00306125,
+                                                    ),
+                                                    child: ClipRRect(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                        100,
+                                                      ),
+                                                      child: Image.network(
+                                                        vendorImageUrl,
+                                                        width: width * 0.2,
+                                                        height: width * 0.2,
+                                                        fit: BoxFit.cover,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                SizedBox(
+                                                  width: width * 0.2,
+                                                  child: AutoSizeText(
+                                                    vendorName,
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style: TextStyle(
+                                                      fontWeight: isViewed
+                                                          ? FontWeight.w400
+                                                          : FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+
                       locationProvider.cityName != 'Your Location'
                           ? Container()
                           : Divider(),
@@ -1693,172 +1964,6 @@ class _ProductHomePageState extends State<ProductHomePage> {
                       ),
 
                       // posts.length < 2 ? Container() : Divider(),
-
-                      // // POSTS
-                      // posts.length < 2
-                      //     ? Container()
-                      //     : SizedBox(
-                      //         width: width,
-                      //         height: width * 0.3,
-                      //         child: ListView.builder(
-                      //           shrinkWrap: true,
-                      //           physics: ClampingScrollPhysics(),
-                      //           scrollDirection: Axis.horizontal,
-                      //           itemCount:
-                      //               posts.length > 10 ? 11 : posts.length,
-                      //           itemBuilder: (context, index) {
-                      //             final String id = posts.keys.toList()[index];
-                      //             final String name =
-                      //                 posts.values.toList()[index][0];
-                      //             final String price =
-                      //                 posts.values.toList()[index][1];
-                      //             final List imageUrl =
-                      //                 posts.values.toList()[index][2];
-                      //             final String vendorId =
-                      //                 posts.values.toList()[index][3];
-                      //             final bool isTextPost =
-                      //                 posts.values.toList()[index][4];
-                      //             final String vendorName = vendors.isEmpty
-                      //                 ? ''
-                      //                 : vendors[vendorId][0];
-                      //             final String vendorImageUrl = vendors.isEmpty
-                      //                 ? ''
-                      //                 : vendors[vendorId][1];
-                      //             final productData = productsData[id];
-                      //             return index != (posts.length - 1)
-                      //                 ? Padding(
-                      //                     padding: EdgeInsets.symmetric(
-                      //                       horizontal: width * 0.0125,
-                      //                     ),
-                      //                     child: InkWell(
-                      //                       onTap: () {
-                      //                         Navigator.of(context).push(
-                      //                           MaterialPageRoute(
-                      //                             builder: (context) =>
-                      //                                 PostPageView(
-                      //                               currentIndex: index,
-                      //                               posts: posts,
-                      //                               vendors: vendors,
-                      //                               products: productsData,
-                      //                             ),
-                      //                           ),
-                      //                         );
-                      //                       },
-                      //                       customBorder:
-                      //                           RoundedRectangleBorder(
-                      //                         borderRadius:
-                      //                             BorderRadius.circular(4),
-                      //                       ),
-                      //                       child: Padding(
-                      //                         padding: EdgeInsets.symmetric(
-                      //                           horizontal: width * 0.0125,
-                      //                         ),
-                      //                         child: SizedBox(
-                      //                           width: width * 0.2,
-                      //                           height: width * 0.3,
-                      //                           child: Column(
-                      //                             mainAxisAlignment:
-                      //                                 MainAxisAlignment
-                      //                                     .spaceAround,
-                      //                             crossAxisAlignment:
-                      //                                 CrossAxisAlignment.center,
-                      //                             children: [
-                      //                               Container(
-                      //                                 width: width * 0.2,
-                      //                                 height: width * 0.2,
-                      //                                 decoration: BoxDecoration(
-                      //                                   color: primary2,
-                      //                                   shape: BoxShape.circle,
-                      //                                   border: Border.all(
-                      //                                     width: 2,
-                      //                                     color: primaryDark2,
-                      //                                   ),
-                      //                                 ),
-                      //                                 padding: EdgeInsets.all(
-                      //                                   width * 0.00306125,
-                      //                                 ),
-                      //                                 child: ClipRRect(
-                      //                                   borderRadius:
-                      //                                       BorderRadius
-                      //                                           .circular(
-                      //                                     100,
-                      //                                   ),
-                      //                                   child: Image.network(
-                      //                                     vendorImageUrl,
-                      //                                     width: width * 0.2,
-                      //                                     height: width * 0.2,
-                      //                                     fit: BoxFit.cover,
-                      //                                   ),
-                      //                                 ),
-                      //                               ),
-                      //                               SizedBox(
-                      //                                 width: width * 0.2,
-                      //                                 child: AutoSizeText(
-                      //                                   vendorName,
-                      //                                   maxLines: 1,
-                      //                                   overflow: TextOverflow
-                      //                                       .ellipsis,
-                      //                                   style: TextStyle(
-                      //                                     fontWeight:
-                      //                                         FontWeight.w500,
-                      //                                   ),
-                      //                                 ),
-                      //                               ),
-                      //                             ],
-                      //                           ),
-                      //                         ),
-                      //                       ),
-                      //                     ),
-                      //                   )
-                      //                 : posts.length < 11
-                      //                     ? Container()
-                      //                     : GestureDetector(
-                      //                         onTap: () {
-                      //                           Navigator.of(context).push(
-                      //                             MaterialPageRoute(
-                      //                               builder: ((context) =>
-                      //                                   const PostHomePage()),
-                      //                             ),
-                      //                           );
-                      //                         },
-                      //                         child: Container(
-                      //                           width: width * 0.225,
-                      //                           height: width * 0.25,
-                      //                           decoration: BoxDecoration(
-                      //                             color: primary2
-                      //                                 .withOpacity(0.125),
-                      //                             border: Border.all(
-                      //                               width: 0.125,
-                      //                               color: primaryDark,
-                      //                             ),
-                      //                             borderRadius:
-                      //                                 BorderRadius.circular(12),
-                      //                           ),
-                      //                           child: const Column(
-                      //                             mainAxisAlignment:
-                      //                                 MainAxisAlignment.center,
-                      //                             crossAxisAlignment:
-                      //                                 CrossAxisAlignment.center,
-                      //                             children: [
-                      //                               Icon(
-                      //                                 FeatherIcons.grid,
-                      //                                 color: primaryDark,
-                      //                               ),
-                      //                               SizedBox(height: 8),
-                      //                               Text(
-                      //                                 'See All',
-                      //                                 style: TextStyle(
-                      //                                   fontWeight:
-                      //                                       FontWeight.w500,
-                      //                                 ),
-                      //                               )
-                      //                             ],
-                      //                           ),
-                      //                         ),
-                      //                       );
-                      //           },
-                      //         ),
-                      //       ),
 
                       recentShop == null
                           ? Container()

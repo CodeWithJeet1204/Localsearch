@@ -526,13 +526,13 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
       final postId = postData['postId'];
       final postText = postData['postText'];
       final isTextPost = postData['isTextPost'];
-      final postImages = postData['postImages'];
+      final postImage = postData['postImage'];
       final postDateTime = postData['postDateTime'];
 
       myPosts[postId] = [
         postText,
         isTextPost,
-        postImages,
+        postImage,
         postDateTime,
       ];
     });

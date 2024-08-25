@@ -1,7 +1,7 @@
-import 'package:Localsearch_User/page/main/vendor/post_page_view.dart';
 import 'package:Localsearch_User/utils/colors.dart';
 import 'package:flutter/material.dart';
 
+// TODO: KEEP THIS TAB OR NOT
 class VendorPostsTabPage extends StatefulWidget {
   const VendorPostsTabPage({
     super.key,
@@ -127,22 +127,22 @@ class _VendorPostsTabPageState extends State<VendorPostsTabPage> {
                           childAspectRatio: 1,
                         ),
                         itemBuilder: (context, index) {
-                          final postId = imagePosts.keys.toList()[index];
+                          // final postId = imagePosts.keys.toList()[index];
                           final postImage =
                               imagePosts.values.toList()[index][2][0];
 
                           return GestureDetector(
                             onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => PostPageView(
-                                    currentIndex: imagePosts.keys
-                                        .toList()
-                                        .indexOf(postId),
-                                    posts: imagePosts,
-                                  ),
-                                ),
-                              );
+                              // Navigator.of(context).push(
+                              //   MaterialPageRoute(
+                              //     builder: (context) => PostPageView(
+                              //       currentIndex: imagePosts.keys
+                              //           .toList()
+                              //           .indexOf(postId),
+                              //       posts: imagePosts,
+                              //     ),
+                              //   ),
+                              // );
                             },
                             child: Container(
                               decoration: BoxDecoration(

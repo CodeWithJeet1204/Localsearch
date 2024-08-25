@@ -27,7 +27,7 @@ class _MainPageState extends State<MainPage>
   final auth = FirebaseAuth.instance.currentUser!;
   final store = FirebaseFirestore.instance;
   final messaging = FirebaseMessaging.instance;
-  int currentIndex = 1;
+  int currentIndex = 0;
   Widget? detailsPage;
 
   List<Widget> items = [

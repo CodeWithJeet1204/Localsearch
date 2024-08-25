@@ -441,7 +441,8 @@ class _ProductsScrollPageState extends State<ProductsScrollPage> {
                                             // PRICE
                                             Padding(
                                               padding: EdgeInsets.all(
-                                                  width * 0.0125),
+                                                width * 0.0125,
+                                              ),
                                               child: SizedBox(
                                                 width: width * 0.75,
                                                 child: Text(
@@ -459,7 +460,7 @@ class _ProductsScrollPageState extends State<ProductsScrollPage> {
                                         // WISHLIST
                                         Padding(
                                           padding: EdgeInsets.only(
-                                            right: width * 0.05,
+                                            right: width * 0.0125,
                                           ),
                                           child: IconButton(
                                             onPressed: () async {
