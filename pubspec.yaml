@@ -70,6 +70,13 @@ dependencies:
   http: ^1.2.1
   image: ^4.2.0
   carousel_slider: ^5.0.0
+  flutter_native_splash: ^2.4.1
+
+flutter_native_splash:
+  android: true
+
+  color: "#6cb9ff"
+  image: "assets/logo.png"
 
 dev_dependencies:
   flutter_test:
