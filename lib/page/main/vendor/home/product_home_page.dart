@@ -7,7 +7,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:Localsearch_User/page/main/all_discount_page.dart';
+import 'package:Localsearch_User/page/main/vendor/discount/all_discount_page.dart';
 import 'package:Localsearch_User/page/main/location_change_page.dart';
 import 'package:Localsearch_User/page/main/main_page.dart';
 import 'package:Localsearch_User/page/main/vendor/category/all_shop_types_page.dart';

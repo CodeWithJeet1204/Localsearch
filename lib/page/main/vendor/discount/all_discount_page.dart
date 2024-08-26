@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:Localsearch_User/page/main/discount_page.dart';
+import 'package:Localsearch_User/page/main/vendor/discount/discount_page.dart';
 import 'package:Localsearch_User/page/main/location_change_page.dart';
 import 'package:Localsearch_User/providers/location_provider.dart';
 import 'package:Localsearch_User/utils/colors.dart';

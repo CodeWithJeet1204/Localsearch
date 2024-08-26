@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:Localsearch_User/page/main/shorts_tile.dart';
+import 'package:Localsearch_User/page/main/vendor/shorts_tile.dart';
 import 'package:Localsearch_User/utils/colors.dart';
 import 'package:flutter/material.dart';
 
