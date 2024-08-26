@@ -81,7 +81,7 @@ class _AllBrandPageState extends State<AllBrandPage> {
           childAspectRatio: 0.8,
         ),
         itemCount: brands.length,
-        physics: ClampingScrollPhysics(),
+        physics: const ClampingScrollPhysics(),
         itemBuilder: ((context, index) {
           final id = brands.keys.toList()[index];
           final name = brands[id][0];

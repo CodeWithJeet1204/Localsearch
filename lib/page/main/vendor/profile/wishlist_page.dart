@@ -293,7 +293,7 @@ class _WishlistPageState extends State<WishlistPage>
                           shrinkWrap: true,
                           itemCount: 4,
                           scrollDirection: Axis.horizontal,
-                          physics: ClampingScrollPhysics(),
+                          physics: const ClampingScrollPhysics(),
                           itemBuilder: ((context, index) {
                             return Padding(
                               padding: const EdgeInsets.all(8),
@@ -310,7 +310,7 @@ class _WishlistPageState extends State<WishlistPage>
                         child: ListView.builder(
                           shrinkWrap: true,
                           itemCount: 4,
-                          physics: ClampingScrollPhysics(),
+                          physics: const ClampingScrollPhysics(),
                           itemBuilder: ((context, index) {
                             return Padding(
                               padding: const EdgeInsets.all(8),
@@ -356,7 +356,8 @@ class _WishlistPageState extends State<WishlistPage>
                                         child: ListView.builder(
                                           shrinkWrap: true,
                                           scrollDirection: Axis.horizontal,
-                                          physics: ClampingScrollPhysics(),
+                                          physics:
+                                              const ClampingScrollPhysics(),
                                           itemCount: categories.length,
                                           itemBuilder: ((context, index) {
                                             final category = categories[index];
@@ -538,7 +539,7 @@ class _WishlistPageState extends State<WishlistPage>
                           shrinkWrap: true,
                           itemCount: 4,
                           scrollDirection: Axis.horizontal,
-                          physics: ClampingScrollPhysics(),
+                          physics: const ClampingScrollPhysics(),
                           itemBuilder: ((context, index) {
                             return Padding(
                               padding: const EdgeInsets.all(8),
@@ -555,7 +556,7 @@ class _WishlistPageState extends State<WishlistPage>
                         child: ListView.builder(
                           shrinkWrap: true,
                           itemCount: 4,
-                          physics: ClampingScrollPhysics(),
+                          physics: const ClampingScrollPhysics(),
                           itemBuilder: ((context, index) {
                             return Padding(
                               padding: const EdgeInsets.all(8),
@@ -603,7 +604,8 @@ class _WishlistPageState extends State<WishlistPage>
                                         child: ListView.builder(
                                           shrinkWrap: true,
                                           scrollDirection: Axis.horizontal,
-                                          physics: ClampingScrollPhysics(),
+                                          physics:
+                                              const ClampingScrollPhysics(),
                                           itemCount: types.length,
                                           itemBuilder: ((context, index) {
                                             final type = types[index];

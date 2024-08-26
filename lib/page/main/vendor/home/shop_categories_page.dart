@@ -53,7 +53,7 @@ class _ShopCategoriesPageState extends State<ShopCategoriesPage> {
             childAspectRatio: 0.825,
           ),
           itemCount: currentShopCategories.length,
-          physics: ClampingScrollPhysics(),
+          physics: const ClampingScrollPhysics(),
           itemBuilder: ((context, index) {
             final name = currentShopCategories.keys.toList()[index];
             final imageUrl = currentShopCategories.values.toList()[index];

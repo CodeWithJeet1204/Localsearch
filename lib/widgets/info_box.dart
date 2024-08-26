@@ -55,7 +55,7 @@ class InfoBox extends StatelessWidget {
               child: ListView.builder(
                 shrinkWrap: true,
                 scrollDirection: Axis.horizontal,
-                physics: ClampingScrollPhysics(),
+                physics: const ClampingScrollPhysics(),
                 itemCount: 1,
                 itemBuilder: (context, index) {
                   return Row(

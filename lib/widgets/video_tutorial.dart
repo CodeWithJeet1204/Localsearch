@@ -76,11 +76,11 @@ class YouTubePlayerDialogState extends State<YouTubePlayerDialog> {
             aspectRatio: 9 / 16,
             showVideoProgressIndicator: true,
             progressIndicatorColor: Colors.red,
-            bottomActions: [
+            bottomActions: const [
               CurrentPosition(),
               ProgressBar(
                 isExpanded: true,
-                colors: const ProgressBarColors(
+                colors: ProgressBarColors(
                   playedColor: primary2,
                   handleColor: darkGrey,
                 ),

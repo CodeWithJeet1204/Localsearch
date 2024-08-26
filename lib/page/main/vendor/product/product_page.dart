@@ -2075,7 +2075,7 @@ class _ProductPageState extends State<ProductPage> {
                                     child: ListView.builder(
                                       shrinkWrap: true,
                                       scrollDirection: Axis.horizontal,
-                                      physics: ClampingScrollPhysics(),
+                                      physics: const ClampingScrollPhysics(),
                                       itemCount:
                                           otherVendorProductsDatas.length,
                                       itemBuilder: ((context, index) {
@@ -2217,7 +2217,7 @@ class _ProductPageState extends State<ProductPage> {
                                     child: ListView.builder(
                                       shrinkWrap: true,
                                       scrollDirection: Axis.horizontal,
-                                      physics: ClampingScrollPhysics(),
+                                      physics: const ClampingScrollPhysics(),
                                       itemCount: similarProductsDatas.length,
                                       itemBuilder: ((context, index) {
                                         final data =
@@ -2802,7 +2802,7 @@ class _AllDiscountsWidgetState extends State<AllDiscountsWidget> {
                 child: ListView.builder(
                   shrinkWrap: true,
                   scrollDirection: Axis.horizontal,
-                  physics: ClampingScrollPhysics(),
+                  physics: const ClampingScrollPhysics(),
                   itemCount: widget.allDiscount.length,
                   itemBuilder: ((context, index) {
                     final currentDiscount = widget.allDiscount[index];

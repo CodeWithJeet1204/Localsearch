@@ -35,6 +35,7 @@ class _PostPageViewState extends State<PostPageView> {
       context: context,
       builder: (context) {
         return Dialog(
+          backgroundColor: primary2,
           child: Container(
             padding: EdgeInsets.all(width * 0.033),
             child: SingleChildScrollView(
@@ -44,7 +45,6 @@ class _PostPageViewState extends State<PostPageView> {
               ),
             ),
           ),
-          backgroundColor: primary2,
         );
       },
     );
@@ -92,7 +92,7 @@ class _PostPageViewState extends State<PostPageView> {
             onPressed: () {
               Navigator.of(context).pop();
             },
-            icon: Icon(
+            icon: const Icon(
               FeatherIcons.x,
               color: white,
             ),
@@ -413,7 +413,8 @@ class _PostPageViewState extends State<PostPageView> {
                                 child: IconButton(
                                   onPressed: () {
                                     _pageController.previousPage(
-                                      duration: Duration(milliseconds: 300),
+                                      duration:
+                                          const Duration(milliseconds: 300),
                                       curve: Curves.easeInOut,
                                     );
                                   },
@@ -435,7 +436,8 @@ class _PostPageViewState extends State<PostPageView> {
                                 child: IconButton(
                                   onPressed: () {
                                     _pageController.nextPage(
-                                      duration: Duration(milliseconds: 300),
+                                      duration:
+                                          const Duration(milliseconds: 300),
                                       curve: Curves.easeInOut,
                                     );
                                   },
@@ -460,7 +462,7 @@ class _PostPageViewState extends State<PostPageView> {
                       },
                       child: Text(
                         postText,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.white,
                         ),
                       ),

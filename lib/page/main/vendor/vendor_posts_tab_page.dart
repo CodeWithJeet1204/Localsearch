@@ -111,7 +111,7 @@ class _VendorPostsTabPageState extends State<VendorPostsTabPage> {
             height: getScreenHeight() * 0.606125,
             child: type == 'Image'
                 ? imagePosts.isEmpty
-                    ? SizedBox(
+                    ? const SizedBox(
                         height: 80,
                         child: Center(
                           child: Text('No Image Posts'),
@@ -119,9 +119,10 @@ class _VendorPostsTabPageState extends State<VendorPostsTabPage> {
                       )
                     : GridView.builder(
                         shrinkWrap: true,
-                        physics: ClampingScrollPhysics(),
+                        physics: const ClampingScrollPhysics(),
                         itemCount: imagePosts.length,
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 3,
                           childAspectRatio: 1,
                         ),
@@ -161,7 +162,7 @@ class _VendorPostsTabPageState extends State<VendorPostsTabPage> {
                         },
                       )
                 : textPosts.isEmpty
-                    ? SizedBox(
+                    ? const SizedBox(
                         height: 80,
                         child: Center(
                           child: Text('No Text Posts'),
@@ -169,7 +170,7 @@ class _VendorPostsTabPageState extends State<VendorPostsTabPage> {
                       )
                     : ListView.builder(
                         shrinkWrap: true,
-                        physics: ClampingScrollPhysics(),
+                        physics: const ClampingScrollPhysics(),
                         itemCount: textPosts.length,
                         itemBuilder: (context, index) {
                           final postText = textPosts.values.toList()[index][0];

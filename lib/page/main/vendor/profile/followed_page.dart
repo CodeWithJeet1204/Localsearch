@@ -305,7 +305,7 @@ class _FollowedPageState extends State<FollowedPage>
                           shrinkWrap: true,
                           itemCount: 4,
                           scrollDirection: Axis.horizontal,
-                          physics: ClampingScrollPhysics(),
+                          physics: const ClampingScrollPhysics(),
                           itemBuilder: ((context, index) {
                             return Padding(
                               padding: const EdgeInsets.all(8),
@@ -322,7 +322,7 @@ class _FollowedPageState extends State<FollowedPage>
                         child: ListView.builder(
                           shrinkWrap: true,
                           itemCount: 4,
-                          physics: ClampingScrollPhysics(),
+                          physics: const ClampingScrollPhysics(),
                           itemBuilder: ((context, index) {
                             return Padding(
                               padding: const EdgeInsets.all(8),
@@ -370,7 +370,8 @@ class _FollowedPageState extends State<FollowedPage>
                                         child: ListView.builder(
                                           shrinkWrap: true,
                                           scrollDirection: Axis.horizontal,
-                                          physics: ClampingScrollPhysics(),
+                                          physics:
+                                              const ClampingScrollPhysics(),
                                           itemCount: shopTypes.length,
                                           itemBuilder: ((context, index) {
                                             final type = shopTypes[index];
@@ -547,7 +548,7 @@ class _FollowedPageState extends State<FollowedPage>
                         child: ListView.builder(
                           shrinkWrap: true,
                           itemCount: 4,
-                          physics: ClampingScrollPhysics(),
+                          physics: const ClampingScrollPhysics(),
                           scrollDirection: Axis.horizontal,
                           itemBuilder: ((context, index) {
                             return Padding(
@@ -565,7 +566,7 @@ class _FollowedPageState extends State<FollowedPage>
                         child: ListView.builder(
                           shrinkWrap: true,
                           itemCount: 4,
-                          physics: ClampingScrollPhysics(),
+                          physics: const ClampingScrollPhysics(),
                           itemBuilder: ((context, index) {
                             return Padding(
                               padding: const EdgeInsets.all(8),
@@ -611,7 +612,8 @@ class _FollowedPageState extends State<FollowedPage>
                                         child: ListView.builder(
                                           shrinkWrap: true,
                                           scrollDirection: Axis.horizontal,
-                                          physics: ClampingScrollPhysics(),
+                                          physics:
+                                              const ClampingScrollPhysics(),
                                           itemCount: organizerTypes.length,
                                           itemBuilder: ((context, index) {
                                             final type = organizerTypes[index];

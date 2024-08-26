@@ -163,9 +163,9 @@ class _AllShopTypesPageState extends State<AllShopTypesPage> {
                       Expanded(
                         child: Container(
                           alignment: Alignment.bottomLeft,
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             color: white,
-                            borderRadius: const BorderRadius.vertical(
+                            borderRadius: BorderRadius.vertical(
                               bottom: Radius.circular(8),
                             ),
                           ),

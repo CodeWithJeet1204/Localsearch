@@ -144,7 +144,7 @@ class _ImageViewState extends State<ImageView> {
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemCount: widget.imagesUrl.length,
-                    physics: ClampingScrollPhysics(),
+                    physics: const ClampingScrollPhysics(),
                     itemBuilder: ((context, index) {
                       return Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 4),

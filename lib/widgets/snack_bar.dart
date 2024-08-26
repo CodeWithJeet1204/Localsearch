@@ -8,7 +8,7 @@ void mySnackBar(String text, BuildContext context) {
       content: Text(
         text,
         style: const TextStyle(
-          color: const Color.fromARGB(255, 240, 252, 255),
+          color: Color.fromARGB(255, 240, 252, 255),
         ),
       ),
       elevation: 2,

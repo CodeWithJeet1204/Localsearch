@@ -179,7 +179,7 @@ class _ProductsScrollPageState extends State<ProductsScrollPage> {
               child: ListView.builder(
                 shrinkWrap: true,
                 itemCount: 4,
-                physics: ClampingScrollPhysics(),
+                physics: const ClampingScrollPhysics(),
                 itemBuilder: ((context, index) {
                   return Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -244,14 +244,15 @@ class _ProductsScrollPageState extends State<ProductsScrollPage> {
                                     .get();
 
                                 final productData = productSnap.data()!;
-
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) => ProductPage(
-                                      productData: productData,
+                                if (context.mounted) {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => ProductPage(
+                                        productData: productData,
+                                      ),
                                     ),
-                                  ),
-                                );
+                                  );
+                                }
                               },
                               child: Container(
                                 width: width,

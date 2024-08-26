@@ -88,9 +88,8 @@ class _ProductHomePageState extends State<ProductHomePage> {
     List<String> myNameList = myName.split(' ');
     String newCapitalName = '';
     for (var myName in myNameList) {
-      newCapitalName = newCapitalName +
-          (myName.substring(0, 1).toUpperCase() + myName.substring(1)) +
-          ' ';
+      newCapitalName =
+          '$newCapitalName${myName.substring(0, 1).toUpperCase()}${myName.substring(1)} ';
     }
 
     return newCapitalName;
@@ -215,12 +214,14 @@ class _ProductHomePageState extends State<ProductHomePage> {
       ..sort((a, b) {
         final aTotalViews = a.value.values.fold<int>(
           0,
-          (sum, post) => sum + (int.parse(post['postViews'] as String)),
+          (additionSum, post) =>
+              additionSum + (int.parse(post['postViews'] as String)),
         );
 
         final bTotalViews = b.value.values.fold<int>(
           0,
-          (sum, post) => sum + (int.parse(post['postViews'] as String)),
+          (additionSum, post) =>
+              additionSum + (int.parse(post['postViews'] as String)),
         );
 
         return bTotalViews.compareTo(aTotalViews);
@@ -555,7 +556,11 @@ class _ProductHomePageState extends State<ProductHomePage> {
                 });
               }
             }
-          } catch (e) {}
+          } catch (e) {
+            if (mounted) {
+              mySnackBar('Some error occured while fetching Location', context);
+            }
+          }
         }
       });
 
@@ -755,7 +760,14 @@ class _ProductHomePageState extends State<ProductHomePage> {
                   ];
                 }
               }
-            } catch (e) {}
+            } catch (e) {
+              if (mounted) {
+                mySnackBar(
+                  'Some error occured while fetching Location',
+                  context,
+                );
+              }
+            }
           }
         });
       } else {
@@ -799,10 +811,12 @@ class _ProductHomePageState extends State<ProductHomePage> {
             } else {}
           } else {}
         } catch (e) {
-          mySnackBar(
-            'Failed to fetch your City: ${e.toString()}',
-            context,
-          );
+          if (mounted) {
+            mySnackBar(
+              'Failed to fetch your City: ${e.toString()}',
+              context,
+            );
+          }
         }
       }
 
@@ -932,7 +946,14 @@ class _ProductHomePageState extends State<ProductHomePage> {
                   currentFollowedShops[vendorId] = [name, imageUrl, dist];
                 }
               }
-            } catch (e) {}
+            } catch (e) {
+              if (mounted) {
+                mySnackBar(
+                  'Some error occured while fetching Location',
+                  context,
+                );
+              }
+            }
           }
         }
       });
@@ -988,10 +1009,12 @@ class _ProductHomePageState extends State<ProductHomePage> {
             }
           }
         } catch (e) {
-          mySnackBar(
-            'Failed to fetch your City: ${e.toString()}',
-            context,
-          );
+          if (mounted) {
+            mySnackBar(
+              'Failed to fetch your City: ${e.toString()}',
+              context,
+            );
+          }
         }
       }
     }
@@ -1333,7 +1356,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                             text: future.data,
                             style: TextStyle(
                               fontSize: width * 0.06,
-                              color: Color.fromRGBO(52, 127, 255, 1),
+                              color: const Color.fromRGBO(52, 127, 255, 1),
                               fontWeight: FontWeight.w600,
                             )),
                       ],
@@ -1342,13 +1365,13 @@ class _ProductHomePageState extends State<ProductHomePage> {
                 }),
             Column(
               children: [
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 // SELECT LOCATION
                 GestureDetector(
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => LocationChangePage(
+                        builder: (context) => const LocationChangePage(
                           page: MainPage(),
                         ),
                       ),
@@ -1469,7 +1492,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                               height: width * 0.3,
                               child: ListView.builder(
                                 shrinkWrap: true,
-                                physics: ClampingScrollPhysics(),
+                                physics: const ClampingScrollPhysics(),
                                 scrollDirection: Axis.horizontal,
                                 itemCount: 6,
                                 itemBuilder: (context, index) {
@@ -1492,7 +1515,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                   height: width * 0.3,
                                   child: ListView.builder(
                                     shrinkWrap: true,
-                                    physics: ClampingScrollPhysics(),
+                                    physics: const ClampingScrollPhysics(),
                                     scrollDirection: Axis.horizontal,
                                     itemCount:
                                         posts.length > 9 ? 10 : posts.length,
@@ -1594,7 +1617,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
 
                       locationProvider.cityName != 'Your Location'
                           ? Container()
-                          : Divider(),
+                          : const Divider(),
 
                       // DISTANCE
                       locationProvider.cityName != 'Your Location'
@@ -1645,7 +1668,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                   ),
                                 ),
                                 Container(
-                                  decoration: BoxDecoration(
+                                  decoration: const BoxDecoration(
                                     color: primaryDark,
                                     shape: BoxShape.circle,
                                   ),
@@ -1690,7 +1713,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                 Colors.green.shade300,
                                 Colors.blue.shade300,
                                 Colors.indigo.shade300,
-                                Color.fromRGBO(143, 30, 255, 1),
+                                const Color.fromRGBO(143, 30, 255, 1),
                               ],
                             ),
                             border: Border.all(
@@ -1899,7 +1922,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                                     overflow:
                                                         TextOverflow.ellipsis,
                                                     maxLines: 1,
-                                                    style: TextStyle(
+                                                    style: const TextStyle(
                                                       color: primaryDark,
                                                       fontWeight:
                                                           FontWeight.w500,
@@ -1969,7 +1992,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                           ? Container()
                           : !getRecentData
                               ? Container()
-                              : Divider(),
+                              : const Divider(),
 
                       // CONTINUE SHOPPING
                       recentShop == null
@@ -2006,7 +2029,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                   height: width * 0.425,
                                   child: ListView.builder(
                                     shrinkWrap: true,
-                                    physics: ClampingScrollPhysics(),
+                                    physics: const ClampingScrollPhysics(),
                                     scrollDirection: Axis.horizontal,
                                     itemCount: 4,
                                     itemBuilder: ((context, index) {
@@ -2044,7 +2067,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                   height: width * 0.425,
                                   child: ListView.builder(
                                     shrinkWrap: true,
-                                    physics: ClampingScrollPhysics(),
+                                    physics: const ClampingScrollPhysics(),
                                     scrollDirection: Axis.horizontal,
                                     itemCount:
                                         recentShopProductsImages.length > 4
@@ -2152,7 +2175,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                   ),
                                 ),
 
-                      currentWishlist.isEmpty ? Container() : Divider(),
+                      currentWishlist.isEmpty ? Container() : const Divider(),
 
                       // WISHLIST PRODUCTS
                       currentWishlist.isEmpty
@@ -2163,7 +2186,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                   height: width * 0.425,
                                   child: ListView.builder(
                                     shrinkWrap: true,
-                                    physics: ClampingScrollPhysics(),
+                                    physics: const ClampingScrollPhysics(),
                                     scrollDirection: Axis.horizontal,
                                     itemCount: 4,
                                     itemBuilder: ((context, index) {
@@ -2203,7 +2226,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                   height: width * 0.425,
                                   child: ListView.builder(
                                     shrinkWrap: true,
-                                    physics: ClampingScrollPhysics(),
+                                    physics: const ClampingScrollPhysics(),
                                     scrollDirection: Axis.horizontal,
                                     itemCount: currentWishlist.length > 4
                                         ? 4
@@ -2286,7 +2309,9 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                   ),
                                 ),
 
-                      currentFollowedShops.isEmpty ? Container() : Divider(),
+                      currentFollowedShops.isEmpty
+                          ? Container()
+                          : const Divider(),
 
                       // FOLLOWED
                       currentFollowedShops.isEmpty
@@ -2323,7 +2348,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                   height: width * 0.425,
                                   child: ListView.builder(
                                     shrinkWrap: true,
-                                    physics: ClampingScrollPhysics(),
+                                    physics: const ClampingScrollPhysics(),
                                     scrollDirection: Axis.horizontal,
                                     itemCount: 4,
                                     itemBuilder: ((context, index) {
@@ -2363,7 +2388,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                   height: width * 0.425,
                                   child: ListView.builder(
                                     shrinkWrap: true,
-                                    physics: ClampingScrollPhysics(),
+                                    physics: const ClampingScrollPhysics(),
                                     scrollDirection: Axis.horizontal,
                                     itemCount: currentFollowedShops.length > 4
                                         ? 4
@@ -2447,7 +2472,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                 ),
 
                       // FEATURED 1
-                      featured1.isEmpty ? Container() : Divider(),
+                      featured1.isEmpty ? Container() : const Divider(),
 
                       // FEATURED CATEGORY 1
                       featured1.isEmpty
@@ -2474,7 +2499,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                               height: width * 0.425,
                               child: ListView.builder(
                                 shrinkWrap: true,
-                                physics: ClampingScrollPhysics(),
+                                physics: const ClampingScrollPhysics(),
                                 scrollDirection: Axis.horizontal,
                                 itemCount: featured1.length,
                                 itemBuilder: (context, index) {
@@ -2557,7 +2582,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                             ),
 
                       // FEATURED 2
-                      featured2.isEmpty ? Container() : Divider(),
+                      featured2.isEmpty ? Container() : const Divider(),
 
                       // FEATURED CATEGORY 2
                       featured2.isEmpty
@@ -2584,7 +2609,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                               height: width * 0.425,
                               child: ListView.builder(
                                 shrinkWrap: true,
-                                physics: ClampingScrollPhysics(),
+                                physics: const ClampingScrollPhysics(),
                                 scrollDirection: Axis.horizontal,
                                 itemCount: featured2.length,
                                 itemBuilder: (context, index) {
@@ -2667,7 +2692,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                             ),
 
                       // FEATURED 3
-                      featured3.isEmpty ? Container() : Divider(),
+                      featured3.isEmpty ? Container() : const Divider(),
 
                       // FEATURED CATEGORY 3
                       featured3.isEmpty
@@ -2694,7 +2719,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                               height: width * 0.425,
                               child: ListView.builder(
                                 shrinkWrap: true,
-                                physics: ClampingScrollPhysics(),
+                                physics: const ClampingScrollPhysics(),
                                 scrollDirection: Axis.horizontal,
                                 itemCount: featured3.length,
                                 itemBuilder: (context, index) {

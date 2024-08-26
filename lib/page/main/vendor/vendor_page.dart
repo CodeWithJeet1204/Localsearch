@@ -525,7 +525,7 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
         .where('isLinked', isEqualTo: false)
         .get();
 
-    postsSnap.docs.forEach((post) {
+    for (var post in postsSnap.docs) {
       final postData = post.data();
 
       final postId = postData['postId'];
@@ -540,7 +540,7 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
         postImage,
         postDateTime,
       ];
-    });
+    }
 
     myPosts = Map.fromEntries(myPosts.entries.toList()
       ..sort((a, b) => (b.value[3] as Timestamp).compareTo(a.value[3])));
@@ -799,7 +799,7 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
         .where('vendorId', isEqualTo: widget.vendorId)
         .get();
 
-    shortsSnap.docs.forEach((short) async {
+    await Future.forEach(shortsSnap.docs, (short) async {
       final shortsData = short.data();
 
       final shortsId = short.id;

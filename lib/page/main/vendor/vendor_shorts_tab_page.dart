@@ -35,7 +35,7 @@ class _VendorShortsTabPageState extends State<VendorShortsTabPage> {
         width: widget.width,
         height: getScreenHeight() * 0.606125,
         child: widget.shorts.isEmpty
-            ? SizedBox(
+            ? const SizedBox(
                 height: 80,
                 child: Center(
                   child: Text('No Shorts'),
@@ -43,8 +43,8 @@ class _VendorShortsTabPageState extends State<VendorShortsTabPage> {
               )
             : GridView.builder(
                 shrinkWrap: true,
-                physics: ClampingScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                physics: const ClampingScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 3,
                   childAspectRatio: 9 / 15.66,
                 ),
@@ -67,7 +67,7 @@ class _VendorShortsTabPageState extends State<VendorShortsTabPage> {
                       );
                     },
                     child: Container(
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: primaryDark,
                       ),
                       padding: EdgeInsets.all(

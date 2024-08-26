@@ -38,12 +38,12 @@ class _LocationChangePageState extends State<LocationChangePage> {
     Map<String, Map<String, dynamic>> tempCities = {};
     final citySnap = await store.collection('Cities').get();
 
-    citySnap.docs.forEach((city) {
+    for (var city in citySnap.docs) {
       final cityData = city.data();
       final cityId = cityData['cityId'];
 
       tempCities[cityId] = cityData;
-    });
+    }
 
     setState(() {
       currentCities = tempCities;
@@ -125,7 +125,7 @@ class _LocationChangePageState extends State<LocationChangePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Change Location'),
+        title: const Text('Change Location'),
         automaticallyImplyLeading: false,
       ),
       body: SafeArea(
@@ -167,7 +167,7 @@ class _LocationChangePageState extends State<LocationChangePage> {
                               },
                             ),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 100,
                             child: Center(
                               child: Text('No Cities'),
@@ -214,13 +214,15 @@ class _LocationChangePageState extends State<LocationChangePage> {
                                   });
                                 }
                               });
-                              Navigator.of(context).pop();
-                              Navigator.of(context).pop();
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => widget.page,
-                                ),
-                              );
+                              if (context.mounted) {
+                                Navigator.of(context).pop();
+                                Navigator.of(context).pop();
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => widget.page,
+                                  ),
+                                );
+                              }
                             },
                             child: Container(
                               width: width,
@@ -271,7 +273,7 @@ class _LocationChangePageState extends State<LocationChangePage> {
                               ),
                             ),
                           ),
-                          Divider(),
+                          const Divider(),
                           Padding(
                             padding: EdgeInsets.all(width * 0.0125),
                             child: Text(
@@ -286,7 +288,7 @@ class _LocationChangePageState extends State<LocationChangePage> {
                             width: width,
                             child: ListView.builder(
                               shrinkWrap: true,
-                              physics: ClampingScrollPhysics(),
+                              physics: const ClampingScrollPhysics(),
                               itemCount: currentCities.length,
                               itemBuilder: (context, index) {
                                 final currentCityId = currentCities.values

@@ -255,10 +255,12 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
           isData = true;
         });
       } catch (e) {
-        mySnackBar(
-          'Failed to fetch your City: ${e.toString()}',
-          context,
-        );
+        if (mounted) {
+          mySnackBar(
+            'Failed to fetch your City: ${e.toString()}',
+            context,
+          );
+        }
       }
     }
   }
@@ -360,7 +362,7 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
           ? SafeArea(
               child: GridView.builder(
               shrinkWrap: true,
-              physics: ClampingScrollPhysics(),
+              physics: const ClampingScrollPhysics(),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 1,
                 crossAxisSpacing: 0,
@@ -399,7 +401,8 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
                               onTap: () {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
-                                    builder: (context) => LocationChangePage(
+                                    builder: (context) =>
+                                        const LocationChangePage(
                                       page: AllDiscountPage(),
                                     ),
                                   ),
@@ -466,7 +469,7 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
                                       ),
                                     ),
                                     Container(
-                                      decoration: BoxDecoration(
+                                      decoration: const BoxDecoration(
                                         color: primaryDark,
                                         shape: BoxShape.circle,
                                       ),
@@ -497,9 +500,9 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
                                 ),
 
                           currentDiscounts.isEmpty
-                              ? SizedBox(
+                              ? const SizedBox(
                                   height: 80,
-                                  child: const Center(
+                                  child: Center(
                                     child: Text('No Discounts'),
                                   ),
                                 )

@@ -447,7 +447,7 @@ class _DiscountPageState extends State<DiscountPage> {
                                                 ? GridView.builder(
                                                     shrinkWrap: true,
                                                     physics:
-                                                        ClampingScrollPhysics(),
+                                                        const ClampingScrollPhysics(),
                                                     gridDelegate:
                                                         const SliverGridDelegateWithFixedCrossAxisCount(
                                                       crossAxisCount: 2,
@@ -738,7 +738,7 @@ class _DiscountPageState extends State<DiscountPage> {
                                               ? GridView.builder(
                                                   shrinkWrap: true,
                                                   physics:
-                                                      ClampingScrollPhysics(),
+                                                      const ClampingScrollPhysics(),
                                                   gridDelegate:
                                                       SliverGridDelegateWithFixedCrossAxisCount(
                                                     crossAxisCount: 2,
@@ -883,7 +883,7 @@ class _DiscountPageState extends State<DiscountPage> {
                                                     ? GridView.builder(
                                                         shrinkWrap: true,
                                                         physics:
-                                                            ClampingScrollPhysics(),
+                                                            const ClampingScrollPhysics(),
                                                         gridDelegate:
                                                             const SliverGridDelegateWithFixedCrossAxisCount(
                                                           crossAxisCount: 2,
@@ -1114,7 +1114,7 @@ class _DiscountPageState extends State<DiscountPage> {
                                                   ? GridView.builder(
                                                       shrinkWrap: true,
                                                       physics:
-                                                          ClampingScrollPhysics(),
+                                                          const ClampingScrollPhysics(),
                                                       gridDelegate:
                                                           SliverGridDelegateWithFixedCrossAxisCount(
                                                         crossAxisCount: 2,
@@ -1293,7 +1293,7 @@ class _DiscountPageState extends State<DiscountPage> {
                                                     ? GridView.builder(
                                                         shrinkWrap: true,
                                                         physics:
-                                                            ClampingScrollPhysics(),
+                                                            const ClampingScrollPhysics(),
                                                         gridDelegate:
                                                             const SliverGridDelegateWithFixedCrossAxisCount(
                                                           crossAxisCount: 2,
@@ -1430,7 +1430,7 @@ class _DiscountPageState extends State<DiscountPage> {
                                                     : ListView.builder(
                                                         shrinkWrap: true,
                                                         physics:
-                                                            ClampingScrollPhysics(),
+                                                            const ClampingScrollPhysics(),
                                                         itemCount: snapshot
                                                             .data!.length,
                                                         itemBuilder:
@@ -1534,7 +1534,7 @@ class _DiscountPageState extends State<DiscountPage> {
                                                   ? GridView.builder(
                                                       shrinkWrap: true,
                                                       physics:
-                                                          ClampingScrollPhysics(),
+                                                          const ClampingScrollPhysics(),
                                                       gridDelegate:
                                                           SliverGridDelegateWithFixedCrossAxisCount(
                                                         crossAxisCount: 2,
@@ -1568,7 +1568,7 @@ class _DiscountPageState extends State<DiscountPage> {
                                                       shrinkWrap: true,
                                                       itemCount: 4,
                                                       physics:
-                                                          ClampingScrollPhysics(),
+                                                          const ClampingScrollPhysics(),
                                                       itemBuilder:
                                                           (context, index) {
                                                         return Padding(

@@ -54,7 +54,7 @@ class _TopSearchPageState extends State<TopSearchPage> {
                 child: ListView.builder(
                   shrinkWrap: true,
                   itemCount: widget.data.keys.toList().length,
-                  physics: ClampingScrollPhysics(),
+                  physics: const ClampingScrollPhysics(),
                   itemBuilder: ((context, index) {
                     final String name = widget.data.keys.toList()[index];
                     final int number = widget.data.values.toList()[index];

@@ -291,10 +291,12 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
             }
           }
         } catch (e) {
-          mySnackBar(
-            'Failed to fetch your City: ${e.toString()}',
-            context,
-          );
+          if (mounted) {
+            mySnackBar(
+              'Failed to fetch your City: ${e.toString()}',
+              context,
+            );
+          }
         }
       }
     }
@@ -601,10 +603,12 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
             }
           }
         } catch (e) {
-          mySnackBar(
-            'Failed to fetch your City: ${e.toString()}',
-            context,
-          );
+          if (mounted) {
+            mySnackBar(
+              'Failed to fetch your City: ${e.toString()}',
+              context,
+            );
+          }
         }
       }
     }
@@ -1106,7 +1110,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                   ),
                                 ),
                                 Container(
-                                  decoration: BoxDecoration(
+                                  decoration: const BoxDecoration(
                                     color: primaryDark,
                                     shape: BoxShape.circle,
                                   ),
@@ -1174,7 +1178,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                   child: ListView.builder(
                                     shrinkWrap: true,
                                     itemCount: 2,
-                                    physics: ClampingScrollPhysics(),
+                                    physics: const ClampingScrollPhysics(),
                                     itemBuilder: ((context, index) {
                                       return Container(
                                         width: width,
