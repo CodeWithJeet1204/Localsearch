@@ -1,6 +1,7 @@
 import 'package:Localsearch_User/page/main/vendor/product/product_page.dart';
 import 'package:Localsearch_User/page/main/vendor/vendor_page.dart';
 import 'package:Localsearch_User/utils/colors.dart';
+import 'package:Localsearch_User/widgets/snack_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -40,32 +41,43 @@ class _VendorProductsTabPageState extends State<VendorProductsTabPage> {
 
   // SORT PRODUCTS
   void sortProducts(EventSorting sorting) {
+    List<MapEntry<String, dynamic>> sortedEntries =
+        widget.myProducts.entries.toList();
+
+    switch (sorting) {
+      case EventSorting.recentlyAdded:
+        sortedEntries.sort((a, b) =>
+            (b.value[4] as Timestamp).compareTo(a.value[4] as Timestamp));
+        break;
+      case EventSorting.highestRated:
+        sortedEntries.sort((a, b) {
+          final ratingA = calculateAverageRating(a.value[3]);
+          final ratingB = calculateAverageRating(b.value[3]);
+          return ratingB.compareTo(ratingA);
+        });
+        break;
+      case EventSorting.mostViewed:
+        sortedEntries.sort((a, b) => ((b.value[5] as List).length)
+            .compareTo((a.value[5] as List).length));
+        break;
+      case EventSorting.lowestPrice:
+        sortedEntries.sort((a, b) {
+          final priceA = double.parse(a.value[2]);
+          final priceB = double.parse(b.value[2]);
+          return priceA.compareTo(priceB);
+        });
+        break;
+      case EventSorting.highestPrice:
+        sortedEntries.sort((a, b) {
+          final priceA = double.parse(a.value[2]);
+          final priceB = double.parse(b.value[2]);
+          return priceB.compareTo(priceA);
+        });
+        break;
+    }
+
     setState(() {
-      switch (sorting) {
-        case EventSorting.recentlyAdded:
-          products = Map.fromEntries(widget.myProducts.entries.toList()
-            ..sort((a, b) => (b.value[4] as Timestamp).compareTo(a.value[4])));
-          break;
-        case EventSorting.highestRated:
-          products = Map.fromEntries(widget.myProducts.entries.toList()
-            ..sort((a, b) => calculateAverageRating(b.value[3])
-                .compareTo(calculateAverageRating(a.value[3]))));
-          break;
-        case EventSorting.mostViewed:
-          products = Map.fromEntries(widget.myProducts.entries.toList()
-            ..sort((a, b) => (b.value[5].length).compareTo(a.value[5].length)));
-          break;
-        case EventSorting.lowestPrice:
-          products = Map.fromEntries(widget.myProducts.entries.toList()
-            ..sort((a, b) =>
-                double.parse(a.value[2]).compareTo(double.parse(b.value[2]))));
-          break;
-        case EventSorting.highestPrice:
-          products = Map.fromEntries(widget.myProducts.entries.toList()
-            ..sort((a, b) =>
-                double.parse(b.value[2]).compareTo(double.parse(a.value[2]))));
-          break;
-      }
+      products = Map.fromEntries(sortedEntries);
     });
   }
 
@@ -118,7 +130,7 @@ class _VendorProductsTabPageState extends State<VendorProductsTabPage> {
                       child: DropdownButton<String>(
                         underline: const SizedBox(),
                         dropdownColor: primary2,
-                        value: widget.myProductSort,
+                        value: productSort,
                         iconEnabledColor: primaryDark,
                         items: [
                           'Recently Added',
@@ -133,20 +145,24 @@ class _VendorProductsTabPageState extends State<VendorProductsTabPage> {
                                 ))
                             .toList(),
                         onChanged: (value) {
-                          sortProducts(
-                            value == 'Recently Added'
-                                ? EventSorting.recentlyAdded
-                                : value == 'Highest Rated'
-                                    ? EventSorting.highestRated
-                                    : value == 'Most Viewed'
-                                        ? EventSorting.mostViewed
-                                        : value == 'Price - Highest to Lowest'
-                                            ? EventSorting.highestPrice
-                                            : EventSorting.lowestPrice,
-                          );
                           setState(() {
                             productSort = value;
                           });
+                          try {
+                            sortProducts(
+                              value == 'Recently Added'
+                                  ? EventSorting.recentlyAdded
+                                  : value == 'Highest Rated'
+                                      ? EventSorting.highestRated
+                                      : value == 'Most Viewed'
+                                          ? EventSorting.mostViewed
+                                          : value == 'Price - Highest to Lowest'
+                                              ? EventSorting.highestPrice
+                                              : EventSorting.lowestPrice,
+                            );
+                          } catch (e) {
+                            mySnackBar('Something went wrong', context);
+                          }
                         },
                       ),
                     ),
@@ -154,7 +170,7 @@ class _VendorProductsTabPageState extends State<VendorProductsTabPage> {
                 ),
 
           // PRODUCTS
-          widget.myProducts.isEmpty
+          products.isEmpty
               ? Container()
               : SizedBox(
                   width: widget.width,
@@ -162,18 +178,15 @@ class _VendorProductsTabPageState extends State<VendorProductsTabPage> {
                   child: ListView.builder(
                     shrinkWrap: true,
                     physics: const ClampingScrollPhysics(),
-                    itemCount: numProductsLoaded > widget.myProducts.length
-                        ? widget.myProducts.length
+                    itemCount: numProductsLoaded > products.length
+                        ? products.length
                         : numProductsLoaded,
                     itemBuilder: ((context, index) {
-                      final name = widget.myProducts.values.toList()[index][0];
-                      final imageUrl =
-                          widget.myProducts.values.toList()[index][1];
-                      final price = widget.myProducts.values.toList()[index][2];
-                      final ratings =
-                          widget.myProducts.values.toList()[index][3];
-                      final productData =
-                          widget.myProducts.values.toList()[index][6];
+                      final name = products.values.toList()[index][0];
+                      final imageUrl = products.values.toList()[index][1];
+                      final price = products.values.toList()[index][2];
+                      final ratings = products.values.toList()[index][3];
+                      final productData = products.values.toList()[index][6];
                       final rating = calculateAverageRating(ratings);
 
                       return GestureDetector(

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:Localsearch_User/page/main/vendor/vendor_posts_tab_page.dart';
 import 'package:Localsearch_User/page/main/vendor/vendor_products_tab_page.dart';
 import 'package:Localsearch_User/page/main/vendor/vendor_shorts_tab_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -51,6 +50,7 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
   Map<String, dynamic>? shopData;
   Map<String, dynamic>? ownerData;
   bool isFollowing = false;
+  bool isFollowingLocked = false;
   Map brands = {};
   Map<String, List> posts = {};
   Map<String, List> shorts = {};
@@ -69,7 +69,7 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
   @override
   void initState() {
     getVendorInfo();
-    // getIfFollowing();
+    getIfFollowing();
     getLocation().then((value) async {
       if (value != null) {
         setState(() {
@@ -155,19 +155,19 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
   // }
 
   // GET IF FOLLOWING
-  // Future<void> getIfFollowing() async {
-  //   final userSnap =
-  //       await store.collection('Users').doc(auth.currentUser!.uid).get();
-  //   final userData = userSnap.data()!;
-  //   final following = userData['followedShops'];
-  //   setState(() {
-  //     if ((following as List).contains(widget.vendorId)) {
-  //       isFollowing = true;
-  //     } else {
-  //       isFollowing = false;
-  //     }
-  //   });
-  // }
+  Future<void> getIfFollowing() async {
+    final userSnap =
+        await store.collection('Users').doc(auth.currentUser!.uid).get();
+    final userData = userSnap.data()!;
+    final following = userData['followedShops'];
+    setState(() {
+      if ((following as List).contains(widget.vendorId)) {
+        isFollowing = true;
+      } else {
+        isFollowing = false;
+      }
+    });
+  }
 
   // GET VENDOR INFO
   Future<void> getVendorInfo() async {
@@ -200,51 +200,56 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
   }
 
   // FOLLOW SHOP
-  // Future<void> followShop() async {
-  //   final userSnap =
-  //       await store.collection('Users').doc(auth.currentUser!.uid).get();
-  //   final userData = userSnap.data()!;
-  //   final followedShops = userData['followedShops'] as List;
-  //   if (followedShops.contains(widget.vendorId)) {
-  //     followedShops.remove(widget.vendorId);
-  //   } else {
-  //     followedShops.add(widget.vendorId);
-  //   }
-  //   await store.collection('Users').doc(auth.currentUser!.uid).update({
-  //     'followedShops': followedShops,
-  //   });
-  //   final vendorSnap = await store
-  //       .collection('Business')
-  //       .doc('Owners')
-  //       .collection('Shops')
-  //       .doc(widget.vendorId)
-  //       .get();
-  //   final vendorData = vendorSnap.data()!;
-  //   List followers = vendorData['Followers'];
-  //   if (followers.contains(auth.currentUser!.uid)) {
-  //     followers.remove(auth.currentUser!.uid);
-  //   } else {
-  //     followers.add(auth.currentUser!.uid);
-  //   }
-  //   await store
-  //       .collection('Business')
-  //       .doc('Owners')
-  //       .collection('Shops')
-  //       .doc(widget.vendorId)
-  //       .update({
-  //     'Followers': followers,
-  //   });
-  //   if (mounted) {
-  //     Navigator.of(context).pop();
-  //     Navigator.of(context).push(
-  //       MaterialPageRoute(
-  //         builder: ((context) => VendorPage(
-  //               vendorId: widget.vendorId,
-  //             )),
-  //       ),
-  //     );
-  //   }
-  // }
+  Future<void> followShop() async {
+    final userSnap =
+        await store.collection('Users').doc(auth.currentUser!.uid).get();
+    final userData = userSnap.data()!;
+    final followedShops = userData['followedShops'] as List;
+    if (followedShops.contains(widget.vendorId)) {
+      followedShops.remove(widget.vendorId);
+    } else {
+      followedShops.add(widget.vendorId);
+    }
+    await store.collection('Users').doc(auth.currentUser!.uid).update({
+      'followedShops': followedShops,
+    });
+
+    final vendorSnap = await store
+        .collection('Business')
+        .doc('Owners')
+        .collection('Shops')
+        .doc(widget.vendorId)
+        .get();
+
+    final vendorData = vendorSnap.data()!;
+    Map<String, dynamic> followers = vendorData['Followers'];
+
+    if (followers.keys.toList().contains(auth.currentUser!.uid)) {
+      followers.remove(auth.currentUser!.uid);
+    } else {
+      followers.addAll({
+        auth.currentUser!.uid: DateTime.now(),
+      });
+    }
+    await store
+        .collection('Business')
+        .doc('Owners')
+        .collection('Shops')
+        .doc(widget.vendorId)
+        .update({
+      'Followers': followers,
+    });
+    // if (mounted) {
+    //   Navigator.of(context).pop();
+    //   Navigator.of(context).push(
+    //     MaterialPageRoute(
+    //       builder: ((context) => VendorPage(
+    //             vendorId: widget.vendorId,
+    //           )),
+    //     ),
+    //   );
+    // }
+  }
 
   // CALL VENDOR
   Future<void> callVendor() async {
@@ -794,8 +799,6 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
         .where('vendorId', isEqualTo: widget.vendorId)
         .get();
 
-    print('length: ${shortsSnap.docs.length}');
-
     shortsSnap.docs.forEach((short) async {
       final shortsData = short.data();
 
@@ -804,7 +807,6 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
       final productId = shortsData['productId'];
       final shortsUrl = shortsData['shortsURL'];
       final vendorId = widget.vendorId;
-      print('productId: $productId');
 
       Reference thumbnailRef = FirebaseStorage.instance
           .ref()
@@ -812,8 +814,6 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
           .child(productId);
 
       String thumbnailDownloadUrl = await thumbnailRef.getDownloadURL();
-
-      print('thumbnail: $thumbnailDownloadUrl');
 
       myShorts[shortsId] = [
         shortsUrl,
@@ -830,14 +830,13 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
     setState(() {
       shorts = myShorts;
     });
-    print('shorts: $shorts');
   }
 
   @override
   Widget build(BuildContext context) {
     final TabController tabController = TabController(
-      initialIndex: 1,
-      length: 3,
+      initialIndex: 0,
+      length: 2,
       vsync: this,
       animationDuration: const Duration(milliseconds: 400),
     );
@@ -1040,7 +1039,8 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                   // FOLLOW
                                   GestureDetector(
                                     onTap: () async {
-                                      // await followShop();
+                                      await followShop();
+                                      await getIfFollowing();
                                     },
                                     child: Container(
                                       width: width * 0.4125,
@@ -1717,9 +1717,9 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                             Tab(
                               text: 'PRODUCTS',
                             ),
-                            Tab(
-                              text: 'POSTS',
-                            ),
+                            // Tab(
+                            //   text: 'POSTS',
+                            // ),
                             Tab(
                               text: 'SHORTS',
                             ),
@@ -1739,10 +1739,10 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                 myProductSort: productSort,
                                 height: constraints.maxHeight,
                               ),
-                              VendorPostsTabPage(
-                                posts: posts,
-                                width: width,
-                              ),
+                              // VendorPostsTabPage(
+                              //   posts: posts,
+                              //   width: width,
+                              // ),
                               VendorShortsTabPage(
                                 width: width,
                                 shorts: shorts,

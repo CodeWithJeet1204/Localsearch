@@ -110,7 +110,6 @@ class _PostPageViewState extends State<PostPageView> {
       //   child: LayoutBuilder(
       //     builder: (context, constraints) {
       //       final width = constraints.maxWidth;
-      //       print('posts: ${widget.posts}');
       //       final vendorId = widget.posts.keys.toList()[index];
       //       final vendorName =
       //           widget.posts.values.toList()[index]['vendorName'];
@@ -342,7 +341,6 @@ class _PostPageViewState extends State<PostPageView> {
         itemCount: flattenedPosts.length,
         itemBuilder: (context, index) {
           final post = flattenedPosts[index];
-          print('post: $post');
           final vendorId = post['vendorId'];
           final postText = post['postText'];
           final postImageUrl = post['postImage'];

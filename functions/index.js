@@ -52,7 +52,7 @@ const logger = require("firebase-functions/logger");
 //   });
 
 // Function to delete documents from Posts collection every 23 hours 50 minutes
-exports.scheduledFunction = functions.pubsub.schedule('every 5 minutes').onRun(async (context) => {
+exports.scheduledFunction = functions.region('asia-southeast1').pubsub.schedule('every 5 minutes').onRun(async (context) => {
   const now = admin.firestore.Timestamp.now();
   const cutoff = new admin.firestore.Timestamp(now.seconds - (23 * 60 * 60 + 50 * 60), 0);
   const postsRef = admin.firestore().collection('Business').doc('Data').collection('Posts');

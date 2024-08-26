@@ -1,7 +1,6 @@
 import 'package:Localsearch_User/utils/colors.dart';
 import 'package:flutter/material.dart';
 
-// TODO: KEEP THIS TAB OR NOT
 class VendorPostsTabPage extends StatefulWidget {
   const VendorPostsTabPage({
     super.key,

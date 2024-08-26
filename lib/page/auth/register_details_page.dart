@@ -116,7 +116,6 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        print('data: $data');
         if (data['status'] == 'OK' && data['results'].isNotEmpty) {
           myAddress = data['results'][0]['formatted_address'];
         } else {
@@ -294,8 +293,6 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                                   latitude = value.latitude;
                                   longitude = value.longitude;
                                 });
-                                print('latitude: $latitude');
-                                print('longitude: $longitude');
 
                                 if (latitude != null && longitude != null) {
                                   await getAddress(latitude!, longitude!);
