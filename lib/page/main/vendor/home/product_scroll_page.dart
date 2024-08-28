@@ -172,6 +172,7 @@ class _ProductsScrollPageState extends State<ProductsScrollPage> {
             tooltip: 'Help',
           ),
         ],
+        automaticallyImplyLeading: false,
       ),
       body: !isData
           ? SizedBox(

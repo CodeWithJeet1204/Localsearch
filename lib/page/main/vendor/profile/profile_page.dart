@@ -74,6 +74,7 @@ class _ProfilePageState extends State<ProfilePage> {
             tooltip: 'Help',
           ),
         ],
+        automaticallyImplyLeading: false,
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(

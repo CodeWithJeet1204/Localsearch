@@ -140,10 +140,11 @@ class _GetLocationPageState extends State<GetLocationPage>
       }
     });
 
-    Navigator.of(context).push(
+    Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(
         builder: (context) => widget.nextPage,
       ),
+      (route) => false,
     );
   }
 

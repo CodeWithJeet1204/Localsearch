@@ -1,7 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+// ignore_for_file: unused_field
+
 import 'package:Localsearch_User/page/main/vendor/shorts_tile.dart';
-import 'package:Localsearch_User/utils/colors.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:video_player/video_player.dart';
 
 class ShortsPage extends StatefulWidget {
   const ShortsPage({super.key});
@@ -12,38 +14,64 @@ class ShortsPage extends StatefulWidget {
 
 class _ShortsPageState extends State<ShortsPage> {
   final store = FirebaseFirestore.instance;
-  int snappedPageIndex = 0;
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
+  final Map<int, VideoPlayerController> _videoControllers = {};
 
-  // GET VENDOR NAME
-  Future<String> getVendorName(String vendorId) async {
-    final vendorSnap = await store
-        .collection('Business')
-        .doc('Owners')
-        .collection('Shops')
-        .doc(vendorId)
-        .get();
-
-    final vendorData = vendorSnap.data()!;
-
-    final vendorName = vendorData['Name'] as String;
-
-    return vendorName;
+  // INIT STATE
+  @override
+  void initState() {
+    super.initState();
+    _pageController.addListener(onPageChanged);
   }
 
-  // GET PRODUCT NAME
-  Future<String> getProductName(String productId) async {
-    final productSnap = await store
+  // DISPOSE
+  @override
+  void dispose() {
+    _pageController.dispose();
+    _videoControllers.forEach((_, controller) => controller.dispose());
+    super.dispose();
+  }
+
+  // ON PAGE CHANGED
+  void onPageChanged() {
+    final pageIndex = _pageController.page?.round() ?? 0;
+    setState(() {
+      _currentPage = pageIndex;
+    });
+
+    preloadNearbyVideos(pageIndex);
+  }
+
+  // PRELOAD NEARBY VIDEOS
+  void preloadNearbyVideos(int currentPage) {
+    final preloadRange = 3;
+    for (var i = currentPage - preloadRange;
+        i <= currentPage + preloadRange;
+        i++) {
+      if (i < 0 || i >= _videoControllers.length) continue;
+      if (!_videoControllers.containsKey(i)) {
+        initVideoControllerForPage(i);
+      }
+    }
+  }
+
+  // INIT VIDEO CONTROLLER FOR PAGE
+  Future<void> initVideoControllerForPage(int pageIndex) async {
+    final shortsSnap = await store
         .collection('Business')
         .doc('Data')
-        .collection('Products')
-        .doc(productId)
+        .collection('Shorts')
+        .orderBy('datetime', descending: true)
         .get();
 
-    final productData = productSnap.data()!;
+    final shortData = shortsSnap.docs[pageIndex].data();
+    final videoUrl = shortData['shortsURL'] as String;
 
-    final productName = productData['productName'] as String;
-
-    return productName;
+    final controller = VideoPlayerController.networkUrl(Uri.parse(videoUrl));
+    await controller.initialize();
+    _videoControllers[pageIndex] = controller;
+    setState(() {});
   }
 
   @override
@@ -56,58 +84,47 @@ class _ShortsPageState extends State<ShortsPage> {
         .snapshots();
 
     return Scaffold(
-      backgroundColor: black,
+      backgroundColor: Colors.black,
       body: SafeArea(
-        child: StreamBuilder(
+        child: StreamBuilder<QuerySnapshot>(
             stream: shortsStream,
             builder: (context, snapshot) {
               if (snapshot.hasError) {
                 return const Center(
                   child: Text(
-                    'Some Error Occured',
-                    style: TextStyle(
-                      color: white,
-                    ),
+                    'Some Error Occurred',
+                    style: TextStyle(color: Colors.white),
                   ),
                 );
               }
 
               if (snapshot.hasData) {
                 final shortsSnap = snapshot.data!;
-
                 if (shortsSnap.docs.isEmpty) {
                   return const Center(
                     child: Text(
                       'No Shorts Available',
-                      style: TextStyle(
-                        color: darkGrey,
-                      ),
+                      style: TextStyle(color: Colors.grey),
                     ),
                   );
                 }
 
                 return PageView.builder(
-                  controller: PageController(
-                    initialPage: 0,
-                    viewportFraction: 1,
-                  ),
+                  controller: _pageController,
                   scrollDirection: Axis.vertical,
-                  onPageChanged: (pageIndex) {
-                    setState(() {
-                      snappedPageIndex = pageIndex;
-                    });
-                  },
                   itemCount: shortsSnap.docs.length,
-                  itemBuilder: ((context, index) {
+                  itemBuilder: (context, index) {
                     final currentShort = shortsSnap.docs[index];
-                    final data = currentShort.data();
+                    final data = currentShort.data() as Map<String, dynamic>;
+
+                    // final controller = _videoControllers[index];
 
                     return ShortsTile(
                       data: data,
-                      snappedPageIndex: index,
-                      currentIndex: snappedPageIndex,
+                      snappedPageIndex: _currentPage,
+                      currentIndex: index,
                     );
-                  }),
+                  },
                 );
               }
 

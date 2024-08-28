@@ -37,7 +37,6 @@ class _ShortsTileState extends State<ShortsTile> {
   // INIT STATE
   @override
   void initState() {
-    getIfWishlist(widget.data['productId']);
     flickManager = FlickManager(
       videoPlayerController: VideoPlayerController.networkUrl(
         Uri.parse(
@@ -45,6 +44,7 @@ class _ShortsTileState extends State<ShortsTile> {
         ),
       ),
     );
+    getIfWishlist(widget.data['productId']);
     flickManager.flickVideoManager!.videoPlayerController?.addListener(() {
       if (flickManager
               .flickVideoManager!.videoPlayerController!.value.position ==
