@@ -13,8 +13,8 @@
 // class ConnectivityNotificationWidgetState
 //     extends State<ConnectivityNotificationWidget> {
 //   // ignore: unused_field
-//   ConnectivityResult _connectionStatus = ConnectivityResult.none;
-//   late StreamSubscription<ConnectivityResult> _connectivitySubscription;
+//   List<ConnectivityResult> _connectionStatus = [ConnectivityResult.none];
+//   late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
 
 //   @override
 //   void initState() {
@@ -30,21 +30,22 @@
 
 //   Future<void> connectivityInitialize() async {
 //     final initialResult = await Connectivity().checkConnectivity();
+//     print('result: $initialResult');
 //     await updateConnectionStatus(initialResult);
 
 //     _connectivitySubscription = Connectivity()
 //         .onConnectivityChanged
-//         .listen((ConnectivityResult result) {
+//         .listen((List<ConnectivityResult> result) {
 //       updateConnectionStatus(result);
 //     });
 //   }
 
-//   Future<void> updateConnectionStatus(ConnectivityResult result) async {
+//   Future<void> updateConnectionStatus(List<ConnectivityResult> result) async {
 //     setState(() {
 //       _connectionStatus = result;
 //     });
 
-//     if (result == ConnectivityResult.none) {
+//     if (result.contains(ConnectionState.none)) {
 //       await _showConnectivityDialog(context);
 //     } else {
 //       if (Navigator.canPop(context)) {

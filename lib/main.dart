@@ -139,7 +139,6 @@ class MainPageContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return StreamBuilder<bool>(
       stream: Geolocator.getServiceStatusStream().map((serviceStatus) {
-        print('serviceStatus: $serviceStatus');
         return serviceStatus == ServiceStatus.enabled;
       }),
       builder: (context, snapshot) {
