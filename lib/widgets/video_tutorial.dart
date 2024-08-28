@@ -46,6 +46,7 @@ class YouTubePlayerDialog extends StatefulWidget {
 class YouTubePlayerDialogState extends State<YouTubePlayerDialog> {
   late YoutubePlayerController controller;
 
+  // INIT STATE
   @override
   void initState() {
     super.initState();
@@ -59,6 +60,7 @@ class YouTubePlayerDialogState extends State<YouTubePlayerDialog> {
     );
   }
 
+  // DISPOSE
   @override
   void dispose() {
     controller.dispose();

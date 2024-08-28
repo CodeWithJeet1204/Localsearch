@@ -507,6 +507,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
           }
         }
       } catch (e) {
+        print('error: ${e.toString()}');
         if (mounted) {
           mySnackBar('Some error occured while fetching Location', context);
         }
@@ -662,6 +663,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
           }
         } catch (e) {
           if (mounted) {
+            print('error: ${e.toString()}');
             mySnackBar(
               'Some error occured while fetching Location',
               context,
@@ -764,6 +766,8 @@ class _ProductHomePageState extends State<ProductHomePage> {
     }
 
     if (locationProvider.cityName == 'Your Location') {
+      print('locationProviderLat: ${locationProvider.cityLatitude}');
+      print('locationProviderLong: ${locationProvider.cityLongitude}');
       setState(() {
         yourLatitude = locationProvider.cityLatitude;
         yourLongitude = locationProvider.cityLongitude;
@@ -798,6 +802,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
           }
         } catch (e) {
           if (mounted) {
+            print('error: ${e.toString()}');
             mySnackBar(
               'Some error occured while fetching Location',
               context,

@@ -82,7 +82,6 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
     // setRecentShop();
   }
 
-  // TODO: CHECK IF THIS THROWS ANY ERROR
   // DID CHANGE DEPENDENCIES
   @override
   void didChangeDependencies() async {

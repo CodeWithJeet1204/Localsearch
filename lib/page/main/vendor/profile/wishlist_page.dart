@@ -1,3 +1,4 @@
+import 'package:Localsearch_User/models/household_type_category_subCategory.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:Localsearch_User/page/main/events/event_page.dart';
 import 'package:Localsearch_User/page/main/vendor/product/product_page.dart';
@@ -87,27 +88,32 @@ class _WishlistPageState extends State<WishlistPage>
 
         if (productCategoryName != '0') {
           for (var type in shopType) {
-            final categorySnap = await store
-                .collection('Business')
-                .doc('Special Categories')
-                .collection(type)
-                .doc(productCategoryName)
-                .get();
+            if (householdTypeCategorySubCategory[type]!
+                .containsKey([productCategoryName])) {
+              final categorySnap = await store
+                  .collection('Business')
+                  .doc('Special Categories')
+                  .collection(type)
+                  .doc(productCategoryName)
+                  .get();
 
-            final categoryData = categorySnap.data()!;
+              if (categorySnap.exists) {
+                final categoryData = categorySnap.data()!;
 
-            final categoryName = categoryData['specialCategoryName'];
+                final categoryName = categoryData['specialCategoryName'];
 
-            if (!categories.contains(categoryName)) {
-              categories.add(categoryName);
+                if (!categories.contains(categoryName)) {
+                  categories.add(categoryName);
+                }
+                wishlist[id] = [
+                  name,
+                  imageUrl,
+                  price,
+                  categoryName,
+                  productData,
+                ];
+              }
             }
-            wishlist[id] = [
-              name,
-              imageUrl,
-              price,
-              categoryName,
-              productData,
-            ];
           }
         } else {
           wishlist[id] = [

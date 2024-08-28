@@ -13,13 +13,6 @@ class AllShopTypesPage extends StatefulWidget {
 }
 
 class _AllShopTypesPageState extends State<AllShopTypesPage> {
-  // INIT STATE
-  @override
-  void initState() {
-    // getCategoryColors();
-    super.initState();
-  }
-
   // GET CATEGORY COLORS
   // Future<void> getCategoryColors() async {
   //   List<List<dynamic>> tempCategories = [];

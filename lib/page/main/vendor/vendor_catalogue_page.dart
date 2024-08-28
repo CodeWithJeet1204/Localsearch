@@ -22,12 +22,14 @@ class _VendorCataloguePageState extends State<VendorCataloguePage> {
   Map<String, Map<String, List<String>>> categorizedProducts = {};
   bool isData = false;
 
+  // INIT STATE
   @override
   void initState() {
     getData();
     super.initState();
   }
 
+  // GET DATA
   Future<void> getData() async {
     try {
       final List<String> fetchedProducts = List<String>.from(widget.products);

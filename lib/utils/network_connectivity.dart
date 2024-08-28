@@ -22,6 +22,7 @@
 //     connectivityInitialize();
 //   }
 
+// //  DISPOSE
 //   @override
 //   void dispose() {
 //     _connectivitySubscription.cancel();

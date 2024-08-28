@@ -25,7 +25,6 @@ class _GetLocationPageState extends State<GetLocationPage>
 
   // INIT STATE
   @override
-  @override
   void initState() {
     super.initState();
     animationController = AnimationController(
