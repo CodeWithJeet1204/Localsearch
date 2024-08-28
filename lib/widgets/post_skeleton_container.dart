@@ -19,7 +19,6 @@ class PostSkeletonContainer extends StatelessWidget {
       height: height,
       decoration: BoxDecoration(
         color: lightGrey,
-        borderRadius: BorderRadius.circular(12),
       ),
       padding: EdgeInsets.all(width * 0.0225),
       child: Column(
@@ -49,7 +48,7 @@ class PostSkeletonContainer extends StatelessWidget {
           SizedBox(height: width * 0.0225),
           Center(
             child: SkeletonContainer(
-              width: width * 0.9,
+              width: width,
               height: width * 0.9,
             ),
           ),

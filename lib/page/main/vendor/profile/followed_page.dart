@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
-import 'package:Localsearch_User/page/main/events/events_organizer_page.dart';
 import 'package:Localsearch_User/page/main/vendor/vendor_page.dart';
 import 'package:Localsearch_User/utils/colors.dart';
 import 'package:Localsearch_User/widgets/skeleton_container.dart';
@@ -24,32 +23,32 @@ class _FollowedPageState extends State<FollowedPage>
   final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
   Map<String, List<dynamic>> shops = {};
-  Map<String, List<String>> organizers = {};
+  // Map<String, List<String>> organizers = {};
   List<String> shopTypes = [];
-  List<String> organizerTypes = [];
+  // List<String> organizerTypes = [];
   String? selectedShopType;
-  String? selectedOrganizerType;
+  // String? selectedOrganizerType;
   bool isShopsData = false;
-  bool isOrganizersData = false;
-  late TabController tabController;
-  late int currentIndex;
+  // bool isOrganizersData = false;
+  // late TabController tabController;
+  // late int currentIndex;
 
   // INIT STATE
   @override
   void initState() {
     getShops();
-    getOrganizers();
+    // getOrganizers();
     super.initState();
-    tabController = TabController(
-      length: 2,
-      vsync: this,
-    );
-    currentIndex = tabController.index;
-    tabController = TabController(
-      length: 2,
-      vsync: this,
-      initialIndex: currentIndex,
-    );
+    // tabController = TabController(
+    //   length: 2,
+    //   vsync: this,
+    // );
+    // currentIndex = tabController.index;
+    // tabController = TabController(
+    //   length: 2,
+    //   vsync: this,
+    //   initialIndex: currentIndex,
+    // );
   }
 
   // GET SHOPS
@@ -115,59 +114,59 @@ class _FollowedPageState extends State<FollowedPage>
   }
 
   // GET ORGANIZERS
-  Future<void> getOrganizers() async {
-    Map<String, List<String>> myOrganizers = {};
+  // Future<void> getOrganizers() async {
+  //   Map<String, List<String>> myOrganizers = {};
 
-    final userSnap =
-        await store.collection('Users').doc(auth.currentUser!.uid).get();
-    final userData = userSnap.data()!;
+  //   final userSnap =
+  //       await store.collection('Users').doc(auth.currentUser!.uid).get();
+  //   final userData = userSnap.data()!;
 
-    final myFollowedOrganizers = userData['followedOrganizers'] as List;
+  //   final myFollowedOrganizers = userData['followedOrganizers'] as List;
 
-    await Future.forEach(myFollowedOrganizers, (organizerId) async {
-      final organizerSnap =
-          await store.collection('Organizers').doc(organizerId).get();
+  //   await Future.forEach(myFollowedOrganizers, (organizerId) async {
+  //     final organizerSnap =
+  //         await store.collection('Organizers').doc(organizerId).get();
 
-      if (organizerSnap.exists) {
-        final organizerData = organizerSnap.data()!;
-        final id = organizerId as String;
-        final name = organizerData['Name'] as String;
-        final imageUrl = organizerData['Image'] as String;
-        final type = organizerData['Type'] as String;
+  //     if (organizerSnap.exists) {
+  //       final organizerData = organizerSnap.data()!;
+  //       final id = organizerId as String;
+  //       final name = organizerData['Name'] as String;
+  //       final imageUrl = organizerData['Image'] as String;
+  //       final type = organizerData['Type'] as String;
 
-        myOrganizers[id] = [name, imageUrl, type];
-      } else {
-        myFollowedOrganizers.remove(organizerId);
+  //       myOrganizers[id] = [name, imageUrl, type];
+  //     } else {
+  //       myFollowedOrganizers.remove(organizerId);
 
-        await store.collection('Users').doc(auth.currentUser!.uid).update({
-          'followedOrganizers': myFollowedOrganizers,
-        });
-      }
-    });
+  //       await store.collection('Users').doc(auth.currentUser!.uid).update({
+  //         'followedOrganizers': myFollowedOrganizers,
+  //       });
+  //     }
+  //   });
 
-    setState(() {
-      organizers = myOrganizers;
-    });
+  //   setState(() {
+  //     organizers = myOrganizers;
+  //   });
 
-    getOrganizerTypes(organizers);
-  }
+  //   getOrganizerTypes(organizers);
+  // }
 
-  // GET ORGANIZER TYPES
-  void getOrganizerTypes(Map<String, List<String>> organizers) {
-    List<String> myTypes = [];
+  // // GET ORGANIZER TYPES
+  // void getOrganizerTypes(Map<String, List<String>> organizers) {
+  //   List<String> myTypes = [];
 
-    organizers.forEach((key, value) {
-      final myType = value[2];
-      if (!myTypes.contains(myType)) {
-        myTypes.add(myType);
-      }
-    });
+  //   organizers.forEach((key, value) {
+  //     final myType = value[2];
+  //     if (!myTypes.contains(myType)) {
+  //       myTypes.add(myType);
+  //     }
+  //   });
 
-    setState(() {
-      organizerTypes = myTypes;
-      isOrganizersData = true;
-    });
-  }
+  //   setState(() {
+  //     organizerTypes = myTypes;
+  //     isOrganizersData = true;
+  //   });
+  // }
 
   // GET ADDRESS
   Future<String> getAddress(double shopLatitude, double shopLongitude) async {
@@ -237,63 +236,63 @@ class _FollowedPageState extends State<FollowedPage>
           ),
         ],
         forceMaterialTransparency: true,
-        bottom: PreferredSize(
-          preferredSize: Size(
-            MediaQuery.of(context).size.width,
-            50,
-          ),
-          child: TabBar(
-            indicator: BoxDecoration(
-              color: primary2,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                width: 0.5,
-                color: primaryDark.withOpacity(0.8),
-              ),
-            ),
-            isScrollable: false,
-            indicatorPadding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).size.width * 0.02,
-              top: MediaQuery.of(context).size.width * 0.0175,
-              left: -MediaQuery.of(context).size.width * 0.045,
-              right: -MediaQuery.of(context).size.width * 0.045,
-            ),
-            automaticIndicatorColorAdjustment: false,
-            indicatorWeight: 2,
-            indicatorSize: TabBarIndicatorSize.label,
-            labelColor: primaryDark,
-            labelStyle: const TextStyle(
-              letterSpacing: 1,
-              fontWeight: FontWeight.w600,
-            ),
-            unselectedLabelStyle: const TextStyle(
-              letterSpacing: 0,
-              fontWeight: FontWeight.w500,
-            ),
-            dividerColor: white,
-            indicatorColor: primaryDark,
-            controller: tabController,
-            onTap: (value) {
-              setState(() {
-                currentIndex = value;
-              });
-            },
-            tabs: const [
-              Tab(
-                text: 'Shops',
-              ),
-              Tab(
-                text: 'Organizers',
-              ),
-            ],
-          ),
-        ),
+        // bottom: PreferredSize(
+        //   preferredSize: Size(
+        //     MediaQuery.of(context).size.width,
+        //     50,
+        //   ),
+        //   child: TabBar(
+        //     indicator: BoxDecoration(
+        //       color: primary2,
+        //       borderRadius: BorderRadius.circular(8),
+        //       border: Border.all(
+        //         width: 0.5,
+        //         color: primaryDark.withOpacity(0.8),
+        //       ),
+        //     ),
+        //     isScrollable: false,
+        //     indicatorPadding: EdgeInsets.only(
+        //       bottom: MediaQuery.of(context).size.width * 0.02,
+        //       top: MediaQuery.of(context).size.width * 0.0175,
+        //       left: -MediaQuery.of(context).size.width * 0.045,
+        //       right: -MediaQuery.of(context).size.width * 0.045,
+        //     ),
+        //     automaticIndicatorColorAdjustment: false,
+        //     indicatorWeight: 2,
+        //     indicatorSize: TabBarIndicatorSize.label,
+        //     labelColor: primaryDark,
+        //     labelStyle: const TextStyle(
+        //       letterSpacing: 1,
+        //       fontWeight: FontWeight.w600,
+        //     ),
+        //     unselectedLabelStyle: const TextStyle(
+        //       letterSpacing: 0,
+        //       fontWeight: FontWeight.w500,
+        //     ),
+        //     dividerColor: white,
+        //     indicatorColor: primaryDark,
+        //     controller: tabController,
+        //     onTap: (value) {
+        //       setState(() {
+        //         currentIndex = value;
+        //       });
+        //     },
+        //     tabs: const [
+        //       Tab(
+        //         text: 'Shops',
+        //       ),
+        //       Tab(
+        //         text: 'Organizers',
+        //       ),
+        //     ],
+        //   ),
+        // ),
       ),
       body: SafeArea(
-        child: TabBarView(
+        child: /*TabBarView(
           controller: tabController,
           physics: const NeverScrollableScrollPhysics(),
-          children: [
+          children: [*/
             // SHOPS
             !isShopsData
                 ? Column(
@@ -538,235 +537,235 @@ class _FollowedPageState extends State<FollowedPage>
                     ),
                   ),
 
-            // ORGANIZERS
-            !isOrganizersData
-                ? Column(
-                    children: [
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width,
-                        height: MediaQuery.of(context).size.width * 0.175,
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: 4,
-                          physics: const ClampingScrollPhysics(),
-                          scrollDirection: Axis.horizontal,
-                          itemBuilder: ((context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.all(8),
-                              child: SkeletonContainer(
-                                width: MediaQuery.of(context).size.width * 0.3,
-                                height: 40,
-                              ),
-                            );
-                          }),
-                        ),
-                      ),
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width,
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: 4,
-                          physics: const ClampingScrollPhysics(),
-                          itemBuilder: ((context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.all(8),
-                              child: SkeletonContainer(
-                                width: MediaQuery.of(context).size.width,
-                                height: 80,
-                              ),
-                            );
-                          }),
-                        ),
-                      ),
-                    ],
-                  )
-                : Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: MediaQuery.of(context).size.width * 0.00625,
-                    ),
-                    child: LayoutBuilder(
-                      builder: ((context, constraints) {
-                        final width = constraints.maxWidth;
-                        final currentOrganizers = selectedOrganizerType == null
-                            ? organizers
-                            : Map.fromEntries(
-                                organizers.entries.where((entry) =>
-                                    entry.value[2] == selectedOrganizerType),
-                              );
+        // ORGANIZERS
+        // !isOrganizersData
+        //     ? Column(
+        //         children: [
+        //           SizedBox(
+        //             width: MediaQuery.of(context).size.width,
+        //             height: MediaQuery.of(context).size.width * 0.175,
+        //             child: ListView.builder(
+        //               shrinkWrap: true,
+        //               itemCount: 4,
+        //               physics: const ClampingScrollPhysics(),
+        //               scrollDirection: Axis.horizontal,
+        //               itemBuilder: ((context, index) {
+        //                 return Padding(
+        //                   padding: const EdgeInsets.all(8),
+        //                   child: SkeletonContainer(
+        //                     width: MediaQuery.of(context).size.width * 0.3,
+        //                     height: 40,
+        //                   ),
+        //                 );
+        //               }),
+        //             ),
+        //           ),
+        //           SizedBox(
+        //             width: MediaQuery.of(context).size.width,
+        //             child: ListView.builder(
+        //               shrinkWrap: true,
+        //               itemCount: 4,
+        //               physics: const ClampingScrollPhysics(),
+        //               itemBuilder: ((context, index) {
+        //                 return Padding(
+        //                   padding: const EdgeInsets.all(8),
+        //                   child: SkeletonContainer(
+        //                     width: MediaQuery.of(context).size.width,
+        //                     height: 80,
+        //                   ),
+        //                 );
+        //               }),
+        //             ),
+        //           ),
+        //         ],
+        //       )
+        //     : Padding(
+        //         padding: EdgeInsets.symmetric(
+        //           horizontal: MediaQuery.of(context).size.width * 0.00625,
+        //         ),
+        //         child: LayoutBuilder(
+        //           builder: ((context, constraints) {
+        //             final width = constraints.maxWidth;
+        //             final currentOrganizers = selectedOrganizerType == null
+        //                 ? organizers
+        //                 : Map.fromEntries(
+        //                     organizers.entries.where((entry) =>
+        //                         entry.value[2] == selectedOrganizerType),
+        //                   );
 
-                        return SingleChildScrollView(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // ORGANIZER TYPE CHIPS
-                              organizerTypes.length < 2
-                                  ? Container()
-                                  : Padding(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: width * 0.0125,
-                                        vertical: width * 0.00625,
-                                      ),
-                                      child: SizedBox(
-                                        width: width,
-                                        height: 40,
-                                        child: ListView.builder(
-                                          shrinkWrap: true,
-                                          scrollDirection: Axis.horizontal,
-                                          physics:
-                                              const ClampingScrollPhysics(),
-                                          itemCount: organizerTypes.length,
-                                          itemBuilder: ((context, index) {
-                                            final type = organizerTypes[index];
+        //             return SingleChildScrollView(
+        //               child: Column(
+        //                 crossAxisAlignment: CrossAxisAlignment.start,
+        //                 children: [
+        //                   // ORGANIZER TYPE CHIPS
+        //                   organizerTypes.length < 2
+        //                       ? Container()
+        //                       : Padding(
+        //                           padding: EdgeInsets.symmetric(
+        //                             horizontal: width * 0.0125,
+        //                             vertical: width * 0.00625,
+        //                           ),
+        //                           child: SizedBox(
+        //                             width: width,
+        //                             height: 40,
+        //                             child: ListView.builder(
+        //                               shrinkWrap: true,
+        //                               scrollDirection: Axis.horizontal,
+        //                               physics:
+        //                                   const ClampingScrollPhysics(),
+        //                               itemCount: organizerTypes.length,
+        //                               itemBuilder: ((context, index) {
+        //                                 final type = organizerTypes[index];
 
-                                            return Padding(
-                                              padding: EdgeInsets.symmetric(
-                                                horizontal: width * 0.01,
-                                              ),
-                                              child: ActionChip(
-                                                label: Text(
-                                                  type,
-                                                  style: TextStyle(
-                                                    color:
-                                                        selectedOrganizerType ==
-                                                                type
-                                                            ? white
-                                                            : primaryDark,
-                                                  ),
-                                                ),
-                                                tooltip: 'See $type',
-                                                onPressed: () {
-                                                  setState(() {
-                                                    if (selectedOrganizerType ==
-                                                        type) {
-                                                      selectedOrganizerType =
-                                                          null;
-                                                    } else {
-                                                      selectedOrganizerType =
-                                                          type;
-                                                    }
-                                                  });
-                                                },
-                                                backgroundColor:
-                                                    selectedOrganizerType ==
-                                                            type
-                                                        ? primaryDark
-                                                        : primary2,
-                                              ),
-                                            );
-                                          }),
-                                        ),
-                                      ),
-                                    ),
+        //                                 return Padding(
+        //                                   padding: EdgeInsets.symmetric(
+        //                                     horizontal: width * 0.01,
+        //                                   ),
+        //                                   child: ActionChip(
+        //                                     label: Text(
+        //                                       type,
+        //                                       style: TextStyle(
+        //                                         color:
+        //                                             selectedOrganizerType ==
+        //                                                     type
+        //                                                 ? white
+        //                                                 : primaryDark,
+        //                                       ),
+        //                                     ),
+        //                                     tooltip: 'See $type',
+        //                                     onPressed: () {
+        //                                       setState(() {
+        //                                         if (selectedOrganizerType ==
+        //                                             type) {
+        //                                           selectedOrganizerType =
+        //                                               null;
+        //                                         } else {
+        //                                           selectedOrganizerType =
+        //                                               type;
+        //                                         }
+        //                                       });
+        //                                     },
+        //                                     backgroundColor:
+        //                                         selectedOrganizerType ==
+        //                                                 type
+        //                                             ? primaryDark
+        //                                             : primary2,
+        //                                   ),
+        //                                 );
+        //                               }),
+        //                             ),
+        //                           ),
+        //                         ),
 
-                              currentOrganizers.isEmpty
-                                  ? const SizedBox(
-                                      height: 80,
-                                      child: Center(
-                                        child: Text(
-                                          'No Organizers',
-                                        ),
-                                      ),
-                                    )
-                                  : Padding(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: width * 0.0125,
-                                        vertical: width * 0.0125,
-                                      ),
-                                      child: SizedBox(
-                                        width: width,
-                                        child: ListView.builder(
-                                          shrinkWrap: true,
-                                          physics:
-                                              const ClampingScrollPhysics(),
-                                          itemCount: currentOrganizers.length,
-                                          itemBuilder: ((context, index) {
-                                            final id = currentOrganizers.keys
-                                                .toList()[index];
-                                            final name = currentOrganizers
-                                                .values
-                                                .toList()[index][0];
-                                            final imageUrl = currentOrganizers
-                                                .values
-                                                .toList()[index][1];
-                                            final address = currentOrganizers
-                                                .values
-                                                .toList()[index][2];
+        //                   currentOrganizers.isEmpty
+        //                       ? const SizedBox(
+        //                           height: 80,
+        //                           child: Center(
+        //                             child: Text(
+        //                               'No Organizers',
+        //                             ),
+        //                           ),
+        //                         )
+        //                       : Padding(
+        //                           padding: EdgeInsets.symmetric(
+        //                             horizontal: width * 0.0125,
+        //                             vertical: width * 0.0125,
+        //                           ),
+        //                           child: SizedBox(
+        //                             width: width,
+        //                             child: ListView.builder(
+        //                               shrinkWrap: true,
+        //                               physics:
+        //                                   const ClampingScrollPhysics(),
+        //                               itemCount: currentOrganizers.length,
+        //                               itemBuilder: ((context, index) {
+        //                                 final id = currentOrganizers.keys
+        //                                     .toList()[index];
+        //                                 final name = currentOrganizers
+        //                                     .values
+        //                                     .toList()[index][0];
+        //                                 final imageUrl = currentOrganizers
+        //                                     .values
+        //                                     .toList()[index][1];
+        //                                 final address = currentOrganizers
+        //                                     .values
+        //                                     .toList()[index][2];
 
-                                            return Slidable(
-                                              endActionPane: ActionPane(
-                                                extentRatio: 0.325,
-                                                motion: const StretchMotion(),
-                                                children: [
-                                                  SlidableAction(
-                                                    onPressed: (context) async {
-                                                      await remove(id);
-                                                    },
-                                                    backgroundColor: Colors.red,
-                                                    icon: FeatherIcons.trash,
-                                                    label: 'Unfollow',
-                                                    borderRadius:
-                                                        const BorderRadius.only(
-                                                      topRight:
-                                                          Radius.circular(12),
-                                                      bottomRight:
-                                                          Radius.circular(12),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              child: GestureDetector(
-                                                onTap: () {
-                                                  Navigator.of(context).push(
-                                                    MaterialPageRoute(
-                                                      builder: ((context) =>
-                                                          EventsOrganizerPage(
-                                                            organizerId: id,
-                                                          )),
-                                                    ),
-                                                  );
-                                                },
-                                                child: ListTile(
-                                                  splashColor: white,
-                                                  visualDensity:
-                                                      VisualDensity.comfortable,
-                                                  tileColor:
-                                                      primary2.withOpacity(0.5),
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            12),
-                                                  ),
-                                                  leading: CircleAvatar(
-                                                    backgroundColor: primary2,
-                                                    backgroundImage:
-                                                        NetworkImage(imageUrl),
-                                                  ),
-                                                  title: Text(name),
-                                                  subtitle: Text(address),
-                                                  titleTextStyle: TextStyle(
-                                                    color: primaryDark,
-                                                    fontSize: width * 0.0475,
-                                                  ),
-                                                  subtitleTextStyle: TextStyle(
-                                                    color: primaryDark2,
-                                                    fontSize: width * 0.04,
-                                                  ),
-                                                ),
-                                              ),
-                                            );
-                                          }),
-                                        ),
-                                      ),
-                                    ),
-                            ],
-                          ),
-                        );
-                      }),
-                    ),
-                  ),
-          ],
-        ),
+        //                                 return Slidable(
+        //                                   endActionPane: ActionPane(
+        //                                     extentRatio: 0.325,
+        //                                     motion: const StretchMotion(),
+        //                                     children: [
+        //                                       SlidableAction(
+        //                                         onPressed: (context) async {
+        //                                           await remove(id);
+        //                                         },
+        //                                         backgroundColor: Colors.red,
+        //                                         icon: FeatherIcons.trash,
+        //                                         label: 'Unfollow',
+        //                                         borderRadius:
+        //                                             const BorderRadius.only(
+        //                                           topRight:
+        //                                               Radius.circular(12),
+        //                                           bottomRight:
+        //                                               Radius.circular(12),
+        //                                         ),
+        //                                       ),
+        //                                     ],
+        //                                   ),
+        //                                   child: GestureDetector(
+        //                                     onTap: () {
+        //                                       Navigator.of(context).push(
+        //                                         MaterialPageRoute(
+        //                                           builder: ((context) =>
+        //                                               EventsOrganizerPage(
+        //                                                 organizerId: id,
+        //                                               )),
+        //                                         ),
+        //                                       );
+        //                                     },
+        //                                     child: ListTile(
+        //                                       splashColor: white,
+        //                                       visualDensity:
+        //                                           VisualDensity.comfortable,
+        //                                       tileColor:
+        //                                           primary2.withOpacity(0.5),
+        //                                       shape: RoundedRectangleBorder(
+        //                                         borderRadius:
+        //                                             BorderRadius.circular(
+        //                                                 12),
+        //                                       ),
+        //                                       leading: CircleAvatar(
+        //                                         backgroundColor: primary2,
+        //                                         backgroundImage:
+        //                                             NetworkImage(imageUrl),
+        //                                       ),
+        //                                       title: Text(name),
+        //                                       subtitle: Text(address),
+        //                                       titleTextStyle: TextStyle(
+        //                                         color: primaryDark,
+        //                                         fontSize: width * 0.0475,
+        //                                       ),
+        //                                       subtitleTextStyle: TextStyle(
+        //                                         color: primaryDark2,
+        //                                         fontSize: width * 0.04,
+        //                                       ),
+        //                                     ),
+        //                                   ),
+        //                                 );
+        //                               }),
+        //                             ),
+        //                           ),
+        //                         ),
+        //                 ],
+        //               ),
+        //             );
+        //           }),
+        //         ),
+        //       ),
+        // ],
       ),
+      // ),
     );
   }
 }

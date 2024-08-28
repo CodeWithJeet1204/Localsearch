@@ -16,7 +16,6 @@ import 'package:Localsearch_User/page/main/search/search_page.dart';
 import 'package:Localsearch_User/page/main/vendor/vendor_page.dart';
 import 'package:Localsearch_User/providers/location_provider.dart';
 import 'package:Localsearch_User/utils/colors.dart';
-import 'package:Localsearch_User/widgets/skeleton_container.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -1340,7 +1339,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
 
                       // POSTS
                       !isPostData
-                          ? SizedBox(
+                          ? /*SizedBox(
                               width: width,
                               height: width * 0.3,
                               child: ListView.builder(
@@ -1360,12 +1359,14 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                   );
                                 },
                               ),
-                            )
+                            )*/
+                          Container()
                           : posts.isEmpty
                               ? Container()
-                              : SizedBox(
+                              : AnimatedContainer(
                                   width: width,
                                   height: width * 0.3,
+                                  duration: Duration(milliseconds: 250),
                                   child: ListView.builder(
                                     shrinkWrap: true,
                                     physics: const ClampingScrollPhysics(),
@@ -1851,24 +1852,29 @@ class _ProductHomePageState extends State<ProductHomePage> {
                       recentShop == null
                           ? Container()
                           : !getRecentData
-                              ? Padding(
+                              ? /*Padding(
                                   padding: EdgeInsets.all(width * 0.0225),
                                   child: SkeletonContainer(
                                     width: width * 0.6,
                                     height: 32,
                                   ),
-                                )
-                              : Padding(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: width * 0.025,
-                                    vertical: width * 0.025,
-                                  ),
-                                  child: Text(
-                                    'Continue Shopping',
-                                    style: TextStyle(
-                                      color: primaryDark,
-                                      fontSize: width * 0.07,
-                                      fontWeight: FontWeight.w500,
+                                )*/
+                              Container()
+                              : AnimatedOpacity(
+                                  opacity: 1.0,
+                                  duration: Duration(milliseconds: 250),
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: width * 0.025,
+                                      vertical: width * 0.025,
+                                    ),
+                                    child: Text(
+                                      'Continue Shopping',
+                                      style: TextStyle(
+                                        color: primaryDark,
+                                        fontSize: width * 0.07,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -1877,7 +1883,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                       recentShop == null
                           ? Container()
                           : !getRecentData
-                              ? SizedBox(
+                              ? /*SizedBox(
                                   width: width,
                                   height: width * 0.425,
                                   child: ListView.builder(
@@ -1914,10 +1920,12 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                       );
                                     }),
                                   ),
-                                )
-                              : SizedBox(
+                                )*/
+                              Container()
+                              : AnimatedContainer(
                                   width: width,
                                   height: width * 0.425,
+                                  duration: Duration(milliseconds: 250),
                                   child: ListView.builder(
                                     shrinkWrap: true,
                                     physics: const ClampingScrollPhysics(),
@@ -2006,24 +2014,29 @@ class _ProductHomePageState extends State<ProductHomePage> {
                       currentWishlist.isEmpty
                           ? Container()
                           : !getWishlistData
-                              ? Padding(
+                              ? /*Padding(
                                   padding: EdgeInsets.all(width * 0.0225),
                                   child: SkeletonContainer(
                                     width: width * 0.6,
                                     height: 32,
                                   ),
-                                )
-                              : Padding(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: width * 0.025,
-                                    vertical: width * 0.025,
-                                  ),
-                                  child: Text(
-                                    'Your Wishlists ❤️',
-                                    style: TextStyle(
-                                      color: primaryDark,
-                                      fontSize: width * 0.07,
-                                      fontWeight: FontWeight.w500,
+                                )*/
+                              Container()
+                              : AnimatedOpacity(
+                                  opacity: 1.0,
+                                  duration: Duration(milliseconds: 2500),
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: width * 0.025,
+                                      vertical: width * 0.025,
+                                    ),
+                                    child: Text(
+                                      'Your Wishlists ❤️',
+                                      style: TextStyle(
+                                        color: primaryDark,
+                                        fontSize: width * 0.07,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -2034,7 +2047,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                       currentWishlist.isEmpty
                           ? Container()
                           : !getWishlistData
-                              ? SizedBox(
+                              ? /*SizedBox(
                                   width: width,
                                   height: width * 0.425,
                                   child: ListView.builder(
@@ -2073,7 +2086,8 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                       );
                                     }),
                                   ),
-                                )
+                                )*/
+                              Container()
                               : SizedBox(
                                   width: width,
                                   height: width * 0.425,
@@ -2170,13 +2184,14 @@ class _ProductHomePageState extends State<ProductHomePage> {
                       currentFollowedShops.isEmpty
                           ? Container()
                           : !getFollowedData
-                              ? Padding(
+                              ? /*Padding(
                                   padding: EdgeInsets.all(width * 0.0225),
                                   child: SkeletonContainer(
                                     width: width * 0.6,
                                     height: 32,
                                   ),
-                                )
+                                )*/
+                              Container()
                               : Padding(
                                   padding: EdgeInsets.symmetric(
                                     horizontal: width * 0.025,
@@ -2196,7 +2211,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                       currentFollowedShops.isEmpty
                           ? Container()
                           : !getFollowedData
-                              ? SizedBox(
+                              ? /*SizedBox(
                                   width: width,
                                   height: width * 0.425,
                                   child: ListView.builder(
@@ -2235,7 +2250,8 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                       );
                                     }),
                                   ),
-                                )
+                                )*/
+                              Container()
                               : SizedBox(
                                   width: width,
                                   height: width * 0.425,

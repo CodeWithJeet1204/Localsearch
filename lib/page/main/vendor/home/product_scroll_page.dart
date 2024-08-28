@@ -182,12 +182,9 @@ class _ProductsScrollPageState extends State<ProductsScrollPage> {
                 itemCount: 4,
                 physics: const ClampingScrollPhysics(),
                 itemBuilder: ((context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: PostSkeletonContainer(
-                      width: width,
-                      height: width * 1.25,
-                    ),
+                  return PostSkeletonContainer(
+                    width: width,
+                    height: width * 1.25,
                   );
                 }),
               ),
