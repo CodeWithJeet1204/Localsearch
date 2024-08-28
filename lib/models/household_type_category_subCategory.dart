@@ -139,28 +139,144 @@ Map<String, Map<String, List<String>>> householdTypeCategorySubCategory = {
     //   'Other Kids Accessories',
     // ],
     // TODO: improve this & footwear
-    'Denim': [],
-    'Ethnic': [],
-    'Men Hats': [],
-    'Women Hats': [],
-    'Kids Hats': [],
-    'Men Hoodies': [],
-    'Women Hoodies': [],
-    'Kids Hoodies': [],
-    'Men Innerwear': [],
-    'Women Innerwear': [],
-    'Kids Innerwear': [],
-    'Jeans': [],
-    'Joggers': [],
-    'Polos': [],
-    'Shirts': [],
-    'Shorts': [],
-    'Socks': [],
-    'Sunglasses': [],
-    'T Shirt': [],
-    'Wallets': [],
-    'Watches': [],
-    'Western': [],
+    'Men Watches': [
+      'Men Watches',
+    ],
+    'Women Watches': [
+      'Women Watches',
+    ],
+    'Kids Watches': [
+      'Kids Watches',
+    ],
+    'Men Jeans': [
+      'Men Jeans',
+    ],
+    'Women Jeans': [
+      'Women Jeans',
+    ],
+    'Kids Jeans': [
+      'Kids Jeans',
+    ],
+    'Men T Shirt': [
+      'Men T Shirt',
+    ],
+    'Women T Shirt': [
+      'Women T Shirt',
+    ],
+    'Kids T Shirt': [
+      'Kids T Shirt',
+    ],
+    'Men Shirts': [
+      'Men Shirts',
+    ],
+    'Women Shirts': [
+      'Women Shirts',
+    ],
+    'Kids Shirts': [
+      'Kids Shirts',
+    ],
+    'Men Denim': [
+      'Men Denim',
+    ],
+    'Women Denim': [
+      'Women Denim',
+    ],
+    'Kids Denim': [
+      'Kids Denim',
+    ],
+    'Men Ethnic': [
+      'Men Ethnic',
+    ],
+    'Women Ethnic': [
+      'Women Ethnic',
+    ],
+    'Kids Ethnic': [
+      'Kids Ethnic',
+    ],
+    'Men Hoodies': [
+      'Men Hoodies',
+    ],
+    'Women Hoodies': [
+      'Women Hoodies',
+    ],
+    'Kids Hoodies': [
+      'Kids Hoodies',
+    ],
+    'Men Shorts': [
+      'Men Shorts',
+    ],
+    'Women Shorts': [
+      'Women Shorts',
+    ],
+    'Kids Shorts': [
+      'Kids Shorts',
+    ],
+    'Men Sunglasses': [
+      'Men Sunglasses',
+    ],
+    'Women Sunglasses': [
+      'Women Sunglasses',
+    ],
+    'Kids Sunglasses': [
+      'Kids Sunglasses',
+    ],
+    'Men Joggers': [
+      'Men Joggers',
+    ],
+    'Women Joggers': [
+      'Women Joggers',
+    ],
+    'Kids Joggers': [
+      'Kids Joggers',
+    ],
+    'Men Polos': [
+      'Men Polos',
+    ],
+    'Women Polos': [
+      'Women Polos',
+    ],
+    'Kids Polos': [
+      'Kids Polos',
+    ],
+    'Men Innerwear': [
+      'Men Innerwear',
+    ],
+    'Women Innerwear': [
+      'Women Innerwear',
+    ],
+    'Kids Innerwear': [
+      'Kids Innerwear',
+    ],
+    'Men Socks': [
+      'Men Socks',
+    ],
+    'Women Socks': [
+      'Women Socks',
+    ],
+    'Kids Socks': [
+      'Kids Socks',
+    ],
+    'Men Hats': [
+      'Men Hats',
+    ],
+    'Women Hats': [
+      'Women Hats',
+    ],
+    'Kids Hats': [
+      'Kids Hats',
+    ],
+    'Men Western': [
+      'Men Western',
+    ],
+    'Women Western': [
+      'Women Western',
+    ],
+    'Kids Western': [
+      'Kids Western',
+    ],
+    'Wallets': [
+      'Wallets',
+    ],
   },
   'Food': {
     'Daily Needs': [
@@ -993,12 +1109,123 @@ Map<String, Map<String, List<String>>> householdTypeCategorySubCategory = {
     //   'Kids Mules',
     //   'Other Kids Footwear',
     // ],
-    'Men Formal Shoes': [],
-    'Women Formal Shoes': [],
-    'Kids Formal Shoes': [],
-    'Sandals': [],
-    'Slippers': [],
-    'Sneakers': [],
+    'Men Formal Shoes': [
+      'Men Formal Shoes',
+    ],
+    'Women Formal Shoes': [
+      'Women Formal Shoes',
+    ],
+    'Kids Formal Shoes': [
+      'Kids Formal Shoes',
+    ],
+    'Men Casual Shoes': [
+      'Men Casual Shoes',
+    ],
+    'Women Casual Shoes': [
+      'Women Casual Shoes',
+    ],
+    'Kids Casual Shoes': [
+      'Kids Casual Shoes',
+    ],
+    'Men Sports Shoes': [
+      'Men Sports Shoes',
+    ],
+    'Women Sports Shoes': [
+      'Women Sports Shoes',
+    ],
+    'Kids Sports Shoes': [
+      'Kids Sports Shoes',
+    ],
+    'Men Sandals': [
+      'Men Sandals',
+    ],
+    'Women Sandals': [
+      'Women Sandals',
+    ],
+    'Kids Sandals': [
+      'Kids Sandals',
+    ],
+    'Men Slippers': [
+      'Men Slippers',
+    ],
+    'Women Slippers': [
+      'Women Slippers',
+    ],
+    'Kids Slippers': [
+      'Kids Slippers',
+    ],
+    'Men Sneakers': [
+      'Men Sneakers',
+    ],
+    'Women Sneakers': [
+      'Women Sneakers',
+    ],
+    'Kids Sneakers': [
+      'Kids Sneakers',
+    ],
+    'Men Ethnic Footwear': [
+      'Men Ethnic Footwear',
+    ],
+    'Women Ethnic Footwear': [
+      'Women Ethnic Footwear',
+    ],
+    'Kids Ethnic Footwear': [
+      'Kids Ethnic Footwear',
+    ],
+    'Men Loafers': [
+      'Men Loafers',
+    ],
+    'Women Loafers': [
+      'Women Loafers',
+    ],
+    'Kids Loafers': [
+      'Kids Loafers',
+    ],
+    'Men Mojaris': [
+      'Men Mojaris',
+    ],
+    'Women Mojaris': [
+      'Women Mojaris',
+    ],
+    'Kids Mojaris': [
+      'Kids Mojaris',
+    ],
+    'Men Kolhapuri Chappals': [
+      'Men Kolhapuri Chappals',
+    ],
+    'Women Kolhapuri Chappals': [
+      'Women Kolhapuri Chappals',
+    ],
+    'Kids Kolhapuri Chappals': [
+      'Kids Kolhapuri Chappals',
+    ],
+    'Men Juttis': [
+      'Men Juttis',
+    ],
+    'Women Juttis': [
+      'Women Juttis',
+    ],
+    'Kids Juttis': [
+      'Kids Juttis',
+    ],
+    'Men Brogues': [
+      'Men Brogues',
+    ],
+    'Women Brogues': [
+      'Women Brogues',
+    ],
+    'Kids Brogues': [
+      'Kids Brogues',
+    ],
+    'Men Chappals': [
+      'Men Chappals',
+    ],
+    'Women Chappals': [
+      'Women Chappals',
+    ],
+    'Kids Chappals': [
+      'Kids Chappals',
+    ],
   },
   'Home Decor & Furnishing': {
     'Home Furnishing': [

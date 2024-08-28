@@ -69,7 +69,6 @@ class _ShopCategoriesPageState extends State<ShopCategoriesPage> {
                     MaterialPageRoute(
                       builder: ((context) => CategoryProductsPage(
                             categoryName: name,
-                            shopType: widget.shopName,
                           )),
                     ),
                   );

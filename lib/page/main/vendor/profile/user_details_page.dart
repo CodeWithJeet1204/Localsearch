@@ -1,10 +1,9 @@
 import 'dart:convert';
-
+import 'package:Localsearch_User/providers/location_provider.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:http/http.dart' as http;
-import 'package:geolocator/geolocator.dart';
 import 'package:Localsearch_User/utils/colors.dart';
 import 'package:Localsearch_User/widgets/button.dart';
 import 'package:Localsearch_User/widgets/snack_bar.dart';
@@ -12,6 +11,7 @@ import 'package:Localsearch_User/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class UserDetailsPage extends StatefulWidget {
   const UserDetailsPage({super.key});
@@ -72,46 +72,6 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
     address = address?.isNotEmpty == true ? address : 'No address found';
 
     return address!.length > 30 ? '${address.substring(0, 30)}...' : address;
-  }
-
-  // GET LOCATION
-  Future<Position?> getLocation() async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-
-    if (!serviceEnabled) {
-      if (mounted) {
-        mySnackBar('Turn ON Location Services to Continue', context);
-      }
-      return null;
-    } else {
-      LocationPermission permission = await Geolocator.checkPermission();
-
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          if (mounted) {
-            mySnackBar('Pls give Location Permission to Continue', context);
-          }
-        }
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.deniedForever) {
-          if (mounted) {
-            mySnackBar(
-              'Because Location permission is denied, We are continuing without Location',
-              context,
-            );
-          }
-          setState(() {
-            isChangingAddress = true;
-          });
-        } else {
-          return await Geolocator.getCurrentPosition();
-        }
-      } else {
-        return await Geolocator.getCurrentPosition();
-      }
-    }
-    return null;
   }
 
   // SAVE
@@ -217,6 +177,8 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final locationProvider = Provider.of<LocationProvider>(context);
+
     final userStream = FirebaseFirestore.instance
         .collection('Users')
         .doc(FirebaseAuth.instance.currentUser!.uid)
@@ -407,31 +369,27 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                     double? latitude;
                                     double? longitude;
 
-                                    await getLocation().then((value) async {
-                                      if (value != null) {
-                                        setState(() {
-                                          latitude = value.latitude;
-                                          longitude = value.longitude;
-                                        });
-
-                                        await FirebaseFirestore.instance
-                                            .collection('Users')
-                                            .doc(FirebaseAuth
-                                                .instance.currentUser!.uid)
-                                            .update({
-                                          'Latitude': latitude,
-                                          'Longitude': longitude,
-                                        });
-
-                                        if (latitude != null &&
-                                            longitude != null) {
-                                          await getAddress(
-                                            latitude!,
-                                            longitude!,
-                                          );
-                                        }
-                                      }
+                                    setState(() {
+                                      latitude = locationProvider.cityLatitude;
+                                      longitude =
+                                          locationProvider.cityLongitude;
                                     });
+
+                                    await FirebaseFirestore.instance
+                                        .collection('Users')
+                                        .doc(FirebaseAuth
+                                            .instance.currentUser!.uid)
+                                        .update({
+                                      'Latitude': latitude,
+                                      'Longitude': longitude,
+                                    });
+
+                                    if (latitude != null && longitude != null) {
+                                      await getAddress(
+                                        latitude!,
+                                        longitude!,
+                                      );
+                                    }
                                     setState(() {
                                       isChangingAddress = false;
                                     });
@@ -521,33 +479,29 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                               double? latitude;
                                               double? longitude;
 
-                                              await getLocation()
-                                                  .then((value) async {
-                                                if (value != null) {
-                                                  setState(() {
-                                                    latitude = value.latitude;
-                                                    longitude = value.longitude;
-                                                  });
-
-                                                  await FirebaseFirestore
-                                                      .instance
-                                                      .collection('Users')
-                                                      .doc(FirebaseAuth.instance
-                                                          .currentUser!.uid)
-                                                      .update({
-                                                    'Latitude': latitude,
-                                                    'Longitude': longitude,
-                                                  });
-
-                                                  if (latitude != null &&
-                                                      longitude != null) {
-                                                    await getAddress(
-                                                      latitude!,
-                                                      longitude!,
-                                                    );
-                                                  }
-                                                }
+                                              setState(() {
+                                                latitude = locationProvider
+                                                    .cityLatitude;
+                                                longitude = locationProvider
+                                                    .cityLongitude;
                                               });
+
+                                              await FirebaseFirestore.instance
+                                                  .collection('Users')
+                                                  .doc(FirebaseAuth.instance
+                                                      .currentUser!.uid)
+                                                  .update({
+                                                'Latitude': latitude,
+                                                'Longitude': longitude,
+                                              });
+
+                                              if (latitude != null &&
+                                                  longitude != null) {
+                                                await getAddress(
+                                                  latitude!,
+                                                  longitude!,
+                                                );
+                                              }
                                               setState(() {
                                                 isChangingAddress = false;
                                               });

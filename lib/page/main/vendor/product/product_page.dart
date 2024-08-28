@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:Localsearch_User/models/household_sub_category.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
@@ -42,7 +43,7 @@ class _ProductPageState extends State<ProductPage> {
   int _currentIndex = 0;
   bool isWishListed = false;
   String? vendorName;
-  String? vendorType;
+  List? vendorType;
   bool isVendorHold = false;
   bool? isDiscount;
   bool isLiked = false;
@@ -420,22 +421,27 @@ class _ProductPageState extends State<ProductPage> {
   }
 
   // GET CATEGORY IMAGE
-  Future<void> getCategoryImage(String vendorType) async {
-    final categorySnap = await store
-        .collection('Business')
-        .doc('Special Categories')
-        .collection(vendorType)
-        .doc(widget.productData['categoryName'])
-        .get();
+  Future<void> getCategoryImage(List vendorType) async {
+    for (var type in vendorType) {
+      if (householdSubCategories[type]!
+          .containsKey(widget.productData['categoryName'])) {
+        final categorySnap = await store
+            .collection('Business')
+            .doc('Special Categories')
+            .collection(type)
+            .doc(widget.productData['categoryName'])
+            .get();
 
-    if (categorySnap.exists) {
-      final categoryData = categorySnap.data()!;
+        if (categorySnap.exists) {
+          final categoryData = categorySnap.data()!;
 
-      final categoryImage = categoryData['specialCategoryImageUrl'];
+          final categoryImage = categoryData['specialCategoryImageUrl'];
 
-      setState(() {
-        categoryImageUrl = categoryImage;
-      });
+          setState(() {
+            categoryImageUrl = categoryImage;
+          });
+        }
+      }
     }
   }
 
@@ -1680,7 +1686,6 @@ class _ProductPageState extends State<ProductPage> {
                                         builder: ((context) =>
                                             CategoryProductsPage(
                                               categoryName: categoryName,
-                                              shopType: vendorType!,
                                             )),
                                       ),
                                     );

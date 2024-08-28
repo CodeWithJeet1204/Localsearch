@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:Localsearch_User/page/main/vendor/vendor_products_tab_page.dart';
 import 'package:Localsearch_User/page/main/vendor/vendor_shorts_tab_page.dart';
+import 'package:Localsearch_User/providers/location_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:Localsearch_User/page/main/vendor/product/product_page.dart';
 import 'package:Localsearch_User/page/main/vendor/brand/all_brand_page.dart';
@@ -21,6 +21,7 @@ import 'package:Localsearch_User/widgets/text_button.dart';
 import 'package:Localsearch_User/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
 
@@ -70,20 +71,6 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
   void initState() {
     getVendorInfo();
     getIfFollowing();
-    getLocation().then((value) async {
-      if (value != null) {
-        setState(() {
-          latitude = value.latitude;
-          longitude = value.longitude;
-        });
-      }
-      if (latitude != null && longitude != null) {
-        await getAddress(
-          latitude!,
-          longitude!,
-        );
-      }
-    });
     getBrands();
     getDiscounts();
     getProducts();
@@ -93,6 +80,21 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
     super.initState();
     scrollController.addListener(scrollListener);
     // setRecentShop();
+  }
+
+  // TODO: CHECK IF THIS THROWS ANY ERROR
+  // DID CHANGE DEPENDENCIES
+  @override
+  void didChangeDependencies() async {
+    final locationProvider = Provider.of<LocationProvider>(context);
+    final cityLatitude = locationProvider.cityLatitude;
+    final cityLongitude = locationProvider.cityLongitude;
+
+    latitude = cityLatitude;
+    longitude = cityLongitude;
+    await getAddress(latitude!, longitude!, locationProvider);
+
+    super.didChangeDependencies();
   }
 
   // DISPOSE
@@ -267,21 +269,20 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
   }
 
   // GET ADDRESS
-  Future<List> getAddress(double shopLatitude, double shopLongitude) async {
+  Future<List> getAddress(
+    double shopLatitude,
+    double shopLongitude,
+    LocationProvider locationProvider,
+  ) async {
     double? yourLatitude;
     double? yourLongitude;
 
-    final location = await getLocation();
-    if (location != null) {
-      yourLatitude = location.latitude;
-      yourLongitude = location.longitude;
-    } else {
-      return ['Failed to get location', null];
-    }
+    yourLatitude = locationProvider.cityLatitude;
+    yourLongitude = locationProvider.cityLongitude;
 
     double? distance = await getDrivingDistance(
-      yourLatitude,
-      yourLongitude,
+      yourLatitude!,
+      yourLongitude!,
       shopLatitude,
       shopLongitude,
     );
@@ -344,46 +345,6 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
     } catch (e) {
       return null;
     }
-  }
-
-  // GET LOCATION
-  Future<Position?> getLocation() async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-
-    if (!serviceEnabled) {
-      if (mounted) {
-        mySnackBar('Turn ON Location Services to Continue', context);
-      }
-      return null;
-    } else {
-      LocationPermission permission = await Geolocator.checkPermission();
-
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          if (mounted) {
-            mySnackBar('Pls give Location Permission to Continue', context);
-          }
-        }
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.deniedForever) {
-          if (mounted) {
-            mySnackBar(
-              'Because Location permission is denied, We are continuing without Location',
-              context,
-            );
-          }
-          setState(() {
-            isChangingAddress = true;
-          });
-        } else {
-          return await Geolocator.getCurrentPosition();
-        }
-      } else {
-        return await Geolocator.getCurrentPosition();
-      }
-    }
-    return null;
   }
 
   // GET BRANDS
@@ -834,6 +795,7 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    final locationProvider = Provider.of<LocationProvider>(context);
     final TabController tabController = TabController(
       initialIndex: 0,
       length: 2,
@@ -1265,8 +1227,11 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
 
                               // LOCATION
                               FutureBuilder(
-                                  future: getAddress(shopData!['Latitude']!,
-                                      shopData!['Longitude']!),
+                                  future: getAddress(
+                                    shopData!['Latitude']!,
+                                    shopData!['Longitude']!,
+                                    locationProvider,
+                                  ),
                                   builder: (context, snapshot) {
                                     if (snapshot.hasError) {
                                       return const Center(

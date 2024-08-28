@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:Localsearch_User/page/main/vendor/discount/discount_page.dart';
 import 'package:Localsearch_User/page/main/location_change_page.dart';
 import 'package:Localsearch_User/providers/location_provider.dart';
@@ -55,50 +54,6 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
     double? yourLatitude;
     double? yourLongitude;
 
-    // GET LOCATION
-    Future<Position?> getLocation() async {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-
-      if (!serviceEnabled) {
-        if (mounted) {
-          mySnackBar('Turn ON Location Services to Continue', context);
-        }
-        return null;
-      } else {
-        LocationPermission permission = await Geolocator.checkPermission();
-
-        // LOCATION PERMISSION GIVEN
-        Future<Position> locationPermissionGiven() async {
-          return await Geolocator.getCurrentPosition();
-        }
-
-        if (permission == LocationPermission.denied) {
-          permission = await Geolocator.requestPermission();
-          if (permission == LocationPermission.denied) {
-            if (mounted) {
-              mySnackBar('Pls give Location Permission to Continue', context);
-            }
-          }
-          permission = await Geolocator.requestPermission();
-          if (permission == LocationPermission.deniedForever) {
-            yourLatitude = 0;
-            yourLongitude = 0;
-            if (mounted) {
-              mySnackBar(
-                'Because Location permission is denied, We are continuing without Location',
-                context,
-              );
-            }
-          } else {
-            return await locationPermissionGiven();
-          }
-        } else {
-          return await locationPermissionGiven();
-        }
-      }
-      return null;
-    }
-
     // GET DRIVING DISTANCE
     Future<double?> getDrivingDistance(
       double startLat,
@@ -125,16 +80,9 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
       }
     }
 
-    if (locationProvider.cityName == null ||
-        locationProvider.cityName == 'Your Location') {
-      await getLocation().then((value) async {
-        if (value != null) {
-          setState(() {
-            yourLatitude = value.latitude;
-            yourLongitude = value.longitude;
-          });
-        }
-      });
+    if (locationProvider.cityName == 'Your Location') {
+      yourLatitude = locationProvider.cityLatitude;
+      yourLongitude = locationProvider.cityLongitude;
 
       for (var discount in discountSnap.docs) {
         final discountData = discount.data();
@@ -159,8 +107,8 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
 
         if (yourLatitude != null && yourLongitude != null) {
           distance = await getDrivingDistance(
-            yourLatitude!,
-            yourLongitude!,
+            yourLatitude,
+            yourLongitude,
             vendorLatitude,
             vendorLongitude,
           );

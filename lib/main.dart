@@ -1,6 +1,7 @@
 import 'package:Localsearch_User/firebase_options.dart';
 import 'package:Localsearch_User/page/auth/login_page.dart';
 import 'package:Localsearch_User/page/auth/register_method_page.dart';
+import 'package:Localsearch_User/page/main/get_location_page.dart';
 import 'package:Localsearch_User/page/main/main_page.dart';
 import 'package:Localsearch_User/providers/location_provider.dart';
 import 'package:Localsearch_User/providers/register_details_provider.dart';
@@ -9,6 +10,7 @@ import 'package:Localsearch_User/utils/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
@@ -40,17 +42,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final locationProvider = Provider.of<LocationProvider>(context);
-
-    // locationProvider.changeCity({
-    //   'Your Location': {
-    //     'cityId': 'Your Location',
-    //     'cityName': 'Your Location',
-    //     'cityLatitude': 19.81972624925867,
-    //     'cityLongitude': 76.02556666960275,
-    //   },
-    // });
-
     return MaterialApp(
       title: 'Localsearch',
       theme: ThemeData(
@@ -114,9 +105,9 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: Stack(
         children: [
-          StreamBuilder(
+          StreamBuilder<User?>(
             stream: FirebaseAuth.instance.authStateChanges(),
-            builder: ((context, snapshot) {
+            builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(
                   child: CircularProgressIndicator(
@@ -126,16 +117,45 @@ class MyApp extends StatelessWidget {
               }
 
               if (snapshot.hasData) {
-                return const MainPage();
+                return const MainPageContent();
               }
 
-              return const LoginPage();
-            }),
+              return const GetLocationPage(
+                nextPage: LoginPage(),
+              );
+            },
           ),
-          // VendorPage(vendorId: 'rb3RIkTdllMmhyJedMrDnTLCY1l2'),
           // const ConnectivityNotificationWidget(),
         ],
       ),
+    );
+  }
+}
+
+class MainPageContent extends StatelessWidget {
+  const MainPageContent({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<bool>(
+      stream: Geolocator.getServiceStatusStream().map((serviceStatus) {
+        print('serviceStatus: $serviceStatus');
+        return serviceStatus == ServiceStatus.enabled;
+      }),
+      builder: (context, snapshot) {
+        if (snapshot.hasData && !snapshot.data!) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => const GetLocationPage(
+                  nextPage: MainPage(),
+                ),
+              ),
+            );
+          });
+        }
+        return const MainPage();
+      },
     );
   }
 }

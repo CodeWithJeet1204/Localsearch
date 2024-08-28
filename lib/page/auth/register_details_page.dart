@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:Localsearch_User/providers/location_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:Localsearch_User/page/main/main_page.dart';
 import 'package:Localsearch_User/utils/colors.dart';
 import 'package:Localsearch_User/widgets/button.dart';
@@ -10,6 +10,7 @@ import 'package:Localsearch_User/widgets/text_form_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
 class RegisterDetailsPage extends StatefulWidget {
   const RegisterDetailsPage({
@@ -55,53 +56,6 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
         );
       }),
     );
-  }
-
-  // GET LOCATION
-  Future<Position?> getLocation() async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-
-    if (!serviceEnabled) {
-      if (mounted) {
-        mySnackBar('Turn ON Location Services to Continue', context);
-      }
-      return null;
-    } else {
-      LocationPermission permission = await Geolocator.checkPermission();
-
-      // LOCATION PERMISSION GIVEN
-      Future<Position> locationPermissionGiven() async {
-        return await Geolocator.getCurrentPosition();
-      }
-
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          if (mounted) {
-            mySnackBar('Pls give Location Permission to Continue', context);
-          }
-        }
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.deniedForever) {
-          setState(() {
-            latitude = 0;
-            longitude = 0;
-            address = 'NONE';
-          });
-          if (mounted) {
-            mySnackBar(
-              'Because Location permission is denied, We are continuing without Location',
-              context,
-            );
-          }
-        } else {
-          return await locationPermissionGiven();
-        }
-      } else {
-        return await locationPermissionGiven();
-      }
-    }
-    return null;
   }
 
   // GET ADDRESS
@@ -199,6 +153,8 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final locationProvider = Provider.of<LocationProvider>(context);
+
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -287,18 +243,19 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                             setState(() {
                               isGettingLocation = true;
                             });
-                            await getLocation().then((value) async {
-                              if (value != null) {
-                                setState(() {
-                                  latitude = value.latitude;
-                                  longitude = value.longitude;
-                                });
 
-                                if (latitude != null && longitude != null) {
-                                  await getAddress(latitude!, longitude!);
-                                }
-                              }
+                            final cityLatitude = locationProvider.cityLatitude;
+                            final cityLongitude =
+                                locationProvider.cityLongitude;
+
+                            setState(() {
+                              latitude = cityLatitude;
+                              longitude = cityLongitude;
                             });
+
+                            if (latitude != null && longitude != null) {
+                              await getAddress(latitude!, longitude!);
+                            }
                             setState(() {
                               isGettingLocation = false;
                             });

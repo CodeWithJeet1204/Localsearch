@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:Localsearch_User/page/main/location_change_page.dart';
 import 'package:Localsearch_User/page/main/vendor/product/product_page.dart';
@@ -130,50 +129,6 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
     double? yourLatitude;
     double? yourLongitude;
 
-    // GET LOCATION
-    Future<Position?> getLocation() async {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-
-      if (!serviceEnabled) {
-        if (mounted) {
-          mySnackBar('Turn ON Location Services to Continue', context);
-        }
-        return null;
-      } else {
-        LocationPermission permission = await Geolocator.checkPermission();
-
-        // LOCATION PERMISSION GIVEN
-        Future<Position> locationPermissionGiven() async {
-          return await Geolocator.getCurrentPosition();
-        }
-
-        if (permission == LocationPermission.denied) {
-          permission = await Geolocator.requestPermission();
-          if (permission == LocationPermission.denied) {
-            if (mounted) {
-              mySnackBar('Pls give Location Permission to Continue', context);
-            }
-          }
-          permission = await Geolocator.requestPermission();
-          if (permission == LocationPermission.deniedForever) {
-            yourLatitude = 0;
-            yourLongitude = 0;
-            if (mounted) {
-              mySnackBar(
-                'Because Location permission is denied, We are continuing without Location',
-                context,
-              );
-            }
-          } else {
-            return await locationPermissionGiven();
-          }
-        } else {
-          return await locationPermissionGiven();
-        }
-      }
-      return null;
-    }
-
     // GET DRIVING DISTANCE
     Future<double?> getDrivingDistance(
       double startLat,
@@ -201,14 +156,8 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
     }
 
     if (locationProvider.cityName == 'Your Location') {
-      await getLocation().then((value) async {
-        if (value != null) {
-          setState(() {
-            yourLatitude = value.latitude;
-            yourLongitude = value.longitude;
-          });
-        }
-      });
+      yourLatitude = locationProvider.cityLatitude;
+      yourLongitude = locationProvider.cityLongitude;
 
       for (var shopSnap in shopSnap.docs) {
         final shopData = shopSnap.data();
@@ -222,8 +171,8 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
 
         if (yourLatitude != null && yourLongitude != null) {
           distance = await getDrivingDistance(
-                yourLatitude!,
-                yourLongitude!,
+                yourLatitude,
+                yourLongitude,
                 vendorLatitude,
                 vendorLongitude,
               ) ??
@@ -352,50 +301,6 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
     double? yourLatitude;
     double? yourLongitude;
 
-    // GET LOCATION
-    Future<Position?> getLocation() async {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-
-      if (!serviceEnabled) {
-        if (mounted) {
-          mySnackBar('Turn ON Location Services to Continue', context);
-        }
-        return null;
-      } else {
-        LocationPermission permission = await Geolocator.checkPermission();
-
-        // LOCATION PERMISSION GIVEN
-        Future<Position> locationPermissionGiven() async {
-          return await Geolocator.getCurrentPosition();
-        }
-
-        if (permission == LocationPermission.denied) {
-          permission = await Geolocator.requestPermission();
-          if (permission == LocationPermission.denied) {
-            if (mounted) {
-              mySnackBar('Pls give Location Permission to Continue', context);
-            }
-          }
-          permission = await Geolocator.requestPermission();
-          if (permission == LocationPermission.deniedForever) {
-            yourLatitude = 0;
-            yourLongitude = 0;
-            if (mounted) {
-              mySnackBar(
-                'Because Location permission is denied, We are continuing without Location',
-                context,
-              );
-            }
-          } else {
-            return await locationPermissionGiven();
-          }
-        } else {
-          return await locationPermissionGiven();
-        }
-      }
-      return null;
-    }
-
     // GET DRIVING DISTANCE
     Future<double?> getDrivingDistance(
       double startLat,
@@ -423,13 +328,9 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
     }
 
     if (locationProvider.cityName == 'Your Location') {
-      await getLocation().then((value) async {
-        if (value != null) {
-          setState(() {
-            yourLatitude = value.latitude;
-            yourLongitude = value.longitude;
-          });
-        }
+      setState(() {
+        yourLatitude = locationProvider.cityLatitude;
+        yourLongitude = locationProvider.cityLongitude;
       });
 
       for (var productSnap in productsSnap.docs) {

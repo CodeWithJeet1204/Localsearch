@@ -12,36 +12,6 @@ Map<String, Map<String, String>> householdSubCategories = {
     //     'https://firebasestorage.googleapis.com/v0/b/find-easy-1204.appspot.com/o/Household%20Categories%2FFashion%20%26%20Clothing%2FKids%20Wear.png?alt=media&token=fd877576-7ce4-4611-a43c-c3d58c515cc3',
     // 'Accessories For Kids':
     //     'https://firebasestorage.googleapis.com/v0/b/find-easy-1204.appspot.com/o/Household%20Categories%2FFashion%20%26%20Clothing%2FAccessories%20For%20Kids.png?alt=media&token=6054ccf7-cbf9-4b00-a5fa-3adcee32f188',
-    'Denim':
-        'https://firebasestorage.googleapis.com/v0/b/localy-1204.appspot.com/o/Special%20Categories%2FClothing%20and%20Apparel%2FDenim.png?alt=media&token=855ada4c-12e4-410d-a611-55a308f4b6c0',
-    'Ethnic': '',
-    'Men Hats': '',
-    'Women Hats':
-        'https://firebasestorage.googleapis.com/v0/b/localy-1204.appspot.com/o/Special%20Categories%2FClothing%20and%20Apparel%2FHats.png?alt=media&token=39dafb35-8809-4114-a12c-590d860fa11b',
-    'Kids Hats': '',
-    'Men Hoodies': '',
-    'Women Hoodies':
-        'https://firebasestorage.googleapis.com/v0/b/localy-1204.appspot.com/o/Special%20Categories%2FClothing%20and%20Apparel%2FHoodies.png?alt=media&token=6d00b0ce-f066-455b-b868-161f1395bb45',
-    'Kids Hoodies': '',
-    'Men Innerwear': '',
-    'Women Innerwear': '',
-    'Kids Innerwear': '',
-    'Jeans':
-        'https://firebasestorage.googleapis.com/v0/b/localy-1204.appspot.com/o/Special%20Categories%2FClothing%20and%20Apparel%2FJeans.png?alt=media&token=9334e605-22ef-49af-be0f-46613f32486e',
-    'Joggers':
-        'https://firebasestorage.googleapis.com/v0/b/localy-1204.appspot.com/o/Special%20Categories%2FClothing%20and%20Apparel%2FJoggers.png?alt=media&token=a05aece8-e3e2-4b7f-9975-bf3423b20ad8',
-    'Polos': '',
-    'Shirts': '',
-    'Shorts':
-        'https://firebasestorage.googleapis.com/v0/b/localy-1204.appspot.com/o/Special%20Categories%2FClothing%20and%20Apparel%2FShorts.png?alt=media&token=8c48d5eb-446b-448a-b43d-dffa89a92204',
-    'Socks':
-        'https://firebasestorage.googleapis.com/v0/b/localy-1204.appspot.com/o/Special%20Categories%2FClothing%20and%20Apparel%2FSocks.png?alt=media&token=c6ee8525-0ce8-4488-acb0-df2425859cd8',
-    'Sunglasses': '',
-    'T Shirt':
-        'https://firebasestorage.googleapis.com/v0/b/localy-1204.appspot.com/o/Special%20Categories%2FClothing%20and%20Apparel%2FT%20Shirt.png?alt=media&token=e7f49398-e5dc-4435-8ef9-69a935a4b2f9',
-    'Wallets': '',
-    'Watches': '',
-    'Western': '',
   },
   'Food': {
     'Daily Needs':
@@ -129,14 +99,6 @@ Map<String, Map<String, String>> householdSubCategories = {
     //     'https://firebasestorage.googleapis.com/v0/b/find-easy-1204.appspot.com/o/Household%20Categories%2FFoot%20Wear%2FWomen%20Foot%20Wear.png?alt=media&token=259619b6-8f8b-49be-ad40-1ac6a701f042',
     // 'Kids Foot Wear':
     //     'https://firebasestorage.googleapis.com/v0/b/find-easy-1204.appspot.com/o/Household%20Categories%2FFoot%20Wear%2FKids%20Foot%20Wear.png?alt=media&token=d8b05cda-98ee-4a33-871b-79c448b567a4',
-    'Men Formal Shoes':
-        'https://firebasestorage.googleapis.com/v0/b/localy-1204.appspot.com/o/Special%20Categories%2FClothing%20and%20Apparel%2FFormal%20Shoes.png?alt=media&token=46604622-47f0-4e73-81aa-be92396be37c',
-    'Women Formal Shoes': '',
-    'Kids Formal Shoes': '',
-    'Sandals': '',
-    'Slippers':
-        'https://firebasestorage.googleapis.com/v0/b/localy-1204.appspot.com/o/Special%20Categories%2FClothing%20and%20Apparel%2FSlippers.png?alt=media&token=0bcde2ce-e5ac-41f9-bd30-4dc6fe1e137d',
-    'Sneakers': '',
   },
   'Home Decor & Furnishing': {
     'Home Furnishing':

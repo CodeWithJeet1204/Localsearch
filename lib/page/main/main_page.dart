@@ -5,7 +5,7 @@ import 'package:Localsearch_User/page/auth/login_page.dart';
 import 'package:Localsearch_User/page/auth/register_details_page.dart';
 import 'package:Localsearch_User/page/auth/verify/email_verify.dart';
 import 'package:Localsearch_User/page/main/vendor/home/product_home_page.dart';
-import 'package:Localsearch_User/page/main/product_scroll_page.dart';
+import 'package:Localsearch_User/page/main/vendor/home/product_scroll_page.dart';
 import 'package:Localsearch_User/page/main/vendor/profile/profile_page.dart';
 import 'package:Localsearch_User/page/main/vendor/shorts_page.dart';
 import 'package:Localsearch_User/utils/colors.dart';

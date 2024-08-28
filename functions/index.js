@@ -63,16 +63,29 @@ exports.scheduledFunction = functions.region('asia-southeast1').pubsub.schedule(
       console.log('No documents to delete.');
       return null;
     }
-    
+
+    const bucket = admin.storage().bucket();
     const batch = admin.firestore().batch();
+    
+    const fileDeletions = [];
+
     snapshot.docs.forEach(doc => {
       batch.delete(doc.ref);
+
+      const postImage = doc.data().postImage;
+      if (postImage) {
+        const filePath = postImage.split('/o/')[1].split('?')[0].replace(/%2F/g, '/');
+        // Add file deletion promise
+        fileDeletions.push(bucket.file(filePath).delete());
+      }
     });
 
+    await Promise.all(fileDeletions);
+    
     await batch.commit();
-    console.log(`Successfully deleted ${snapshot.size} documents.`);
+    console.log(`Successfully deleted ${snapshot.size} documents and associated files.`);
   } catch (error) {
-    console.error("Error deleting documents:", error);
+    console.error("Error deleting documents or files:", error);
   }
 });
 

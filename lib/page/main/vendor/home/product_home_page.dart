@@ -6,7 +6,6 @@ import 'package:Localsearch_User/page/main/vendor/post_page_view.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:Localsearch_User/page/main/vendor/discount/all_discount_page.dart';
 import 'package:Localsearch_User/page/main/location_change_page.dart';
 import 'package:Localsearch_User/page/main/main_page.dart';
@@ -64,7 +63,6 @@ class _ProductHomePageState extends State<ProductHomePage> {
   void initState() {
     getName();
     getPosts();
-    getRecentShop();
     getFeatured();
     super.initState();
   }
@@ -75,7 +73,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
     final locationProvider = Provider.of<LocationProvider>(context);
     getWishlist(locationProvider);
     getFollowedShops(locationProvider);
-    getRecentShop();
+    getRecentShop(locationProvider);
     super.didChangeDependencies();
   }
 
@@ -438,7 +436,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
   // }
 
   // GET RECENT SHOP
-  Future<void> getRecentShop() async {
+  Future<void> getRecentShop(LocationProvider locationProvider) async {
     final userSnap =
         await store.collection('Users').doc(auth.currentUser!.uid).get();
 
@@ -461,52 +459,6 @@ class _ProductHomePageState extends State<ProductHomePage> {
 
       double? yourLatitude;
       double? yourLongitude;
-
-      // GET LOCATION
-      Future<Position?> getLocation() async {
-        bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-
-        if (!serviceEnabled) {
-          if (mounted) {
-            mySnackBar('Turn ON Location Services to Continue', context);
-          }
-          return null;
-        } else {
-          LocationPermission permission = await Geolocator.checkPermission();
-
-          // LOCATION PERMISSION GIVEN
-          Future<Position> locationPermissionGiven() async {
-            return await Geolocator.getCurrentPosition();
-          }
-
-          if (permission == LocationPermission.denied) {
-            permission = await Geolocator.requestPermission();
-            if (permission == LocationPermission.denied) {
-              if (mounted) {
-                mySnackBar('Pls give Location Permission to Continue', context);
-              }
-            }
-            permission = await Geolocator.requestPermission();
-            if (permission == LocationPermission.deniedForever) {
-              setState(() {
-                yourLatitude = 0;
-                yourLongitude = 0;
-              });
-              if (mounted) {
-                mySnackBar(
-                  'Because Location permission is denied, We are continuing without Location',
-                  context,
-                );
-              }
-            } else {
-              return await locationPermissionGiven();
-            }
-          } else {
-            return await locationPermissionGiven();
-          }
-        }
-        return null;
-      }
 
       // GET DISTANCE
       Future<double?> getDrivingDistance(
@@ -534,35 +486,31 @@ class _ProductHomePageState extends State<ProductHomePage> {
         }
       }
 
-      await getLocation().then((value) async {
-        if (value != null) {
-          setState(() {
-            yourLatitude = value.latitude;
-            yourLongitude = value.longitude;
-          });
+      setState(() {
+        yourLatitude = locationProvider.cityLatitude;
+        yourLongitude = locationProvider.cityLongitude;
+      });
 
-          try {
-            final dist = await getDrivingDistance(
-              yourLatitude!,
-              yourLongitude!,
-              vendorLatitude,
-              vendorLongitude,
-            );
+      try {
+        final dist = await getDrivingDistance(
+          yourLatitude!,
+          yourLongitude!,
+          vendorLatitude,
+          vendorLongitude,
+        );
 
-            if (dist != null) {
-              if (dist < 5) {
-                setState(() {
-                  recentShop = myRecentShop;
-                });
-              }
-            }
-          } catch (e) {
-            if (mounted) {
-              mySnackBar('Some error occured while fetching Location', context);
-            }
+        if (dist != null) {
+          if (dist < 5) {
+            setState(() {
+              recentShop = myRecentShop;
+            });
           }
         }
-      });
+      } catch (e) {
+        if (mounted) {
+          mySnackBar('Some error occured while fetching Location', context);
+        }
+      }
 
       await getNoOfProductsOfRecentShop();
     }
@@ -631,52 +579,6 @@ class _ProductHomePageState extends State<ProductHomePage> {
     double? yourLatitude;
     double? yourLongitude;
 
-    // GET LOCATION
-    Future<Position?> getLocation() async {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-
-      if (!serviceEnabled) {
-        if (mounted) {
-          mySnackBar('Turn ON Location Services to Continue', context);
-        }
-        return null;
-      } else {
-        LocationPermission permission = await Geolocator.checkPermission();
-
-        // LOCATION PERMISSION GIVEN
-        Future<Position> locationPermissionGiven() async {
-          return await Geolocator.getCurrentPosition();
-        }
-
-        if (permission == LocationPermission.denied) {
-          permission = await Geolocator.requestPermission();
-          if (permission == LocationPermission.denied) {
-            if (mounted) {
-              mySnackBar('Pls give Location Permission to Continue', context);
-            }
-          }
-          permission = await Geolocator.requestPermission();
-          if (permission == LocationPermission.deniedForever) {
-            setState(() {
-              yourLatitude = 0;
-              yourLongitude = 0;
-            });
-            if (mounted) {
-              mySnackBar(
-                'Because Location permission is denied, We are continuing without Location',
-                context,
-              );
-            }
-          } else {
-            return await locationPermissionGiven();
-          }
-        } else {
-          return await locationPermissionGiven();
-        }
-      }
-      return null;
-    }
-
     // GET DISTANCE
     Future<double?> getDrivingDistance(
       double startLat,
@@ -730,46 +632,42 @@ class _ProductHomePageState extends State<ProductHomePage> {
       final vendorLongitude = vendorData['Longitude'];
 
       if (locationProvider.cityName == 'Your Location') {
-        await getLocation().then((value) async {
-          if (value != null) {
-            setState(() {
-              yourLatitude = value.latitude;
-              yourLongitude = value.longitude;
-            });
-            try {
-              final dist = await getDrivingDistance(
-                yourLatitude!,
-                yourLongitude!,
-                vendorLatitude,
-                vendorLongitude,
-              );
+        setState(() {
+          yourLatitude = locationProvider.cityLatitude;
+          yourLongitude = locationProvider.cityLongitude;
+        });
+        try {
+          final dist = await getDrivingDistance(
+            yourLatitude!,
+            yourLongitude!,
+            vendorLatitude,
+            vendorLongitude,
+          );
 
-              if (dist != null) {
-                allWishlist[productId] = [
-                  productName,
-                  imageUrl,
-                  productData,
-                  dist,
-                ];
-                if (dist < 5) {
-                  currentWishlist[productId] = [
-                    productName,
-                    imageUrl,
-                    productData,
-                    dist,
-                  ];
-                }
-              }
-            } catch (e) {
-              if (mounted) {
-                mySnackBar(
-                  'Some error occured while fetching Location',
-                  context,
-                );
-              }
+          if (dist != null) {
+            allWishlist[productId] = [
+              productName,
+              imageUrl,
+              productData,
+              dist,
+            ];
+            if (dist < 5) {
+              currentWishlist[productId] = [
+                productName,
+                imageUrl,
+                productData,
+                dist,
+              ];
             }
           }
-        });
+        } catch (e) {
+          if (mounted) {
+            mySnackBar(
+              'Some error occured while fetching Location',
+              context,
+            );
+          }
+        }
       } else {
         try {
           final url =
@@ -839,52 +737,6 @@ class _ProductHomePageState extends State<ProductHomePage> {
     double? yourLatitude;
     double? yourLongitude;
 
-    // GET LOCATION
-    Future<Position?> getLocation() async {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-
-      if (!serviceEnabled) {
-        if (mounted) {
-          mySnackBar('Turn ON Location Services to Continue', context);
-        }
-        return null;
-      } else {
-        LocationPermission permission = await Geolocator.checkPermission();
-
-        // LOCATION PERMISSION GIVEN
-        Future<Position> locationPermissionGiven() async {
-          return await Geolocator.getCurrentPosition();
-        }
-
-        if (permission == LocationPermission.denied) {
-          permission = await Geolocator.requestPermission();
-          if (permission == LocationPermission.denied) {
-            if (mounted) {
-              mySnackBar('Pls give Location Permission to Continue', context);
-            }
-          }
-          permission = await Geolocator.requestPermission();
-          if (permission == LocationPermission.deniedForever) {
-            setState(() {
-              yourLatitude = 0;
-              yourLongitude = 0;
-            });
-            if (mounted) {
-              mySnackBar(
-                'Because Location permission is denied, We are continuing without Location',
-                context,
-              );
-            }
-          } else {
-            return await locationPermissionGiven();
-          }
-        } else {
-          return await locationPermissionGiven();
-        }
-      }
-      return null;
-    }
-
     // GET DISTANCE
     Future<double?> getDrivingDistance(
       double startLat,
@@ -912,51 +764,47 @@ class _ProductHomePageState extends State<ProductHomePage> {
     }
 
     if (locationProvider.cityName == 'Your Location') {
-      await getLocation().then((value) async {
-        if (value != null) {
-          setState(() {
-            yourLatitude = value.latitude;
-            yourLongitude = value.longitude;
-          });
-          for (var vendorId in followedShop) {
-            final vendorSnap = await store
-                .collection('Business')
-                .doc('Owners')
-                .collection('Shops')
-                .doc(vendorId)
-                .get();
+      setState(() {
+        yourLatitude = locationProvider.cityLatitude;
+        yourLongitude = locationProvider.cityLongitude;
+      });
+      for (var vendorId in followedShop) {
+        final vendorSnap = await store
+            .collection('Business')
+            .doc('Owners')
+            .collection('Shops')
+            .doc(vendorId)
+            .get();
 
-            final vendorData = vendorSnap.data()!;
-            final vendorLatitude = vendorData['Latitude'];
-            final vendorLongitude = vendorData['Longitude'];
+        final vendorData = vendorSnap.data()!;
+        final vendorLatitude = vendorData['Latitude'];
+        final vendorLongitude = vendorData['Longitude'];
 
-            try {
-              final dist = await getDrivingDistance(
-                yourLatitude!,
-                yourLongitude!,
-                vendorLatitude,
-                vendorLongitude,
-              );
+        try {
+          final dist = await getDrivingDistance(
+            yourLatitude!,
+            yourLongitude!,
+            vendorLatitude,
+            vendorLongitude,
+          );
 
-              if (dist != null) {
-                final String? name = vendorData['Name'];
-                final String? imageUrl = vendorData['Image'];
-                allFollowedShops[vendorId] = [name, imageUrl, dist];
-                if (dist < 5) {
-                  currentFollowedShops[vendorId] = [name, imageUrl, dist];
-                }
-              }
-            } catch (e) {
-              if (mounted) {
-                mySnackBar(
-                  'Some error occured while fetching Location',
-                  context,
-                );
-              }
+          if (dist != null) {
+            final String? name = vendorData['Name'];
+            final String? imageUrl = vendorData['Image'];
+            allFollowedShops[vendorId] = [name, imageUrl, dist];
+            if (dist < 5) {
+              currentFollowedShops[vendorId] = [name, imageUrl, dist];
             }
           }
+        } catch (e) {
+          if (mounted) {
+            mySnackBar(
+              'Some error occured while fetching Location',
+              context,
+            );
+          }
         }
-      });
+      }
     } else {
       for (var vendorId in followedShop) {
         final vendorSnap = await store
@@ -1418,7 +1266,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
           ),
           child: RefreshIndicator(
             onRefresh: () async {
-              await getRecentShop();
+              await getRecentShop(locationProvider);
               await getWishlist(locationProvider);
               await getFollowedShops(locationProvider);
             },

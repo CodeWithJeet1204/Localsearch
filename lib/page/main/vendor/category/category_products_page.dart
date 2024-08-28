@@ -9,11 +9,9 @@ class CategoryProductsPage extends StatefulWidget {
   const CategoryProductsPage({
     super.key,
     required this.categoryName,
-    required this.shopType,
   });
 
   final String categoryName;
-  final String shopType;
 
   @override
   State<CategoryProductsPage> createState() => _CategoryProductsPageState();
