@@ -32,6 +32,7 @@ class _ProductsScrollPageState extends State<ProductsScrollPage> {
 
   // GET POSTS
   Future<void> getProducts() async {
+    List myVendorIds = [];
     Map<String, dynamic> myProducts = {};
     final productsSnap = await store
         .collection('Business')
@@ -54,26 +55,32 @@ class _ProductsScrollPageState extends State<ProductsScrollPage> {
       final String price = productData['productPrice'];
       final String vendorId = productData['vendorId'];
       final Timestamp datetime = productData['datetime'];
+      final bool isPost = productData['isPost'];
 
-      myProducts[productId] = [
-        name,
-        imageUrl,
-        price,
-        vendorId,
-        datetime,
-        wishlists.contains(productId),
-      ];
+      if (isPost) {
+        myProducts[productId] = [
+          name,
+          imageUrl,
+          price,
+          vendorId,
+          datetime,
+          wishlists.contains(productId),
+        ];
 
-      myProducts = Map.fromEntries(
-        myProducts.entries.toList()
-          ..sort(
-            (a, b) => (b.value[4] as Timestamp).compareTo(
-              a.value[4] as Timestamp,
+        myProducts = Map.fromEntries(
+          myProducts.entries.toList()
+            ..sort(
+              (a, b) => (b.value[4] as Timestamp).compareTo(
+                a.value[4] as Timestamp,
+              ),
             ),
-          ),
-      );
+        );
 
-      await getVendorInfo(vendorId);
+        if (!myVendorIds.contains(vendorId)) {
+          await getVendorInfo(vendorId);
+          myVendorIds.add(vendorId);
+        }
+      }
     }
 
     setState(() {

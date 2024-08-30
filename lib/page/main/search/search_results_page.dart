@@ -1011,17 +1011,19 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                   ),
                                 ),
                                 Container(
+                                  width: width * 0.15,
+                                  height: width * 0.15,
                                   decoration: const BoxDecoration(
                                     color: primaryDark,
                                     shape: BoxShape.circle,
                                   ),
-                                  padding: EdgeInsets.all(width * 0.035),
+                                  alignment: Alignment.center,
                                   child: Text(
                                     distanceRange
                                             .toString()
                                             .endsWith('.500000000000004')
                                         ? distanceRange.toString().replaceFirst(
-                                            '.500000000000004', '')
+                                            '.500000000000004', '.5')
                                         : distanceRange.toString().endsWith('0')
                                             ? distanceRange
                                                 .toString()
@@ -1632,7 +1634,8 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                                         IconButton(
                                                           onPressed: () async {
                                                             await wishlistProduct(
-                                                                productId);
+                                                              productId,
+                                                            );
                                                           },
                                                           icon: Icon(
                                                             isWishListed

@@ -123,7 +123,6 @@ class _GetLocationPageState extends State<GetLocationPage>
 
   // SET LOCATION
   Future<void> setLocation(LocationProvider locationProvider) async {
-    print('hahahhaha');
     await getLocation().then((coordinates) {
       if (coordinates != null) {
         final latitude = coordinates.latitude;

@@ -1075,47 +1075,50 @@ class _ProductPageState extends State<ProductPage> {
                       ),
 
                       // VENDOR
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: width * 0.0125,
-                          vertical: width * 0.00625,
-                        ),
-                        child: GestureDetector(
-                          onTap: () {},
-                          onTapDown: (details) {
-                            setState(() {
-                              isVendorHold = true;
-                            });
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: ((context) => VendorPage(
-                                      vendorId: data['vendorId'],
-                                    )),
+                      vendorName == null
+                          ? Container()
+                          : Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: width * 0.0125,
+                                vertical: width * 0.00625,
                               ),
-                            );
-                          },
-                          onTapUp: (details) {
-                            setState(() {
-                              isVendorHold = false;
-                            });
-                          },
-                          onTapCancel: () {
-                            setState(() {
-                              isVendorHold = false;
-                            });
-                          },
-                          child: Text(
-                            'Visit the $vendorName store',
-                            style: TextStyle(
-                              color: const Color.fromARGB(255, 0, 114, 196),
-                              fontSize: width * 0.045,
-                              decoration: isVendorHold
-                                  ? TextDecoration.underline
-                                  : null,
+                              child: GestureDetector(
+                                onTap: () {},
+                                onTapDown: (details) {
+                                  setState(() {
+                                    isVendorHold = true;
+                                  });
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: ((context) => VendorPage(
+                                            vendorId: data['vendorId'],
+                                          )),
+                                    ),
+                                  );
+                                },
+                                onTapUp: (details) {
+                                  setState(() {
+                                    isVendorHold = false;
+                                  });
+                                },
+                                onTapCancel: () {
+                                  setState(() {
+                                    isVendorHold = false;
+                                  });
+                                },
+                                child: Text(
+                                  'Visit the $vendorName store',
+                                  style: TextStyle(
+                                    color:
+                                        const Color.fromARGB(255, 0, 114, 196),
+                                    fontSize: width * 0.045,
+                                    decoration: isVendorHold
+                                        ? TextDecoration.underline
+                                        : null,
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                      ),
 
                       // NAME
                       Padding(

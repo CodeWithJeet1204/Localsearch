@@ -1,8 +1,10 @@
 import 'package:Localsearch_User/page/main/vendor/product/product_page.dart';
 import 'package:Localsearch_User/page/main/vendor/vendor_page.dart';
 import 'package:Localsearch_User/utils/colors.dart';
+import 'package:Localsearch_User/widgets/product_quick_view.dart';
 import 'package:Localsearch_User/widgets/snack_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class VendorProductsTabPage extends StatefulWidget {
@@ -26,6 +28,8 @@ class VendorProductsTabPage extends StatefulWidget {
 }
 
 class _VendorProductsTabPageState extends State<VendorProductsTabPage> {
+  final auth = FirebaseAuth.instance;
+  final store = FirebaseFirestore.instance;
   Map<String, dynamic> products = {};
   String? productSort;
   int numProductsLoaded = 0;
@@ -105,6 +109,62 @@ class _VendorProductsTabPageState extends State<VendorProductsTabPage> {
     return availableHeight;
   }
 
+  // GET IF WISHLIST
+  Stream<bool> getIfWishlist(String productId) {
+    return store
+        .collection('Users')
+        .doc(auth.currentUser!.uid)
+        .snapshots()
+        .map((userSnap) {
+      final userData = userSnap.data()!;
+      final userWishlist = userData['wishlists'] as List;
+
+      return userWishlist.contains(productId);
+    });
+  }
+
+  // WISHLIST PRODUCT
+  Future<void> wishlistProduct(String productId) async {
+    final userSnap =
+        await store.collection('Users').doc(auth.currentUser!.uid).get();
+
+    final userData = userSnap.data()!;
+    List<dynamic> userWishlist = userData['wishlists'] as List<dynamic>;
+
+    bool alreadyInWishlist = userWishlist.contains(productId);
+
+    if (!alreadyInWishlist) {
+      userWishlist.add(productId);
+    } else {
+      userWishlist.remove(productId);
+    }
+
+    await store.collection('Users').doc(auth.currentUser!.uid).update({
+      'wishlists': userWishlist,
+    });
+
+    final productDoc = store
+        .collection('Business')
+        .doc('Data')
+        .collection('Products')
+        .doc(productId);
+
+    final productSnap = await productDoc.get();
+    final productData = productSnap.data()!;
+
+    int noOfWishList = productData['productWishlist'] ?? 0;
+
+    if (!alreadyInWishlist) {
+      noOfWishList++;
+    } else {
+      noOfWishList--;
+    }
+
+    await productDoc.update({
+      'productWishlist': noOfWishList,
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -174,111 +234,196 @@ class _VendorProductsTabPageState extends State<VendorProductsTabPage> {
               ? Container()
               : SizedBox(
                   width: widget.width,
-                  height: getScreenHeight() * 0.5625,
-                  child: ListView.builder(
+                  height: getScreenHeight() * 0.675,
+                  child: GridView.builder(
                     shrinkWrap: true,
                     physics: const ClampingScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: widget.width * 0.6 / widget.width,
+                    ),
                     itemCount: numProductsLoaded > products.length
                         ? products.length
                         : numProductsLoaded,
                     itemBuilder: ((context, index) {
+                      final id = products.keys.toList()[index];
                       final name = products.values.toList()[index][0];
                       final imageUrl = products.values.toList()[index][1];
                       final price = products.values.toList()[index][2];
                       final ratings = products.values.toList()[index][3];
                       final productData = products.values.toList()[index][6];
-                      final rating = calculateAverageRating(ratings);
 
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: ((context) => ProductPage(
-                                    productData: productData,
-                                  )),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          width: widget.width,
-                          // height: 150,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: widget.width * 0.0125,
-                            vertical: widget.width * 0.0125,
-                          ),
-                          margin: EdgeInsets.all(
-                            widget.width * 0.00625,
-                          ),
-                          decoration: BoxDecoration(
-                            border: Border(
-                              top: index == 0
-                                  ? const BorderSide(
-                                      color: darkGrey,
-                                      width: 0.25,
-                                    )
-                                  : BorderSide.none,
-                              bottom: const BorderSide(
-                                color: darkGrey,
-                                width: 0.25,
-                              ),
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(
-                                      8,
+                      return StreamBuilder(
+                          stream: getIfWishlist(id),
+                          builder: (context, snapshot) {
+                            final isWishListed = snapshot.data ?? false;
+                            return GestureDetector(
+                              onTap: () async {
+                                if (context.mounted) {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: ((context) => ProductPage(
+                                            productData: productData,
+                                          )),
                                     ),
-                                    child: Image.network(
-                                      imageUrl,
-                                      width: widget.width * 0.3,
-                                      height: widget.width * 0.3,
-                                      fit: BoxFit.cover,
+                                  );
+                                }
+                              },
+                              onDoubleTap: () async {
+                                await showDialog(
+                                  context: context,
+                                  builder: ((context) => ProductQuickView(
+                                        productId: id,
+                                      )),
+                                );
+                              },
+                              onLongPress: () async {
+                                await showDialog(
+                                  context: context,
+                                  builder: ((context) => ProductQuickView(
+                                        productId: id,
+                                      )),
+                                );
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border.all(
+                                    width: 0.25,
+                                    color: Colors.grey.withOpacity(
+                                      0.25,
                                     ),
                                   ),
-                                  const SizedBox(height: 4),
-                                  rating == 0
-                                      ? Text(
-                                          'No Reviews',
-                                          style: TextStyle(
-                                            fontSize: widget.width * 0.03,
+                                ),
+                                padding: EdgeInsets.all(
+                                  MediaQuery.of(context).size.width * 0.0125,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Stack(
+                                      alignment: Alignment.topRight,
+                                      children: [
+                                        Center(
+                                          child: Image.network(
+                                            imageUrl,
+                                            fit: BoxFit.cover,
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.5,
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.58,
                                           ),
-                                        )
-                                      : Text('$rating ⭐'),
-                                ],
-                              ),
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  SizedBox(
-                                    width: widget.width * 0.6,
-                                    child: Text(
-                                      name,
-                                      style: TextStyle(
-                                        fontSize: widget.width * 0.05,
-                                      ),
+                                        ),
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            color: const Color.fromRGBO(
+                                              255,
+                                              92,
+                                              78,
+                                              1,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              4,
+                                            ),
+                                          ),
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: widget.width * 0.0125,
+                                            vertical: widget.width * 0.00625,
+                                          ),
+                                          margin: EdgeInsets.all(
+                                            widget.width * 0.00625,
+                                          ),
+                                          child: Text(
+                                            '${(ratings as Map).isEmpty ? '--' : ((ratings.values.map((e) => e?[0] ?? 0).toList().reduce((a, b) => a + b) / (ratings.values.isEmpty ? 1 : ratings.values.length)) as double).toStringAsFixed(1)} ⭐',
+                                            style: const TextStyle(
+                                              color: white,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    price == '' ? 'Rs. --' : 'Rs. $price',
-                                    style: TextStyle(
-                                      fontSize: widget.width * 0.04,
-                                      fontWeight: FontWeight.w500,
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceAround,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                left: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.00625,
+                                                right: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.00625,
+                                                top: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.0225,
+                                              ),
+                                              child: SizedBox(
+                                                width: widget.width * 0.3,
+                                                child: Text(
+                                                  name,
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: TextStyle(
+                                                    fontSize:
+                                                        widget.width * 0.0575,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal:
+                                                    MediaQuery.of(context)
+                                                            .size
+                                                            .width *
+                                                        0.0125,
+                                              ),
+                                              child: Text(
+                                                price,
+                                                style: TextStyle(
+                                                  fontSize: widget.width * 0.05,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        IconButton(
+                                          onPressed: () async {
+                                            await wishlistProduct(id);
+                                          },
+                                          icon: Icon(
+                                            isWishListed
+                                                ? Icons.favorite
+                                                : Icons.favorite_border,
+                                            color: Colors.red,
+                                          ),
+                                          color: Colors.red,
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ],
-                          ),
-                        ),
-                      );
+                            );
+                          });
                     }),
                   ),
                 ),

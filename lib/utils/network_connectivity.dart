@@ -16,13 +16,14 @@
 //   List<ConnectivityResult> _connectionStatus = [ConnectivityResult.none];
 //   late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
 
+//   // INIT STATE
 //   @override
 //   void initState() {
 //     super.initState();
 //     connectivityInitialize();
 //   }
 
-// //  DISPOSE
+//   // DISPOSE
 //   @override
 //   void dispose() {
 //     _connectivitySubscription.cancel();
@@ -31,7 +32,6 @@
 
 //   Future<void> connectivityInitialize() async {
 //     final initialResult = await Connectivity().checkConnectivity();
-//     print('result: $initialResult');
 //     await updateConnectionStatus(initialResult);
 
 //     _connectivitySubscription = Connectivity()

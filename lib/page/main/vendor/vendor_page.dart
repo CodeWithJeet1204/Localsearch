@@ -3,11 +3,12 @@ import 'dart:convert';
 import 'package:Localsearch_User/page/main/vendor/vendor_products_tab_page.dart';
 import 'package:Localsearch_User/page/main/vendor/vendor_shorts_tab_page.dart';
 import 'package:Localsearch_User/providers/location_provider.dart';
+import 'package:Localsearch_User/widgets/vendor_discounts.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:intl/intl.dart';
-import 'package:Localsearch_User/page/main/vendor/product/product_page.dart';
 import 'package:Localsearch_User/page/main/vendor/brand/all_brand_page.dart';
 import 'package:Localsearch_User/page/main/vendor/brand/brand_page.dart';
 import 'package:Localsearch_User/page/main/vendor/category/all_category_page.dart';
@@ -79,7 +80,7 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
     sortProducts(EventSorting.recentlyAdded);
     super.initState();
     scrollController.addListener(scrollListener);
-    // setRecentShop();
+    setRecentShop();
   }
 
   // DID CHANGE DEPENDENCIES
@@ -120,12 +121,10 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
 
   // SET RECENT SHOP
   Future<void> setRecentShop() async {
-    Timer(
-      const Duration(seconds: 5),
-      () async {
-        // await setRecentAndUpdate();
-      },
-    );
+    await Future.delayed(Duration(seconds: 3));
+    await store.collection('Users').doc(auth.currentUser!.uid).update({
+      'recentShop': widget.vendorId,
+    });
   }
 
   // SET RECENT AND UPDATE
@@ -410,26 +409,11 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
           .collection(shop)
           .get();
 
-      final vendorSnap = await store
-          .collection('Business')
-          .doc('Owners')
-          .collection('Shops')
-          .doc(widget.vendorId)
-          .get();
+      for (var categoryData in categoriesSnap.docs) {
+        final name = categoryData['specialCategoryName'] as String;
+        final imageUrl = categoryData['specialCategoryImageUrl'] as String;
 
-      final vendorData = vendorSnap.data()!;
-
-      final List categories = vendorData['Categories'];
-
-      for (var shopCategory in categories) {
-        for (var categoryData in categoriesSnap.docs) {
-          final name = categoryData['specialCategoryName'] as String;
-          final imageUrl = categoryData['specialCategoryImageUrl'] as String;
-
-          if (shopCategory == name) {
-            category[name] = imageUrl;
-          }
-        }
+        category[name] = imageUrl;
       }
     }
     setState(() {
@@ -806,6 +790,20 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
       appBar: AppBar(
         actions: [
           IconButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => VendorCataloguePage(
+                    vendorId: widget.vendorId,
+                    products: shopData!['Products'],
+                  ),
+                ),
+              );
+            },
+            icon: Icon(FeatherIcons.list),
+            tooltip: 'View Catalogue',
+          ),
+          IconButton(
             onPressed: () async {},
             icon: const Icon(FeatherIcons.share2),
             tooltip: 'Share Shop',
@@ -846,84 +844,91 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                         Container(
                           width: width,
                           decoration: BoxDecoration(
-                            color: primary2.withOpacity(0.125),
-                            borderRadius: BorderRadius.circular(12),
+                            color: white,
                           ),
-                          padding: EdgeInsets.symmetric(
-                            horizontal: width * 0.00625,
-                            vertical: width * 0.0166,
-                          ),
+                          padding: EdgeInsets.all(width * 0.006125),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              // IMAGE
-                              GestureDetector(
-                                onTap: () async {
-                                  await showDialog(
-                                    context: context,
-                                    builder: ((context) => ImageShow(
-                                          imageUrl: shopData!['Image'],
-                                          width: width,
-                                        )),
-                                  );
-                                },
-                                child: CircleAvatar(
-                                  radius: width * 0.1,
-                                  backgroundImage: NetworkImage(
-                                    shopData!['Image'],
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  // IMAGE
+                                  GestureDetector(
+                                    onTap: () async {
+                                      await showDialog(
+                                        context: context,
+                                        builder: ((context) => ImageShow(
+                                              imageUrl: shopData!['Image'],
+                                              width: width,
+                                            )),
+                                      );
+                                    },
+                                    child: CircleAvatar(
+                                      radius: width * 0.1,
+                                      backgroundImage: NetworkImage(
+                                        shopData!['Image'],
+                                      ),
+                                    ),
                                   ),
-                                ),
+                                  Column(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      // NAME
+                                      Text(
+                                        shopData!['Name'],
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          color: primaryDark,
+                                          fontSize: width * 0.05,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      SizedBox(height: width * 0.035),
+
+                                      // TYPE
+                                      Text(
+                                        getTypes(shopData!['Type']),
+                                        maxLines: 3,
+                                        overflow: TextOverflow.ellipsis,
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: width * 0.04,
+                                        ),
+                                      ),
+                                      SizedBox(height: width * 0.0125),
+                                    ],
+                                  ),
+                                ],
                               ),
                               SizedBox(height: width * 0.045),
 
-                              // NAME
-                              Text(
-                                shopData!['Name'],
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  color: primaryDark,
-                                  fontSize: width * 0.05,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              SizedBox(height: width * 0.035),
+                              // // VIEW CATALOGUE
+                              // (shopData!['Products'] as List).isEmpty
+                              //     ? Container()
+                              //     : MyTextButton(
+                              //         onPressed: () {
+                              //           Navigator.of(context).push(
+                              //             MaterialPageRoute(
+                              //               builder: (context) =>
+                              //                   VendorCataloguePage(
+                              //                 vendorId: widget.vendorId,
+                              //                 products: shopData!['Products'],
+                              //               ),
+                              //             ),
+                              //           );
+                              //         },
+                              //         text: 'View Catalogue',
+                              //         textColor: primaryDark,
+                              //       ),
 
-                              // TYPE
-                              Text(
-                                getTypes(shopData!['Type']),
-                                maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: width * 0.04,
-                                ),
-                              ),
-                              SizedBox(height: width * 0.0125),
-
-                              // VIEW CATALOGUE
-                              (shopData!['Products'] as List).isEmpty
-                                  ? Container()
-                                  : MyTextButton(
-                                      onPressed: () {
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                VendorCataloguePage(
-                                              vendorId: widget.vendorId,
-                                              products: shopData!['Products'],
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      text: 'View Catalogue',
-                                      textColor: primaryDark,
-                                    ),
-                              (shopData!['Products'] as List).isEmpty
-                                  ? Container()
-                                  : SizedBox(height: width * 0.045),
-
-                              // OPEN / CLOSED
+                              // OPEN STATUS
                               FutureBuilder(
                                   future: isShopOpen(),
                                   builder: (context, snapshot) {
@@ -934,7 +939,9 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                     if (snapshot.hasData) {
                                       final isOpen = snapshot.data!;
 
-                                      return Column(
+                                      return Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
                                         crossAxisAlignment:
                                             CrossAxisAlignment.center,
                                         children: [
@@ -945,7 +952,9 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                                       .withOpacity(0.2)
                                                   : Colors.red.withOpacity(0.2),
                                               borderRadius:
-                                                  BorderRadius.circular(8),
+                                                  BorderRadius.circular(
+                                                8,
+                                              ),
                                             ),
                                             padding:
                                                 EdgeInsets.all(width * 0.0225),
@@ -965,7 +974,9 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                               ),
                                             ),
                                           ),
-                                          SizedBox(height: width * 0.02),
+                                          SizedBox(
+                                            height: width * 0.02,
+                                          ),
                                           FutureBuilder(
                                             future:
                                                 findNextOpeningOrClosingTime(),
@@ -983,18 +994,21 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                               return Container();
                                             },
                                           ),
-                                          SizedBox(height: width * 0.035),
+                                          SizedBox(
+                                            height: width * 0.035,
+                                          ),
                                         ],
                                       );
                                     }
 
                                     return Container();
                                   }),
+                              SizedBox(height: width * 0.035),
 
-                              // OPTIONS
+                              // FOLLOW & CALL
                               Row(
                                 mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
+                                    MainAxisAlignment.spaceEvenly,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   // FOLLOW
@@ -1004,7 +1018,7 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                       await getIfFollowing();
                                     },
                                     child: Container(
-                                      width: width * 0.4125,
+                                      width: width * 0.725,
                                       height: 40,
                                       alignment: Alignment.center,
                                       decoration: BoxDecoration(
@@ -1031,7 +1045,7 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                       await callVendor();
                                     },
                                     child: Container(
-                                      width: width * 0.25,
+                                      width: width * 0.225,
                                       height: 40,
                                       alignment: Alignment.center,
                                       padding: EdgeInsets.symmetric(
@@ -1063,357 +1077,681 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                       ),
                                     ),
                                   ),
+                                ],
+                              ),
+                              SizedBox(height: width * 0.0125),
 
+                              // SOCIAL MEDIA
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
                                   // WHATSAPP
-                                  GestureDetector(
-                                    onTap: () async {
-                                      final String phoneNumber =
-                                          ownerData!['Phone Number'];
-                                      const String message =
-                                          'Hey, I found you on Localsearch\n';
-                                      final url =
-                                          'https://wa.me/$phoneNumber?text=$message';
+                                  ownerData!['Phone Number'] == ''
+                                      ? Container()
+                                      : Expanded(
+                                          child: GestureDetector(
+                                            onTap: () async {
+                                              final String phoneNumber =
+                                                  ownerData!['Phone Number'];
+                                              const String message =
+                                                  'Hey, I found you on Localsearch\n';
+                                              final url =
+                                                  'https://wa.me/$phoneNumber?text=$message';
 
-                                      if (await canLaunchUrl(Uri.parse(url))) {
-                                        await launchUrl(Uri.parse(url));
-                                      } else {
-                                        if (context.mounted) {
-                                          mySnackBar(
-                                            'Something went Wrong',
-                                            context,
-                                          );
-                                        }
-                                      }
-                                    },
-                                    child: Container(
-                                      width: width * 0.275,
-                                      height: 40,
-                                      alignment: Alignment.center,
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: width * 0.00625,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: const Color.fromRGBO(
-                                          198,
-                                          255,
-                                          200,
-                                          1,
-                                        ),
-                                        border: Border.all(
-                                          color: primaryDark.withOpacity(0.25),
-                                          width: 0.25,
-                                        ),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: const Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceAround,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            'Whatsapp',
-                                            style: TextStyle(
-                                              color: primaryDark,
-                                              fontWeight: FontWeight.w500,
+                                              if (await canLaunchUrl(
+                                                  Uri.parse(url))) {
+                                                await launchUrl(Uri.parse(url));
+                                              } else {
+                                                if (context.mounted) {
+                                                  mySnackBar(
+                                                    'Something went Wrong',
+                                                    context,
+                                                  );
+                                                }
+                                              }
+                                            },
+                                            child: Container(
+                                              height: 40,
+                                              alignment: Alignment.center,
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: width * 0.00625,
+                                              ),
+                                              margin: EdgeInsets.symmetric(
+                                                horizontal: width * 0.006125,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: const Color.fromRGBO(
+                                                  198,
+                                                  255,
+                                                  200,
+                                                  1,
+                                                ),
+                                                border: Border.all(
+                                                  color: primaryDark
+                                                      .withOpacity(0.25),
+                                                  width: 0.25,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceAround,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                children: [
+                                                  AutoSizeText(
+                                                    'Whatsapp',
+                                                    style: TextStyle(
+                                                      color: primaryDark,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      fontSize: width * 0.03,
+                                                    ),
+                                                  ),
+                                                  Icon(
+                                                    FeatherIcons.messageCircle,
+                                                    size: width * 0.05,
+                                                  ),
+                                                ],
+                                              ),
                                             ),
                                           ),
-                                          Icon(FeatherIcons.messageCircle),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
+                                        ),
+
+                                  // INSTAGRAM
+                                  shopData!['Instagram'] == ''
+                                      ? Container()
+                                      : Expanded(
+                                          child: GestureDetector(
+                                            onTap: () async {
+                                              String url =
+                                                  shopData!['Instagram'];
+
+                                              if (!url.startsWith('http://') &&
+                                                  !url.startsWith('https://')) {
+                                                url = 'https://$url';
+                                              }
+
+                                              if (await canLaunchUrl(
+                                                  Uri.parse(url))) {
+                                                await launchUrl(Uri.parse(url));
+                                              } else {
+                                                if (context.mounted) {
+                                                  mySnackBar(
+                                                    'Something went Wrong',
+                                                    context,
+                                                  );
+                                                }
+                                              }
+                                            },
+                                            child: Container(
+                                              height: 40,
+                                              alignment: Alignment.center,
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: width * 0.00625,
+                                              ),
+                                              margin: EdgeInsets.symmetric(
+                                                horizontal: width * 0.006125,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                gradient: LinearGradient(
+                                                  colors: [
+                                                    Color(0xA8050AE6),
+                                                    Color.fromRGBO(
+                                                        88, 81, 216, 0.66),
+                                                    Color.fromRGBO(
+                                                        131, 58, 180, 0.66),
+                                                    Color.fromRGBO(
+                                                        193, 53, 132, 0.66),
+                                                    Color.fromRGBO(
+                                                        225, 48, 108, 0.66),
+                                                    Color.fromRGBO(
+                                                        253, 36, 76, 0.66),
+                                                  ],
+                                                ),
+                                                border: Border.all(
+                                                  color: primaryDark
+                                                      .withOpacity(0.25),
+                                                  width: 0.25,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceAround,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                children: [
+                                                  AutoSizeText(
+                                                    'Instagram',
+                                                    style: TextStyle(
+                                                      color: primaryDark,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      fontSize: width * 0.03,
+                                                    ),
+                                                  ),
+                                                  Icon(
+                                                    FeatherIcons.instagram,
+                                                    size: width * 0.05,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+
+                                  // FACEBOOK
+                                  shopData!['Facebook'] == ''
+                                      ? Container()
+                                      : Expanded(
+                                          child: GestureDetector(
+                                            onTap: () async {
+                                              String url =
+                                                  shopData!['Facebook'];
+
+                                              if (!url.startsWith('http://') &&
+                                                  !url.startsWith('https://')) {
+                                                url = 'https://$url';
+                                              }
+
+                                              if (await canLaunchUrl(
+                                                  Uri.parse(url))) {
+                                                await launchUrl(Uri.parse(url));
+                                              } else {
+                                                if (context.mounted) {
+                                                  mySnackBar(
+                                                    'Something went Wrong',
+                                                    context,
+                                                  );
+                                                }
+                                              }
+                                            },
+                                            child: Container(
+                                              height: 40,
+                                              alignment: Alignment.center,
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: width * 0.00625,
+                                              ),
+                                              margin: EdgeInsets.symmetric(
+                                                horizontal: width * 0.006125,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: Color.fromRGBO(
+                                                    24, 119, 242, 0.66),
+                                                border: Border.all(
+                                                  color: primaryDark
+                                                      .withOpacity(0.25),
+                                                  width: 0.25,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceAround,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                children: [
+                                                  AutoSizeText(
+                                                    'Facebook',
+                                                    style: TextStyle(
+                                                      color: primaryDark,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      fontSize: width * 0.03,
+                                                    ),
+                                                  ),
+                                                  Icon(
+                                                    FeatherIcons.facebook,
+                                                    size: width * 0.05,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+
+                                  // WEBSITE
+                                  shopData!['Website'] == ''
+                                      ? Container()
+                                      : Expanded(
+                                          child: GestureDetector(
+                                            onTap: () async {
+                                              String url = shopData!['Website'];
+
+                                              if (!url.startsWith('http://') &&
+                                                  !url.startsWith('https://')) {
+                                                url = 'https://$url';
+                                              }
+
+                                              if (await canLaunchUrl(
+                                                  Uri.parse(url))) {
+                                                await launchUrl(Uri.parse(url));
+                                              } else {
+                                                if (context.mounted) {
+                                                  mySnackBar(
+                                                    'Something went Wrong',
+                                                    context,
+                                                  );
+                                                }
+                                              }
+                                            },
+                                            child: Container(
+                                              height: 40,
+                                              alignment: Alignment.center,
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: width * 0.00625,
+                                              ),
+                                              margin: EdgeInsets.symmetric(
+                                                horizontal: width * 0.006125,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: Colors.grey.shade300,
+                                                border: Border.all(
+                                                  color: primaryDark
+                                                      .withOpacity(0.25),
+                                                  width: 0.25,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceAround,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                children: [
+                                                  AutoSizeText(
+                                                    'Website',
+                                                    style: TextStyle(
+                                                      color: primaryDark,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      fontSize: width * 0.03,
+                                                    ),
+                                                  ),
+                                                  Icon(
+                                                    FeatherIcons.globe,
+                                                    size: width * 0.05,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
                                 ],
                               ),
 
-                              Divider(
-                                height: width * 0.05,
-                              ),
-
-                              // NAME
-                              Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: width * 0.0125,
-                                  vertical: width * 0.0175,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    SizedBox(
-                                      width: width * 0.8,
-                                      child: Text(
-                                        ownerData!['Name'],
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                        right: width * 0.04,
-                                      ),
-                                      child: const Icon(FeatherIcons.user),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(height: width * 0.033),
-
-                              // FOLLOWERS
-                              Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: width * 0.0125,
-                                  vertical: width * 0.0175,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    const Text(
-                                      "Followers",
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                        right: width * 0.0575,
-                                      ),
-                                      child: Text(
-                                        shopData!['Followers']
-                                            .length
-                                            .toString(),
-                                        style: TextStyle(
-                                          color: primaryDark,
-                                          fontSize: width * 0.05,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(height: width * 0.033),
-
-                              // PRODUCTS
-                              Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: width * 0.0125,
-                                  vertical: width * 0.0175,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    const Text(
-                                      "Total Products",
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                        right: width * 0.0575,
-                                      ),
-                                      child: Text(
-                                        products.length.toString(),
-                                        style: TextStyle(
-                                          color: primaryDark,
-                                          fontSize: width * 0.05,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(height: width * 0.033),
+                              Divider(),
 
                               // LOCATION
-                              FutureBuilder(
-                                  future: getAddress(
-                                    shopData!['Latitude']!,
-                                    shopData!['Longitude']!,
-                                    locationProvider,
-                                  ),
-                                  builder: (context, snapshot) {
-                                    if (snapshot.hasError) {
-                                      return const Center(
-                                        child: Text(
-                                          'Something went wrong while finding Location',
-                                        ),
-                                      );
-                                    }
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: width * 0.0125,
+                                ),
+                                child: FutureBuilder(
+                                    future: getAddress(
+                                      shopData!['Latitude']!,
+                                      shopData!['Longitude']!,
+                                      locationProvider,
+                                    ),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.hasError) {
+                                        return const Center(
+                                          child: Text(
+                                            'Something went wrong while finding Location',
+                                          ),
+                                        );
+                                      }
 
-                                    if (snapshot.hasData) {
+                                      if (snapshot.hasData) {
+                                        return Padding(
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: width * 0.0125,
+                                          ),
+                                          child: GestureDetector(
+                                            onTap: () async {
+                                              Uri mapsUrl = Uri.parse(
+                                                  'https://www.google.com/maps/search/?api=1&query=${shopData!['Latitude']},${shopData!['Longitude']}');
+
+                                              if (await canLaunchUrl(mapsUrl)) {
+                                                await launchUrl(mapsUrl);
+                                              } else {
+                                                if (context.mounted) {
+                                                  mySnackBar(
+                                                    'Something went wrong',
+                                                    context,
+                                                  );
+                                                }
+                                              }
+                                            },
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    SizedBox(
+                                                      width: width * 0.8,
+                                                      child: Text(
+                                                          snapshot.data![0]),
+                                                    ),
+                                                    Text(
+                                                      snapshot.data![1] == null
+                                                          ? '-- km'
+                                                          : '${snapshot.data![1]} km',
+                                                    ),
+                                                  ],
+                                                ),
+                                                IconButton(
+                                                  onPressed: () async {
+                                                    Uri mapsUrl = Uri.parse(
+                                                      'https://www.google.com/maps/search/?api=1&query=${shopData!['Latitude']},${shopData!['Longitude']}',
+                                                    );
+
+                                                    if (await canLaunchUrl(
+                                                        mapsUrl)) {
+                                                      await launchUrl(mapsUrl);
+                                                    } else {
+                                                      if (context.mounted) {
+                                                        mySnackBar(
+                                                          'Something went wrong while finding Location',
+                                                          context,
+                                                        );
+                                                      }
+                                                    }
+                                                  },
+                                                  icon: const Icon(
+                                                    FeatherIcons.mapPin,
+                                                  ),
+                                                  tooltip: 'Locate on Maps',
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                      }
+
                                       return Padding(
                                         padding: EdgeInsets.symmetric(
                                           horizontal: width * 0.0125,
                                         ),
-                                        child: GestureDetector(
-                                          onTap: () async {
-                                            Uri mapsUrl = Uri.parse(
-                                                'https://www.google.com/maps/search/?api=1&query=${shopData!['Latitude']},${shopData!['Longitude']}');
-
-                                            if (await canLaunchUrl(mapsUrl)) {
-                                              await launchUrl(mapsUrl);
-                                            } else {
-                                              if (context.mounted) {
-                                                mySnackBar(
-                                                  'Something went wrong',
-                                                  context,
-                                                );
-                                              }
-                                            }
-                                          },
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  SizedBox(
-                                                    width: width * 0.8,
-                                                    child:
-                                                        Text(snapshot.data![0]),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                SizedBox(
+                                                  width: width * 0.8,
+                                                  child: const Text(
+                                                    'Getting Location',
                                                   ),
-                                                  Text(
-                                                    snapshot.data![1] == null
-                                                        ? '-- km'
-                                                        : '${snapshot.data![1]} km',
-                                                  ),
-                                                ],
-                                              ),
-                                              IconButton(
-                                                onPressed: () async {
-                                                  Uri mapsUrl = Uri.parse(
-                                                    'https://www.google.com/maps/search/?api=1&query=${shopData!['Latitude']},${shopData!['Longitude']}',
-                                                  );
-
-                                                  if (await canLaunchUrl(
-                                                      mapsUrl)) {
-                                                    await launchUrl(mapsUrl);
-                                                  } else {
-                                                    if (context.mounted) {
-                                                      mySnackBar(
-                                                        'Something went wrong while finding Location',
-                                                        context,
-                                                      );
-                                                    }
-                                                  }
-                                                },
-                                                icon: const Icon(
-                                                  FeatherIcons.mapPin,
                                                 ),
-                                                tooltip: 'Locate on Maps',
-                                              ),
-                                            ],
-                                          ),
+                                                const Text('-- km'),
+                                              ],
+                                            ),
+                                            Icon(
+                                              FeatherIcons.mapPin,
+                                            ),
+                                          ],
                                         ),
                                       );
-                                    }
-
-                                    return Padding(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: width * 0.0125,
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              SizedBox(
-                                                width: width * 0.8,
-                                                child: const Text(
-                                                  'Getting Location',
-                                                ),
-                                              ),
-                                              const Text('-- km'),
-                                            ],
-                                          ),
-                                          IconButton(
-                                            onPressed: () {},
-                                            icon:
-                                                const Icon(FeatherIcons.mapPin),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  }),
-
-                              SizedBox(height: width * 0.033),
-
-                              // INDUSTRY
-                              Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: width * 0.0125,
-                                  vertical: width * 0.0175,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    SizedBox(
-                                      width: width * 0.8,
-                                      child: Text(
-                                        shopData!['Industry'],
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                        right: width * 0.034,
-                                      ),
-                                      child: const Icon(Icons.factory_outlined),
-                                    ),
-                                  ],
-                                ),
+                                    }),
                               ),
 
                               SizedBox(height: width * 0.033),
 
-                              // DESCRIPTION
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.center,
+                              // MORE INFO
+                              ExpansionTile(
+                                title: Text(
+                                  overflow: TextOverflow.ellipsis,
+                                  'More Info',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: width * 0.045,
+                                  ),
+                                ),
+                                initiallyExpanded: false,
+                                tilePadding: EdgeInsets.symmetric(
+                                  horizontal: width * 0.0225,
+                                ),
+                                backgroundColor: white,
+                                collapsedBackgroundColor: white,
+                                textColor: primaryDark.withOpacity(0.9),
+                                collapsedTextColor: primaryDark,
+                                iconColor: primaryDark2.withOpacity(0.9),
+                                collapsedIconColor: primaryDark2,
+                                shape: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(
+                                    color: white,
+                                  ),
+                                ),
+                                collapsedShape: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(
+                                    color: white,
+                                  ),
+                                ),
                                 children: [
+                                  // NAME
                                   Padding(
-                                    padding:
-                                        EdgeInsets.only(left: width * 0.015),
-                                    child: SizedBox(
-                                      width: width * 0.85,
-                                      child: Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: SeeMoreText(
-                                          shopData!['Description'],
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: width * 0.0125,
+                                      vertical: width * 0.0175,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        SizedBox(
+                                          width: width * 0.8,
+                                          child: Text(
+                                            ownerData!['Name'],
+                                          ),
                                         ),
-                                      ),
+                                        Padding(
+                                          padding: EdgeInsets.only(
+                                            right: width * 0.04,
+                                          ),
+                                          child: const Icon(FeatherIcons.user),
+                                        ),
+                                      ],
                                     ),
                                   ),
+                                  SizedBox(height: width * 0.033),
+
+                                  // FOLLOWERS
                                   Padding(
-                                    padding:
-                                        EdgeInsets.only(right: width * 0.04),
-                                    child: Icon(
-                                      Icons.info_outline,
-                                      size: width * 0.075,
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: width * 0.0125,
+                                      vertical: width * 0.0175,
                                     ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        const Text(
+                                          "Followers",
+                                        ),
+                                        Padding(
+                                          padding: EdgeInsets.only(
+                                            right: width * 0.0575,
+                                          ),
+                                          child: Text(
+                                            shopData!['Followers']
+                                                .length
+                                                .toString(),
+                                            style: TextStyle(
+                                              color: primaryDark,
+                                              fontSize: width * 0.05,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(height: width * 0.033),
+
+                                  // PRODUCTS
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: width * 0.0125,
+                                      vertical: width * 0.0175,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        const Text(
+                                          "Total Products",
+                                        ),
+                                        Padding(
+                                          padding: EdgeInsets.only(
+                                            right: width * 0.0575,
+                                          ),
+                                          child: Text(
+                                            products.length.toString(),
+                                            style: TextStyle(
+                                              color: primaryDark,
+                                              fontSize: width * 0.05,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(height: width * 0.033),
+
+                                  // INDUSTRY
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: width * 0.0125,
+                                      vertical: width * 0.0175,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        SizedBox(
+                                          width: width * 0.8,
+                                          child: Text(
+                                            shopData!['Industry'],
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: EdgeInsets.only(
+                                            right: width * 0.034,
+                                          ),
+                                          child: const Icon(
+                                              Icons.factory_outlined),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  SizedBox(height: width * 0.033),
+
+                                  // DESCRIPTION
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsets.only(
+                                            left: width * 0.015),
+                                        child: SizedBox(
+                                          width: width * 0.85,
+                                          child: Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: SeeMoreText(
+                                              shopData!['Description'],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.only(
+                                            right: width * 0.04),
+                                        child: Icon(
+                                          Icons.info_outline,
+                                          size: width * 0.075,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
+
+                              const Divider(),
                             ],
                           ),
                         ),
 
-                        const Divider(),
+                        // DISCOUNT
+                        allDiscounts == null || allDiscounts!.isEmpty
+                            ? Container()
+                            : Padding(
+                                padding: EdgeInsets.symmetric(
+                                  vertical: width * 0.01,
+                                  horizontal: width * 0.0125,
+                                ),
+                                child: Text(
+                                  'Offers',
+                                  style: TextStyle(
+                                    fontSize: width * 0.0425,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+
+                        // DISCOUNTS
+                        allDiscounts == null || allDiscounts!.isEmpty
+                            ? Container()
+                            : VendorDiscounts(
+                                noOfDiscounts: allDiscounts!.length,
+                                allDiscount: allDiscounts!,
+                                vendorType: shopData!['Type'],
+                              ),
+
+                        allDiscounts == null || allDiscounts!.isEmpty
+                            ? Container()
+                            : const Divider(),
 
                         // BRAND
                         brands.isEmpty
@@ -1506,36 +1844,6 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                               ),
 
                         brands.isEmpty ? Container() : const Divider(),
-
-                        // DISCOUNT
-                        allDiscounts == null || allDiscounts!.isEmpty
-                            ? Container()
-                            : Padding(
-                                padding: EdgeInsets.symmetric(
-                                  vertical: width * 0.01,
-                                  horizontal: width * 0.0125,
-                                ),
-                                child: Text(
-                                  'Offers',
-                                  style: TextStyle(
-                                    fontSize: width * 0.0425,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
-
-                        // DISCOUNTS
-                        allDiscounts == null || allDiscounts!.isEmpty
-                            ? Container()
-                            : DiscountsWidget(
-                                noOfDiscounts: allDiscounts!.length,
-                                allDiscount: allDiscounts!,
-                                vendorType: shopData!['Type'],
-                              ),
-
-                        allDiscounts == null || allDiscounts!.isEmpty
-                            ? Container()
-                            : const Divider(),
 
                         // CATEGORY
                         categories == null || categories!.isEmpty
@@ -1692,7 +2000,7 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
 
                         SizedBox(
                           width: width,
-                          height: getScreenHeight() * 0.725,
+                          height: getScreenHeight() * 0.8,
                           child: TabBarView(
                             controller: tabController,
                             children: [
@@ -1722,333 +2030,6 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                 })),
               ),
             ),
-    );
-  }
-}
-
-// DISCOUNTS WIDGET
-class DiscountsWidget extends StatefulWidget {
-  const DiscountsWidget({
-    super.key,
-    required this.noOfDiscounts,
-    required this.allDiscount,
-    required this.vendorType,
-  });
-
-  final int noOfDiscounts;
-  final List allDiscount;
-  final List vendorType;
-
-  @override
-  State<DiscountsWidget> createState() => _DiscountsWidgetState();
-}
-
-class _DiscountsWidgetState extends State<DiscountsWidget>
-    with SingleTickerProviderStateMixin {
-  final store = FirebaseFirestore.instance;
-
-  // GET NAME
-  Future<String> getName(
-    int index,
-    bool wantName, {
-    Map<String, dynamic>? wantProductData,
-  }) async {
-    final discountSnap = await store
-        .collection('Business')
-        .doc('Data')
-        .collection('Discounts')
-        .doc(widget.allDiscount[index]['discountId'])
-        .get();
-
-    final discountData = discountSnap.data()!;
-    final List products = discountData['products'];
-    // final List categories = discountData['categories'];
-    final List brands = discountData['brands'];
-
-    // PRODUCT
-    if (products.isNotEmpty) {
-      final productId = products[0];
-
-      final productSnap = await store
-          .collection('Business')
-          .doc('Data')
-          .collection('Products')
-          .doc(productId)
-          .get();
-
-      final productData = productSnap.data()!;
-
-      final String name = productData['productName'];
-      final String imageUrl = productData['images'][0];
-
-      return wantName ? name : imageUrl;
-    }
-
-    // CATEGORY
-    // if (categories.isNotEmpty) {
-    //   final categoryId = categories[0];
-
-    //   final categorySnap = await store
-    //       .collection('Business')
-    //       .doc('Data')
-    //       .collection('Category')
-    //       .doc(categoryId)
-    //       .get();
-
-    //   final categoryData = categorySnap.data()!;
-
-    //   final name = categoryData['categoryName'];
-    //   final imageUrl = categoryData['imageUrl'];
-
-    //   return wantName ? name : imageUrl;
-    // }
-
-    // BRAND
-    if (brands.isNotEmpty) {
-      final brandId = brands[0];
-
-      final brandSnap = await store
-          .collection('Business')
-          .doc('Data')
-          .collection('Brands')
-          .doc(brandId)
-          .get();
-
-      final brandData = brandSnap.data()!;
-
-      final name = brandData['brandName'];
-      final imageUrl = brandData['imageUrl'];
-
-      return wantName ? name : imageUrl;
-    }
-    return '';
-  }
-
-  // GET PRODUCT DATA
-  Future<Map<String, dynamic>> getProductData(int index) async {
-    final discountSnap = await store
-        .collection('Business')
-        .doc('Data')
-        .collection('Discounts')
-        .doc(widget.allDiscount[index]['discountId'])
-        .get();
-
-    final discountData = discountSnap.data()!;
-    final List products = discountData['products'];
-
-    final productId = products[0];
-
-    final productSnap = await store
-        .collection('Business')
-        .doc('Data')
-        .collection('Products')
-        .doc(productId)
-        .get();
-
-    final productData = productSnap.data()!;
-
-    return productData;
-  }
-
-  // GET CATEGORY ID
-  Future<String> getCategoryId(int index) async {
-    final discountSnap = await store
-        .collection('Business')
-        .doc('Data')
-        .collection('Discounts')
-        .doc(widget.allDiscount[index]['discountId'])
-        .get();
-
-    final discountData = discountSnap.data()!;
-    final List categories = discountData['categories'];
-
-    final categoryId = categories[0];
-
-    return categoryId;
-  }
-
-  // GET BRAND ID
-  Future<String> getBrandId(int index) async {
-    final discountSnap = await store
-        .collection('Business')
-        .doc('Data')
-        .collection('Discounts')
-        .doc(widget.allDiscount[index]['discountId'])
-        .get();
-
-    final discountData = discountSnap.data()!;
-    final List brands = discountData['brands'];
-
-    final brandId = brands[0];
-
-    return brandId;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: width * 0.00125,
-      ),
-      child: SizedBox(
-        width: width,
-        height: width * 0.35,
-        child: ListView.builder(
-          shrinkWrap: true,
-          scrollDirection: Axis.horizontal,
-          physics: widget.allDiscount.length > 3
-              ? const AlwaysScrollableScrollPhysics()
-              : const NeverScrollableScrollPhysics(),
-          itemCount: widget.allDiscount.length,
-          itemBuilder: ((context, index) {
-            final currentDiscount = widget.allDiscount[index];
-            // final String? image = currentDiscount['discountImageUrl'];
-            final name = currentDiscount['discountName'];
-            final amount = currentDiscount['discountAmount'];
-            final isPercent = currentDiscount['isPercent'];
-            final List products = currentDiscount['products'];
-            final List categories = currentDiscount['categories'];
-            final List brands = currentDiscount['brands'];
-            // final endDate = currentDiscount['discountEndDateTime'];
-
-            return Padding(
-              padding: EdgeInsets.all(width * 0.0125),
-              child: GestureDetector(
-                onTap: () async {
-                  if (products.isNotEmpty) {
-                    final productData = await getProductData(index);
-                    if (context.mounted) {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => ProductPage(
-                            productData: productData,
-                          ),
-                        ),
-                      );
-                    }
-                  } else if (categories.isNotEmpty) {
-                    final categoryId = await getCategoryId(index);
-                    if (context.mounted) {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: ((context) => CategoryPage(
-                                categoryName: categoryId,
-                                vendorType: widget.vendorType,
-                              )),
-                        ),
-                      );
-                    }
-                  } else if (brands.isNotEmpty) {
-                    final brandId = await getBrandId(index);
-                    if (context.mounted) {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: ((context) => BrandPage(
-                                brandId: brandId,
-                              )),
-                        ),
-                      );
-                    }
-                  }
-                },
-                child: Container(
-                  width: width * 0.25,
-                  // padding: EdgeInsets.all(
-                  //   width * 0.00325,
-                  // ),
-                  decoration: BoxDecoration(
-                    color: white,
-                    border: Border.all(
-                      width: 0.125,
-                      color: black,
-                    ),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // IMAGE
-                      FutureBuilder(
-                          future: getName(index, false),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              return Stack(
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(2),
-                                    child: Image.network(
-                                      snapshot.data ??
-                                          'https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/ProhibitionSign2.svg/800px-ProhibitionSign2.svg.png',
-                                      fit: BoxFit.cover,
-                                      width: width * 0.25,
-                                      height: width * 0.25,
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: EdgeInsets.all(
-                                      width * 0.00675,
-                                    ),
-                                    decoration: const BoxDecoration(
-                                      color: primary,
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(2),
-                                        bottomRight: Radius.circular(4),
-                                      ),
-                                      boxShadow: [
-                                        BoxShadow(),
-                                      ],
-                                    ),
-                                    child: Text(
-                                      isPercent
-                                          ? '$amount %'
-                                          : 'Save Rs. $amount',
-                                      style: const TextStyle(
-                                        color: Color.fromARGB(255, 255, 30, 14),
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              );
-                            }
-
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          }),
-
-                      // NAME
-                      FutureBuilder(
-                          future: getName(index, true),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              return Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: width * 0.00625,
-                                ),
-                                child: Text(
-                                  snapshot.data ?? name,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: width * 0.04,
-                                  ),
-                                ),
-                              );
-                            }
-
-                            return Container();
-                          }),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          }),
-        ),
-      ),
     );
   }
 }

@@ -10,6 +10,7 @@ import 'package:Localsearch_User/widgets/snack_bar.dart';
 import 'package:Localsearch_User/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -20,6 +21,29 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   final auth = FirebaseAuth.instance;
+  final store = FirebaseFirestore.instance;
+  String? name;
+
+  // INIT STATE
+  @override
+  void initState() {
+    super.initState();
+    getData();
+  }
+
+  // GET DATA
+  Future<void> getData() async {
+    final userSnap =
+        await store.collection('Users').doc(auth.currentUser!.uid).get();
+
+    final userData = userSnap.data()!;
+
+    final userName = userData['Name'];
+
+    setState(() {
+      name = userName;
+    });
+  }
 
   // LOG OUT
   Future<void> logOut(BuildContext context) async {
@@ -43,11 +67,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    final userFuture = FirebaseFirestore.instance
-        .collection('Users')
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .get();
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile'),
@@ -106,66 +125,44 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: FutureBuilder(
-                      future: userFuture,
-                      builder: ((context, snapshot) {
-                        if (snapshot.hasError) {
-                          return const Center(
-                            child: Text('Something went wrong'),
-                          );
-                        }
-
-                        if (snapshot.hasData) {
-                          final userData = snapshot.data!;
-
-                          return Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              // IMAGE, NAME & INFO
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding:
-                                        EdgeInsets.only(left: width * 0.05),
-                                    child: SizedBox(
-                                      width: width * 0.45,
-                                      child: Text(
-                                        userData['Name'] ?? 'N/A',
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        textAlign: TextAlign.start,
-                                        style: TextStyle(
-                                          fontSize: width * 0.07,
-                                          fontWeight: FontWeight.w700,
-                                          color: primaryDark.withBlue(5),
-                                        ),
-                                      ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // NAME
+                        name == null
+                            ? Container()
+                            : Padding(
+                                padding: EdgeInsets.only(left: width * 0.05),
+                                child: SizedBox(
+                                  width: width * 0.45,
+                                  child: Text(
+                                    name!,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.start,
+                                    style: TextStyle(
+                                      fontSize: width * 0.07,
+                                      fontWeight: FontWeight.w700,
+                                      color: primaryDark.withBlue(5),
                                     ),
                                   ),
-                                ],
-                              ),
-                              IconButton(
-                                onPressed: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: ((context) =>
-                                          const UserDetailsPage()),
-                                    ),
-                                  );
-                                },
-                                icon: const Icon(
-                                  FeatherIcons.settings,
                                 ),
-                                tooltip: 'Your Info',
                               ),
-                            ],
-                          );
-                        }
-
-                        return Container();
-                      }),
+                        IconButton(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: ((context) => const UserDetailsPage()),
+                              ),
+                            );
+                          },
+                          icon: const Icon(
+                            FeatherIcons.settings,
+                          ),
+                          tooltip: 'Your Info',
+                        ),
+                      ],
                     ),
                   ),
                   const Divider(),
@@ -194,6 +191,57 @@ class _ProfilePageState extends State<ProfilePage> {
                       );
                     },
                     width: width,
+                  ),
+
+                  Divider(),
+
+                  InkWell(
+                    onTap: () async {
+                      final helplineSnap = await store
+                          .collection('Helpline')
+                          .doc('helpline1')
+                          .get();
+
+                      final helplineData = helplineSnap.data()!;
+
+                      final int helplineNo = helplineData['helpline1'];
+
+                      final Uri url = Uri(
+                        scheme: 'tel',
+                        path: helplineNo.toString(),
+                      );
+                      if (await canLaunchUrl(url)) {
+                        await launchUrl(url);
+                      } else {
+                        if (mounted) {
+                          mySnackBar('Some error occured', context);
+                        }
+                      }
+                    },
+                    customBorder: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.all(width * 0.0225),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Call Helpline',
+                            style: TextStyle(
+                              fontSize: width * 0.0425,
+                              color: primaryDark,
+                            ),
+                          ),
+                          Icon(
+                            FeatherIcons.phoneCall,
+                            size: width * 0.075,
+                            color: primaryDark,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ],
               ),

@@ -24,6 +24,8 @@ class RegisterMethodPage extends StatefulWidget {
 }
 
 class _RegisterMethodPageState extends State<RegisterMethodPage> {
+  final auth = FirebaseAuth.instance;
+  final store = FirebaseFirestore.instance;
   final GlobalKey<FormState> registerEmailFormKey = GlobalKey<FormState>();
   final GlobalKey<FormState> registerNumberFormKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
@@ -61,28 +63,26 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
             context: context,
           );
 
-          if (FirebaseAuth.instance.currentUser != null) {
-            await FirebaseFirestore.instance
-                .collection('Users')
-                .doc(FirebaseAuth.instance.currentUser!.uid)
-                .set({
-              'uid': FirebaseAuth.instance.currentUser!.uid,
+          if (auth.currentUser != null) {
+            await store.collection('Users').doc(auth.currentUser!.uid).set({
+              'uid': auth.currentUser!.uid,
               'Email': emailController.text.toString(),
               'Name': null,
               'Phone Number': null,
               'recentShop': '',
               'followedShops': [],
-              'followedOrganizers': [],
               'wishlists': [],
-              'wishlistEvents': [],
               'likedProducts': [],
               'recentSearches': [],
               'recentProducts': [],
-              'fcmToken': '',
+              'hasReviewed': false,
+              // 'followedOrganizers': [],
+              // 'wishlistEvents': [],
+              // 'fcmToken': '',
             });
           } else {
             if (mounted) {
-              mySnackBar(
+              return mySnackBar(
                 'User Sign In Error',
                 context,
               );
@@ -92,7 +92,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
           setState(() {
             isEmailRegistering = false;
           });
-          if (FirebaseAuth.instance.currentUser!.email != null) {
+          if (auth.currentUser!.email != null) {
             SystemChannels.textInput.invokeMethod('TextInput.hide');
             if (context.mounted) {
               if (mounted) {
@@ -138,7 +138,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
           isPhoneRegistering = true;
         });
 
-        await FirebaseAuth.instance.verifyPhoneNumber(
+        await auth.verifyPhoneNumber(
             phoneNumber: '+91 ${phoneController.text}',
             verificationCompleted: (_) {
               setState(() {
@@ -211,23 +211,22 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
     try {
       await AuthMethods().signInWithGoogle(context);
       await auth.currentUser!.reload();
-      if (FirebaseAuth.instance.currentUser != null) {
-        await FirebaseFirestore.instance
-            .collection('Users')
-            .doc(FirebaseAuth.instance.currentUser!.uid)
-            .set({
-          'uid': FirebaseAuth.instance.currentUser!.uid,
+      if (auth.currentUser != null) {
+        await store.collection('Users').doc(auth.currentUser!.uid).set({
+          'uid': auth.currentUser!.uid,
           'Email': emailController.text.toString(),
           'Name': null,
           'Phone Number': null,
           'recentShop': '',
           'followedShops': [],
-          'followedOrganizers': [],
           'wishlists': [],
-          'wishlistEvents': [],
           'likedProducts': [],
           'recentSearches': [],
           'recentProducts': [],
+          'hasReviewed': false,
+          // 'followedOrganizers': [],
+          // 'wishlistEvents': [],
+          // 'fcmToken': '',
         });
 
         setState(() {
@@ -425,7 +424,7 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                         GestureDetector(
                           onTap: () async {
                             await registerWithGoogle(
-                              FirebaseAuth.instance,
+                              auth,
                             );
                           },
                           child: Container(
@@ -630,22 +629,22 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
                         //       signInMethodProvider.chooseGoogle();
                         //       await AuthMethods().signInWithGoogle(context);
                         //       await _auth.currentUser!.reload();
-                        //       if (FirebaseAuth.instance.currentUser != null) {
-                        //         await FirebaseFirestore.instance
+                        //       if (auth.currentUser != null) {
+                        //         await store
                         //             .collection('Business')
                         //             .doc('Owners')
                         //             .collection('Users')
                         //             .doc(_auth.currentUser!.uid)
                         //             .set({
                         //           'Email':
-                        //               FirebaseAuth.instance.currentUser!.email,
+                        //               auth.currentUser!.email,
                         //           'Name': FirebaseAuth
                         //               .instance.currentUser!.displayName,
-                        //           'uid': FirebaseAuth.instance.currentUser!.uid,
+                        //           'uid': auth.currentUser!.uid,
                         //           'Image': null,
                         //           'Phone Number': null,
                         //         });
-                        //         await FirebaseFirestore.instance
+                        //         await store
                         //             .collection('Business')
                         //             .doc('Owners')
                         //             .collection('Shops')

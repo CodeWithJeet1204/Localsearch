@@ -189,13 +189,13 @@ class _ProductQuickViewState extends State<ProductQuickView> {
                                 decoration: BoxDecoration(
                                   border: Border.all(
                                     color: primaryDark2,
-                                    width: 1.5,
+                                    width: 1,
                                   ),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(
-                                    12,
+                                    11,
                                   ),
                                   child: Container(
                                     decoration: BoxDecoration(

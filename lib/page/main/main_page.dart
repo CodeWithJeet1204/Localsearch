@@ -9,7 +9,7 @@ import 'package:Localsearch_User/page/main/vendor/home/product_scroll_page.dart'
 import 'package:Localsearch_User/page/main/vendor/profile/profile_page.dart';
 import 'package:Localsearch_User/page/main/vendor/shorts_page.dart';
 import 'package:Localsearch_User/utils/colors.dart';
-import 'package:Localsearch_User/utils/notification_handler.dart';
+// import 'package:Localsearch_User/utils/notification_handler.dart';
 import 'package:Localsearch_User/widgets/snack_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +23,7 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage>
     with AutomaticKeepAliveClientMixin {
-  final NotificationHandler _notificationHandler = NotificationHandler();
+  // final NotificationHandler _notificationHandler = NotificationHandler();
   final auth = FirebaseAuth.instance.currentUser!;
   final store = FirebaseFirestore.instance;
   final messaging = FirebaseMessaging.instance;
@@ -47,17 +47,17 @@ class _MainPageState extends State<MainPage>
   @override
   void initState() {
     super.initState();
-    _initializeNotifications();
-    _fetchUserDetailsAndSaveToken();
+    // _initializeNotifications();
+    // _fetchUserDetailsAndSaveToken();
   }
 
   // INITIALIZE NOTIFICATIONS
-  void _initializeNotifications() {
-    _notificationHandler.initialize();
-  }
+  // void _initializeNotifications() {
+  //   _notificationHandler.initialize();
+  // }
 
-  // FETCH USER DETAILS
-  Future<void> _fetchUserDetailsAndSaveToken() async {
+  // GET DATA
+  Future<void> getData() async {
     try {
       final userSnap = await store.collection('Users').doc(auth.uid).get();
 
@@ -107,16 +107,16 @@ class _MainPageState extends State<MainPage>
       }
     }
 
-    messaging.getToken().then((String? token) {
-      if (token != null) {
-        FirebaseFirestore.instance
-            .collection('Users')
-            .doc(auth.uid)
-            .update({'fcmToken': token}).catchError((e) {});
-      }
-    }).catchError((e) {});
+    // messaging.getToken().then((String? token) {
+    //   if (token != null) {
+    //     FirebaseFirestore.instance
+    //         .collection('Users')
+    //         .doc(auth.uid)
+    //         .update({'fcmToken': token}).catchError((e) {});
+    //   }
+    // }).catchError((e) {});
 
-    messaging.subscribeToTopic('all').then((_) {}).catchError((e) {});
+    // messaging.subscribeToTopic('all').then((_) {}).catchError((e) {});
   }
 
   // CHANGE PAGE
@@ -129,6 +129,7 @@ class _MainPageState extends State<MainPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+
     return detailsPage ??
         Scaffold(
           // body: IndexedStack(

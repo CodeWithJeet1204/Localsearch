@@ -25,6 +25,8 @@ class RegisterDetailsPage extends StatefulWidget {
 }
 
 class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
+  final auth = FirebaseAuth.instance;
+  final store = FirebaseFirestore.instance;
   final registerDetailsKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
   final emailController = TextEditingController();
@@ -110,10 +112,10 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
       });
 
       try {
-        FirebaseAuth.instance.currentUser!.email == null
-            ? await FirebaseFirestore.instance
+        auth.currentUser!.email == null
+            ? await store
                 .collection('Users')
-                .doc(FirebaseAuth.instance.currentUser!.uid)
+                .doc(auth.currentUser!.uid)
                 .update({
                 'Name': nameController.text,
                 'Email': emailController.text,
@@ -121,9 +123,9 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                 'Latitude': latitude,
                 'Longitude': longitude,
               })
-            : await FirebaseFirestore.instance
+            : await store
                 .collection('Users')
-                .doc(FirebaseAuth.instance.currentUser!.uid)
+                .doc(auth.currentUser!.uid)
                 .update({
                 'Name': nameController.text,
                 'Phone Number': '+91${phoneController.text}',
@@ -153,11 +155,12 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
     final locationProvider = Provider.of<LocationProvider>(context);
 
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: EdgeInsets.symmetric(horizontal: width * 0.045),
         child: LayoutBuilder(
           builder: ((context, constraints) {
             final width = constraints.maxWidth;

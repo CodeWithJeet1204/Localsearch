@@ -417,11 +417,13 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
                                       ),
                                     ),
                                     Container(
+                                      width: width * 0.15,
+                                      height: width * 0.15,
                                       decoration: const BoxDecoration(
                                         color: primaryDark,
                                         shape: BoxShape.circle,
                                       ),
-                                      padding: EdgeInsets.all(width * 0.035),
+                                      alignment: Alignment.center,
                                       child: Text(
                                         distanceRange
                                                 .toString()
@@ -429,7 +431,7 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
                                             ? distanceRange
                                                 .toString()
                                                 .replaceFirst(
-                                                    '.500000000000004', '')
+                                                    '.500000000000004', '.5')
                                             : distanceRange
                                                     .toString()
                                                     .endsWith('0')

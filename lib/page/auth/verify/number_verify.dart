@@ -61,12 +61,14 @@ class _NumberVerifyPageState extends State<NumberVerifyPage> {
             'Name': null,
             'recentShop': '',
             'followedShops': [],
-            'followedOrganizers': [],
             'wishlists': [],
-            'wishlistEvents': [],
             'likedProducts': [],
             'recentSearches': [],
             'recentProducts': [],
+            'hasReviewed': false,
+            // 'followedOrganizers': [],
+            // 'wishlistEvents': [],
+            // 'fcmToken': '',
           });
         }
 

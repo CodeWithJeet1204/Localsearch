@@ -138,7 +138,6 @@ Map<String, Map<String, List<String>>> householdTypeCategorySubCategory = {
     //   'Purses',
     //   'Other Kids Accessories',
     // ],
-    // TODO: improve this & footwear
     'Men Watches': [
       'Men Watches',
     ],
