@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:Localsearch_User/models/household_types.dart';
 import 'package:Localsearch_User/page/main/vendor/post_page_view.dart';
+import 'package:Localsearch_User/providers/review_provider.dart';
 import 'package:Localsearch_User/widgets/text_button.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -278,11 +279,12 @@ class _ProductHomePageState extends State<ProductHomePage> {
 
         double? yourLatitude;
         double? yourLongitude;
-
-        setState(() {
-          yourLatitude = locationProvider.cityLatitude;
-          yourLongitude = locationProvider.cityLongitude;
-        });
+        if (mounted) {
+          setState(() {
+            yourLatitude = locationProvider.cityLatitude;
+            yourLongitude = locationProvider.cityLongitude;
+          });
+        }
 
         try {
           final dist = await getDrivingDistance(
@@ -394,10 +396,12 @@ class _ProductHomePageState extends State<ProductHomePage> {
           final vendorLongitude = vendorData['Longitude'];
 
           if (locationProvider.cityName == 'Your Location') {
-            setState(() {
-              yourLatitude = locationProvider.cityLatitude;
-              yourLongitude = locationProvider.cityLongitude;
-            });
+            if (mounted) {
+              setState(() {
+                yourLatitude = locationProvider.cityLatitude;
+                yourLongitude = locationProvider.cityLongitude;
+              });
+            }
             try {
               final dist = await getDrivingDistance(
                 yourLatitude!,
@@ -481,9 +485,11 @@ class _ProductHomePageState extends State<ProductHomePage> {
             }
           }
 
-          setState(() {
-            getWishlistData = true;
-          });
+          if (mounted) {
+            setState(() {
+              getWishlistData = true;
+            });
+          }
         },
       );
     }
@@ -498,10 +504,12 @@ class _ProductHomePageState extends State<ProductHomePage> {
       double? yourLongitude;
 
       if (locationProvider.cityName == 'Your Location') {
-        setState(() {
-          yourLatitude = locationProvider.cityLatitude;
-          yourLongitude = locationProvider.cityLongitude;
-        });
+        if (mounted) {
+          setState(() {
+            yourLatitude = locationProvider.cityLatitude;
+            yourLongitude = locationProvider.cityLongitude;
+          });
+        }
 
         await Future.forEach(followedShop, (vendorId) async {
           final vendorSnap = await store
@@ -682,56 +690,78 @@ class _ProductHomePageState extends State<ProductHomePage> {
 
     // GET HAS REVIEWED
     Future<void> getHasReviewed() async {
+      final reviewProvider = Provider.of<ReviewProvider>(
+        context,
+        listen: false,
+      );
       final hasReviewed = userData['hasReviewed'];
+      final hasReviewedIndex = userData['hasReviewedIndex'];
+
+      await store.collection('Users').doc(auth.currentUser!.uid).update({
+        'hasReviewedIndex': hasReviewedIndex + 1,
+      });
 
       if (!hasReviewed) {
-        await showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: Text('Rate our App'),
-              content: Text('If you liked our app, you can rate it 5⭐'),
-              actions: [
-                MyTextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  text: 'Not Now',
-                  textColor: Colors.red,
-                ),
-                MyTextButton(
-                  onPressed: () async {
-                    await store
-                        .collection('Users')
-                        .doc(auth.currentUser!.uid)
-                        .update({
-                      'hasReviewed': true,
-                    });
+        if (hasReviewedIndex > 10) {
+          reviewProvider.reviewed();
+          await showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: Text('Rate our App'),
+                content: Text('If you liked our app, you can rate it 5⭐'),
+                actions: [
+                  MyTextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    text: 'Not Now',
+                    textColor: Colors.red,
+                  ),
+                  MyTextButton(
+                    onPressed: () async {
+                      await store
+                          .collection('Users')
+                          .doc(auth.currentUser!.uid)
+                          .update({
+                        'hasReviewed': true,
+                      });
 
-                    // TODO: RATE APP IN PLAY STORE
-                  },
-                  text: 'Yes',
-                  textColor: Colors.green,
-                  fontSize: MediaQuery.of(context).size.width * 0.0475,
-                ),
-              ],
-            );
-          },
-        );
+                      // TODO: RATE APP IN PLAY STORE
+                    },
+                    text: 'Yes',
+                    textColor: Colors.green,
+                    fontSize: MediaQuery.of(context).size.width * 0.0475,
+                  ),
+                ],
+              );
+            },
+          );
+        }
       }
     }
 
-    await getName().then((value) async {
-      await getPosts().then((value) async {
-        await getRecentShop().then((value) async {
-          await getNoOfProductsOfRecentShop().then((value) async {
-            await getRecentShopProductInfo().then((value) async {
-              await getWishlist().then((value) async {
-                await getFollowedShops().then((value) async {
-                  await getFeatured().then((value) async {
-                    if (!fromRefreshIndicator) {
-                      await getHasReviewed();
-                    }
+    if (mounted) {
+      await getName().then((value) async {
+        await getPosts().then((value) async {
+          await getRecentShop().then((value) async {
+            await getNoOfProductsOfRecentShop().then((value) async {
+              await getRecentShopProductInfo().then((value) async {
+                await getWishlist().then((value) async {
+                  await getFollowedShops().then((value) async {
+                    await getFeatured().then((value) async {
+                      final reviewProvider = Provider.of<ReviewProvider>(
+                        context,
+                        listen: false,
+                      );
+                      final hasReviewed = reviewProvider.hasAsked;
+
+                      if (!hasReviewed) {
+                        if (!fromRefreshIndicator) {
+                          await getHasReviewed();
+                        }
+                      }
+                    });
                   });
                 });
               });
@@ -739,7 +769,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
           });
         });
       });
-    });
+    }
   }
 
   // GET NO OF DISCOUNTS

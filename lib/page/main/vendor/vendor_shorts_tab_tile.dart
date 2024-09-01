@@ -127,12 +127,14 @@ class _VendorShortsTabTileState extends State<VendorShortsTabTile> {
 
     final productData = productSnap.data()!;
 
-    int noOfWishList = productData['productWishlist'] ?? 0;
+    Map wishlists = productData['productWishlistTimestamp'];
 
     if (!alreadyInWishlist) {
-      noOfWishList++;
+      wishlists.addAll({
+        auth.currentUser!.uid: DateTime.now(),
+      });
     } else {
-      noOfWishList--;
+      wishlists.remove(auth.currentUser!.uid);
     }
 
     await store
@@ -141,7 +143,7 @@ class _VendorShortsTabTileState extends State<VendorShortsTabTile> {
         .collection('Products')
         .doc(productId)
         .update({
-      'productWishlist': noOfWishList,
+      'productWishlistTimestamp': wishlists,
     });
   }
 

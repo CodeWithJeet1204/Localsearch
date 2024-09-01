@@ -57,6 +57,12 @@ Map<String, Map<String, String>> householdSubCategories = {
     'Men Western': '',
     'Women Western': '',
     'Kids Western': '',
+    'Men Winter Wear': '',
+    'Women Winter Wear': '',
+    'Kids Winter Wear': '',
+    'Rainy Wear': '',
+    'Men Accessories': '',
+    'Women Accessories': '',
     'Wallets': '',
   },
   'Food': {

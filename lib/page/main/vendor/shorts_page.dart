@@ -1,12 +1,17 @@
 // ignore_for_file: unused_field
-
 import 'package:Localsearch_User/page/main/vendor/shorts_tile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+// import 'package:preload_page_view/preload_page_view.dart';
 import 'package:video_player/video_player.dart';
 
 class ShortsPage extends StatefulWidget {
-  const ShortsPage({super.key});
+  const ShortsPage({
+    super.key,
+    required this.bottomNavIndex,
+  });
+
+  final int bottomNavIndex;
 
   @override
   State<ShortsPage> createState() => _ShortsPageState();
@@ -14,7 +19,8 @@ class ShortsPage extends StatefulWidget {
 
 class _ShortsPageState extends State<ShortsPage> {
   final store = FirebaseFirestore.instance;
-  final PageController _pageController = PageController();
+  // final _pageController = PreloadPageController();
+  final _pageController = PageController();
   int _currentPage = 0;
   final Map<int, VideoPlayerController> _videoControllers = {};
 
@@ -109,10 +115,12 @@ class _ShortsPageState extends State<ShortsPage> {
                   );
                 }
 
+                // return PreloadPageView.builder(
                 return PageView.builder(
                   controller: _pageController,
                   scrollDirection: Axis.vertical,
                   itemCount: shortsSnap.docs.length,
+                  // preloadPagesCount: 2,
                   itemBuilder: (context, index) {
                     final currentShort = shortsSnap.docs[index];
                     final data = currentShort.data() as Map<String, dynamic>;
@@ -123,6 +131,7 @@ class _ShortsPageState extends State<ShortsPage> {
                       data: data,
                       snappedPageIndex: _currentPage,
                       currentIndex: index,
+                      bottomNavIndex: widget.bottomNavIndex,
                     );
                   },
                 );

@@ -15,11 +15,13 @@ class ShortsTile extends StatefulWidget {
     required this.data,
     required this.snappedPageIndex,
     required this.currentIndex,
+    required this.bottomNavIndex,
   });
 
   final Map<String, dynamic> data;
   final int snappedPageIndex;
   final int currentIndex;
+  final int bottomNavIndex;
 
   @override
   State<ShortsTile> createState() => _ShortsTileState();
@@ -66,6 +68,16 @@ class _ShortsTileState extends State<ShortsTile> {
   void dispose() {
     flickManager.dispose();
     super.dispose();
+  }
+
+  // DID UPDATE WIDGET
+  @override
+  void didUpdateWidget(covariant ShortsTile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.bottomNavIndex != 2) {
+      flickManager.flickControlManager?.pause();
+    }
   }
 
   // PAUSE PLAY SHORT
@@ -124,12 +136,14 @@ class _ShortsTileState extends State<ShortsTile> {
 
     final productData = productSnap.data()!;
 
-    int noOfWishList = productData['productWishlist'] ?? 0;
+    Map wishlists = productData['productWishlistTimestamp'];
 
     if (!alreadyInWishlist) {
-      noOfWishList++;
+      wishlists.addAll({
+        auth.currentUser!.uid: DateTime.now(),
+      });
     } else {
-      noOfWishList--;
+      wishlists.remove(auth.currentUser!.uid);
     }
 
     await store
@@ -138,7 +152,7 @@ class _ShortsTileState extends State<ShortsTile> {
         .collection('Products')
         .doc(productId)
         .update({
-      'productWishlist': noOfWishList,
+      'productWishlistTimestamp': wishlists,
     });
   }
 
@@ -182,7 +196,11 @@ class _ShortsTileState extends State<ShortsTile> {
       return VisibilityDetector(
         key: const Key('Shorts'),
         onVisibilityChanged: (info) {
-          flickManager.flickControlManager?.togglePlay();
+          if (info.visibleBounds == Rect.zero) {
+            flickManager.flickControlManager?.pause();
+          } else {
+            flickManager.flickControlManager?.play();
+          }
         },
         child: Stack(
           children: [
@@ -203,17 +221,19 @@ class _ShortsTileState extends State<ShortsTile> {
                       ),
                     ),
                   ),
-                  Visibility(
-                    visible: !isVideoPlaying,
-                    child: IconButton(
-                      onPressed: pausePlayShort,
-                      icon: const Icon(
-                        Icons.play_arrow_rounded,
-                        size: 80,
-                        color: white,
-                      ),
-                    ),
-                  ),
+                  flickManager.flickVideoManager == null
+                      ? Container()
+                      : Visibility(
+                          visible: !flickManager.flickVideoManager!.isPlaying,
+                          child: IconButton(
+                            onPressed: pausePlayShort,
+                            icon: const Icon(
+                              Icons.play_arrow_rounded,
+                              size: 80,
+                              color: white,
+                            ),
+                          ),
+                        ),
                   Padding(
                     padding: EdgeInsets.all(width * 0.025),
                     child: Column(

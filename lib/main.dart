@@ -5,6 +5,7 @@ import 'package:Localsearch_User/page/main/get_location_page.dart';
 import 'package:Localsearch_User/page/main/main_page.dart';
 import 'package:Localsearch_User/providers/location_provider.dart';
 import 'package:Localsearch_User/providers/register_details_provider.dart';
+import 'package:Localsearch_User/providers/review_provider.dart';
 import 'package:Localsearch_User/providers/verification_provider.dart';
 import 'package:Localsearch_User/utils/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -24,6 +25,9 @@ void main() async {
       providers: [
         ChangeNotifierProvider(
           create: (_) => VerificationProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ReviewProvider(),
         ),
         ChangeNotifierProvider(
           create: (_) => LocationProvider(),

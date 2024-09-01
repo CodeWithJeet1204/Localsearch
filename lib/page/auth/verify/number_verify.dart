@@ -66,6 +66,7 @@ class _NumberVerifyPageState extends State<NumberVerifyPage> {
             'recentSearches': [],
             'recentProducts': [],
             'hasReviewed': false,
+            'hasReviewedIndex': 0,
             // 'followedOrganizers': [],
             // 'wishlistEvents': [],
             // 'fcmToken': '',

@@ -71,6 +71,7 @@ dependencies:
   image: ^4.2.0
   carousel_slider: ^5.0.0
   flutter_native_splash: ^2.4.1
+  preload_page_view: ^0.2.0
 
 flutter_native_splash:
   android: true

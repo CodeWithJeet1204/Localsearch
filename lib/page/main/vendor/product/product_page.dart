@@ -100,7 +100,7 @@ class _ProductPageState extends State<ProductPage> {
 
       final productData = productSnap.data()!;
 
-      int views = productData['productViews'] ?? 0;
+      int views = productData['productViewsTimestamp'].length;
       List viewsTimestamps = productData['productViewsTimestamp'];
       views = views + 1;
       viewsTimestamps.add(DateTime.now());
@@ -111,7 +111,6 @@ class _ProductPageState extends State<ProductPage> {
           .collection('Products')
           .doc(widget.productData['productId'])
           .update({
-        'productViews': views,
         'productViewsTimestamp': viewsTimestamps,
       });
 
@@ -209,16 +208,18 @@ class _ProductPageState extends State<ProductPage> {
     final productSnap = await productDoc.get();
     final productData = productSnap.data()!;
 
-    int noOfWishList = productData['productWishlist'] ?? 0;
+    Map wishlists = productData['productWishlistTimestamp'];
 
     if (!alreadyInWishlist) {
-      noOfWishList++;
+      wishlists.addAll({
+        auth.currentUser!.uid: DateTime.now(),
+      });
     } else {
-      noOfWishList--;
+      wishlists.remove(auth.currentUser!.uid);
     }
 
     await productDoc.update({
-      'productWishlist': noOfWishList,
+      'productWishlistTimestamp': wishlists,
     });
   }
 

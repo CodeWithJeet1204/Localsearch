@@ -21,40 +21,14 @@ class MainPage extends StatefulWidget {
   State<MainPage> createState() => _MainPageState();
 }
 
-class _MainPageState extends State<MainPage>
-    with AutomaticKeepAliveClientMixin {
+class _MainPageState extends State<MainPage> {
   // final NotificationHandler _notificationHandler = NotificationHandler();
   final auth = FirebaseAuth.instance.currentUser!;
   final store = FirebaseFirestore.instance;
   final messaging = FirebaseMessaging.instance;
   int currentIndex = 0;
+  List loadedPages = [0];
   Widget? detailsPage;
-
-  List<Widget> items = [
-    const ProductHomePage(),
-    const ProductsScrollPage(),
-    const ShortsPage(),
-    // const ServicesHomePage(),
-    // const EventsHomePage(),
-    const ProfilePage(),
-  ];
-
-  // KEEP ALIVE
-  @override
-  bool get wantKeepAlive => true;
-
-  // INIT STATE
-  @override
-  void initState() {
-    super.initState();
-    // _initializeNotifications();
-    // _fetchUserDetailsAndSaveToken();
-  }
-
-  // INITIALIZE NOTIFICATIONS
-  // void _initializeNotifications() {
-  //   _notificationHandler.initialize();
-  // }
 
   // GET DATA
   Future<void> getData() async {
@@ -121,6 +95,9 @@ class _MainPageState extends State<MainPage>
 
   // CHANGE PAGE
   void changePage(int index) {
+    if (!loadedPages.contains(index)) {
+      loadedPages.add(index);
+    }
     setState(() {
       currentIndex = index;
     });
@@ -128,15 +105,26 @@ class _MainPageState extends State<MainPage>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
+    List<Widget> items = [
+      const ProductHomePage(),
+      loadedPages.contains(1) ? const ProductsScrollPage() : Container(),
+      loadedPages.contains(2)
+          ? ShortsPage(
+              bottomNavIndex: currentIndex,
+            )
+          : Container(),
+      // const ServicesHomePage(),
+      // const EventsHomePage(),
+      loadedPages.contains(3) ? const ProfilePage() : Container(),
+    ];
 
     return detailsPage ??
         Scaffold(
-          // body: IndexedStack(
-          //   index: current,
-          //   children: items,
-          // ),
-          body: items[currentIndex],
+          body: IndexedStack(
+            index: currentIndex,
+            children: items,
+          ),
+          // body: items[currentIndex],
           bottomNavigationBar: BottomNavigationBar(
             elevation: 0,
             backgroundColor: currentIndex == 2 ? black : white,

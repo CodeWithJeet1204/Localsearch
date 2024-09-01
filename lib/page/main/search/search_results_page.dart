@@ -421,7 +421,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
         final String vendorId = productData['vendorId'].toString();
         final Map<String, dynamic> ratings = productData['ratings'];
         final Timestamp datetime = productData['datetime'];
-        final int views = productData['productViews'];
+        final int views = (productData['productViewsTimestamp'] as List).length;
 
         final vendorSnap = await store
             .collection('Business')
@@ -589,16 +589,18 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
     final productSnap = await productDoc.get();
     final productData = productSnap.data()!;
 
-    int noOfWishList = productData['productWishlist'] ?? 0;
+    Map wishlists = productData['productWishlistTimestamp'];
 
     if (!alreadyInWishlist) {
-      noOfWishList++;
+      wishlists.addAll({
+        auth.currentUser!.uid: DateTime.now(),
+      });
     } else {
-      noOfWishList--;
+      wishlists.remove(auth.currentUser!.uid);
     }
 
     await productDoc.update({
-      'productWishlist': noOfWishList,
+      'productWishlistTimestamp': wishlists,
     });
   }
 

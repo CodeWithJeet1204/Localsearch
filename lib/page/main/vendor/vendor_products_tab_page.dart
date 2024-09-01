@@ -152,16 +152,18 @@ class _VendorProductsTabPageState extends State<VendorProductsTabPage> {
     final productSnap = await productDoc.get();
     final productData = productSnap.data()!;
 
-    int noOfWishList = productData['productWishlist'] ?? 0;
+    Map wishlists = productData['productWishlistTimestamp'];
 
     if (!alreadyInWishlist) {
-      noOfWishList++;
+      wishlists.addAll({
+        auth.currentUser!.uid: DateTime.now(),
+      });
     } else {
-      noOfWishList--;
+      wishlists.remove(auth.currentUser!.uid);
     }
 
     await productDoc.update({
-      'productWishlist': noOfWishList,
+      'productWishlistTimestamp': wishlists,
     });
   }
 

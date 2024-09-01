@@ -80,7 +80,7 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
     sortProducts(EventSorting.recentlyAdded);
     super.initState();
     scrollController.addListener(scrollListener);
-    setRecentShop();
+    setRecentAndUpdate();
   }
 
   // DID CHANGE DEPENDENCIES
@@ -119,40 +119,33 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
     });
   }
 
-  // SET RECENT SHOP
-  Future<void> setRecentShop() async {
-    await Future.delayed(Duration(seconds: 3));
+  // SET RECENT AND UPDATE
+  Future<void> setRecentAndUpdate() async {
     await store.collection('Users').doc(auth.currentUser!.uid).update({
       'recentShop': widget.vendorId,
     });
-  }
 
-  // SET RECENT AND UPDATE
-  // Future<void> setRecentAndUpdate() async {
-  //   await store.collection('Users').doc(auth.currentUser!.uid).update({
-  //     'recentShop': widget.vendorId,
-  //   });
-  //   final vendorSnap = await store
-  //       .collection('Business')
-  //       .doc('Owners')
-  //       .collection('Shops')
-  //       .doc(widget.vendorId)
-  //       .get();
-  //   final vendorData = vendorSnap.data()!;
-  //   int views = vendorData['Views'] ?? 0;
-  //   List viewsTimestamp = vendorData['viewsTimestamp'] ?? [];
-  //   viewsTimestamp.add(DateTime.now());
-  //   views = views + 1;
-  //   await store
-  //       .collection('Business')
-  //       .doc('Owners')
-  //       .collection('Shops')
-  //       .doc(widget.vendorId)
-  //       .update({
-  //     'Views': views,
-  //     'viewsTimestamp': viewsTimestamp,
-  //   });
-  // }
+    final vendorSnap = await store
+        .collection('Business')
+        .doc('Owners')
+        .collection('Shops')
+        .doc(widget.vendorId)
+        .get();
+
+    final vendorData = vendorSnap.data()!;
+
+    List viewsTimestamp = vendorData['viewsTimestamp'];
+    viewsTimestamp.add(DateTime.now());
+
+    await store
+        .collection('Business')
+        .doc('Owners')
+        .collection('Shops')
+        .doc(widget.vendorId)
+        .update({
+      'viewsTimestamp': viewsTimestamp,
+    });
+  }
 
   // GET IF FOLLOWING
   Future<void> getIfFollowing() async {
@@ -222,7 +215,7 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
         .get();
 
     final vendorData = vendorSnap.data()!;
-    Map<String, dynamic> followers = vendorData['Followers'];
+    Map<String, dynamic> followers = vendorData['followersTimestamp'];
 
     if (followers.keys.toList().contains(auth.currentUser!.uid)) {
       followers.remove(auth.currentUser!.uid);
@@ -237,7 +230,7 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
         .collection('Shops')
         .doc(widget.vendorId)
         .update({
-      'Followers': followers,
+      'followersTimestamp': followers,
     });
     // if (mounted) {
     //   Navigator.of(context).pop();
@@ -1606,7 +1599,8 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                             right: width * 0.0575,
                                           ),
                                           child: Text(
-                                            shopData!['Followers']
+                                            (shopData!['followersTimestamp']
+                                                    as Map)
                                                 .length
                                                 .toString(),
                                             style: TextStyle(
