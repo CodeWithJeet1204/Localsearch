@@ -32,10 +32,14 @@ class _FollowedPageState extends State<FollowedPage>
   // bool isOrganizersData = false;
   // late TabController tabController;
   // late int currentIndex;
+  int noOf = 12;
+  bool isLoadMore = false;
+  final scrollController = ScrollController();
 
   // INIT STATE
   @override
   void initState() {
+    scrollController.addListener(scrollListener);
     getShops();
     // getOrganizers();
     super.initState();
@@ -49,6 +53,22 @@ class _FollowedPageState extends State<FollowedPage>
     //   vsync: this,
     //   initialIndex: currentIndex,
     // );
+  }
+
+  // SCROLL LISTENER
+  Future<void> scrollListener() async {
+    if (scrollController.position.pixels ==
+        scrollController.position.maxScrollExtent) {
+      setState(() {
+        isLoadMore = true;
+      });
+      setState(() {
+        noOf = noOf + 8;
+      });
+      setState(() {
+        isLoadMore = false;
+      });
+    }
   }
 
   // GET SHOPS
@@ -116,52 +136,42 @@ class _FollowedPageState extends State<FollowedPage>
   // GET ORGANIZERS
   // Future<void> getOrganizers() async {
   //   Map<String, List<String>> myOrganizers = {};
-
   //   final userSnap =
   //       await store.collection('Users').doc(auth.currentUser!.uid).get();
   //   final userData = userSnap.data()!;
-
   //   final myFollowedOrganizers = userData['followedOrganizers'] as List;
-
   //   await Future.forEach(myFollowedOrganizers, (organizerId) async {
   //     final organizerSnap =
   //         await store.collection('Organizers').doc(organizerId).get();
-
   //     if (organizerSnap.exists) {
   //       final organizerData = organizerSnap.data()!;
   //       final id = organizerId as String;
   //       final name = organizerData['Name'] as String;
   //       final imageUrl = organizerData['Image'] as String;
   //       final type = organizerData['Type'] as String;
-
   //       myOrganizers[id] = [name, imageUrl, type];
   //     } else {
   //       myFollowedOrganizers.remove(organizerId);
-
   //       await store.collection('Users').doc(auth.currentUser!.uid).update({
   //         'followedOrganizers': myFollowedOrganizers,
   //       });
   //     }
   //   });
-
   //   setState(() {
   //     organizers = myOrganizers;
   //   });
-
   //   getOrganizerTypes(organizers);
   // }
 
   // // GET ORGANIZER TYPES
   // void getOrganizerTypes(Map<String, List<String>> organizers) {
   //   List<String> myTypes = [];
-
   //   organizers.forEach((key, value) {
   //     final myType = value[2];
   //     if (!myTypes.contains(myType)) {
   //       myTypes.add(myType);
   //     }
   //   });
-
   //   setState(() {
   //     organizerTypes = myTypes;
   //     isOrganizersData = true;
@@ -431,19 +441,37 @@ class _FollowedPageState extends State<FollowedPage>
                                           shrinkWrap: true,
                                           physics:
                                               const ClampingScrollPhysics(),
-                                          itemCount: currentShops.length,
+                                          itemCount: noOf > currentShops.length
+                                              ? currentShops.length
+                                              : noOf,
                                           itemBuilder: ((context, index) {
-                                            final id = currentShops.keys
-                                                .toList()[index];
-                                            final name = currentShops.values
-                                                .toList()[index][0];
-                                            final imageUrl = currentShops.values
-                                                .toList()[index][1];
-                                            final latitude = currentShops.values
-                                                .toList()[index][2];
-                                            final longitude = currentShops
-                                                .values
-                                                .toList()[index][3];
+                                            final id =
+                                                currentShops.keys.toList()[
+                                                    isLoadMore
+                                                        ? index == 0
+                                                            ? 0
+                                                            : index - 1
+                                                        : index];
+                                            final name =
+                                                currentShops.values.toList()[
+                                                    isLoadMore
+                                                        ? index - 1
+                                                        : index][0];
+                                            final imageUrl =
+                                                currentShops.values.toList()[
+                                                    isLoadMore
+                                                        ? index - 1
+                                                        : index][1];
+                                            final latitude =
+                                                currentShops.values.toList()[
+                                                    isLoadMore
+                                                        ? index - 1
+                                                        : index][2];
+                                            final longitude =
+                                                currentShops.values.toList()[
+                                                    isLoadMore
+                                                        ? index - 1
+                                                        : index][3];
 
                                             return Slidable(
                                               endActionPane: ActionPane(

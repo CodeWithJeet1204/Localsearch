@@ -9,7 +9,7 @@ class VendorShortsTabPage extends StatefulWidget {
     required this.shorts,
   });
 
-  final double width;
+  final width;
   final Map<String, List> shorts;
 
   @override
@@ -17,6 +17,40 @@ class VendorShortsTabPage extends StatefulWidget {
 }
 
 class _VendorShortsTabPageState extends State<VendorShortsTabPage> {
+  int noOf = 15;
+  bool isLoadMore = false;
+  final scrollController = ScrollController();
+
+  // INIT STATE
+  @override
+  void initState() {
+    scrollController.addListener(scrollListener);
+    super.initState();
+  }
+
+  // DISPOSE
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  // SCROLL LISTENER
+  Future<void> scrollListener() async {
+    if (scrollController.position.pixels ==
+        scrollController.position.maxScrollExtent) {
+      setState(() {
+        isLoadMore = true;
+      });
+      setState(() {
+        noOf = noOf + 6;
+      });
+      setState(() {
+        isLoadMore = false;
+      });
+    }
+  }
+
   // GET SCREEN HEIGHT
   double getScreenHeight() {
     final mediaQuery = MediaQuery.of(context);
@@ -31,77 +65,91 @@ class _VendorShortsTabPageState extends State<VendorShortsTabPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SizedBox(
-        width: widget.width,
-        height: getScreenHeight() * 0.606125,
-        child: widget.shorts.isEmpty
-            ? const SizedBox(
-                height: 80,
-                child: Center(
-                  child: Text('No Shorts'),
-                ),
-              )
-            : GridView.builder(
-                shrinkWrap: true,
-                physics: const ClampingScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  childAspectRatio: 9 / 15.66,
-                ),
-                itemCount: widget.shorts.length,
-                itemBuilder: (context, index) {
-                  final shortsId = widget.shorts.keys.toList()[index][0];
-                  // final shortsURL = widget.shorts.values.toList()[index][0];
-                  final shortsThumbnail =
-                      widget.shorts.values.toList()[index][3];
+      body: SafeArea(
+        child: SizedBox(
+          width: widget.width,
+          height: getScreenHeight() * 0.606125,
+          child: widget.shorts.isEmpty
+              ? const SizedBox(
+                  height: 80,
+                  child: Center(
+                    child: Text('No Shorts'),
+                  ),
+                )
+              : GridView.builder(
+                  controller: scrollController,
+                  cacheExtent: getScreenHeight() * 1.5,
+                  addAutomaticKeepAlives: true,
+                  shrinkWrap: true,
+                  physics: const ClampingScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    childAspectRatio: 9 / 15.66,
+                  ),
+                  itemCount:
+                      noOf > widget.shorts.length ? widget.shorts.length : noOf,
+                  itemBuilder: (context, index) {
+                    final shortsId = widget.shorts.keys.toList()[isLoadMore
+                        ? index == 0
+                            ? 0
+                            : index - 1
+                        : index][0];
+                    // final shortsURL = widget.shorts.values.toList()[index][0];
+                    final shortsThumbnail =
+                        widget.shorts.values.toList()[isLoadMore
+                            ? index == 0
+                                ? 0
+                                : index - 1
+                            : index][3];
 
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => VendorShortsTabPageView(
-                            shorts: widget.shorts,
-                            shortsId: shortsId,
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => VendorShortsTabPageView(
+                              shorts: widget.shorts,
+                              shortsId: shortsId,
+                            ),
                           ),
+                        );
+                      },
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          color: primaryDark,
                         ),
-                      );
-                    },
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        color: primaryDark,
-                      ),
-                      padding: EdgeInsets.all(
-                        widget.width * 0.00306125,
-                      ),
-                      margin: EdgeInsets.all(widget.width * 0.0036125),
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Image.network(
-                            shortsThumbnail,
-                            fit: BoxFit.cover,
-                          ),
-                          Container(
-                            width: widget.width * 0.125,
-                            height: widget.width * 0.125,
-                            decoration: BoxDecoration(
-                              color: white.withOpacity(0.5),
-                              borderRadius: BorderRadius.circular(
-                                100,
+                        padding: EdgeInsets.all(
+                          widget.width * 0.00306125,
+                        ),
+                        margin: EdgeInsets.all(widget.width * 0.0036125),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Image.network(
+                              shortsThumbnail,
+                              fit: BoxFit.cover,
+                            ),
+                            Container(
+                              width: widget.width * 0.125,
+                              height: widget.width * 0.125,
+                              decoration: BoxDecoration(
+                                color: white.withOpacity(0.5),
+                                borderRadius: BorderRadius.circular(
+                                  100,
+                                ),
+                              ),
+                              child: Icon(
+                                Icons.play_arrow_rounded,
+                                color: white,
+                                size: widget.width * 0.1,
                               ),
                             ),
-                            child: Icon(
-                              Icons.play_arrow_rounded,
-                              color: white,
-                              size: widget.width * 0.1,
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                },
-              ),
+                    );
+                  },
+                ),
+        ),
       ),
     );
   }

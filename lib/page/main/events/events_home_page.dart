@@ -289,13 +289,13 @@ class _EventsHomePageState extends State<EventsHomePage> {
           ),
         ],
       ),
-      body: isNoEvents
+      body: !isData
           ? const Center(
-              child: Text('No Events Nearby'),
+              child: CircularProgressIndicator(),
             )
-          : !isData
+          : isNoEvents
               ? const Center(
-                  child: CircularProgressIndicator(),
+                  child: Text('No Events Nearby'),
                 )
               : SafeArea(
                   child: Padding(

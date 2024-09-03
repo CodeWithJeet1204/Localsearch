@@ -19,10 +19,45 @@ class ShopCategoriesPage extends StatefulWidget {
 
 class _ShopCategoriesPageState extends State<ShopCategoriesPage> {
   final auth = FirebaseAuth.instance;
+  int noOf = 12;
+  bool isLoadMore = false;
+  final scrollController = ScrollController();
+
+  // INIT STATE
+  @override
+  void initState() {
+    scrollController.addListener(scrollListener);
+    super.initState();
+  }
+
+  // DISPOSE
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  // SCROLL LISTENER
+  Future<void> scrollListener() async {
+    if (scrollController.position.pixels ==
+        scrollController.position.maxScrollExtent) {
+      setState(() {
+        isLoadMore = true;
+      });
+      setState(() {
+        noOf = noOf + 4;
+      });
+      setState(() {
+        isLoadMore = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
+
     Map<String, String> currentShopCategories =
         householdSubCategories[widget.shopName]!;
 
@@ -48,15 +83,28 @@ class _ShopCategoriesPageState extends State<ShopCategoriesPage> {
       ),
       body: SafeArea(
         child: GridView.builder(
+          controller: scrollController,
+          cacheExtent: height * 1.5,
+          addAutomaticKeepAlives: true,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
             childAspectRatio: 0.825,
           ),
-          itemCount: currentShopCategories.length,
+          itemCount: noOf > currentShopCategories.length
+              ? currentShopCategories.length
+              : noOf,
           physics: const ClampingScrollPhysics(),
           itemBuilder: ((context, index) {
-            final name = currentShopCategories.keys.toList()[index];
-            final imageUrl = currentShopCategories.values.toList()[index];
+            final name = currentShopCategories.keys.toList()[isLoadMore
+                ? index == 0
+                    ? 0
+                    : index - 1
+                : index];
+            final imageUrl = currentShopCategories.values.toList()[isLoadMore
+                ? index == 0
+                    ? 0
+                    : index - 1
+                : index];
 
             return Padding(
               padding: EdgeInsets.symmetric(

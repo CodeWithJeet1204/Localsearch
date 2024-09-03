@@ -41,12 +41,39 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
   bool isProductsData = false;
   String? productSort = 'Recently Added';
   double distanceRange = 5;
+  int noOf = 12;
+  bool isLoadMore = false;
+  final scrollController = ScrollController();
 
   // INIT STATE
   @override
   void initState() {
+    scrollController.addListener(scrollListener);
     setSearch();
     super.initState();
+  }
+
+  // DISPOSE
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  // SCROLL LISTENER
+  Future<void> scrollListener() async {
+    if (scrollController.position.pixels ==
+        scrollController.position.maxScrollExtent) {
+      setState(() {
+        isLoadMore = true;
+      });
+      setState(() {
+        noOf = noOf + 8;
+      });
+      setState(() {
+        isLoadMore = false;
+      });
+    }
   }
 
   // DID CHANGE DEPENDENCIES
@@ -747,10 +774,17 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
           ),
           child: LayoutBuilder(
             builder: ((context, constraints) {
-              final double width = constraints.maxWidth;
+              final width = constraints.maxWidth;
+              final height = constraints.maxHeight;
 
-              return SizedBox(
-                height: MediaQuery.of(context).size.height,
+              return NotificationListener<ScrollNotification>(
+                onNotification: (ScrollNotification scrollInfo) {
+                  if (scrollInfo.metrics.pixels ==
+                      scrollInfo.metrics.maxScrollExtent) {
+                    scrollListener();
+                  }
+                  return false;
+                },
                 child: SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -808,7 +842,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                           ),
                                         ),
                                         alignment: Alignment.center,
-                                        child: TextFormField(
+                                        child: TextField(
                                           minLines: 1,
                                           maxLines: 1,
                                           controller: searchController,
@@ -817,6 +851,9 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                               FocusScope.of(context).unfocus(),
                                           textInputAction:
                                               TextInputAction.search,
+                                          onSubmitted: (value) async {
+                                            await search();
+                                          },
                                           decoration: const InputDecoration(
                                             hintText: 'Search',
                                             hintStyle: TextStyle(
@@ -1221,6 +1258,9 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                                   if (snapshot.hasData) {
                                                     return Text(
                                                       snapshot.data!,
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
                                                     );
                                                   }
 
@@ -1394,6 +1434,9 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                               : rangeProducts.isEmpty
                                   ? Container()
                                   : GridView.builder(
+                                      controller: scrollController,
+                                      cacheExtent: height * 1.5,
+                                      addAutomaticKeepAlives: true,
                                       shrinkWrap: true,
                                       physics: const ClampingScrollPhysics(),
                                       gridDelegate:
@@ -1401,7 +1444,9 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                         crossAxisCount: 2,
                                         childAspectRatio: width * 0.6 / width,
                                       ),
-                                      itemCount: rangeProducts.length,
+                                      itemCount: noOf > rangeProducts.length
+                                          ? rangeProducts.length
+                                          : noOf,
                                       itemBuilder: ((context, index) {
                                         return StreamBuilder<bool>(
                                           stream: getIfWishlist(
@@ -1419,7 +1464,9 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
 
                                             final currentProduct = rangeProducts
                                                 .keys
-                                                .toList()[index]
+                                                .toList()[isLoadMore
+                                                    ? index - 1
+                                                    : index]
                                                 .toString();
 
                                             final image =
@@ -1604,7 +1651,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                                                       TextStyle(
                                                                     fontSize:
                                                                         width *
-                                                                            0.0575,
+                                                                            0.04125,
                                                                   ),
                                                                 ),
                                                               ),
@@ -1624,10 +1671,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                                                     TextStyle(
                                                                   fontSize:
                                                                       width *
-                                                                          0.05,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w500,
+                                                                          0.04125,
                                                                 ),
                                                               ),
                                                             ),
@@ -1647,6 +1691,8 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                                             color: Colors.red,
                                                           ),
                                                           color: Colors.red,
+                                                          iconSize:
+                                                              width * 0.09,
                                                         ),
                                                       ],
                                                     ),

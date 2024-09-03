@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:Localsearch_User/models/household_sub_category.dart';
+import 'package:Localsearch_User/page/main/vendor/brand/brand_page.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
@@ -65,14 +66,30 @@ class _ProductPageState extends State<ProductPage> {
   bool otherVendorProductsAdded = false;
   double? distance;
   Map<String, dynamic> discountData = {};
+  int noOfOtherVendorProducts = 8;
+  int? totalOtherVendorProducts;
+  bool isLoadMoreOtherVendorProducts = false;
+  final scrollControllerOtherVendorProducts = ScrollController();
+  int noOfSimilarProducts = 8;
+  int? totalSimilarProducts;
+  bool isLoadMoreSimilarProducts = false;
+  final scrollControllerSimilarProducts = ScrollController();
 
   // INIT STATE
   @override
   void initState() {
+    getTotalOtherVendorProducts();
+    scrollControllerOtherVendorProducts.addListener(
+      scrollListenerOtherVendorProducts,
+    );
+    getTotalSimilarProducts();
+    scrollControllerSimilarProducts.addListener(
+      scrollListenerSimilarProducts,
+    );
     getVendorInfo();
     getIfDiscount();
     getDiscountAmount();
-    getIfWishlist(widget.productData['productId']);
+    getIfWishlist();
     getIfLiked();
     getBrandImage();
     getAllDiscounts();
@@ -80,12 +97,88 @@ class _ProductPageState extends State<ProductPage> {
     checkIfReviewed();
     getAllReviews();
     getSimilarProducts(
-      widget.productData['productName'],
       search: widget.search,
     );
     getProductsFromVendor();
     super.initState();
     addProductView();
+  }
+
+  // DISPOSE
+  @override
+  void dispose() {
+    scrollControllerOtherVendorProducts.dispose();
+    scrollControllerSimilarProducts.dispose();
+    super.dispose();
+  }
+
+  // SCROLL LISTENER OTHER VENDOR PRODUCTS
+  Future<void> scrollListenerOtherVendorProducts() async {
+    if (totalOtherVendorProducts != null &&
+        noOfOtherVendorProducts < totalOtherVendorProducts!) {
+      if (scrollControllerOtherVendorProducts.position.pixels ==
+          scrollControllerOtherVendorProducts.position.maxScrollExtent) {
+        setState(() {
+          isLoadMoreOtherVendorProducts = true;
+        });
+        noOfOtherVendorProducts = noOfOtherVendorProducts + 4;
+        await getProductsFromVendor();
+        setState(() {
+          isLoadMoreOtherVendorProducts = false;
+        });
+      }
+    }
+  }
+
+  // GET TOTAL OTHER VENDOR PRODUCTS
+  Future<void> getTotalOtherVendorProducts() async {
+    final totalSnap = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Products')
+        .where('vendorId', isEqualTo: widget.productData['vendorId'])
+        .where('productName', isNotEqualTo: widget.productData['productName'])
+        .limit(noOfOtherVendorProducts)
+        .get();
+
+    final totalLength = totalSnap.docs.length;
+
+    setState(() {
+      totalOtherVendorProducts = totalLength;
+    });
+  }
+
+  // SCROLL LISTENER SIMILAR PRODUCTS
+  Future<void> scrollListenerSimilarProducts() async {
+    if (totalSimilarProducts != null &&
+        noOfSimilarProducts < totalSimilarProducts!) {
+      if (scrollControllerSimilarProducts.position.pixels ==
+          scrollControllerSimilarProducts.position.maxScrollExtent) {
+        setState(() {
+          isLoadMoreSimilarProducts = true;
+        });
+        noOfSimilarProducts = noOfSimilarProducts + 4;
+        await getSimilarProducts();
+        setState(() {
+          isLoadMoreSimilarProducts = false;
+        });
+      }
+    }
+  }
+
+  // GET TOTAL SIMILAR PRODUCTS
+  Future<void> getTotalSimilarProducts() async {
+    final totalSnap = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Products')
+        .get();
+
+    final totalLength = totalSnap.docs.length;
+
+    setState(() {
+      totalSimilarProducts = totalLength;
+    });
   }
 
   // ADD PRODUCT VIEW
@@ -137,38 +230,17 @@ class _ProductPageState extends State<ProductPage> {
     });
   }
 
-  // ADD RECENT SEARCH
-  Future<void> addRecentSearch() async {
-    final userSnap =
-        await store.collection('Users').doc(auth.currentUser!.uid).get();
-
-    final userData = userSnap.data()!;
-
-    final recent = userData['recentSearches'] as List;
-
-    if (recent.contains(searchController.text)) {
-      recent.remove(searchController.text);
-    }
-
-    if (searchController.text.isNotEmpty) {
-      recent.insert(0, searchController.text);
-    }
-
-    await store.collection('Users').doc(auth.currentUser!.uid).update({
-      'recentSearches': recent,
-    });
-  }
-
   // GET IF WISHLIST
-  Future<void> getIfWishlist(String productId) async {
+  Future<void> getIfWishlist() async {
     final userSnap =
         await store.collection('Users').doc(auth.currentUser!.uid).get();
 
     final userData = userSnap.data()!;
+
     final userWishlist = userData['wishlists'] as List;
 
     setState(() {
-      if (userWishlist.contains(productId)) {
+      if (userWishlist.contains(widget.productData['productId'])) {
         isWishListed = true;
       } else {
         isWishListed = false;
@@ -177,7 +249,7 @@ class _ProductPageState extends State<ProductPage> {
   }
 
   // WISHLIST PRODUCT
-  Future<void> wishlistProduct(String productId) async {
+  Future<void> wishlistProduct() async {
     setState(() {
       isWishListed = !isWishListed;
     });
@@ -187,25 +259,26 @@ class _ProductPageState extends State<ProductPage> {
     final userData = userSnap.data()!;
     List<dynamic> userWishlist = userData['wishlists'] as List<dynamic>;
 
-    bool alreadyInWishlist = userWishlist.contains(productId);
+    bool alreadyInWishlist =
+        userWishlist.contains(widget.productData['productId']);
 
     if (!alreadyInWishlist) {
-      userWishlist.add(productId);
+      userWishlist.add(widget.productData['productId']);
     } else {
-      userWishlist.remove(productId);
+      userWishlist.remove(widget.productData['productId']);
     }
 
     await store.collection('Users').doc(auth.currentUser!.uid).update({
       'wishlists': userWishlist,
     });
 
-    final productDoc = store
+    final productSnap = await store
         .collection('Business')
         .doc('Data')
         .collection('Products')
-        .doc(productId);
+        .doc(widget.productData['productId'])
+        .get();
 
-    final productSnap = await productDoc.get();
     final productData = productSnap.data()!;
 
     Map wishlists = productData['productWishlistTimestamp'];
@@ -218,7 +291,12 @@ class _ProductPageState extends State<ProductPage> {
       wishlists.remove(auth.currentUser!.uid);
     }
 
-    await productDoc.update({
+    await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Products')
+        .doc(widget.productData['productId'])
+        .update({
       'productWishlistTimestamp': wishlists,
     });
   }
@@ -407,7 +485,7 @@ class _ProductPageState extends State<ProductPage> {
         .collection('Business')
         .doc('Data')
         .collection('Brands')
-        .doc(widget.productData['brandId'])
+        .doc(widget.productData['productBrandId'])
         .get();
 
     if (brandSnap.exists) {
@@ -437,7 +515,6 @@ class _ProductPageState extends State<ProductPage> {
           final categoryData = categorySnap.data()!;
 
           final categoryImage = categoryData['specialCategoryImageUrl'];
-
           setState(() {
             categoryImageUrl = categoryImage;
           });
@@ -453,14 +530,12 @@ class _ProductPageState extends State<ProductPage> {
         .doc('Data')
         .collection('Products')
         .where('vendorId', isEqualTo: widget.productData['vendorId'])
+        .where('productName', isNotEqualTo: widget.productData['productName'])
+        .limit(noOfOtherVendorProducts)
         .get();
 
     for (var productSnap in productsSnap.docs) {
       final productData = productSnap.data();
-
-      if (productData['productName'] == widget.productData['productName']) {
-        continue;
-      }
 
       otherVendorProductsDatas.add(productData);
     }
@@ -471,7 +546,7 @@ class _ProductPageState extends State<ProductPage> {
   }
 
   // GET SIMILAR PRODUCTS
-  Future<void> getSimilarProducts(String productName, {String? search}) async {
+  Future<void> getSimilarProducts({String? search}) async {
     List<QueryDocumentSnapshot<Map<String, dynamic>>> searchedProductDocs = [];
     final productsSnap = await store
         .collection('Business')
@@ -499,12 +574,12 @@ class _ProductPageState extends State<ProductPage> {
         filteredProductDocs = [];
 
     for (var productData in productDocs) {
-      if (productData['productName'] == productName) {
+      if (productData['productName'] == widget.productData['productName']) {
         continue;
       }
 
       final List<String> productNameWords =
-          productName.toLowerCase().split(' ');
+          widget.productData['productName'].toLowerCase().split(' ');
       final String similarProductName =
           productData['productName'].toString().toLowerCase();
       final bool productNameMatch = productNameWords.any((word) =>
@@ -997,11 +1072,11 @@ class _ProductPageState extends State<ProductPage> {
   @override
   Widget build(BuildContext context) {
     final Map<String, dynamic> data = widget.productData;
-    final String id = data['productId'];
     final String name = data['productName'];
     final String price = data['productPrice'];
     final String description = data['productDescription'];
     final String brand = data['productBrand'];
+    final String brandId = data['productBrandId'];
     final List images = data['images'];
     final String categoryName = data['categoryName'];
     final Map<String, dynamic> ratings = data['ratings'];
@@ -1060,6 +1135,7 @@ class _ProductPageState extends State<ProductPage> {
           child: LayoutBuilder(
             builder: ((context, constraints) {
               double width = constraints.maxWidth;
+              double height = constraints.maxHeight;
 
               return SingleChildScrollView(
                 child: Padding(
@@ -1181,7 +1257,12 @@ class _ProductPageState extends State<ProductPage> {
                                           },
                                           child: Container(
                                             alignment: Alignment.center,
-                                            child: Image.network(e),
+                                            child: Image.network(
+                                              e,
+                                              width: width,
+                                              height: width,
+                                              fit: BoxFit.cover,
+                                            ),
                                           ),
                                         ),
                                         e != shortsThumbnail
@@ -1388,7 +1469,9 @@ class _ProductPageState extends State<ProductPage> {
                                                     ),
                                                   ),
                                                   TextSpan(
-                                                    text: price,
+                                                    text: price == ''
+                                                        ? 'Rs. --'
+                                                        : 'Rs. $price',
                                                     style: TextStyle(
                                                       fontSize: 20,
                                                       color: isAvailable
@@ -1454,7 +1537,7 @@ class _ProductPageState extends State<ProductPage> {
                           // WISHLIST
                           IconButton(
                             onPressed: () async {
-                              await wishlistProduct(id);
+                              await wishlistProduct();
                             },
                             icon: Icon(
                               isWishListed
@@ -1634,47 +1717,58 @@ class _ProductPageState extends State<ProductPage> {
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  brandImageUrl == null
-                                      ? Container()
-                                      : CircleAvatar(
-                                          backgroundImage:
-                                              NetworkImage(brandImageUrl!),
-                                          backgroundColor: lightGrey,
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: ((context) => BrandPage(
+                                            brandId: brandId,
+                                          )),
+                                    ),
+                                  );
+                                },
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    brandImageUrl == null
+                                        ? Container()
+                                        : CircleAvatar(
+                                            backgroundImage:
+                                                NetworkImage(brandImageUrl!),
+                                            backgroundColor: lightGrey,
+                                          ),
+                                    SizedBox(width: width * 0.0225),
+                                    Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const Text(
+                                          overflow: TextOverflow.ellipsis,
+                                          'Brand',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            color: primaryDark2,
+                                          ),
                                         ),
-                                  SizedBox(width: width * 0.0225),
-                                  Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        overflow: TextOverflow.ellipsis,
-                                        'Brand',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w500,
-                                          color: primaryDark2,
+                                        Text(
+                                          brand,
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          style: TextStyle(
+                                            fontSize: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.05833,
+                                            fontWeight: FontWeight.w600,
+                                            color: primaryDark,
+                                          ),
                                         ),
-                                      ),
-                                      Text(
-                                        brand,
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 1,
-                                        style: TextStyle(
-                                          fontSize: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              0.05833,
-                                          fontWeight: FontWeight.w600,
-                                          color: primaryDark,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
                               const SizedBox(height: 20),
                               GestureDetector(
@@ -2080,106 +2174,139 @@ class _ProductPageState extends State<ProductPage> {
                                   ),
                                   SizedBox(
                                     width: width,
-                                    height: width * 0.5,
+                                    height: width * 0.525,
                                     child: ListView.builder(
+                                      controller:
+                                          scrollControllerOtherVendorProducts,
+                                      cacheExtent: height * 1.5,
+                                      addAutomaticKeepAlives: true,
                                       shrinkWrap: true,
                                       scrollDirection: Axis.horizontal,
                                       physics: const ClampingScrollPhysics(),
-                                      itemCount:
-                                          otherVendorProductsDatas.length,
+                                      itemCount: isLoadMoreOtherVendorProducts
+                                          ? otherVendorProductsDatas.length + 1
+                                          : otherVendorProductsDatas.length,
                                       itemBuilder: ((context, index) {
-                                        final data =
-                                            otherVendorProductsDatas[index];
+                                        final data = otherVendorProductsDatas[
+                                            isLoadMoreOtherVendorProducts
+                                                ? index - 1
+                                                : index];
                                         final String name =
-                                            otherVendorProductsDatas[index]
-                                                ['productName'];
+                                            otherVendorProductsDatas[
+                                                isLoadMoreOtherVendorProducts
+                                                    ? index - 1
+                                                    : index]['productName'];
                                         final String price =
-                                            otherVendorProductsDatas[index]
-                                                ['productPrice'];
+                                            otherVendorProductsDatas[
+                                                isLoadMoreOtherVendorProducts
+                                                    ? index - 1
+                                                    : index]['productPrice'];
                                         final String image =
-                                            otherVendorProductsDatas[index]
-                                                ['images'][0];
+                                            otherVendorProductsDatas[
+                                                isLoadMoreOtherVendorProducts
+                                                    ? index - 1
+                                                    : index]['images'][0];
 
-                                        return GestureDetector(
-                                          onTap: () {
-                                            Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                builder: ((context) =>
-                                                    ProductPage(
-                                                      productData: data,
-                                                    )),
-                                              ),
-                                            );
-                                          },
-                                          child: Container(
-                                            width: width * 0.3,
-                                            height: width * 0.2,
-                                            decoration: BoxDecoration(
-                                              color: white,
-                                              border: Border.all(
-                                                width: 0.25,
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(2),
-                                            ),
-                                            padding: EdgeInsets.all(
-                                              width * 0.00625,
-                                            ),
-                                            margin: EdgeInsets.only(
-                                              left: width * 0.025,
-                                              right: width * 0.025,
-                                              top: width * 0.01,
-                                              bottom: width * 0.015,
-                                            ),
-                                            child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(2),
-                                                  child: Image.network(
-                                                    image,
-                                                    fit: BoxFit.cover,
-                                                    width: width * 0.3,
-                                                    height: width * 0.3,
+                                        return index <=
+                                                otherVendorProductsDatas.length
+                                            ? GestureDetector(
+                                                onTap: () {
+                                                  Navigator.of(context).push(
+                                                    MaterialPageRoute(
+                                                      builder: ((context) =>
+                                                          ProductPage(
+                                                            productData: data,
+                                                          )),
+                                                    ),
+                                                  );
+                                                },
+                                                child: Container(
+                                                  width: width * 0.3,
+                                                  height: width * 0.2,
+                                                  decoration: BoxDecoration(
+                                                    color: white,
+                                                    border: Border.all(
+                                                      width: 0.25,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                      2,
+                                                    ),
+                                                  ),
+                                                  padding: EdgeInsets.all(
+                                                    width * 0.00625,
+                                                  ),
+                                                  margin: EdgeInsets.only(
+                                                    left: width * 0.0125,
+                                                    right: width * 0.0125,
+                                                    top: width * 0.01,
+                                                    bottom: width * 0.015,
+                                                  ),
+                                                  child: Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      ClipRRect(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(2),
+                                                        child: Image.network(
+                                                          image,
+                                                          fit: BoxFit.cover,
+                                                          width: width * 0.3,
+                                                          height: width * 0.3,
+                                                        ),
+                                                      ),
+                                                      Column(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceAround,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            name,
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                            maxLines: 1,
+                                                            style: TextStyle(
+                                                              fontSize: width *
+                                                                  0.04125,
+                                                            ),
+                                                          ),
+                                                          Text(
+                                                            price == ''
+                                                                ? 'Rs. --'
+                                                                : 'Rs. $price',
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                            maxLines: 1,
+                                                            style: TextStyle(
+                                                              fontSize: width *
+                                                                  0.0425,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ],
                                                   ),
                                                 ),
-                                                Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceAround,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      name,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      maxLines: 1,
-                                                      style: TextStyle(
-                                                        fontSize: width * 0.05,
-                                                      ),
+                                              )
+                                            : isLoadMoreOtherVendorProducts
+                                                ? SizedBox(
+                                                    height: 45,
+                                                    child: Center(
+                                                      child:
+                                                          CircularProgressIndicator(),
                                                     ),
-                                                    Text(
-                                                      'Rs. $price',
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      maxLines: 1,
-                                                      style: TextStyle(
-                                                        fontSize: width * 0.045,
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        );
+                                                  )
+                                                : Container();
                                       }),
                                     ),
                                   ),
@@ -2222,75 +2349,73 @@ class _ProductPageState extends State<ProductPage> {
                                   ),
                                   SizedBox(
                                     width: width,
-                                    height: width * 0.5,
+                                    height: width * 0.525,
                                     child: ListView.builder(
+                                      controller:
+                                          scrollControllerSimilarProducts,
+                                      cacheExtent: height * 1.5,
+                                      addAutomaticKeepAlives: true,
                                       shrinkWrap: true,
                                       scrollDirection: Axis.horizontal,
                                       physics: const ClampingScrollPhysics(),
-                                      itemCount: similarProductsDatas.length,
+                                      itemCount: isLoadMoreSimilarProducts
+                                          ? similarProductsDatas.length + 1
+                                          : similarProductsDatas.length,
                                       itemBuilder: ((context, index) {
-                                        final data =
-                                            similarProductsDatas[index];
+                                        final data = similarProductsDatas[
+                                            isLoadMoreSimilarProducts
+                                                ? index - 1
+                                                : index];
                                         final String name =
-                                            similarProductsDatas[index]
-                                                ['productName'];
+                                            similarProductsDatas[
+                                                isLoadMoreSimilarProducts
+                                                    ? index - 1
+                                                    : index]['productName'];
                                         final String price =
-                                            similarProductsDatas[index]
-                                                ['productPrice'];
+                                            similarProductsDatas[
+                                                isLoadMoreSimilarProducts
+                                                    ? index - 1
+                                                    : index]['productPrice'];
                                         final String image =
-                                            similarProductsDatas[index]
-                                                ['images'][0];
+                                            similarProductsDatas[
+                                                isLoadMoreSimilarProducts
+                                                    ? index - 1
+                                                    : index]['images'][0];
 
-                                        return GestureDetector(
-                                          onTap: () {
-                                            Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                builder: ((context) =>
-                                                    ProductPage(
-                                                      productData: data,
-                                                    )),
-                                              ),
-                                            );
-                                          },
-                                          child: Container(
-                                            width: width * 0.3,
-                                            height: width * 0.2,
-                                            decoration: BoxDecoration(
-                                              color: white,
-                                              borderRadius:
-                                                  BorderRadius.circular(2),
-                                              border: Border.all(
-                                                width: 0.25,
-                                              ),
-                                            ),
-                                            padding: EdgeInsets.all(
-                                              width * 0.00625,
-                                            ),
-                                            margin: EdgeInsets.only(
-                                              left: width * 0.025,
-                                              right: width * 0.025,
-                                              top: width * 0.01,
-                                              bottom: width * 0.015,
-                                            ),
-                                            child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(2),
-                                                  child: Image.network(
-                                                    image,
-                                                    fit: BoxFit.cover,
-                                                    width: width * 0.3,
-                                                    height: width * 0.3,
+                                        return index <=
+                                                similarProductsDatas.length
+                                            ? GestureDetector(
+                                                onTap: () {
+                                                  Navigator.of(context).push(
+                                                    MaterialPageRoute(
+                                                      builder: ((context) =>
+                                                          ProductPage(
+                                                            productData: data,
+                                                          )),
+                                                    ),
+                                                  );
+                                                },
+                                                child: Container(
+                                                  width: width * 0.3,
+                                                  height: width * 0.2,
+                                                  decoration: BoxDecoration(
+                                                    color: white,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                      2,
+                                                    ),
+                                                    border: Border.all(
+                                                      width: 0.25,
+                                                    ),
                                                   ),
-                                                ),
-                                                Padding(
-                                                  padding: EdgeInsets.symmetric(
-                                                    horizontal: width * 0.00625,
+                                                  padding: EdgeInsets.all(
+                                                    width * 0.00625,
+                                                  ),
+                                                  margin: EdgeInsets.only(
+                                                    left: width * 0.0125,
+                                                    right: width * 0.0125,
+                                                    top: width * 0.01,
+                                                    bottom: width * 0.015,
                                                   ),
                                                   child: Column(
                                                     mainAxisAlignment:
@@ -2299,35 +2424,73 @@ class _ProductPageState extends State<ProductPage> {
                                                         CrossAxisAlignment
                                                             .start,
                                                     children: [
-                                                      Text(
-                                                        name,
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                        maxLines: 1,
-                                                        style: TextStyle(
-                                                          fontSize:
-                                                              width * 0.05,
+                                                      ClipRRect(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(2),
+                                                        child: Image.network(
+                                                          image,
+                                                          fit: BoxFit.cover,
+                                                          width: width * 0.3,
+                                                          height: width * 0.3,
                                                         ),
                                                       ),
-                                                      Text(
-                                                        'Rs. $price',
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                        maxLines: 1,
-                                                        style: TextStyle(
-                                                          fontSize:
-                                                              width * 0.045,
-                                                          fontWeight:
-                                                              FontWeight.w500,
+                                                      Padding(
+                                                        padding: EdgeInsets
+                                                            .symmetric(
+                                                          horizontal:
+                                                              width * 0.00625,
+                                                        ),
+                                                        child: Column(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .start,
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Text(
+                                                              name,
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                              maxLines: 1,
+                                                              style: TextStyle(
+                                                                fontSize:
+                                                                    width *
+                                                                        0.04125,
+                                                              ),
+                                                            ),
+                                                            Text(
+                                                              price == ''
+                                                                  ? 'Rs. --'
+                                                                  : 'Rs. $price',
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                              maxLines: 1,
+                                                              style: TextStyle(
+                                                                fontSize:
+                                                                    width *
+                                                                        0.0425,
+                                                              ),
+                                                            ),
+                                                          ],
                                                         ),
                                                       ),
                                                     ],
                                                   ),
                                                 ),
-                                              ],
-                                            ),
-                                          ),
-                                        );
+                                              )
+                                            : isLoadMoreSimilarProducts
+                                                ? SizedBox(
+                                                    height: 45,
+                                                    child: Center(
+                                                      child:
+                                                          CircularProgressIndicator(),
+                                                    ),
+                                                  )
+                                                : Container();
                                       }),
                                     ),
                                   ),
@@ -2387,7 +2550,6 @@ class _ProductPageState extends State<ProductPage> {
                                             .toStringAsFixed(1),
                                         style: TextStyle(
                                           fontSize: width * 0.2,
-                                          fontWeight: FontWeight.w500,
                                         ),
                                       ),
 
@@ -2453,8 +2615,9 @@ class _ProductPageState extends State<ProductPage> {
                                                     MaterialPageRoute(
                                                       builder: ((context) =>
                                                           ProductAllReviewPage(
-                                                            reviews:
-                                                                allReviews!,
+                                                            productId: widget
+                                                                    .productData[
+                                                                'productId'],
                                                             rating:
                                                                 ratings.isEmpty
                                                                     ? Padding(
@@ -2553,7 +2716,7 @@ class Properties extends StatelessWidget {
   final List propertyValue0;
   final String propertyName0;
   final int propertyNoOfAnswers0;
-  final double width;
+  final width;
   final List propertyValue1;
   final String propertyName1;
   final int propertyNoOfAnswers1;
@@ -2673,6 +2836,39 @@ class AllDiscountsWidget extends StatefulWidget {
 
 class _AllDiscountsWidgetState extends State<AllDiscountsWidget> {
   final store = FirebaseFirestore.instance;
+  int noOf = 8;
+  bool isLoadMore = false;
+  final scrollController = ScrollController();
+
+  // INIT STATE
+  @override
+  void initState() {
+    scrollController.addListener(scrollListener);
+    super.initState();
+  }
+
+  // DISPOSE
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  // SCROLL LISTENER
+  Future<void> scrollListener() async {
+    if (scrollController.position.pixels ==
+        scrollController.position.maxScrollExtent) {
+      setState(() {
+        isLoadMore = true;
+      });
+      setState(() {
+        noOf = noOf + 4;
+      });
+      setState(() {
+        isLoadMore = false;
+      });
+    }
+  }
 
   // GET NAME
   Future<String> getName(int index, bool wantName) async {
@@ -2750,6 +2946,7 @@ class _AllDiscountsWidgetState extends State<AllDiscountsWidget> {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
 
     return Padding(
       padding: EdgeInsets.symmetric(
@@ -2780,109 +2977,105 @@ class _AllDiscountsWidgetState extends State<AllDiscountsWidget> {
             color: Colors.white,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: width * 0.0125),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Text(
-                      'Other Discounts From This Shop',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    Text(
-                      widget.noOfDiscounts.toString(),
-                      style: TextStyle(
-                        fontSize: width * 0.045,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                width: width,
-                height: width * 0.5,
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  scrollDirection: Axis.horizontal,
-                  physics: const ClampingScrollPhysics(),
-                  itemCount: widget.allDiscount.length,
-                  itemBuilder: ((context, index) {
-                    final currentDiscount = widget.allDiscount[index];
-                    final String? image = currentDiscount['discountImageUrl'];
-                    final name = currentDiscount['discountName'];
-                    final amount = currentDiscount['discountAmount'];
-                    final isPercent = currentDiscount['isPercent'];
-                    // final endData = currentDiscount['discountEndDateTime'];
-
-                    return Container(
-                      width: width * 0.3,
-                      height: width * 0.45,
-                      decoration: BoxDecoration(
-                        color: white,
-                        border: Border.all(
-                          width: 0.25,
-                          color: black,
+          child: NotificationListener<ScrollNotification>(
+            onNotification: (ScrollNotification scrollInfo) {
+              if (scrollInfo.metrics.pixels ==
+                  scrollInfo.metrics.maxScrollExtent) {
+                scrollListener();
+              }
+              return false;
+            },
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: width * 0.0125),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'Other Discounts From This Shop',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                      padding: EdgeInsets.all(
-                        width * 0.003125,
-                      ),
-                      margin: EdgeInsets.only(
-                        left: width * 0.025,
-                        right: width * 0.025,
-                        top: width * 0.01,
-                        bottom: width * 0.015,
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // IMAGE
-                          FutureBuilder(
-                              future: getName(index, false),
-                              builder: (context, snapshot) {
-                                if (snapshot.hasData) {
-                                  return ClipRRect(
-                                    borderRadius: BorderRadius.circular(2),
-                                    child: Image.network(
-                                      image ??
-                                          snapshot.data ??
-                                          'https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/ProhibitionSign2.svg/800px-ProhibitionSign2.svg.png',
-                                      fit: BoxFit.cover,
-                                      width: width * 0.3,
-                                      height: width * 0.3,
-                                    ),
-                                  );
-                                }
+                        Text(
+                          widget.noOfDiscounts.toString(),
+                          style: TextStyle(
+                            fontSize: width * 0.045,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    width: width,
+                    height: width * 0.5,
+                    child: ListView.builder(
+                      controller: scrollController,
+                      cacheExtent: height * 1.5,
+                      addAutomaticKeepAlives: true,
+                      shrinkWrap: true,
+                      scrollDirection: Axis.horizontal,
+                      physics: const ClampingScrollPhysics(),
+                      itemCount: noOf > widget.allDiscount.length
+                          ? widget.allDiscount.length
+                          : noOf,
+                      itemBuilder: ((context, index) {
+                        final currentDiscount = widget.allDiscount[isLoadMore
+                            ? index == 0
+                                ? 0
+                                : index - 1
+                            : index];
+                        final String? image =
+                            currentDiscount['discountImageUrl'];
+                        final name = currentDiscount['discountName'];
+                        final amount = currentDiscount['discountAmount'];
+                        final isPercent = currentDiscount['isPercent'];
+                        // final endData = currentDiscount['discountEndDateTime'];
 
-                                return const Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              }),
-
-                          // NAME
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        return Container(
+                          width: width * 0.3,
+                          height: width * 0.45,
+                          decoration: BoxDecoration(
+                            color: white,
+                            border: Border.all(
+                              width: 0.25,
+                              color: black,
+                            ),
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                          padding: EdgeInsets.all(
+                            width * 0.003125,
+                          ),
+                          margin: EdgeInsets.only(
+                            left: width * 0.025,
+                            right: width * 0.025,
+                            top: width * 0.01,
+                            bottom: width * 0.015,
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              // IMAGE
                               FutureBuilder(
-                                  future: getName(index, true),
+                                  future: getName(index, false),
                                   builder: (context, snapshot) {
                                     if (snapshot.hasData) {
-                                      return Text(
-                                        snapshot.data ?? name,
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 1,
-                                        style: TextStyle(
-                                          fontSize: width * 0.05,
+                                      return ClipRRect(
+                                        borderRadius: BorderRadius.circular(2),
+                                        child: Image.network(
+                                          image ??
+                                              snapshot.data ??
+                                              'https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/ProhibitionSign2.svg/800px-ProhibitionSign2.svg.png',
+                                          fit: BoxFit.cover,
+                                          width: width * 0.3,
+                                          height: width * 0.3,
                                         ),
                                       );
                                     }
@@ -2891,26 +3084,53 @@ class _AllDiscountsWidgetState extends State<AllDiscountsWidget> {
                                       child: CircularProgressIndicator(),
                                     );
                                   }),
-                              Text(
-                                isPercent
-                                    ? '$amount % off'
-                                    : 'Save Rs. $amount',
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                style: TextStyle(
-                                  fontSize: width * 0.045,
-                                  fontWeight: FontWeight.w500,
-                                ),
+
+                              // NAME
+                              Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  FutureBuilder(
+                                      future: getName(index, true),
+                                      builder: (context, snapshot) {
+                                        if (snapshot.hasData) {
+                                          return Text(
+                                            snapshot.data ?? name,
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                            style: TextStyle(
+                                              fontSize: width * 0.05,
+                                            ),
+                                          );
+                                        }
+
+                                        return const Center(
+                                          child: CircularProgressIndicator(),
+                                        );
+                                      }),
+                                  Text(
+                                    isPercent
+                                        ? '$amount % off'
+                                        : 'Save Rs. $amount',
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                    style: TextStyle(
+                                      fontSize: width * 0.045,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                        ],
-                      ),
-                    );
-                  }),
-                ),
+                        );
+                      }),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),

@@ -26,13 +26,58 @@ class _CategoryPageState extends State<CategoryPage> {
   String? name;
   String? imageUrl;
   Map? products;
+  int noOf = 10;
+  int? total;
+  bool isLoadMore = false;
+  final scrollController = ScrollController();
 
   // INIT STATE
   @override
   void initState() {
+    getTotal();
+    scrollController.addListener(scrollListener);
     getData();
     getProducts();
     super.initState();
+  }
+
+  // DISPOSE
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  // SCROLL LISTENER
+  Future<void> scrollListener() async {
+    if (total != null && noOf < total!) {
+      if (scrollController.position.pixels ==
+          scrollController.position.maxScrollExtent) {
+        setState(() {
+          isLoadMore = true;
+        });
+        noOf = noOf + 4;
+        await getProducts();
+        setState(() {
+          isLoadMore = false;
+        });
+      }
+    }
+  }
+
+  // GET TOTAL
+  Future<void> getTotal() async {
+    final totalSnap = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Products')
+        .get();
+
+    final totalLength = totalSnap.docs.length;
+
+    setState(() {
+      total = totalLength;
+    });
   }
 
   // GET DATA
@@ -64,6 +109,7 @@ class _CategoryPageState extends State<CategoryPage> {
         .doc('Data')
         .collection('Products')
         .where('categoryName', isEqualTo: widget.categoryName)
+        .limit(noOf)
         .get();
 
     for (var productData in productsSnap.docs) {
@@ -185,210 +231,237 @@ class _CategoryPageState extends State<CategoryPage> {
                 child: LayoutBuilder(
                   builder: ((context, constraints) {
                     final width = constraints.maxWidth;
+                    final height = constraints.maxHeight;
 
-                    return SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              GestureDetector(
-                                onTap: () async {
-                                  await showDialog(
-                                    context: context,
-                                    builder: ((context) => ImageShow(
-                                          imageUrl: imageUrl!,
-                                          width: width,
-                                        )),
-                                  );
-                                },
-                                child: CircleAvatar(
-                                  backgroundImage: NetworkImage(imageUrl!),
-                                  radius: width * 0.1,
-                                ),
-                              ),
-                              SizedBox(width: width * 0.05),
-                              Text(
-                                name!,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: width * 0.055,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const Divider(),
-                          products!.isEmpty
-                              ? const SizedBox(
-                                  height: 80,
-                                  child: Center(
-                                    child: Text('No Products'),
+                    return NotificationListener<ScrollNotification>(
+                      onNotification: (ScrollNotification scrollInfo) {
+                        if (scrollInfo.metrics.pixels ==
+                            scrollInfo.metrics.maxScrollExtent) {
+                          scrollListener();
+                        }
+                        return false;
+                      },
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                GestureDetector(
+                                  onTap: () async {
+                                    await showDialog(
+                                      context: context,
+                                      builder: ((context) => ImageShow(
+                                            imageUrl: imageUrl!,
+                                            width: width,
+                                          )),
+                                    );
+                                  },
+                                  child: CircleAvatar(
+                                    backgroundImage: NetworkImage(imageUrl!),
+                                    radius: width * 0.1,
                                   ),
-                                )
-                              : SizedBox(
-                                  width: width,
-                                  height:
-                                      getScreenHeight(width) - width * 0.285,
-                                  child: GridView.builder(
-                                    shrinkWrap: true,
-                                    physics: products!.length <= 3
-                                        ? const NeverScrollableScrollPhysics()
-                                        : const ClampingScrollPhysics(),
-                                    gridDelegate:
-                                        const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 2,
-                                      childAspectRatio: 0.75,
+                                ),
+                                SizedBox(width: width * 0.05),
+                                Text(
+                                  name!,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: width * 0.055,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const Divider(),
+                            products!.isEmpty
+                                ? const SizedBox(
+                                    height: 80,
+                                    child: Center(
+                                      child: Text('No Products'),
                                     ),
-                                    itemCount: products!.length,
-                                    itemBuilder: ((context, index) {
-                                      final id = products!.keys.toList()[index];
-                                      final name =
-                                          products!.values.toList()[index][0];
-                                      final price =
-                                          products!.values.toList()[index][1];
-                                      final imageUrl =
-                                          products!.values.toList()[index][2];
+                                  )
+                                : SizedBox(
+                                    width: width,
+                                    height:
+                                        getScreenHeight(width) - width * 0.285,
+                                    child: GridView.builder(
+                                      controller: scrollController,
+                                      cacheExtent: height * 1.5,
+                                      addAutomaticKeepAlives: true,
+                                      shrinkWrap: true,
+                                      physics: ClampingScrollPhysics(),
+                                      gridDelegate:
+                                          const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 2,
+                                        childAspectRatio: 0.7125,
+                                      ),
+                                      itemCount: products!.length,
+                                      itemBuilder: ((context, index) {
+                                        final id =
+                                            products!.keys.toList()[isLoadMore
+                                                ? index == 0
+                                                    ? 0
+                                                    : index - 1
+                                                : index];
+                                        final name =
+                                            products!.values.toList()[isLoadMore
+                                                ? index == 0
+                                                    ? 0
+                                                    : index - 1
+                                                : index][0];
+                                        final price =
+                                            products!.values.toList()[isLoadMore
+                                                ? index == 0
+                                                    ? 0
+                                                    : index - 1
+                                                : index][1];
+                                        final imageUrl =
+                                            products!.values.toList()[isLoadMore
+                                                ? index == 0
+                                                    ? 0
+                                                    : index - 1
+                                                : index][2];
 
-                                      return StreamBuilder(
-                                          stream: getIfWishlist(id!),
-                                          builder: (context, snapshot) {
-                                            if (snapshot.hasData) {
-                                              return GestureDetector(
-                                                onTap: () {
-                                                  Navigator.of(context).push(
-                                                    MaterialPageRoute(
-                                                      builder: ((context) =>
-                                                          ProductPage(
-                                                            productData: products!
-                                                                    .values
-                                                                    .toList()[
-                                                                index][3],
-                                                          )),
-                                                    ),
-                                                  );
-                                                },
-                                                child: Container(
-                                                  padding: EdgeInsets.all(
-                                                    width * 0.00625,
-                                                  ),
-                                                  margin: EdgeInsets.all(
-                                                    width * 0.003125,
-                                                  ),
-                                                  decoration: BoxDecoration(
-                                                    border: Border.all(
-                                                      color: darkGrey,
-                                                      width: 0.25,
-                                                    ),
-                                                  ),
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Image.network(
-                                                        imageUrl,
-                                                        width: width * 0.5,
-                                                        height: width * 0.5,
-                                                        fit: BoxFit.cover,
+                                        return StreamBuilder(
+                                            stream: getIfWishlist(id!),
+                                            builder: (context, snapshot) {
+                                              if (snapshot.hasData) {
+                                                return GestureDetector(
+                                                  onTap: () {
+                                                    Navigator.of(context).push(
+                                                      MaterialPageRoute(
+                                                        builder: ((context) =>
+                                                            ProductPage(
+                                                              productData: products!
+                                                                      .values
+                                                                      .toList()[
+                                                                  index][3],
+                                                            )),
                                                       ),
-                                                      Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .center,
-                                                        children: [
-                                                          Column(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .spaceAround,
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .start,
-                                                            children: [
-                                                              SizedBox(
-                                                                width: width *
-                                                                    0.3125,
-                                                                child: Text(
-                                                                  name,
-                                                                  maxLines: 1,
-                                                                  overflow:
-                                                                      TextOverflow
-                                                                          .ellipsis,
-                                                                  style:
-                                                                      TextStyle(
-                                                                    fontSize:
-                                                                        width *
-                                                                            0.04,
+                                                    );
+                                                  },
+                                                  child: Container(
+                                                    padding: EdgeInsets.all(
+                                                      width * 0.00625,
+                                                    ),
+                                                    margin: EdgeInsets.all(
+                                                      width * 0.003125,
+                                                    ),
+                                                    decoration: BoxDecoration(
+                                                      border: Border.all(
+                                                        color: darkGrey,
+                                                        width: 0.25,
+                                                      ),
+                                                    ),
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Image.network(
+                                                          imageUrl,
+                                                          width: width * 0.5,
+                                                          height: width * 0.5,
+                                                          fit: BoxFit.cover,
+                                                        ),
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            Column(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .spaceAround,
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
+                                                              children: [
+                                                                SizedBox(
+                                                                  width: width *
+                                                                      0.3125,
+                                                                  child: Text(
+                                                                    name,
+                                                                    maxLines: 1,
+                                                                    overflow:
+                                                                        TextOverflow
+                                                                            .ellipsis,
+                                                                    style:
+                                                                        TextStyle(
+                                                                      fontSize:
+                                                                          width *
+                                                                              0.0475,
+                                                                    ),
                                                                   ),
                                                                 ),
-                                                              ),
-                                                              SizedBox(
-                                                                width: width *
-                                                                    0.3125,
-                                                                child: Text(
-                                                                  price == ''
-                                                                      ? 'Rs. --'
-                                                                      : 'Rs. $price',
-                                                                  maxLines: 1,
-                                                                  overflow:
-                                                                      TextOverflow
-                                                                          .ellipsis,
-                                                                  style:
-                                                                      TextStyle(
-                                                                    fontSize:
-                                                                        width *
-                                                                            0.045,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w500,
+                                                                SizedBox(
+                                                                  width: width *
+                                                                      0.3125,
+                                                                  child: Text(
+                                                                    price == ''
+                                                                        ? 'Rs. --'
+                                                                        : 'Rs. $price',
+                                                                    maxLines: 1,
+                                                                    overflow:
+                                                                        TextOverflow
+                                                                            .ellipsis,
+                                                                    style:
+                                                                        TextStyle(
+                                                                      fontSize:
+                                                                          width *
+                                                                              0.04125,
+                                                                    ),
                                                                   ),
                                                                 ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                          IconButton(
-                                                            onPressed:
-                                                                () async {
-                                                              await wishlistProduct(
-                                                                id!,
-                                                              );
-                                                            },
-                                                            icon: Icon(
-                                                              snapshot.data!
-                                                                  ? Icons
-                                                                      .favorite
-                                                                  : Icons
-                                                                      .favorite_border,
-                                                              color: Colors.red,
-                                                              size: width *
-                                                                  0.0775,
+                                                              ],
                                                             ),
-                                                            splashColor:
-                                                                Colors.red,
-                                                            tooltip: 'Wishlist',
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ],
+                                                            IconButton(
+                                                              onPressed:
+                                                                  () async {
+                                                                await wishlistProduct(
+                                                                  id!,
+                                                                );
+                                                              },
+                                                              icon: Icon(
+                                                                snapshot.data!
+                                                                    ? Icons
+                                                                        .favorite
+                                                                    : Icons
+                                                                        .favorite_border,
+                                                                color:
+                                                                    Colors.red,
+                                                                size: width *
+                                                                    0.0775,
+                                                              ),
+                                                              splashColor:
+                                                                  Colors.red,
+                                                              tooltip:
+                                                                  'Wishlist',
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
                                                   ),
-                                                ),
-                                              );
-                                            }
+                                                );
+                                              }
 
-                                            return const Center(
-                                              child:
-                                                  CircularProgressIndicator(),
-                                            );
-                                          });
-                                    }),
+                                              return const Center(
+                                                child:
+                                                    CircularProgressIndicator(),
+                                              );
+                                            });
+                                      }),
+                                    ),
                                   ),
-                                ),
-                        ],
+                          ],
+                        ),
                       ),
                     );
                   }),

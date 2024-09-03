@@ -13,15 +13,13 @@ class VendorProductsTabPage extends StatefulWidget {
     required this.width,
     required this.myProducts,
     required this.myProductSort,
-    required this.myNumProductsLoaded,
     required this.height,
   });
 
-  final double width;
-  final double height;
+  final width;
+  final height;
   final String? myProductSort;
   final Map<String, dynamic> myProducts;
-  final int myNumProductsLoaded;
 
   @override
   State<VendorProductsTabPage> createState() => _VendorProductsTabPageState();
@@ -32,15 +30,40 @@ class _VendorProductsTabPageState extends State<VendorProductsTabPage> {
   final store = FirebaseFirestore.instance;
   Map<String, dynamic> products = {};
   String? productSort;
-  int numProductsLoaded = 0;
+  int noOf = 8;
+  bool isLoadMore = false;
+  final scrollController = ScrollController();
 
   // INIT STATE
   @override
   void initState() {
+    scrollController.addListener(scrollListener);
     products = widget.myProducts;
     productSort = widget.myProductSort;
-    numProductsLoaded = widget.myNumProductsLoaded;
     super.initState();
+  }
+
+  // DISPOSE
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  // SCROLL LISTENER
+  Future<void> scrollListener() async {
+    if (scrollController.position.pixels ==
+        scrollController.position.maxScrollExtent) {
+      setState(() {
+        isLoadMore = true;
+      });
+      setState(() {
+        noOf = noOf + 4;
+      });
+      setState(() {
+        isLoadMore = false;
+      });
+    }
   }
 
   // SORT PRODUCTS
@@ -170,266 +193,323 @@ class _VendorProductsTabPageState extends State<VendorProductsTabPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          widget.myProducts.isEmpty
-              ? Container()
-              : SizedBox(
-                  height: getScreenHeight() * 0.0675,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      vertical: widget.width * 0.01,
-                      horizontal: widget.width * 0.0125,
-                    ),
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: widget.width * 0.0125,
-                      ),
-                      decoration: BoxDecoration(
-                        color: primary3,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: DropdownButton<String>(
-                        underline: const SizedBox(),
-                        dropdownColor: primary2,
-                        value: productSort,
-                        iconEnabledColor: primaryDark,
-                        items: [
-                          'Recently Added',
-                          'Highest Rated',
-                          'Most Viewed',
-                          'Price - Highest to Lowest',
-                          'Price - Lowest to Highest'
-                        ]
-                            .map((e) => DropdownMenuItem<String>(
-                                  value: e,
-                                  child: Text(e),
-                                ))
-                            .toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            productSort = value;
-                          });
-                          try {
-                            sortProducts(
-                              value == 'Recently Added'
-                                  ? EventSorting.recentlyAdded
-                                  : value == 'Highest Rated'
-                                      ? EventSorting.highestRated
-                                      : value == 'Most Viewed'
-                                          ? EventSorting.mostViewed
-                                          : value == 'Price - Highest to Lowest'
-                                              ? EventSorting.highestPrice
-                                              : EventSorting.lowestPrice,
-                            );
-                          } catch (e) {
-                            mySnackBar('Something went wrong', context);
-                          }
-                        },
-                      ),
-                    ),
-                  ),
-                ),
-
-          // PRODUCTS
-          products.isEmpty
-              ? Container()
-              : SizedBox(
-                  width: widget.width,
-                  height: getScreenHeight() * 0.675,
-                  child: GridView.builder(
-                    shrinkWrap: true,
-                    physics: const ClampingScrollPhysics(),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: widget.width * 0.6 / widget.width,
-                    ),
-                    itemCount: numProductsLoaded > products.length
-                        ? products.length
-                        : numProductsLoaded,
-                    itemBuilder: ((context, index) {
-                      final id = products.keys.toList()[index];
-                      final name = products.values.toList()[index][0];
-                      final imageUrl = products.values.toList()[index][1];
-                      final price = products.values.toList()[index][2];
-                      final ratings = products.values.toList()[index][3];
-                      final productData = products.values.toList()[index][6];
-
-                      return StreamBuilder(
-                          stream: getIfWishlist(id),
-                          builder: (context, snapshot) {
-                            final isWishListed = snapshot.data ?? false;
-                            return GestureDetector(
-                              onTap: () async {
-                                if (context.mounted) {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: ((context) => ProductPage(
-                                            productData: productData,
-                                          )),
-                                    ),
+      body: SafeArea(
+        child: NotificationListener<ScrollNotification>(
+          onNotification: (ScrollNotification scrollInfo) {
+            if (scrollInfo.metrics.pixels ==
+                scrollInfo.metrics.maxScrollExtent) {
+              scrollListener();
+            }
+            return false;
+          },
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                widget.myProducts.isEmpty
+                    ? Container()
+                    : SizedBox(
+                        height: getScreenHeight() * 0.0675,
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            vertical: widget.width * 0.01,
+                            horizontal: widget.width * 0.0125,
+                          ),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: widget.width * 0.0125,
+                            ),
+                            decoration: BoxDecoration(
+                              color: primary3,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: DropdownButton<String>(
+                              underline: const SizedBox(),
+                              dropdownColor: primary2,
+                              value: productSort,
+                              iconEnabledColor: primaryDark,
+                              items: [
+                                'Recently Added',
+                                'Highest Rated',
+                                'Most Viewed',
+                                'Price - Highest to Lowest',
+                                'Price - Lowest to Highest'
+                              ]
+                                  .map((e) => DropdownMenuItem<String>(
+                                        value: e,
+                                        child: Text(e),
+                                      ))
+                                  .toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  productSort = value;
+                                });
+                                try {
+                                  sortProducts(
+                                    value == 'Recently Added'
+                                        ? EventSorting.recentlyAdded
+                                        : value == 'Highest Rated'
+                                            ? EventSorting.highestRated
+                                            : value == 'Most Viewed'
+                                                ? EventSorting.mostViewed
+                                                : value ==
+                                                        'Price - Highest to Lowest'
+                                                    ? EventSorting.highestPrice
+                                                    : EventSorting.lowestPrice,
                                   );
+                                } catch (e) {
+                                  mySnackBar('Something went wrong', context);
                                 }
                               },
-                              onDoubleTap: () async {
-                                await showDialog(
-                                  context: context,
-                                  builder: ((context) => ProductQuickView(
-                                        productId: id,
-                                      )),
-                                );
-                              },
-                              onLongPress: () async {
-                                await showDialog(
-                                  context: context,
-                                  builder: ((context) => ProductQuickView(
-                                        productId: id,
-                                      )),
-                                );
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  border: Border.all(
-                                    width: 0.25,
-                                    color: Colors.grey.withOpacity(
-                                      0.25,
-                                    ),
-                                  ),
-                                ),
-                                padding: EdgeInsets.all(
-                                  MediaQuery.of(context).size.width * 0.0125,
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Stack(
-                                      alignment: Alignment.topRight,
-                                      children: [
-                                        Center(
-                                          child: Image.network(
-                                            imageUrl,
-                                            fit: BoxFit.cover,
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.5,
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.58,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                // PRODUCTS
+                products.isEmpty
+                    ? Container()
+                    : SizedBox(
+                        width: widget.width,
+                        height: getScreenHeight() * 0.675,
+                        child: GridView.builder(
+                          primary: false,
+                          controller: scrollController,
+                          cacheExtent: getScreenHeight() * 1.5,
+                          addAutomaticKeepAlives: true,
+                          shrinkWrap: true,
+                          physics: const ClampingScrollPhysics(),
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: widget.width * 0.6 / widget.width,
+                          ),
+                          itemCount:
+                              noOf > products.length ? products.length : noOf,
+                          itemBuilder: ((context, index) {
+                            final id = products.keys.toList()[isLoadMore
+                                ? index == 0
+                                    ? 0
+                                    : index - 1
+                                : index];
+                            final name = products.values.toList()[isLoadMore
+                                ? index == 0
+                                    ? 0
+                                    : index - 1
+                                : index][0];
+                            final imageUrl = products.values.toList()[isLoadMore
+                                ? index == 0
+                                    ? 0
+                                    : index - 1
+                                : index][1];
+                            final price = products.values.toList()[isLoadMore
+                                ? index == 0
+                                    ? 0
+                                    : index - 1
+                                : index][2];
+                            final ratings = products.values.toList()[isLoadMore
+                                ? index == 0
+                                    ? 0
+                                    : index - 1
+                                : index][3];
+                            final productData =
+                                products.values.toList()[isLoadMore
+                                    ? index == 0
+                                        ? 0
+                                        : index - 1
+                                    : index][6];
+
+                            return StreamBuilder(
+                                stream: getIfWishlist(id),
+                                builder: (context, snapshot) {
+                                  final isWishListed = snapshot.data ?? false;
+                                  return GestureDetector(
+                                    onTap: () async {
+                                      if (context.mounted) {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: ((context) => ProductPage(
+                                                  productData: productData,
+                                                )),
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    onDoubleTap: () async {
+                                      await showDialog(
+                                        context: context,
+                                        builder: ((context) => ProductQuickView(
+                                              productId: id,
+                                            )),
+                                      );
+                                    },
+                                    onLongPress: () async {
+                                      await showDialog(
+                                        context: context,
+                                        builder: ((context) => ProductQuickView(
+                                              productId: id,
+                                            )),
+                                      );
+                                    },
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        border: Border.all(
+                                          width: 0.25,
+                                          color: Colors.grey.withOpacity(
+                                            0.25,
                                           ),
                                         ),
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            color: const Color.fromRGBO(
-                                              255,
-                                              92,
-                                              78,
-                                              1,
-                                            ),
-                                            borderRadius: BorderRadius.circular(
-                                              4,
-                                            ),
-                                          ),
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: widget.width * 0.0125,
-                                            vertical: widget.width * 0.00625,
-                                          ),
-                                          margin: EdgeInsets.all(
-                                            widget.width * 0.00625,
-                                          ),
-                                          child: Text(
-                                            '${(ratings as Map).isEmpty ? '--' : ((ratings.values.map((e) => e?[0] ?? 0).toList().reduce((a, b) => a + b) / (ratings.values.isEmpty ? 1 : ratings.values.length)) as double).toStringAsFixed(1)} ⭐',
-                                            style: const TextStyle(
-                                              color: white,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceAround,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Padding(
-                                              padding: EdgeInsets.only(
-                                                left: MediaQuery.of(context)
-                                                        .size
-                                                        .width *
-                                                    0.00625,
-                                                right: MediaQuery.of(context)
-                                                        .size
-                                                        .width *
-                                                    0.00625,
-                                                top: MediaQuery.of(context)
-                                                        .size
-                                                        .width *
-                                                    0.0225,
+                                      ),
+                                      padding: EdgeInsets.all(
+                                        MediaQuery.of(context).size.width *
+                                            0.0125,
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Stack(
+                                            alignment: Alignment.topRight,
+                                            children: [
+                                              Center(
+                                                child: Image.network(
+                                                  imageUrl,
+                                                  fit: BoxFit.cover,
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.5,
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.58,
+                                                ),
                                               ),
-                                              child: SizedBox(
-                                                width: widget.width * 0.3,
+                                              Container(
+                                                decoration: BoxDecoration(
+                                                  color: const Color.fromRGBO(
+                                                    255,
+                                                    92,
+                                                    78,
+                                                    1,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                    4,
+                                                  ),
+                                                ),
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal:
+                                                      widget.width * 0.0125,
+                                                  vertical:
+                                                      widget.width * 0.00625,
+                                                ),
+                                                margin: EdgeInsets.all(
+                                                  widget.width * 0.00625,
+                                                ),
                                                 child: Text(
-                                                  name,
-                                                  maxLines: 1,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: TextStyle(
-                                                    fontSize:
-                                                        widget.width * 0.0575,
+                                                  '${(ratings as Map).isEmpty ? '--' : ((ratings.values.map((e) => e?[0] ?? 0).toList().reduce((a, b) => a + b) / (ratings.values.isEmpty ? 1 : ratings.values.length)) as double).toStringAsFixed(1)} ⭐',
+                                                  style: const TextStyle(
+                                                    color: white,
                                                   ),
                                                 ),
                                               ),
-                                            ),
-                                            Padding(
-                                              padding: EdgeInsets.symmetric(
-                                                horizontal:
-                                                    MediaQuery.of(context)
-                                                            .size
-                                                            .width *
-                                                        0.0125,
-                                              ),
-                                              child: Text(
-                                                price,
-                                                style: TextStyle(
-                                                  fontSize: widget.width * 0.05,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        IconButton(
-                                          onPressed: () async {
-                                            await wishlistProduct(id);
-                                          },
-                                          icon: Icon(
-                                            isWishListed
-                                                ? Icons.favorite
-                                                : Icons.favorite_border,
-                                            color: Colors.red,
+                                            ],
                                           ),
-                                          color: Colors.red,
-                                        ),
-                                      ],
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceAround,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Padding(
+                                                    padding: EdgeInsets.only(
+                                                      left:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width *
+                                                              0.00625,
+                                                      right:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width *
+                                                              0.00625,
+                                                      top:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width *
+                                                              0.0225,
+                                                    ),
+                                                    child: SizedBox(
+                                                      width: widget.width * 0.3,
+                                                      child: Text(
+                                                        name,
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        style: TextStyle(
+                                                          fontSize:
+                                                              widget.width *
+                                                                  0.0475,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Padding(
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                      horizontal:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width *
+                                                              0.0125,
+                                                    ),
+                                                    child: Text(
+                                                      price == ''
+                                                          ? 'Rs. --'
+                                                          : 'Rs. $price',
+                                                      style: TextStyle(
+                                                        fontSize: widget.width *
+                                                            0.0475,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              IconButton(
+                                                onPressed: () async {
+                                                  await wishlistProduct(id);
+                                                },
+                                                icon: Icon(
+                                                  isWishListed
+                                                      ? Icons.favorite
+                                                      : Icons.favorite_border,
+                                                  color: Colors.red,
+                                                ),
+                                                color: Colors.red,
+                                                iconSize: widget.width * 0.09,
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          });
-                    }),
-                  ),
-                ),
-        ],
+                                  );
+                                });
+                          }),
+                        ),
+                      ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

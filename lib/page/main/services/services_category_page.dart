@@ -42,39 +42,42 @@ class _ServicesCategoryPageState extends State<ServicesCategoryPage> {
           ),
         ],
       ),
-      body: Padding(
-        padding: EdgeInsets.all(
-          MediaQuery.of(context).size.width * 0.006125,
-        ),
-        child: SizedBox(
-          width: MediaQuery.of(context).size.width,
-          child: GridView.builder(
-            shrinkWrap: true,
-            physics: const ClampingScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 1,
-              childAspectRatio: 25 / 9,
-            ),
-            itemCount: servicesMap[widget.place]![widget.category]!.length,
-            itemBuilder: ((context, index) {
-              final name = servicesMap[widget.place]![widget.category]![index];
-              final imageUrl = subCategoryImageMap[name]!;
+      body: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.all(
+            MediaQuery.of(context).size.width * 0.006125,
+          ),
+          child: SizedBox(
+            width: MediaQuery.of(context).size.width,
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const ClampingScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 1,
+                childAspectRatio: 25 / 9,
+              ),
+              itemCount: servicesMap[widget.place]![widget.category]!.length,
+              itemBuilder: ((context, index) {
+                final name =
+                    servicesMap[widget.place]![widget.category]![index];
+                final imageUrl = subCategoryImageMap[name]!;
 
-              return NameContainer(
-                text: name,
-                imageUrl: imageUrl,
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: ((context) => ServicesSubCategoryPage(
-                            subCategory: name,
-                          )),
-                    ),
-                  );
-                },
-                width: MediaQuery.of(context).size.width,
-              );
-            }),
+                return NameContainer(
+                  text: name,
+                  imageUrl: imageUrl,
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: ((context) => ServicesSubCategoryPage(
+                              subCategory: name,
+                            )),
+                      ),
+                    );
+                  },
+                  width: MediaQuery.of(context).size.width,
+                );
+              }),
+            ),
           ),
         ),
       ),

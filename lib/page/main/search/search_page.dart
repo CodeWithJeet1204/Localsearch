@@ -262,13 +262,13 @@ class _SearchPageState extends State<SearchPage> {
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: width * 0.00625,
-            vertical: width * 0.0125,
+          padding: EdgeInsets.all(
+            width * 0.006125,
           ),
           child: LayoutBuilder(
             builder: ((context, constraints) {
-              final double width = constraints.maxWidth;
+              final width = constraints.maxWidth;
+              final height = constraints.maxHeight;
 
               return SingleChildScrollView(
                 child: Column(
@@ -303,10 +303,8 @@ class _SearchPageState extends State<SearchPage> {
                             ? Container()
                             : SizedBox(
                                 width: width,
-                                height: recentSearches!.length > 5
-                                    ? 5 * width * 0.166
-                                    : recentSearches!.length * width * 0.166,
                                 child: ListView.builder(
+                                  shrinkWrap: true,
                                   physics: const NeverScrollableScrollPhysics(),
                                   itemCount: recentSearches!.length > 5
                                       ? 5
@@ -411,10 +409,8 @@ class _SearchPageState extends State<SearchPage> {
                         ? Container()
                         : SizedBox(
                             width: width,
-                            height: topSearchesMap!.keys.length > 3
-                                ? 3 * width * 0.15
-                                : topSearchesMap!.keys.length * width * 0.15,
                             child: ListView.builder(
+                              shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
                               itemCount: topSearchesMap!.keys.length > 3
                                   ? 3
@@ -500,7 +496,7 @@ class _SearchPageState extends State<SearchPage> {
                         ? Container()
                         : SizedBox(
                             width: width,
-                            height: width * 0.4125,
+                            height: height * 0.2,
                             child: ListView.builder(
                               shrinkWrap: true,
                               scrollDirection: Axis.horizontal,
@@ -563,7 +559,7 @@ class _SearchPageState extends State<SearchPage> {
                                           overflow: TextOverflow.ellipsis,
                                           maxLines: 1,
                                           style: TextStyle(
-                                            fontSize: width * 0.05,
+                                            fontSize: width * 0.04125,
                                           ),
                                         ),
                                       ],

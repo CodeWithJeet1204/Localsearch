@@ -137,7 +137,7 @@ class _SearchWithProductsPageState extends State<SearchWithProductsPage> {
                   horizontal: MediaQuery.of(context).size.width * 0.0225,
                 ),
                 child: LayoutBuilder(builder: ((context, constraints) {
-                  final double width = constraints.maxWidth;
+                  final width = constraints.maxWidth;
 
                   return SingleChildScrollView(
                     child: Column(

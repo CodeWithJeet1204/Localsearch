@@ -95,158 +95,161 @@ class _ProfilePageState extends State<ProfilePage> {
         ],
         automaticallyImplyLeading: false,
       ),
-      body: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: MediaQuery.of(context).size.width * 0.0225,
-        ),
-        child: LayoutBuilder(
-          builder: ((context, constraints) {
-            final double width = constraints.maxWidth;
+      body: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: MediaQuery.of(context).size.width * 0.0225,
+          ),
+          child: LayoutBuilder(
+            builder: ((context, constraints) {
+              final width = constraints.maxWidth;
 
-            return SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    width: width,
-                    height: width * 0.33,
-                    alignment: Alignment.center,
-                    margin: EdgeInsets.only(bottom: width * 0.01),
-                    padding: EdgeInsets.symmetric(
-                      horizontal: width * 0.045,
-                      vertical: width * 0.01125,
-                    ),
-                    decoration: BoxDecoration(
-                      color: primary2.withOpacity(0.5),
-                      border: Border.all(
-                        width: 0.5,
-                        color: primaryDark.withOpacity(0.5),
+              return SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: width,
+                      height: width * 0.33,
+                      alignment: Alignment.center,
+                      margin: EdgeInsets.only(bottom: width * 0.01),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: width * 0.045,
+                        vertical: width * 0.01125,
                       ),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        // NAME
-                        name == null
-                            ? Container()
-                            : Padding(
-                                padding: EdgeInsets.only(left: width * 0.05),
-                                child: SizedBox(
-                                  width: width * 0.45,
-                                  child: Text(
-                                    name!,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    textAlign: TextAlign.start,
-                                    style: TextStyle(
-                                      fontSize: width * 0.07,
-                                      fontWeight: FontWeight.w700,
-                                      color: primaryDark.withBlue(5),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                        IconButton(
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: ((context) => const UserDetailsPage()),
-                              ),
-                            );
-                          },
-                          icon: const Icon(
-                            FeatherIcons.settings,
-                          ),
-                          tooltip: 'Your Info',
+                      decoration: BoxDecoration(
+                        color: primary2.withOpacity(0.5),
+                        border: Border.all(
+                          width: 0.5,
+                          color: primaryDark.withOpacity(0.5),
                         ),
-                      ],
-                    ),
-                  ),
-                  const Divider(),
-
-                  // FOLLOWED
-                  SmallTextContainer(
-                    text: 'Followed',
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: ((context) => const FollowedPage()),
-                        ),
-                      );
-                    },
-                    width: width,
-                  ),
-
-                  // WISHLIST
-                  SmallTextContainer(
-                    text: 'Wishlist',
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: ((context) => const WishlistPage()),
-                        ),
-                      );
-                    },
-                    width: width,
-                  ),
-
-                  Divider(),
-
-                  InkWell(
-                    onTap: () async {
-                      final helplineSnap = await store
-                          .collection('Helpline')
-                          .doc('helpline1')
-                          .get();
-
-                      final helplineData = helplineSnap.data()!;
-
-                      final int helplineNo = helplineData['helpline1'];
-
-                      final Uri url = Uri(
-                        scheme: 'tel',
-                        path: helplineNo.toString(),
-                      );
-                      if (await canLaunchUrl(url)) {
-                        await launchUrl(url);
-                      } else {
-                        if (mounted) {
-                          mySnackBar('Some error occured', context);
-                        }
-                      }
-                    },
-                    customBorder: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.all(width * 0.0225),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Text(
-                            'Call Helpline',
-                            style: TextStyle(
-                              fontSize: width * 0.0425,
-                              color: primaryDark,
+                          // NAME
+                          name == null
+                              ? Container()
+                              : Padding(
+                                  padding: EdgeInsets.only(left: width * 0.05),
+                                  child: SizedBox(
+                                    width: width * 0.45,
+                                    child: Text(
+                                      name!,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      textAlign: TextAlign.start,
+                                      style: TextStyle(
+                                        fontSize: width * 0.07,
+                                        fontWeight: FontWeight.w700,
+                                        color: primaryDark.withBlue(5),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                          IconButton(
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: ((context) =>
+                                      const UserDetailsPage()),
+                                ),
+                              );
+                            },
+                            icon: const Icon(
+                              FeatherIcons.settings,
                             ),
-                          ),
-                          Icon(
-                            FeatherIcons.phoneCall,
-                            size: width * 0.075,
-                            color: primaryDark,
+                            tooltip: 'Your Info',
                           ),
                         ],
                       ),
                     ),
-                  ),
-                ],
-              ),
-            );
-          }),
+                    const Divider(),
+
+                    // FOLLOWED
+                    SmallTextContainer(
+                      text: 'Followed',
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: ((context) => const FollowedPage()),
+                          ),
+                        );
+                      },
+                      width: width,
+                    ),
+
+                    // WISHLIST
+                    SmallTextContainer(
+                      text: 'Wishlist',
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: ((context) => const WishlistPage()),
+                          ),
+                        );
+                      },
+                      width: width,
+                    ),
+
+                    Divider(),
+
+                    InkWell(
+                      onTap: () async {
+                        final helplineSnap = await store
+                            .collection('Helpline')
+                            .doc('helpline1')
+                            .get();
+
+                        final helplineData = helplineSnap.data()!;
+
+                        final int helplineNo = helplineData['helpline1'];
+
+                        final Uri url = Uri(
+                          scheme: 'tel',
+                          path: helplineNo.toString(),
+                        );
+                        if (await canLaunchUrl(url)) {
+                          await launchUrl(url);
+                        } else {
+                          if (mounted) {
+                            mySnackBar('Some error occured', context);
+                          }
+                        }
+                      },
+                      customBorder: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.all(width * 0.0225),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Call Helpline',
+                              style: TextStyle(
+                                fontSize: width * 0.0425,
+                                color: primaryDark,
+                              ),
+                            ),
+                            Icon(
+                              FeatherIcons.phoneCall,
+                              size: width * 0.075,
+                              color: primaryDark,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ),
         ),
       ),
     );

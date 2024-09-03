@@ -9,8 +9,8 @@ class PostSkeletonContainer extends StatelessWidget {
     required this.height,
   });
 
-  final double width;
-  final double height;
+  final width;
+  final height;
 
   @override
   Widget build(BuildContext context) {

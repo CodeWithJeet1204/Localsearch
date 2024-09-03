@@ -245,7 +245,9 @@ class _EventTypePageState extends State<EventTypePage> {
                                                 0.0125,
                                           ),
                                           child: Text(
-                                            'Rs. $price',
+                                            price == ''
+                                                ? 'Rs. --'
+                                                : 'Rs. $price',
                                             style: TextStyle(
                                               fontSize: width * 0.05,
                                               fontWeight: FontWeight.w500,

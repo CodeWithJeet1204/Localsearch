@@ -62,7 +62,7 @@ class _SpeechToTextState extends State<SpeechToText> {
 
   @override
   Widget build(BuildContext context) {
-    final double width = MediaQuery.of(context).size.width;
+    final width = MediaQuery.of(context).size.width;
 
     return Dialog(
       elevation: 0,

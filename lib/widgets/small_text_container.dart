@@ -11,7 +11,7 @@ class SmallTextContainer extends StatelessWidget {
 
   final String text;
   final void Function()? onPressed;
-  final double width;
+  final width;
 
   @override
   Widget build(BuildContext context) {

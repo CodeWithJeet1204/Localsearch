@@ -13,7 +13,7 @@ class MySearchBar extends StatefulWidget {
     required this.autoFocus,
   });
 
-  final double width;
+  final width;
   final bool autoFocus;
 
   @override

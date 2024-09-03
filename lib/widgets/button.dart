@@ -14,7 +14,7 @@ class MyButton extends StatelessWidget {
 
   final String text;
   final bool isLoading;
-  final double width;
+  final width;
   final double horizontalPadding;
   final double verticalPadding;
   final void Function()? onTap;

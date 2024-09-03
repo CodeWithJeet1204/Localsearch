@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:Localsearch_User/models/household_types.dart';
 import 'package:Localsearch_User/page/main/vendor/post_page_view.dart';
+import 'package:Localsearch_User/page/main/vendor/profile/wishlist_page.dart';
 import 'package:Localsearch_User/providers/review_provider.dart';
 import 'package:Localsearch_User/widgets/text_button.dart';
 import 'package:auto_size_text/auto_size_text.dart';
@@ -24,6 +25,7 @@ import 'package:http/http.dart' as http;
 import 'package:Localsearch_User/widgets/snack_bar.dart';
 import 'package:Localsearch_User/widgets/video_tutorial.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProductHomePage extends StatefulWidget {
   const ProductHomePage({
@@ -51,21 +53,198 @@ class _ProductHomePageState extends State<ProductHomePage> {
   Map<String, dynamic> allFollowedShops = {};
   Map<String, dynamic> currentFollowedShops = {};
   Map<String, Map<String, dynamic>> posts = {};
-  Map<String, Map<String, Map<String, dynamic>>> featured1 = {};
-  Map<String, Map<String, Map<String, dynamic>>> featured2 = {};
-  Map<String, Map<String, Map<String, dynamic>>> featured3 = {};
+  Map<String, Map<String, dynamic>> featured1 = {};
+  Map<String, Map<String, dynamic>> featured2 = {};
+  Map<String, Map<String, dynamic>> featured3 = {};
+  String? featuredCategory1;
+  String? featuredCategory2;
+  String? featuredCategory3;
   bool getRecentData = false;
   bool getWishlistData = false;
   bool getFollowedData = false;
   bool isPostData = false;
   double distanceRange = 5;
+  // int noOf1 = 4;
+  // int noOf2 = 4;
+  // int noOf3 = 4;
+  // int? total1;
+  // int? total2;
+  // int? total3;
+  // bool isLoadMore1 = false;
+  // bool isLoadMore2 = false;
+  // bool isLoadMore3 = false;
+  // final scrollController1 = ScrollController();
+  // final scrollController2 = ScrollController();
+  // final scrollController3 = ScrollController();
 
   // INIT STATE
   @override
   void initState() {
+    // getTotal();
+    // scrollController1.addListener(scrollListener1);
+    // scrollController2.addListener(scrollListener2);
+    // scrollController3.addListener(scrollListener3);
     getData(false);
     super.initState();
   }
+
+  // // SCROLL LISTENER 1
+  // Future<void> scrollListener1() async {
+  //   Future<void> getFeatured1() async {
+  //     Map<String, Map<String, dynamic>> myFeatured1 = {};
+  //     final featuredSnap1 =
+  //         await store.collection('Featured').doc('Vendor').get();
+  //     final featuredData1 = featuredSnap1.data()!;
+  //     final category1 = featuredData1['category1'];
+  //     final productSnap1 = await store
+  //         .collection('Business')
+  //         .doc('Data')
+  //         .collection('Products')
+  //         .where('categoryName', isEqualTo: category1)
+  //         .limit(noOf1)
+  //         .get();
+  //     productSnap1.docs.forEach((product1) {
+  //       final productId1 = product1.id;
+  //       final productData1 = product1.data();
+  //       myFeatured1.addAll({
+  //         productId1: productData1,
+  //       });
+  //     });
+  //     setState(() {
+  //       featured1 = myFeatured1;
+  //     });
+  //   }
+  //   if (total1 != null && noOf1 < total1!) {
+  //     if (scrollController1.position.pixels ==
+  //         scrollController1.position.maxScrollExtent) {
+  //       setState(() {
+  //         isLoadMore1 = true;
+  //       });
+  //       noOf1 = noOf1 + 4;
+  //       await getFeatured1();
+  //       setState(() {
+  //         isLoadMore1 = false;
+  //       });
+  //     }
+  //   }
+  // }
+
+  // // SCROLL LISTENER 2
+  // Future<void> scrollListener2() async {
+  //   Future<void> getFeatured2() async {
+  //     Map<String, Map<String, dynamic>> myFeatured2 = {};
+  //     final featuredSnap2 =
+  //         await store.collection('Featured').doc('Vendor').get();
+  //     final featuredData2 = featuredSnap2.data()!;
+  //     final category2 = featuredData2['category2'];
+  //     final productSnap2 = await store
+  //         .collection('Business')
+  //         .doc('Data')
+  //         .collection('Products')
+  //         .where('categoryName', isEqualTo: category2)
+  //         .limit(noOf2)
+  //         .get();
+  //     productSnap2.docs.forEach((product2) {
+  //       final productId2 = product2.id;
+  //       final productData2 = product2.data();
+  //       myFeatured2.addAll({
+  //         productId2: productData2,
+  //       });
+  //     });
+  //     setState(() {
+  //       featured2 = myFeatured2;
+  //     });
+  //   }
+  //   if (total2 != null && noOf2 < total2!) {
+  //     if (scrollController2.position.pixels ==
+  //         scrollController2.position.maxScrollExtent) {
+  //       setState(() {
+  //         isLoadMore2 = true;
+  //       });
+  //       noOf2 = noOf2 + 4;
+  //       await getFeatured2();
+  //       setState(() {
+  //         isLoadMore2 = false;
+  //       });
+  //     }
+  //   }
+  // }
+
+  // // SCROLL LISTENER 3
+  // Future<void> scrollListener3() async {
+  //   Future<void> getFeatured3() async {
+  //     Map<String, Map<String, dynamic>> myFeatured3 = {};
+  //     final featuredSnap3 =
+  //         await store.collection('Featured').doc('Vendor').get();
+  //     final featuredData3 = featuredSnap3.data()!;
+  //     final category3 = featuredData3['category3'];
+  //     final productSnap3 = await store
+  //         .collection('Business')
+  //         .doc('Data')
+  //         .collection('Products')
+  //         .where('categoryName', isEqualTo: category3)
+  //         .limit(noOf3)
+  //         .get();
+  //     productSnap3.docs.forEach((product3) {
+  //       final productId3 = product3.id;
+  //       final productData3 = product3.data();
+  //       myFeatured3.addAll({
+  //         productId3: productData3,
+  //       });
+  //     });
+  //     setState(() {
+  //       featured3 = myFeatured3;
+  //     });
+  //   }
+  //   if (total3 != null && noOf3 < total3!) {
+  //     if (scrollController3.position.pixels ==
+  //         scrollController3.position.maxScrollExtent) {
+  //       setState(() {
+  //         isLoadMore3 = true;
+  //       });
+  //       noOf3 = noOf3 + 1;
+  //       await getFeatured3();
+  //       setState(() {
+  //         isLoadMore3 = false;
+  //       });
+  //     }
+  //   }
+  // }
+
+  // // GET TOTAL
+  // Future<void> getTotal() async {
+  //   final featuredSnap = await store.collection('Featured').doc('Vendor').get();
+  //   final featuredData = featuredSnap.data()!;
+  //   final category1 = featuredData['category1'];
+  //   final category2 = featuredData['category2'];
+  //   final category3 = featuredData['category3'];
+  //   final totalSnap1 = await store
+  //       .collection('Business')
+  //       .doc('Data')
+  //       .collection('Products')
+  //       .where('categoryName', isEqualTo: category1)
+  //       .get();
+  //   final totalLength1 = totalSnap1.docs.length;
+  //   final totalSnap2 = await store
+  //       .collection('Business')
+  //       .doc('Data')
+  //       .collection('Products')
+  //       .where('categoryName', isEqualTo: category2)
+  //       .get();
+  //   final totalLength2 = totalSnap2.docs.length;
+  //   final totalSnap3 = await store
+  //       .collection('Business')
+  //       .doc('Data')
+  //       .collection('Products')
+  //       .where('categoryName', isEqualTo: category3)
+  //       .get();
+  //   final totalLength3 = totalSnap3.docs.length;
+  //   setState(() {
+  //     total1 = totalLength1;
+  //     total2 = totalLength2;
+  //     total3 = totalLength3;
+  //   });
+  // }
 
   // GET DISTANCE
   Future<double?> getDrivingDistance(
@@ -617,9 +796,9 @@ class _ProductHomePageState extends State<ProductHomePage> {
 
     // GET FEATURED
     Future<void> getFeatured() async {
-      Map<String, Map<String, Map<String, dynamic>>> myFeatured1 = {};
-      Map<String, Map<String, Map<String, dynamic>>> myFeatured2 = {};
-      Map<String, Map<String, Map<String, dynamic>>> myFeatured3 = {};
+      Map<String, Map<String, dynamic>> myFeatured1 = {};
+      Map<String, Map<String, dynamic>> myFeatured2 = {};
+      Map<String, Map<String, dynamic>> myFeatured3 = {};
 
       final featuredSnap =
           await store.collection('Featured').doc('Vendor').get();
@@ -635,6 +814,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
           .doc('Data')
           .collection('Products')
           .where('categoryName', isEqualTo: category1)
+          // .limit(noOf1)
           .get();
 
       productSnap1.docs.forEach((product1) {
@@ -642,9 +822,9 @@ class _ProductHomePageState extends State<ProductHomePage> {
 
         final productData1 = product1.data();
 
-        myFeatured1[category1] = {
+        myFeatured1.addAll({
           productId1: productData1,
-        };
+        });
       });
 
       final productSnap2 = await store
@@ -652,6 +832,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
           .doc('Data')
           .collection('Products')
           .where('categoryName', isEqualTo: category2)
+          // .limit(noOf2)
           .get();
 
       productSnap2.docs.forEach((product2) {
@@ -659,9 +840,9 @@ class _ProductHomePageState extends State<ProductHomePage> {
 
         final productData2 = product2.data();
 
-        myFeatured2[category2] = {
+        myFeatured2.addAll({
           productId2: productData2,
-        };
+        });
       });
 
       final productSnap3 = await store
@@ -669,6 +850,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
           .doc('Data')
           .collection('Products')
           .where('categoryName', isEqualTo: category3)
+          // .limit(noOf3)
           .get();
 
       productSnap3.docs.forEach((product3) {
@@ -676,15 +858,18 @@ class _ProductHomePageState extends State<ProductHomePage> {
 
         final productData3 = product3.data();
 
-        myFeatured3[category3] = {
+        myFeatured3.addAll({
           productId3: productData3,
-        };
+        });
       });
 
       setState(() {
         featured1 = myFeatured1;
         featured2 = myFeatured2;
         featured3 = myFeatured3;
+        featuredCategory1 = category1;
+        featuredCategory2 = category2;
+        featuredCategory3 = category3;
       });
     }
 
@@ -708,7 +893,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
             context: context,
             builder: (context) {
               return AlertDialog(
-                title: Text('Rate our App'),
+                title: Text('Rate this App'),
                 content: Text('If you liked our app, you can rate it 5⭐'),
                 actions: [
                   MyTextButton(
@@ -727,7 +912,13 @@ class _ProductHomePageState extends State<ProductHomePage> {
                         'hasReviewed': true,
                       });
 
-                      // TODO: RATE APP IN PLAY STORE
+                      const url =
+                          'https://play.google.com/store/apps/details?id=com.localsearchuser.package';
+                      if (await canLaunchUrl(Uri.parse(url))) {
+                        await launchUrl(Uri.parse(url));
+                      } else {
+                        throw 'Could not launch $url';
+                      }
                     },
                     text: 'Yes',
                     textColor: Colors.green,
@@ -1249,7 +1440,8 @@ class _ProductHomePageState extends State<ProductHomePage> {
             semanticsLabel: 'Refresh',
             child: LayoutBuilder(
               builder: ((context, constraints) {
-                final double width = constraints.maxWidth;
+                final width = constraints.maxWidth;
+                final height = constraints.maxHeight;
 
                 return SingleChildScrollView(
                   child: Column(
@@ -1342,7 +1534,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                     physics: const ClampingScrollPhysics(),
                                     scrollDirection: Axis.horizontal,
                                     itemCount:
-                                        posts.length > 9 ? 10 : posts.length,
+                                        posts.length >= 10 ? 10 : posts.length,
                                     itemBuilder: (context, index) {
                                       final String vendorId =
                                           posts.keys.toList()[index];
@@ -1844,7 +2036,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                       'Continue Shopping',
                                       style: TextStyle(
                                         color: primaryDark,
-                                        fontSize: width * 0.07,
+                                        fontSize: width * 0.06,
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
@@ -1896,7 +2088,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                               Container()
                               : AnimatedContainer(
                                   width: width,
-                                  height: width * 0.425,
+                                  height: width * 0.45,
                                   duration: Duration(milliseconds: 250),
                                   child: ListView.builder(
                                     shrinkWrap: true,
@@ -1969,8 +2161,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                                       TextOverflow.ellipsis,
                                                   maxLines: 1,
                                                   style: TextStyle(
-                                                    fontSize: width * 0.05,
-                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: width * 0.04125,
                                                   ),
                                                 ),
                                               ),
@@ -1981,6 +2172,8 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                     }),
                                   ),
                                 ),
+
+                      currentWishlist.isEmpty ? Container() : Divider(),
 
                       // WISHLIST
                       currentWishlist.isEmpty
@@ -2002,18 +2195,36 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                       horizontal: width * 0.025,
                                       vertical: width * 0.025,
                                     ),
-                                    child: Text(
-                                      'Your Wishlists ❤️',
-                                      style: TextStyle(
-                                        color: primaryDark,
-                                        fontSize: width * 0.07,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          'Your Wishlists ❤️',
+                                          style: TextStyle(
+                                            color: primaryDark,
+                                            fontSize: width * 0.06,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        MyTextButton(
+                                          onPressed: () {
+                                            Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    WishlistPage(),
+                                              ),
+                                            );
+                                          },
+                                          text: 'See All',
+                                          textColor: primaryDark,
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ),
-
-                      currentWishlist.isEmpty ? Container() : const Divider(),
 
                       // WISHLIST PRODUCTS
                       currentWishlist.isEmpty
@@ -2062,7 +2273,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                               Container()
                               : SizedBox(
                                   width: width,
-                                  height: width * 0.425,
+                                  height: width * 0.45,
                                   child: ListView.builder(
                                     shrinkWrap: true,
                                     physics: const ClampingScrollPhysics(),
@@ -2135,8 +2346,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                                       TextOverflow.ellipsis,
                                                   maxLines: 1,
                                                   style: TextStyle(
-                                                    fontSize: width * 0.05,
-                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: width * 0.04125,
                                                   ),
                                                 ),
                                               ),
@@ -2173,7 +2383,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                     'Followed Shops',
                                     style: TextStyle(
                                       color: primaryDark,
-                                      fontSize: width * 0.07,
+                                      fontSize: width * 0.06,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
@@ -2226,7 +2436,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                               Container()
                               : SizedBox(
                                   width: width,
-                                  height: width * 0.425,
+                                  height: width * 0.45,
                                   child: ListView.builder(
                                     shrinkWrap: true,
                                     physics: const ClampingScrollPhysics(),
@@ -2299,8 +2509,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                                       TextOverflow.ellipsis,
                                                   maxLines: 1,
                                                   style: TextStyle(
-                                                    fontSize: width * 0.05,
-                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: width * 0.04125,
                                                   ),
                                                 ),
                                               ),
@@ -2313,17 +2522,19 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                 ),
 
                       // FEATURED 1
-                      featured1.isEmpty ? Container() : const Divider(),
+                      featured1.isEmpty || featured1.isEmpty
+                          ? Container()
+                          : const Divider(),
 
                       // FEATURED CATEGORY 1
-                      featured1.isEmpty
+                      featuredCategory1 == null || featured1.isEmpty
                           ? Container()
                           : Padding(
                               padding: EdgeInsets.all(
                                 width * 0.0125,
                               ),
                               child: Text(
-                                featured1.keys.toList()[0],
+                                featuredCategory1!,
                                 style: TextStyle(
                                   color: primaryDark,
                                   fontSize: width * 0.06,
@@ -2337,25 +2548,20 @@ class _ProductHomePageState extends State<ProductHomePage> {
                           ? Container()
                           : SizedBox(
                               width: width,
-                              height: width * 0.425,
+                              height: width * 0.45,
                               child: ListView.builder(
                                 shrinkWrap: true,
                                 physics: const ClampingScrollPhysics(),
                                 scrollDirection: Axis.horizontal,
-                                itemCount: featured1.length,
+                                itemCount:
+                                    featured1.length > 5 ? 5 : featured1.length,
                                 itemBuilder: (context, index) {
-                                  final name1 = featured1.values
-                                      .toList()[index]
-                                      .values
-                                      .toList()[index]['productName'];
+                                  final name1 = featured1.values.toList()[index]
+                                      ['productName'];
                                   final imageUrl1 = featured1.values
-                                      .toList()[index]
-                                      .values
                                       .toList()[index]['images'][0];
-                                  final productData1 = featured1.values
-                                      .toList()[index]
-                                      .values
-                                      .toList()[index];
+                                  final productData1 =
+                                      featured1.values.toList()[index];
 
                                   return GestureDetector(
                                     onTap: () {
@@ -2409,8 +2615,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                               overflow: TextOverflow.ellipsis,
                                               maxLines: 1,
                                               style: TextStyle(
-                                                fontSize: width * 0.05,
-                                                fontWeight: FontWeight.w500,
+                                                fontSize: width * 0.04125,
                                               ),
                                             ),
                                           ),
@@ -2423,17 +2628,19 @@ class _ProductHomePageState extends State<ProductHomePage> {
                             ),
 
                       // FEATURED 2
-                      featured2.isEmpty ? Container() : const Divider(),
+                      featured2.isEmpty || featured2.isEmpty
+                          ? Container()
+                          : const Divider(),
 
                       // FEATURED CATEGORY 2
-                      featured2.isEmpty
+                      featuredCategory2 == null || featured2.isEmpty
                           ? Container()
                           : Padding(
                               padding: EdgeInsets.all(
                                 width * 0.0125,
                               ),
                               child: Text(
-                                featured2.keys.toList()[0],
+                                featuredCategory2!,
                                 style: TextStyle(
                                   color: primaryDark,
                                   fontSize: width * 0.06,
@@ -2447,25 +2654,20 @@ class _ProductHomePageState extends State<ProductHomePage> {
                           ? Container()
                           : SizedBox(
                               width: width,
-                              height: width * 0.425,
+                              height: width * 0.45,
                               child: ListView.builder(
                                 shrinkWrap: true,
                                 physics: const ClampingScrollPhysics(),
                                 scrollDirection: Axis.horizontal,
-                                itemCount: featured2.length,
+                                itemCount:
+                                    featured2.length > 5 ? 5 : featured2.length,
                                 itemBuilder: (context, index) {
-                                  final name2 = featured2.values
-                                      .toList()[index]
-                                      .values
-                                      .toList()[index]['productName'];
+                                  final name2 = featured2.values.toList()[index]
+                                      ['productName'];
                                   final imageUrl2 = featured2.values
-                                      .toList()[index]
-                                      .values
                                       .toList()[index]['images'][0];
-                                  final productData2 = featured2.values
-                                      .toList()[index]
-                                      .values
-                                      .toList()[index];
+                                  final productData2 =
+                                      featured2.values.toList()[index];
 
                                   return GestureDetector(
                                     onTap: () {
@@ -2519,8 +2721,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                               overflow: TextOverflow.ellipsis,
                                               maxLines: 1,
                                               style: TextStyle(
-                                                fontSize: width * 0.05,
-                                                fontWeight: FontWeight.w500,
+                                                fontSize: width * 0.04125,
                                               ),
                                             ),
                                           ),
@@ -2533,17 +2734,19 @@ class _ProductHomePageState extends State<ProductHomePage> {
                             ),
 
                       // FEATURED 3
-                      featured3.isEmpty ? Container() : const Divider(),
+                      featured3.isEmpty || featured3.isEmpty
+                          ? Container()
+                          : const Divider(),
 
                       // FEATURED CATEGORY 3
-                      featured3.isEmpty
+                      featuredCategory3 == null || featured3.isEmpty
                           ? Container()
                           : Padding(
                               padding: EdgeInsets.all(
                                 width * 0.0125,
                               ),
                               child: Text(
-                                featured3.keys.toList()[0],
+                                featuredCategory3!,
                                 style: TextStyle(
                                   color: primaryDark,
                                   fontSize: width * 0.06,
@@ -2557,25 +2760,20 @@ class _ProductHomePageState extends State<ProductHomePage> {
                           ? Container()
                           : SizedBox(
                               width: width,
-                              height: width * 0.425,
+                              height: width * 0.45,
                               child: ListView.builder(
                                 shrinkWrap: true,
                                 physics: const ClampingScrollPhysics(),
                                 scrollDirection: Axis.horizontal,
-                                itemCount: featured3.length,
+                                itemCount:
+                                    featured3.length > 5 ? 5 : featured3.length,
                                 itemBuilder: (context, index) {
-                                  final name3 = featured3.values
-                                      .toList()[index]
-                                      .values
-                                      .toList()[index]['productName'];
+                                  final name3 = featured3.values.toList()[index]
+                                      ['productName'];
                                   final imageUrl3 = featured3.values
-                                      .toList()[index]
-                                      .values
                                       .toList()[index]['images'][0];
-                                  final productData3 = featured3.values
-                                      .toList()[index]
-                                      .values
-                                      .toList()[index];
+                                  final productData3 =
+                                      featured3.values.toList()[index];
 
                                   return GestureDetector(
                                     onTap: () {
@@ -2629,8 +2827,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                               overflow: TextOverflow.ellipsis,
                                               maxLines: 1,
                                               style: TextStyle(
-                                                fontSize: width * 0.05,
-                                                fontWeight: FontWeight.w500,
+                                                fontSize: width * 0.04125,
                                               ),
                                             ),
                                           ),

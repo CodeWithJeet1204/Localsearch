@@ -147,6 +147,18 @@ Map<String, Map<String, List<String>>> householdTypeCategorySubCategory = {
     'Kids Watches': [
       'Kids Watches',
     ],
+    'Night Wear': [
+      'Night Wear',
+    ],
+    'Active Wear': [
+      'Active Wear',
+    ],
+    'Sarees': [
+      'Sarees',
+    ],
+    'Punjabi Suits': [
+      'Punjabi Suits',
+    ],
     'Men Jeans': [
       'Men Jeans',
     ],
@@ -272,6 +284,24 @@ Map<String, Map<String, List<String>>> householdTypeCategorySubCategory = {
     ],
     'Kids Western': [
       'Kids Western',
+    ],
+    'Men Winter Wear': [
+      'Men Winter Wear',
+    ],
+    'Women Winter Wear': [
+      'Women Winter Wear',
+    ],
+    'Kids Winter Wear': [
+      'Kids Winter Wear',
+    ],
+    'Rainy Wear': [
+      'Rainy Wear',
+    ],
+    'Men Accessories': [
+      'Men Accessories',
+    ],
+    'Women Accessories': [
+      'Women Accessories',
     ],
     'Wallets': [
       'Wallets',

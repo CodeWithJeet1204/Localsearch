@@ -97,194 +97,196 @@ class _ServicesHomePageState extends State<ServicesHomePage> {
           ),
         ],
       ),
-      body: Padding(
-        padding: EdgeInsets.all(
-          MediaQuery.of(context).size.width * 0.006125,
-        ),
-        child: LayoutBuilder(
-          builder: ((context, constraints) {
-            final width = constraints.maxWidth;
+      body: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.all(
+            MediaQuery.of(context).size.width * 0.006125,
+          ),
+          child: LayoutBuilder(
+            builder: ((context, constraints) {
+              final width = constraints.maxWidth;
 
-            return SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: width,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      color: primary2.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: primaryDark.withOpacity(0.25),
-                      ),
-                    ),
-                    margin: EdgeInsets.symmetric(
-                      horizontal: width * 0.0225,
-                      vertical: width * 0.0125,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: TypeAheadField(
-                            controller: searchController,
-                            onSelected: (value) {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: ((context) => ServicesSearchPage(
-                                        search: value,
-                                      )),
-                                ),
-                              );
-                            },
-                            suggestionsCallback: (pattern) {
-                              return getSuggestions(pattern);
-                            },
-                            builder: (context, controller, focusNode) {
-                              return TextField(
-                                controller: controller,
-                                focusNode: focusNode,
-                                textInputAction: TextInputAction.search,
-                                onTapOutside: (event) =>
-                                    FocusScope.of(context).unfocus(),
-                                onSubmitted: (value) async {
-                                  await search();
-                                },
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(
-                                    borderRadius: const BorderRadius.only(
-                                      topLeft: Radius.circular(7),
-                                      bottomLeft: Radius.circular(7),
-                                    ),
-                                    borderSide: BorderSide(
-                                      width: 1,
-                                      color: Colors.cyan.shade700,
-                                    ),
-                                  ),
-                                  hintText: 'Search...',
-                                ),
-                              );
-                            },
-                            itemBuilder: (context, value) {
-                              return ListTile(
-                                title: Text(value.toString()),
-                              );
-                            },
-                          ),
+              return SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: width,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        color: primary2.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: primaryDark.withOpacity(0.25),
                         ),
-                        InkWell(
-                          onTapDown: (details) {
-                            setState(() {
-                              isSearchPressed = true;
-                            });
-                          },
-                          onTapUp: (details) {
-                            setState(() {
-                              isSearchPressed = false;
-                            });
-                          },
-                          onTapCancel: () {
-                            setState(() {
-                              isSearchPressed = false;
-                            });
-                          },
-                          onTap: () async {
-                            await search();
-                          },
-                          splashColor: Colors.transparent,
-                          customBorder: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(0),
-                              bottomLeft: Radius.circular(0),
-                              bottomRight: Radius.circular(4),
-                              topRight: Radius.circular(4),
+                      ),
+                      margin: EdgeInsets.symmetric(
+                        horizontal: width * 0.0225,
+                        vertical: width * 0.0125,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: TypeAheadField(
+                              controller: searchController,
+                              onSelected: (value) {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: ((context) => ServicesSearchPage(
+                                          search: value,
+                                        )),
+                                  ),
+                                );
+                              },
+                              suggestionsCallback: (pattern) {
+                                return getSuggestions(pattern);
+                              },
+                              builder: (context, controller, focusNode) {
+                                return TextField(
+                                  controller: controller,
+                                  focusNode: focusNode,
+                                  textInputAction: TextInputAction.search,
+                                  onTapOutside: (event) =>
+                                      FocusScope.of(context).unfocus(),
+                                  onSubmitted: (value) async {
+                                    await search();
+                                  },
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(
+                                      borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(7),
+                                        bottomLeft: Radius.circular(7),
+                                      ),
+                                      borderSide: BorderSide(
+                                        width: 1,
+                                        color: Colors.cyan.shade700,
+                                      ),
+                                    ),
+                                    hintText: 'Search...',
+                                  ),
+                                );
+                              },
+                              itemBuilder: (context, value) {
+                                return ListTile(
+                                  title: Text(value.toString()),
+                                );
+                              },
                             ),
                           ),
-                          child: Container(
-                            width: width * 0.175,
-                            height: 60,
-                            decoration: BoxDecoration(
-                              color: isSearchPressed
-                                  ? primary2.withOpacity(0.95)
-                                  : primary2.withOpacity(0.25),
-                              borderRadius: const BorderRadius.only(
+                          InkWell(
+                            onTapDown: (details) {
+                              setState(() {
+                                isSearchPressed = true;
+                              });
+                            },
+                            onTapUp: (details) {
+                              setState(() {
+                                isSearchPressed = false;
+                              });
+                            },
+                            onTapCancel: () {
+                              setState(() {
+                                isSearchPressed = false;
+                              });
+                            },
+                            onTap: () async {
+                              await search();
+                            },
+                            splashColor: Colors.transparent,
+                            customBorder: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.only(
                                 topLeft: Radius.circular(0),
                                 bottomLeft: Radius.circular(0),
-                                bottomRight: Radius.circular(6),
-                                topRight: Radius.circular(6),
+                                bottomRight: Radius.circular(4),
+                                topRight: Radius.circular(4),
                               ),
                             ),
-                            alignment: Alignment.center,
-                            child: Icon(
-                              FeatherIcons.search,
-                              size: width * 0.06,
+                            child: Container(
+                              width: width * 0.175,
+                              height: 60,
+                              decoration: BoxDecoration(
+                                color: isSearchPressed
+                                    ? primary2.withOpacity(0.95)
+                                    : primary2.withOpacity(0.25),
+                                borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(0),
+                                  bottomLeft: Radius.circular(0),
+                                  bottomRight: Radius.circular(6),
+                                  topRight: Radius.circular(6),
+                                ),
+                              ),
+                              alignment: Alignment.center,
+                              child: Icon(
+                                FeatherIcons.search,
+                                size: width * 0.06,
+                              ),
                             ),
                           ),
+                        ],
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        NameContainer(
+                          text: 'Home',
+                          imageUrl: placeImageMap['Home']!,
+                          onTap: () {
+                            navigateTo('Home');
+                          },
+                          width: width,
+                        ),
+                        NameContainer(
+                          text: 'Office',
+                          imageUrl: placeImageMap['Office']!,
+                          onTap: () {
+                            navigateTo('Office');
+                          },
+                          width: width,
                         ),
                       ],
                     ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      NameContainer(
-                        text: 'Home',
-                        imageUrl: placeImageMap['Home']!,
-                        onTap: () {
-                          navigateTo('Home');
-                        },
-                        width: width,
-                      ),
-                      NameContainer(
-                        text: 'Office',
-                        imageUrl: placeImageMap['Office']!,
-                        onTap: () {
-                          navigateTo('Office');
-                        },
-                        width: width,
-                      ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      NameContainer(
-                        text: 'Outdoor',
-                        imageUrl: placeImageMap['Outdoor']!,
-                        onTap: () {
-                          navigateTo('Outdoor');
-                        },
-                        width: width,
-                      ),
-                      NameContainer(
-                        text: 'Retail Stores',
-                        imageUrl: placeImageMap['Retail Stores']!,
-                        onTap: () {
-                          navigateTo('Retail Stores');
-                        },
-                        width: width,
-                      ),
-                    ],
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(left: width * 0.0065),
-                    child: NameContainer(
-                      text: 'Educational Institutes',
-                      imageUrl: placeImageMap['Educational Institutes']!,
-                      onTap: () {
-                        navigateTo('Educational Institutes');
-                      },
-                      width: width,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        NameContainer(
+                          text: 'Outdoor',
+                          imageUrl: placeImageMap['Outdoor']!,
+                          onTap: () {
+                            navigateTo('Outdoor');
+                          },
+                          width: width,
+                        ),
+                        NameContainer(
+                          text: 'Retail Stores',
+                          imageUrl: placeImageMap['Retail Stores']!,
+                          onTap: () {
+                            navigateTo('Retail Stores');
+                          },
+                          width: width,
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
-            );
-          }),
+                    Padding(
+                      padding: EdgeInsets.only(left: width * 0.0065),
+                      child: NameContainer(
+                        text: 'Educational Institutes',
+                        imageUrl: placeImageMap['Educational Institutes']!,
+                        onTap: () {
+                          navigateTo('Educational Institutes');
+                        },
+                        width: width,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ),
         ),
       ),
     );

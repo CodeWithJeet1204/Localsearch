@@ -353,7 +353,7 @@ class _EventsSearchResultsPageState extends State<EventsSearchResultsPage> {
           ),
           child: LayoutBuilder(
             builder: ((context, constraints) {
-              final double width = constraints.maxWidth;
+              final width = constraints.maxWidth;
 
               return SizedBox(
                 height: MediaQuery.of(context).size.height,
@@ -1028,7 +1028,9 @@ class _EventsSearchResultsPageState extends State<EventsSearchResultsPage> {
                                                                     0.0125,
                                                               ),
                                                               child: Text(
-                                                                price,
+                                                                price == ''
+                                                                    ? 'Rs. --'
+                                                                    : 'Rs. $price',
                                                                 style:
                                                                     TextStyle(
                                                                   fontSize:

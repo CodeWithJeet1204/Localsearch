@@ -13,16 +13,47 @@ class AllShopTypesPage extends StatefulWidget {
 }
 
 class _AllShopTypesPageState extends State<AllShopTypesPage> {
+  int noOf = 10;
+  bool isLoadMore = false;
+  final scrollController = ScrollController();
+
+  // INIT STATE
+  @override
+  void initState() {
+    scrollController.addListener(scrollListener);
+    super.initState();
+  }
+
+  // DISPOSE
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  // SCROLL LISTENER
+  Future<void> scrollListener() async {
+    if (scrollController.position.pixels ==
+        scrollController.position.maxScrollExtent) {
+      setState(() {
+        isLoadMore = true;
+      });
+      setState(() {
+        noOf = noOf + 8;
+      });
+      setState(() {
+        isLoadMore = false;
+      });
+    }
+  }
+
   // GET CATEGORY COLORS
   // Future<void> getCategoryColors() async {
   //   List<List<dynamic>> tempCategories = [];
-
   //   for (int i = 0; i < businessCategories.length; i++) {
   //     final String name = businessCategories[i][0];
   //     final String imageUrl = businessCategories[i][1];
-
   //     final Color color = await calculateTopLineColor(imageUrl);
-
   //     tempCategories.add([name, imageUrl, color]);
   //     if (mounted) {
   //       setState(() {
@@ -40,17 +71,14 @@ class _AllShopTypesPageState extends State<AllShopTypesPage> {
   //         await NetworkAssetBundle(Uri.parse(imageUrl)).load('');
   //     final Uint8List imageBytes = imageData.buffer.asUint8List();
   //     final img.Image image = img.decodeImage(imageBytes)!;
-
   //     double redSum = 0, greenSum = 0, blueSum = 0;
   //     final int width = image.width;
-
   //     for (int x = 0; x < width; x++) {
   //       final color = image.getPixel(x, 0);
   //       redSum += color.r;
   //       greenSum += color.g;
   //       blueSum += color.b;
   //     }
-
   //     final int pixelCount = width;
   //     final Color averageColor = Color.fromRGBO(
   //       redSum ~/ pixelCount,
@@ -58,7 +86,6 @@ class _AllShopTypesPageState extends State<AllShopTypesPage> {
   //       blueSum ~/ pixelCount,
   //       1.0,
   //     );
-
   //     return averageColor;
   //   } catch (e) {
   //     return white;
@@ -68,6 +95,7 @@ class _AllShopTypesPageState extends State<AllShopTypesPage> {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
 
     return Scaffold(
       appBar: AppBar(
@@ -107,13 +135,17 @@ class _AllShopTypesPageState extends State<AllShopTypesPage> {
           :*/
           SafeArea(
         child: GridView.builder(
+            controller: scrollController,
+            cacheExtent: height * 1.5,
+            addAutomaticKeepAlives: true,
             shrinkWrap: true,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               childAspectRatio: 0.7525,
             ),
             physics: const ClampingScrollPhysics(),
-            itemCount: householdTypes.length,
+            itemCount:
+                noOf > householdTypes.length ? householdTypes.length : noOf,
             itemBuilder: (context, index) {
               final String name = householdTypes.keys.toList()[index];
               final String imageUrl = householdTypes.values.toList()[index];
@@ -155,7 +187,7 @@ class _AllShopTypesPageState extends State<AllShopTypesPage> {
                       ),
                       Expanded(
                         child: Container(
-                          alignment: Alignment.bottomLeft,
+                          alignment: Alignment.center,
                           decoration: const BoxDecoration(
                             color: white,
                             borderRadius: BorderRadius.vertical(
@@ -165,11 +197,12 @@ class _AllShopTypesPageState extends State<AllShopTypesPage> {
                           padding: EdgeInsets.all(width * 0.025),
                           child: Text(
                             name.toUpperCase(),
-                            maxLines: 2,
+                            maxLines: 1,
                             overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.left,
                             style: TextStyle(
-                              fontSize: width * 0.045,
-                              fontWeight: FontWeight.bold,
+                              fontSize: width * 0.04125,
+                              fontWeight: FontWeight.w500,
                               color: Colors.black,
                             ),
                           ),

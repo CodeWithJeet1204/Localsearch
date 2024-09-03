@@ -60,16 +60,20 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
   Map<String, String>? categories;
   Map<String, dynamic> products = {};
   String? productSort = 'Recently Added';
-  final ScrollController scrollController = ScrollController();
-  int numProductsLoaded = 7;
   bool isChangingAddress = false;
   String? address;
   double? latitude;
   double? longitude;
+  int noOf = 8;
+  int? total;
+  final scrollController = ScrollController();
+  bool isLoadMore = false;
 
   // INIT STATE
   @override
   void initState() {
+    getTotal();
+    scrollController.addListener(scrollListener);
     getVendorInfo();
     getIfFollowing();
     getBrands();
@@ -102,21 +106,6 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
   void dispose() {
     scrollController.dispose();
     super.dispose();
-  }
-
-  // SCROLL LISTENER
-  void scrollListener() {
-    if (scrollController.position.pixels ==
-        scrollController.position.maxScrollExtent) {
-      loadMoreProducts();
-    }
-  }
-
-  // LOAD MORE PRODUCTS
-  void loadMoreProducts() {
-    setState(() {
-      numProductsLoaded += 7;
-    });
   }
 
   // SET RECENT AND UPDATE
@@ -346,6 +335,7 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
         .doc('Data')
         .collection('Brands')
         .where('vendorId', isEqualTo: widget.vendorId)
+        .limit(noOf)
         .get();
 
     for (var brandData in brandSnap.docs) {
@@ -769,6 +759,39 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
     });
   }
 
+  // SCROLL LISTENER
+  Future<void> scrollListener() async {
+    if (total != null && noOf < total!) {
+      if (scrollController.position.pixels ==
+          scrollController.position.maxScrollExtent) {
+        setState(() {
+          isLoadMore = true;
+        });
+        noOf = noOf + 4;
+        await getBrands();
+        setState(() {
+          isLoadMore = false;
+        });
+      }
+    }
+  }
+
+  // GET TOTAL
+  Future<void> getTotal() async {
+    final totalSnap = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Brands')
+        .where('vendorId', isEqualTo: widget.vendorId)
+        .get();
+
+    final totalLength = totalSnap.docs.length;
+
+    setState(() {
+      total = totalLength;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final locationProvider = Provider.of<LocationProvider>(context);
@@ -828,1197 +851,1258 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                 ),
                 child: LayoutBuilder(builder: ((context, constraints) {
                   final width = constraints.maxWidth;
+                  final height = constraints.maxHeight;
 
-                  return SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // SHOP INFO
-                        Container(
-                          width: width,
-                          decoration: BoxDecoration(
-                            color: white,
-                          ),
-                          padding: EdgeInsets.all(width * 0.006125),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  // IMAGE
-                                  GestureDetector(
-                                    onTap: () async {
-                                      await showDialog(
-                                        context: context,
-                                        builder: ((context) => ImageShow(
-                                              imageUrl: shopData!['Image'],
-                                              width: width,
-                                            )),
-                                      );
-                                    },
-                                    child: CircleAvatar(
-                                      radius: width * 0.1,
-                                      backgroundImage: NetworkImage(
-                                        shopData!['Image'],
-                                      ),
-                                    ),
-                                  ),
-                                  Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      // NAME
-                                      Text(
-                                        shopData!['Name'],
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          color: primaryDark,
-                                          fontSize: width * 0.05,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                      SizedBox(height: width * 0.035),
-
-                                      // TYPE
-                                      Text(
-                                        getTypes(shopData!['Type']),
-                                        maxLines: 3,
-                                        overflow: TextOverflow.ellipsis,
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontSize: width * 0.04,
-                                        ),
-                                      ),
-                                      SizedBox(height: width * 0.0125),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: width * 0.045),
-
-                              // // VIEW CATALOGUE
-                              // (shopData!['Products'] as List).isEmpty
-                              //     ? Container()
-                              //     : MyTextButton(
-                              //         onPressed: () {
-                              //           Navigator.of(context).push(
-                              //             MaterialPageRoute(
-                              //               builder: (context) =>
-                              //                   VendorCataloguePage(
-                              //                 vendorId: widget.vendorId,
-                              //                 products: shopData!['Products'],
-                              //               ),
-                              //             ),
-                              //           );
-                              //         },
-                              //         text: 'View Catalogue',
-                              //         textColor: primaryDark,
-                              //       ),
-
-                              // OPEN STATUS
-                              FutureBuilder(
-                                  future: isShopOpen(),
-                                  builder: (context, snapshot) {
-                                    if (snapshot.hasError) {
-                                      return Container();
-                                    }
-
-                                    if (snapshot.hasData) {
-                                      final isOpen = snapshot.data!;
-
-                                      return Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceEvenly,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Container(
-                                            decoration: BoxDecoration(
-                                              color: isOpen && shopData!['Open']
-                                                  ? Colors.green
-                                                      .withOpacity(0.2)
-                                                  : Colors.red.withOpacity(0.2),
-                                              borderRadius:
-                                                  BorderRadius.circular(
-                                                8,
-                                              ),
-                                            ),
-                                            padding:
-                                                EdgeInsets.all(width * 0.0225),
-                                            child: Text(
-                                              isOpen && shopData!['Open']
-                                                  ? 'OPEN'
-                                                  : 'CLOSED',
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                color:
-                                                    isOpen && shopData!['Open']
-                                                        ? Colors.green
-                                                        : Colors.red,
-                                                fontSize: width * 0.05,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            height: width * 0.02,
-                                          ),
-                                          FutureBuilder(
-                                            future:
-                                                findNextOpeningOrClosingTime(),
-                                            builder: (context, snapshot) {
-                                              if (snapshot.hasError) {
-                                                return Container();
-                                              }
-
-                                              if (snapshot.hasData) {
-                                                final text = snapshot.data!;
-
-                                                return Text(text);
-                                              }
-
-                                              return Container();
-                                            },
-                                          ),
-                                          SizedBox(
-                                            height: width * 0.035,
-                                          ),
-                                        ],
-                                      );
-                                    }
-
-                                    return Container();
-                                  }),
-                              SizedBox(height: width * 0.035),
-
-                              // FOLLOW & CALL
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  // FOLLOW
-                                  GestureDetector(
-                                    onTap: () async {
-                                      await followShop();
-                                      await getIfFollowing();
-                                    },
-                                    child: Container(
-                                      width: width * 0.725,
-                                      height: 40,
-                                      alignment: Alignment.center,
-                                      decoration: BoxDecoration(
-                                        color: isFollowing ? black : lightGrey,
-                                        border: Border.all(
-                                          color:
-                                              isFollowing ? lightGrey : black,
-                                          width: 0.75,
-                                        ),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Text(
-                                        isFollowing ? 'Following' : 'Follow',
-                                        style: TextStyle(
-                                          color: isFollowing ? white : black,
+                  return NotificationListener<ScrollNotification>(
+                    onNotification: (ScrollNotification scrollInfo) {
+                      if (scrollInfo.metrics.pixels ==
+                          scrollInfo.metrics.maxScrollExtent) {
+                        scrollListener();
+                      }
+                      return false;
+                    },
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // SHOP INFO
+                          Container(
+                            width: width,
+                            decoration: BoxDecoration(
+                              color: white,
+                            ),
+                            padding: EdgeInsets.all(width * 0.006125),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    // IMAGE
+                                    GestureDetector(
+                                      onTap: () async {
+                                        await showDialog(
+                                          context: context,
+                                          builder: ((context) => ImageShow(
+                                                imageUrl: shopData!['Image'],
+                                                width: width,
+                                              )),
+                                        );
+                                      },
+                                      child: CircleAvatar(
+                                        radius: width * 0.1,
+                                        backgroundImage: NetworkImage(
+                                          shopData!['Image'],
                                         ),
                                       ),
                                     ),
-                                  ),
-
-                                  // CALL
-                                  GestureDetector(
-                                    onTap: () async {
-                                      await callVendor();
-                                    },
-                                    child: Container(
-                                      width: width * 0.225,
-                                      height: 40,
-                                      alignment: Alignment.center,
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: width * 0.00625,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: primary2.withOpacity(0.5),
-                                        border: Border.all(
-                                          color: primaryDark.withOpacity(0.5),
-                                          width: 0.25,
-                                        ),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: const Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceAround,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            'Call',
-                                            style: TextStyle(
-                                              color: primaryDark,
-                                              fontWeight: FontWeight.w500,
-                                            ),
+                                    Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        // NAME
+                                        Text(
+                                          shopData!['Name'],
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            color: primaryDark,
+                                            fontSize: width * 0.05,
+                                            fontWeight: FontWeight.w500,
                                           ),
-                                          Icon(FeatherIcons.phone),
-                                        ],
-                                      ),
+                                        ),
+                                        SizedBox(height: width * 0.035),
+
+                                        // TYPE
+                                        Text(
+                                          getTypes(shopData!['Type']),
+                                          maxLines: 3,
+                                          overflow: TextOverflow.ellipsis,
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontSize: width * 0.04,
+                                          ),
+                                        ),
+                                        SizedBox(height: width * 0.0125),
+                                      ],
                                     ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: width * 0.0125),
-
-                              // SOCIAL MEDIA
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  // WHATSAPP
-                                  ownerData!['Phone Number'] == ''
-                                      ? Container()
-                                      : Expanded(
-                                          child: GestureDetector(
-                                            onTap: () async {
-                                              final String phoneNumber =
-                                                  ownerData!['Phone Number'];
-                                              const String message =
-                                                  'Hey, I found you on Localsearch\n';
-                                              final url =
-                                                  'https://wa.me/$phoneNumber?text=$message';
-
-                                              if (await canLaunchUrl(
-                                                  Uri.parse(url))) {
-                                                await launchUrl(Uri.parse(url));
-                                              } else {
-                                                if (context.mounted) {
-                                                  mySnackBar(
-                                                    'Something went Wrong',
-                                                    context,
-                                                  );
-                                                }
-                                              }
-                                            },
-                                            child: Container(
-                                              height: 40,
-                                              alignment: Alignment.center,
-                                              padding: EdgeInsets.symmetric(
-                                                horizontal: width * 0.00625,
-                                              ),
-                                              margin: EdgeInsets.symmetric(
-                                                horizontal: width * 0.006125,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color: const Color.fromRGBO(
-                                                  198,
-                                                  255,
-                                                  200,
-                                                  1,
-                                                ),
-                                                border: Border.all(
-                                                  color: primaryDark
-                                                      .withOpacity(0.25),
-                                                  width: 0.25,
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                              ),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceAround,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  AutoSizeText(
-                                                    'Whatsapp',
-                                                    style: TextStyle(
-                                                      color: primaryDark,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      fontSize: width * 0.03,
-                                                    ),
-                                                  ),
-                                                  Icon(
-                                                    FeatherIcons.messageCircle,
-                                                    size: width * 0.05,
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-
-                                  // INSTAGRAM
-                                  shopData!['Instagram'] == ''
-                                      ? Container()
-                                      : Expanded(
-                                          child: GestureDetector(
-                                            onTap: () async {
-                                              String url =
-                                                  shopData!['Instagram'];
-
-                                              if (!url.startsWith('http://') &&
-                                                  !url.startsWith('https://')) {
-                                                url = 'https://$url';
-                                              }
-
-                                              if (await canLaunchUrl(
-                                                  Uri.parse(url))) {
-                                                await launchUrl(Uri.parse(url));
-                                              } else {
-                                                if (context.mounted) {
-                                                  mySnackBar(
-                                                    'Something went Wrong',
-                                                    context,
-                                                  );
-                                                }
-                                              }
-                                            },
-                                            child: Container(
-                                              height: 40,
-                                              alignment: Alignment.center,
-                                              padding: EdgeInsets.symmetric(
-                                                horizontal: width * 0.00625,
-                                              ),
-                                              margin: EdgeInsets.symmetric(
-                                                horizontal: width * 0.006125,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                gradient: LinearGradient(
-                                                  colors: [
-                                                    Color(0xA8050AE6),
-                                                    Color.fromRGBO(
-                                                        88, 81, 216, 0.66),
-                                                    Color.fromRGBO(
-                                                        131, 58, 180, 0.66),
-                                                    Color.fromRGBO(
-                                                        193, 53, 132, 0.66),
-                                                    Color.fromRGBO(
-                                                        225, 48, 108, 0.66),
-                                                    Color.fromRGBO(
-                                                        253, 36, 76, 0.66),
-                                                  ],
-                                                ),
-                                                border: Border.all(
-                                                  color: primaryDark
-                                                      .withOpacity(0.25),
-                                                  width: 0.25,
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                              ),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceAround,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  AutoSizeText(
-                                                    'Instagram',
-                                                    style: TextStyle(
-                                                      color: primaryDark,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      fontSize: width * 0.03,
-                                                    ),
-                                                  ),
-                                                  Icon(
-                                                    FeatherIcons.instagram,
-                                                    size: width * 0.05,
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-
-                                  // FACEBOOK
-                                  shopData!['Facebook'] == ''
-                                      ? Container()
-                                      : Expanded(
-                                          child: GestureDetector(
-                                            onTap: () async {
-                                              String url =
-                                                  shopData!['Facebook'];
-
-                                              if (!url.startsWith('http://') &&
-                                                  !url.startsWith('https://')) {
-                                                url = 'https://$url';
-                                              }
-
-                                              if (await canLaunchUrl(
-                                                  Uri.parse(url))) {
-                                                await launchUrl(Uri.parse(url));
-                                              } else {
-                                                if (context.mounted) {
-                                                  mySnackBar(
-                                                    'Something went Wrong',
-                                                    context,
-                                                  );
-                                                }
-                                              }
-                                            },
-                                            child: Container(
-                                              height: 40,
-                                              alignment: Alignment.center,
-                                              padding: EdgeInsets.symmetric(
-                                                horizontal: width * 0.00625,
-                                              ),
-                                              margin: EdgeInsets.symmetric(
-                                                horizontal: width * 0.006125,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color: Color.fromRGBO(
-                                                    24, 119, 242, 0.66),
-                                                border: Border.all(
-                                                  color: primaryDark
-                                                      .withOpacity(0.25),
-                                                  width: 0.25,
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                              ),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceAround,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  AutoSizeText(
-                                                    'Facebook',
-                                                    style: TextStyle(
-                                                      color: primaryDark,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      fontSize: width * 0.03,
-                                                    ),
-                                                  ),
-                                                  Icon(
-                                                    FeatherIcons.facebook,
-                                                    size: width * 0.05,
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-
-                                  // WEBSITE
-                                  shopData!['Website'] == ''
-                                      ? Container()
-                                      : Expanded(
-                                          child: GestureDetector(
-                                            onTap: () async {
-                                              String url = shopData!['Website'];
-
-                                              if (!url.startsWith('http://') &&
-                                                  !url.startsWith('https://')) {
-                                                url = 'https://$url';
-                                              }
-
-                                              if (await canLaunchUrl(
-                                                  Uri.parse(url))) {
-                                                await launchUrl(Uri.parse(url));
-                                              } else {
-                                                if (context.mounted) {
-                                                  mySnackBar(
-                                                    'Something went Wrong',
-                                                    context,
-                                                  );
-                                                }
-                                              }
-                                            },
-                                            child: Container(
-                                              height: 40,
-                                              alignment: Alignment.center,
-                                              padding: EdgeInsets.symmetric(
-                                                horizontal: width * 0.00625,
-                                              ),
-                                              margin: EdgeInsets.symmetric(
-                                                horizontal: width * 0.006125,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color: Colors.grey.shade300,
-                                                border: Border.all(
-                                                  color: primaryDark
-                                                      .withOpacity(0.25),
-                                                  width: 0.25,
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                              ),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceAround,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  AutoSizeText(
-                                                    'Website',
-                                                    style: TextStyle(
-                                                      color: primaryDark,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      fontSize: width * 0.03,
-                                                    ),
-                                                  ),
-                                                  Icon(
-                                                    FeatherIcons.globe,
-                                                    size: width * 0.05,
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                ],
-                              ),
-
-                              Divider(),
-
-                              // LOCATION
-                              Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: width * 0.0125,
+                                  ],
                                 ),
-                                child: FutureBuilder(
-                                    future: getAddress(
-                                      shopData!['Latitude']!,
-                                      shopData!['Longitude']!,
-                                      locationProvider,
-                                    ),
+                                SizedBox(height: width * 0.045),
+
+                                // // VIEW CATALOGUE
+                                // (shopData!['Products'] as List).isEmpty
+                                //     ? Container()
+                                //     : MyTextButton(
+                                //         onPressed: () {
+                                //           Navigator.of(context).push(
+                                //             MaterialPageRoute(
+                                //               builder: (context) =>
+                                //                   VendorCataloguePage(
+                                //                 vendorId: widget.vendorId,
+                                //                 products: shopData!['Products'],
+                                //               ),
+                                //             ),
+                                //           );
+                                //         },
+                                //         text: 'View Catalogue',
+                                //         textColor: primaryDark,
+                                //       ),
+
+                                // OPEN STATUS
+                                FutureBuilder(
+                                    future: isShopOpen(),
                                     builder: (context, snapshot) {
                                       if (snapshot.hasError) {
-                                        return const Center(
-                                          child: Text(
-                                            'Something went wrong while finding Location',
-                                          ),
-                                        );
+                                        return Container();
                                       }
 
                                       if (snapshot.hasData) {
+                                        final isOpen = snapshot.data!;
+
+                                        return Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                color:
+                                                    isOpen && shopData!['Open']
+                                                        ? Colors.green
+                                                            .withOpacity(0.2)
+                                                        : Colors.red
+                                                            .withOpacity(0.2),
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                  8,
+                                                ),
+                                              ),
+                                              padding: EdgeInsets.all(
+                                                  width * 0.0225),
+                                              child: Text(
+                                                isOpen && shopData!['Open']
+                                                    ? 'OPEN'
+                                                    : 'CLOSED',
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                  color: isOpen &&
+                                                          shopData!['Open']
+                                                      ? Colors.green
+                                                      : Colors.red,
+                                                  fontSize: width * 0.05,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              height: width * 0.02,
+                                            ),
+                                            FutureBuilder(
+                                              future:
+                                                  findNextOpeningOrClosingTime(),
+                                              builder: (context, snapshot) {
+                                                if (snapshot.hasError) {
+                                                  return Container();
+                                                }
+
+                                                if (snapshot.hasData) {
+                                                  final text = snapshot.data!;
+
+                                                  return Text(text);
+                                                }
+
+                                                return Container();
+                                              },
+                                            ),
+                                            SizedBox(
+                                              height: width * 0.035,
+                                            ),
+                                          ],
+                                        );
+                                      }
+
+                                      return Container();
+                                    }),
+                                SizedBox(height: width * 0.035),
+
+                                // FOLLOW & CALL
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    // FOLLOW
+                                    GestureDetector(
+                                      onTap: () async {
+                                        await followShop();
+                                        await getIfFollowing();
+                                      },
+                                      child: Container(
+                                        width: width * 0.725,
+                                        height: 40,
+                                        alignment: Alignment.center,
+                                        decoration: BoxDecoration(
+                                          color:
+                                              isFollowing ? black : lightGrey,
+                                          border: Border.all(
+                                            color:
+                                                isFollowing ? lightGrey : black,
+                                            width: 0.75,
+                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                        child: Text(
+                                          isFollowing ? 'Following' : 'Follow',
+                                          style: TextStyle(
+                                            color: isFollowing ? white : black,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+
+                                    // CALL
+                                    GestureDetector(
+                                      onTap: () async {
+                                        await callVendor();
+                                      },
+                                      child: Container(
+                                        width: width * 0.225,
+                                        height: 40,
+                                        alignment: Alignment.center,
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: width * 0.00625,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: primary2.withOpacity(0.5),
+                                          border: Border.all(
+                                            color: primaryDark.withOpacity(0.5),
+                                            width: 0.25,
+                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                        child: const Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceAround,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              'Call',
+                                              style: TextStyle(
+                                                color: primaryDark,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                            Icon(FeatherIcons.phone),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: width * 0.0125),
+
+                                // SOCIAL MEDIA
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    // WHATSAPP
+                                    ownerData!['Phone Number'] == ''
+                                        ? Container()
+                                        : Expanded(
+                                            child: GestureDetector(
+                                              onTap: () async {
+                                                final String phoneNumber =
+                                                    ownerData!['Phone Number'];
+                                                const String message =
+                                                    'Hey, I found you on Localsearch\n';
+                                                final url =
+                                                    'https://wa.me/$phoneNumber?text=$message';
+
+                                                if (await canLaunchUrl(
+                                                    Uri.parse(url))) {
+                                                  await launchUrl(
+                                                      Uri.parse(url));
+                                                } else {
+                                                  if (context.mounted) {
+                                                    mySnackBar(
+                                                      'Something went Wrong',
+                                                      context,
+                                                    );
+                                                  }
+                                                }
+                                              },
+                                              child: Container(
+                                                height: 40,
+                                                alignment: Alignment.center,
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: width * 0.00625,
+                                                ),
+                                                margin: EdgeInsets.symmetric(
+                                                  horizontal: width * 0.006125,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: const Color.fromRGBO(
+                                                    198,
+                                                    255,
+                                                    200,
+                                                    1,
+                                                  ),
+                                                  border: Border.all(
+                                                    color: primaryDark
+                                                        .withOpacity(0.25),
+                                                    width: 0.25,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                ),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceAround,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  children: [
+                                                    AutoSizeText(
+                                                      'Whatsapp',
+                                                      style: TextStyle(
+                                                        color: primaryDark,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                        fontSize: width * 0.03,
+                                                      ),
+                                                    ),
+                                                    Icon(
+                                                      FeatherIcons
+                                                          .messageCircle,
+                                                      size: width * 0.05,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+
+                                    // INSTAGRAM
+                                    shopData!['Instagram'] == ''
+                                        ? Container()
+                                        : Expanded(
+                                            child: GestureDetector(
+                                              onTap: () async {
+                                                String url =
+                                                    shopData!['Instagram'];
+
+                                                if (!url.startsWith(
+                                                        'http://') &&
+                                                    !url.startsWith(
+                                                        'https://')) {
+                                                  url = 'https://$url';
+                                                }
+
+                                                if (await canLaunchUrl(
+                                                    Uri.parse(url))) {
+                                                  await launchUrl(
+                                                      Uri.parse(url));
+                                                } else {
+                                                  if (context.mounted) {
+                                                    mySnackBar(
+                                                      'Something went Wrong',
+                                                      context,
+                                                    );
+                                                  }
+                                                }
+                                              },
+                                              child: Container(
+                                                height: 40,
+                                                alignment: Alignment.center,
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: width * 0.00625,
+                                                ),
+                                                margin: EdgeInsets.symmetric(
+                                                  horizontal: width * 0.006125,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  gradient: LinearGradient(
+                                                    colors: [
+                                                      Color(0xA8050AE6),
+                                                      Color.fromRGBO(
+                                                          88, 81, 216, 0.66),
+                                                      Color.fromRGBO(
+                                                          131, 58, 180, 0.66),
+                                                      Color.fromRGBO(
+                                                          193, 53, 132, 0.66),
+                                                      Color.fromRGBO(
+                                                          225, 48, 108, 0.66),
+                                                      Color.fromRGBO(
+                                                          253, 36, 76, 0.66),
+                                                    ],
+                                                  ),
+                                                  border: Border.all(
+                                                    color: primaryDark
+                                                        .withOpacity(0.25),
+                                                    width: 0.25,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                ),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceAround,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  children: [
+                                                    AutoSizeText(
+                                                      'Instagram',
+                                                      style: TextStyle(
+                                                        color: primaryDark,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                        fontSize: width * 0.03,
+                                                      ),
+                                                    ),
+                                                    Icon(
+                                                      FeatherIcons.instagram,
+                                                      size: width * 0.05,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+
+                                    // FACEBOOK
+                                    shopData!['Facebook'] == ''
+                                        ? Container()
+                                        : Expanded(
+                                            child: GestureDetector(
+                                              onTap: () async {
+                                                String url =
+                                                    shopData!['Facebook'];
+
+                                                if (!url.startsWith(
+                                                        'http://') &&
+                                                    !url.startsWith(
+                                                        'https://')) {
+                                                  url = 'https://$url';
+                                                }
+
+                                                if (await canLaunchUrl(
+                                                    Uri.parse(url))) {
+                                                  await launchUrl(
+                                                      Uri.parse(url));
+                                                } else {
+                                                  if (context.mounted) {
+                                                    mySnackBar(
+                                                      'Something went Wrong',
+                                                      context,
+                                                    );
+                                                  }
+                                                }
+                                              },
+                                              child: Container(
+                                                height: 40,
+                                                alignment: Alignment.center,
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: width * 0.00625,
+                                                ),
+                                                margin: EdgeInsets.symmetric(
+                                                  horizontal: width * 0.006125,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: Color.fromRGBO(
+                                                      24, 119, 242, 0.66),
+                                                  border: Border.all(
+                                                    color: primaryDark
+                                                        .withOpacity(0.25),
+                                                    width: 0.25,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                ),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceAround,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  children: [
+                                                    AutoSizeText(
+                                                      'Facebook',
+                                                      style: TextStyle(
+                                                        color: primaryDark,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                        fontSize: width * 0.03,
+                                                      ),
+                                                    ),
+                                                    Icon(
+                                                      FeatherIcons.facebook,
+                                                      size: width * 0.05,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+
+                                    // WEBSITE
+                                    shopData!['Website'] == ''
+                                        ? Container()
+                                        : Expanded(
+                                            child: GestureDetector(
+                                              onTap: () async {
+                                                String url =
+                                                    shopData!['Website'];
+
+                                                if (!url.startsWith(
+                                                        'http://') &&
+                                                    !url.startsWith(
+                                                        'https://')) {
+                                                  url = 'https://$url';
+                                                }
+
+                                                if (await canLaunchUrl(
+                                                    Uri.parse(url))) {
+                                                  await launchUrl(
+                                                      Uri.parse(url));
+                                                } else {
+                                                  if (context.mounted) {
+                                                    mySnackBar(
+                                                      'Something went Wrong',
+                                                      context,
+                                                    );
+                                                  }
+                                                }
+                                              },
+                                              child: Container(
+                                                height: 40,
+                                                alignment: Alignment.center,
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: width * 0.00625,
+                                                ),
+                                                margin: EdgeInsets.symmetric(
+                                                  horizontal: width * 0.006125,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.grey.shade300,
+                                                  border: Border.all(
+                                                    color: primaryDark
+                                                        .withOpacity(0.25),
+                                                    width: 0.25,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                ),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceAround,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  children: [
+                                                    AutoSizeText(
+                                                      'Website',
+                                                      style: TextStyle(
+                                                        color: primaryDark,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                        fontSize: width * 0.03,
+                                                      ),
+                                                    ),
+                                                    Icon(
+                                                      FeatherIcons.globe,
+                                                      size: width * 0.05,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                  ],
+                                ),
+
+                                Divider(),
+
+                                // LOCATION
+                                Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: width * 0.0125,
+                                  ),
+                                  child: FutureBuilder(
+                                      future: getAddress(
+                                        shopData!['Latitude']!,
+                                        shopData!['Longitude']!,
+                                        locationProvider,
+                                      ),
+                                      builder: (context, snapshot) {
+                                        if (snapshot.hasError) {
+                                          return const Center(
+                                            child: Text(
+                                              'Something went wrong while finding Location',
+                                            ),
+                                          );
+                                        }
+
+                                        if (snapshot.hasData) {
+                                          return Padding(
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: width * 0.0125,
+                                            ),
+                                            child: GestureDetector(
+                                              onTap: () async {
+                                                Uri mapsUrl = Uri.parse(
+                                                    'https://www.google.com/maps/search/?api=1&query=${shopData!['Latitude']},${shopData!['Longitude']}');
+
+                                                if (await canLaunchUrl(
+                                                    mapsUrl)) {
+                                                  await launchUrl(mapsUrl);
+                                                } else {
+                                                  if (context.mounted) {
+                                                    mySnackBar(
+                                                      'Something went wrong',
+                                                      context,
+                                                    );
+                                                  }
+                                                }
+                                              },
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                children: [
+                                                  Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      SizedBox(
+                                                        width: width * 0.8,
+                                                        child: Text(
+                                                            snapshot.data![0]),
+                                                      ),
+                                                      Text(
+                                                        snapshot.data![1] ==
+                                                                null
+                                                            ? '-- km'
+                                                            : '${snapshot.data![1]} km',
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  IconButton(
+                                                    onPressed: () async {
+                                                      Uri mapsUrl = Uri.parse(
+                                                        'https://www.google.com/maps/search/?api=1&query=${shopData!['Latitude']},${shopData!['Longitude']}',
+                                                      );
+
+                                                      if (await canLaunchUrl(
+                                                          mapsUrl)) {
+                                                        await launchUrl(
+                                                            mapsUrl);
+                                                      } else {
+                                                        if (context.mounted) {
+                                                          mySnackBar(
+                                                            'Something went wrong while finding Location',
+                                                            context,
+                                                          );
+                                                        }
+                                                      }
+                                                    },
+                                                    icon: const Icon(
+                                                      FeatherIcons.mapPin,
+                                                    ),
+                                                    tooltip: 'Locate on Maps',
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          );
+                                        }
+
                                         return Padding(
                                           padding: EdgeInsets.symmetric(
                                             horizontal: width * 0.0125,
                                           ),
-                                          child: GestureDetector(
-                                            onTap: () async {
-                                              Uri mapsUrl = Uri.parse(
-                                                  'https://www.google.com/maps/search/?api=1&query=${shopData!['Latitude']},${shopData!['Longitude']}');
-
-                                              if (await canLaunchUrl(mapsUrl)) {
-                                                await launchUrl(mapsUrl);
-                                              } else {
-                                                if (context.mounted) {
-                                                  mySnackBar(
-                                                    'Something went wrong',
-                                                    context,
-                                                  );
-                                                }
-                                              }
-                                            },
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              children: [
-                                                Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    SizedBox(
-                                                      width: width * 0.8,
-                                                      child: Text(
-                                                          snapshot.data![0]),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  SizedBox(
+                                                    width: width * 0.8,
+                                                    child: const Text(
+                                                      'Getting Location',
                                                     ),
-                                                    Text(
-                                                      snapshot.data![1] == null
-                                                          ? '-- km'
-                                                          : '${snapshot.data![1]} km',
-                                                    ),
-                                                  ],
-                                                ),
-                                                IconButton(
-                                                  onPressed: () async {
-                                                    Uri mapsUrl = Uri.parse(
-                                                      'https://www.google.com/maps/search/?api=1&query=${shopData!['Latitude']},${shopData!['Longitude']}',
-                                                    );
-
-                                                    if (await canLaunchUrl(
-                                                        mapsUrl)) {
-                                                      await launchUrl(mapsUrl);
-                                                    } else {
-                                                      if (context.mounted) {
-                                                        mySnackBar(
-                                                          'Something went wrong while finding Location',
-                                                          context,
-                                                        );
-                                                      }
-                                                    }
-                                                  },
-                                                  icon: const Icon(
-                                                    FeatherIcons.mapPin,
                                                   ),
-                                                  tooltip: 'Locate on Maps',
-                                                ),
-                                              ],
-                                            ),
+                                                  const Text('-- km'),
+                                                ],
+                                              ),
+                                              Icon(
+                                                FeatherIcons.mapPin,
+                                              ),
+                                            ],
                                           ),
                                         );
-                                      }
+                                      }),
+                                ),
 
-                                      return Padding(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: width * 0.0125,
-                                        ),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                SizedBox(
-                                                  width: width * 0.8,
-                                                  child: const Text(
-                                                    'Getting Location',
-                                                  ),
-                                                ),
-                                                const Text('-- km'),
-                                              ],
-                                            ),
-                                            Icon(
-                                              FeatherIcons.mapPin,
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    }),
-                              ),
+                                SizedBox(height: width * 0.033),
 
-                              SizedBox(height: width * 0.033),
-
-                              // MORE INFO
-                              ExpansionTile(
-                                title: Text(
-                                  overflow: TextOverflow.ellipsis,
-                                  'More Info',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: width * 0.045,
-                                  ),
-                                ),
-                                initiallyExpanded: false,
-                                tilePadding: EdgeInsets.symmetric(
-                                  horizontal: width * 0.0225,
-                                ),
-                                backgroundColor: white,
-                                collapsedBackgroundColor: white,
-                                textColor: primaryDark.withOpacity(0.9),
-                                collapsedTextColor: primaryDark,
-                                iconColor: primaryDark2.withOpacity(0.9),
-                                collapsedIconColor: primaryDark2,
-                                shape: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(
-                                    color: white,
-                                  ),
-                                ),
-                                collapsedShape: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(
-                                    color: white,
-                                  ),
-                                ),
-                                children: [
-                                  // NAME
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: width * 0.0125,
-                                      vertical: width * 0.0175,
+                                // MORE INFO
+                                ExpansionTile(
+                                  title: Text(
+                                    overflow: TextOverflow.ellipsis,
+                                    'More Info',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: width * 0.045,
                                     ),
-                                    child: Row(
+                                  ),
+                                  initiallyExpanded: false,
+                                  tilePadding: EdgeInsets.symmetric(
+                                    horizontal: width * 0.0225,
+                                  ),
+                                  backgroundColor: white,
+                                  collapsedBackgroundColor: white,
+                                  textColor: primaryDark.withOpacity(0.9),
+                                  collapsedTextColor: primaryDark,
+                                  iconColor: primaryDark2.withOpacity(0.9),
+                                  collapsedIconColor: primaryDark2,
+                                  shape: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: white,
+                                    ),
+                                  ),
+                                  collapsedShape: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: white,
+                                    ),
+                                  ),
+                                  children: [
+                                    // NAME
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: width * 0.0125,
+                                        vertical: width * 0.0175,
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          SizedBox(
+                                            width: width * 0.8,
+                                            child: Text(
+                                              ownerData!['Name'],
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: EdgeInsets.only(
+                                              right: width * 0.04,
+                                            ),
+                                            child:
+                                                const Icon(FeatherIcons.user),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(height: width * 0.033),
+
+                                    // FOLLOWERS
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: width * 0.0125,
+                                        vertical: width * 0.0175,
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          const Text(
+                                            "Followers",
+                                          ),
+                                          Padding(
+                                            padding: EdgeInsets.only(
+                                              right: width * 0.0575,
+                                            ),
+                                            child: Text(
+                                              (shopData!['followersTimestamp']
+                                                      as Map)
+                                                  .length
+                                                  .toString(),
+                                              style: TextStyle(
+                                                color: primaryDark,
+                                                fontSize: width * 0.05,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(height: width * 0.033),
+
+                                    // PRODUCTS
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: width * 0.0125,
+                                        vertical: width * 0.0175,
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          const Text(
+                                            "Total Products",
+                                          ),
+                                          Padding(
+                                            padding: EdgeInsets.only(
+                                              right: width * 0.0575,
+                                            ),
+                                            child: Text(
+                                              products.length.toString(),
+                                              style: TextStyle(
+                                                color: primaryDark,
+                                                fontSize: width * 0.05,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(height: width * 0.033),
+
+                                    // INDUSTRY
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: width * 0.0125,
+                                        vertical: width * 0.0175,
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          SizedBox(
+                                            width: width * 0.8,
+                                            child: Text(
+                                              shopData!['Industry'],
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: EdgeInsets.only(
+                                              right: width * 0.034,
+                                            ),
+                                            child: const Icon(
+                                                Icons.factory_outlined),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+
+                                    SizedBox(height: width * 0.033),
+
+                                    // DESCRIPTION
+                                    Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
                                       children: [
-                                        SizedBox(
-                                          width: width * 0.8,
-                                          child: Text(
-                                            ownerData!['Name'],
-                                          ),
-                                        ),
                                         Padding(
                                           padding: EdgeInsets.only(
-                                            right: width * 0.04,
-                                          ),
-                                          child: const Icon(FeatherIcons.user),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  SizedBox(height: width * 0.033),
-
-                                  // FOLLOWERS
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: width * 0.0125,
-                                      vertical: width * 0.0175,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        const Text(
-                                          "Followers",
-                                        ),
-                                        Padding(
-                                          padding: EdgeInsets.only(
-                                            right: width * 0.0575,
-                                          ),
-                                          child: Text(
-                                            (shopData!['followersTimestamp']
-                                                    as Map)
-                                                .length
-                                                .toString(),
-                                            style: TextStyle(
-                                              color: primaryDark,
-                                              fontSize: width * 0.05,
-                                              fontWeight: FontWeight.w500,
+                                              left: width * 0.015),
+                                          child: SizedBox(
+                                            width: width * 0.85,
+                                            child: Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: SeeMoreText(
+                                                shopData!['Description'],
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      ],
-                                    ),
-                                  ),
-                                  SizedBox(height: width * 0.033),
-
-                                  // PRODUCTS
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: width * 0.0125,
-                                      vertical: width * 0.0175,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        const Text(
-                                          "Total Products",
-                                        ),
                                         Padding(
                                           padding: EdgeInsets.only(
-                                            right: width * 0.0575,
-                                          ),
-                                          child: Text(
-                                            products.length.toString(),
-                                            style: TextStyle(
-                                              color: primaryDark,
-                                              fontSize: width * 0.05,
-                                              fontWeight: FontWeight.w500,
-                                            ),
+                                              right: width * 0.04),
+                                          child: Icon(
+                                            Icons.info_outline,
+                                            size: width * 0.075,
                                           ),
                                         ),
                                       ],
                                     ),
-                                  ),
-                                  SizedBox(height: width * 0.033),
+                                  ],
+                                ),
 
-                                  // INDUSTRY
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: width * 0.0125,
-                                      vertical: width * 0.0175,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        SizedBox(
-                                          width: width * 0.8,
-                                          child: Text(
-                                            shopData!['Industry'],
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: EdgeInsets.only(
-                                            right: width * 0.034,
-                                          ),
-                                          child: const Icon(
-                                              Icons.factory_outlined),
-                                        ),
-                                      ],
+                                const Divider(),
+                              ],
+                            ),
+                          ),
+
+                          // DISCOUNT
+                          allDiscounts == null || allDiscounts!.isEmpty
+                              ? Container()
+                              : Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: width * 0.01,
+                                    horizontal: width * 0.0125,
+                                  ),
+                                  child: Text(
+                                    'Offers',
+                                    style: TextStyle(
+                                      fontSize: width * 0.0425,
+                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
+                                ),
 
-                                  SizedBox(height: width * 0.033),
+                          // DISCOUNTS
+                          allDiscounts == null || allDiscounts!.isEmpty
+                              ? Container()
+                              : VendorDiscounts(
+                                  noOfDiscounts: allDiscounts!.length,
+                                  allDiscount: allDiscounts!,
+                                  vendorType: shopData!['Type'],
+                                ),
 
-                                  // DESCRIPTION
-                                  Row(
+                          allDiscounts == null || allDiscounts!.isEmpty
+                              ? Container()
+                              : const Divider(),
+
+                          // BRAND
+                          brands.isEmpty
+                              ? Container()
+                              : Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: width * 0.01,
+                                    horizontal: width * 0.0125,
+                                  ),
+                                  child: Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
                                     children: [
-                                      Padding(
-                                        padding: EdgeInsets.only(
-                                            left: width * 0.015),
-                                        child: SizedBox(
-                                          width: width * 0.85,
-                                          child: Align(
-                                            alignment: Alignment.centerLeft,
-                                            child: SeeMoreText(
-                                              shopData!['Description'],
+                                      Text(
+                                        'Brands',
+                                        style: TextStyle(
+                                          fontSize: width * 0.0425,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      brands.length <= 3
+                                          ? Container()
+                                          : MyTextButton(
+                                              onPressed: () {
+                                                Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                    builder: ((context) =>
+                                                        AllBrandPage(
+                                                          vendorId:
+                                                              widget.vendorId,
+                                                        )),
+                                                  ),
+                                                );
+                                              },
+                                              text: 'See All',
+                                              textColor: primaryDark,
                                             ),
-                                          ),
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.only(
-                                            right: width * 0.04),
-                                        child: Icon(
-                                          Icons.info_outline,
-                                          size: width * 0.075,
-                                        ),
-                                      ),
                                     ],
                                   ),
-                                ],
-                              ),
-
-                              const Divider(),
-                            ],
-                          ),
-                        ),
-
-                        // DISCOUNT
-                        allDiscounts == null || allDiscounts!.isEmpty
-                            ? Container()
-                            : Padding(
-                                padding: EdgeInsets.symmetric(
-                                  vertical: width * 0.01,
-                                  horizontal: width * 0.0125,
                                 ),
-                                child: Text(
-                                  'Offers',
-                                  style: TextStyle(
-                                    fontSize: width * 0.0425,
-                                    fontWeight: FontWeight.w500,
+
+                          // BRANDS
+                          brands.isEmpty
+                              ? Container()
+                              : Container(
+                                  width: width,
+                                  height: width * 0.2,
+                                  margin: EdgeInsets.all(width * 0.00125),
+                                  padding: EdgeInsets.all(width * 0.00125),
+                                  child: ListView.builder(
+                                    controller: scrollController,
+                                    cacheExtent: height * 1.5,
+                                    addAutomaticKeepAlives: true,
+                                    shrinkWrap: true,
+                                    scrollDirection: Axis.horizontal,
+                                    physics: ClampingScrollPhysics(),
+                                    itemCount: isLoadMore
+                                        ? brands.length + 1
+                                        : brands.length,
+                                    itemBuilder: ((context, index) {
+                                      final id = brands.keys.toList()[isLoadMore
+                                          ? index == 0
+                                              ? 0
+                                              : index - 1
+                                          : index];
+                                      final imageUrl =
+                                          brands.values.toList()[isLoadMore
+                                              ? index == 0
+                                                  ? 0
+                                                  : index - 1
+                                              : index];
+
+                                      return index <= brands.length
+                                          ? GestureDetector(
+                                              onTap: () {
+                                                Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                    builder: ((context) =>
+                                                        BrandPage(
+                                                          brandId: id,
+                                                        )),
+                                                  ),
+                                                );
+                                              },
+                                              child: Container(
+                                                width: width * 0.2,
+                                                margin: EdgeInsets.symmetric(
+                                                  horizontal: width * 0.0125,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(4),
+                                                  image: DecorationImage(
+                                                    image:
+                                                        NetworkImage(imageUrl),
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                ),
+                                              ),
+                                            )
+                                          : isLoadMore
+                                              ? SizedBox(
+                                                  height: 45,
+                                                  child: Center(
+                                                    child:
+                                                        CircularProgressIndicator(),
+                                                  ),
+                                                )
+                                              : Container();
+                                    }),
                                   ),
                                 ),
-                              ),
 
-                        // DISCOUNTS
-                        allDiscounts == null || allDiscounts!.isEmpty
-                            ? Container()
-                            : VendorDiscounts(
-                                noOfDiscounts: allDiscounts!.length,
-                                allDiscount: allDiscounts!,
-                                vendorType: shopData!['Type'],
-                              ),
+                          brands.isEmpty ? Container() : const Divider(),
 
-                        allDiscounts == null || allDiscounts!.isEmpty
-                            ? Container()
-                            : const Divider(),
-
-                        // BRAND
-                        brands.isEmpty
-                            ? Container()
-                            : Padding(
-                                padding: EdgeInsets.symmetric(
-                                  vertical: width * 0.01,
-                                  horizontal: width * 0.0125,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'Brands',
-                                      style: TextStyle(
-                                        fontSize: width * 0.0425,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    brands.length <= 3
-                                        ? Container()
-                                        : MyTextButton(
-                                            onPressed: () {
-                                              Navigator.of(context).push(
-                                                MaterialPageRoute(
-                                                  builder: ((context) =>
-                                                      AllBrandPage(
-                                                        vendorId:
-                                                            widget.vendorId,
-                                                      )),
-                                                ),
-                                              );
-                                            },
-                                            text: 'See All',
-                                            textColor: primaryDark,
-                                          ),
-                                  ],
-                                ),
-                              ),
-
-                        // BRANDS
-                        brands.isEmpty
-                            ? Container()
-                            : Container(
-                                width: width,
-                                height: width * 0.2,
-                                margin: EdgeInsets.all(width * 0.00125),
-                                padding: EdgeInsets.all(width * 0.00125),
-                                child: ListView.builder(
-                                  shrinkWrap: true,
-                                  scrollDirection: Axis.horizontal,
-                                  physics: brands.length > 4
-                                      ? const AlwaysScrollableScrollPhysics()
-                                      : const NeverScrollableScrollPhysics(),
-                                  itemCount: brands.length,
-                                  itemBuilder: ((context, index) {
-                                    final id = brands.keys.toList()[index];
-                                    final imageUrl =
-                                        brands.values.toList()[index];
-
-                                    return GestureDetector(
-                                      onTap: () {
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: ((context) => BrandPage(
-                                                  brandId: id,
-                                                )),
-                                          ),
-                                        );
-                                      },
-                                      child: Container(
-                                        width: width * 0.2,
-                                        margin: EdgeInsets.symmetric(
-                                          horizontal: width * 0.0125,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(4),
-                                          image: DecorationImage(
-                                            image: NetworkImage(imageUrl),
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  }),
-                                ),
-                              ),
-
-                        brands.isEmpty ? Container() : const Divider(),
-
-                        // CATEGORY
-                        categories == null || categories!.isEmpty
-                            ? Container()
-                            : Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: width * 0.0225,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'Categories',
-                                      style: TextStyle(
-                                        fontSize: width * 0.0425,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    categories!.length <= 8
-                                        ? Container()
-                                        : MyTextButton(
-                                            onPressed: () {
-                                              Navigator.of(context).push(
-                                                MaterialPageRoute(
-                                                  builder: ((context) =>
-                                                      AllCategoryPage(
-                                                        vendorId:
-                                                            widget.vendorId,
-                                                      )),
-                                                ),
-                                              );
-                                            },
-                                            text: 'See All',
-                                            textColor: primaryDark,
-                                          ),
-                                  ],
-                                ),
-                              ),
-
-                        // CATEGORIES
-                        categories == null || categories!.isEmpty
-                            ? Container()
-                            : Container(
-                                width: width,
-                                margin: EdgeInsets.symmetric(
-                                  horizontal: width * 0.0125,
-                                ),
-                                child: GridView.builder(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  gridDelegate:
-                                      const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 4,
-                                    childAspectRatio: 0.875,
+                          // CATEGORY
+                          categories == null || categories!.isEmpty
+                              ? Container()
+                              : Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: width * 0.0225,
                                   ),
-                                  itemCount: categories!.length > 8
-                                      ? 8
-                                      : categories!.length,
-                                  itemBuilder: ((context, index) {
-                                    final name =
-                                        categories!.keys.toList()[index];
-                                    final imageUrl =
-                                        categories!.values.toList()[index];
-
-                                    return GestureDetector(
-                                      onTap: () {
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: ((context) => CategoryPage(
-                                                  categoryName: name,
-                                                  vendorType: shopData!['Type'],
-                                                )),
-                                          ),
-                                        );
-                                      },
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceAround,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Image.network(
-                                            imageUrl,
-                                            width: width * 0.175,
-                                            height: width * 0.175,
-                                            fit: BoxFit.cover,
-                                          ),
-                                          Text(
-                                            name,
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(
-                                              fontSize: width * 0.035,
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'Categories',
+                                        style: TextStyle(
+                                          fontSize: width * 0.0425,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      categories!.length <= 8
+                                          ? Container()
+                                          : MyTextButton(
+                                              onPressed: () {
+                                                Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                    builder: ((context) =>
+                                                        AllCategoryPage(
+                                                          vendorId:
+                                                              widget.vendorId,
+                                                        )),
+                                                  ),
+                                                );
+                                              },
+                                              text: 'See All',
+                                              textColor: primaryDark,
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  }),
+                                    ],
+                                  ),
                                 ),
+
+                          // CATEGORIES
+                          categories == null || categories!.isEmpty
+                              ? Container()
+                              : Container(
+                                  width: width,
+                                  margin: EdgeInsets.symmetric(
+                                    horizontal: width * 0.0125,
+                                  ),
+                                  child: GridView.builder(
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    gridDelegate:
+                                        const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 4,
+                                      childAspectRatio: 0.875,
+                                    ),
+                                    itemCount: categories!.length > 8
+                                        ? 8
+                                        : categories!.length,
+                                    itemBuilder: ((context, index) {
+                                      final name =
+                                          categories!.keys.toList()[index];
+                                      final imageUrl =
+                                          categories!.values.toList()[index];
+
+                                      return GestureDetector(
+                                        onTap: () {
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: ((context) =>
+                                                  CategoryPage(
+                                                    categoryName: name,
+                                                    vendorType:
+                                                        shopData!['Type'],
+                                                  )),
+                                            ),
+                                          );
+                                        },
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceAround,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Image.network(
+                                              imageUrl,
+                                              width: width * 0.175,
+                                              height: width * 0.175,
+                                              fit: BoxFit.cover,
+                                            ),
+                                            Text(
+                                              name,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                fontSize: width * 0.035,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    }),
+                                  ),
+                                ),
+
+                          categories == null
+                              ? Container()
+                              : categories!.isEmpty
+                                  ? Container()
+                                  : const Divider(),
+
+                          // TABS
+                          TabBar(
+                            indicator: BoxDecoration(
+                              color: primary2,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: primaryDark.withOpacity(0.8),
                               ),
-
-                        categories == null
-                            ? Container()
-                            : categories!.isEmpty
-                                ? Container()
-                                : const Divider(),
-
-                        // TABS
-                        TabBar(
-                          indicator: BoxDecoration(
-                            color: primary2,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: primaryDark.withOpacity(0.8),
                             ),
-                          ),
-                          isScrollable: false,
-                          indicatorPadding: EdgeInsets.only(
-                            bottom: MediaQuery.of(context).size.width * 0.0266,
-                            top: MediaQuery.of(context).size.width * 0.0225,
-                            left: -MediaQuery.of(context).size.width * 0.045,
-                            right: -MediaQuery.of(context).size.width * 0.045,
-                          ),
-                          automaticIndicatorColorAdjustment: false,
-                          indicatorWeight: 2,
-                          indicatorSize: TabBarIndicatorSize.label,
-                          labelColor: primaryDark,
-                          labelStyle: const TextStyle(
-                            letterSpacing: 1,
-                            fontWeight: FontWeight.w800,
-                          ),
-                          unselectedLabelStyle: const TextStyle(
-                            letterSpacing: 0,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          dividerColor: primary,
-                          indicatorColor: primaryDark,
-                          controller: tabController,
-                          tabs: const [
-                            Tab(
-                              text: 'PRODUCTS',
+                            isScrollable: false,
+                            indicatorPadding: EdgeInsets.only(
+                              bottom:
+                                  MediaQuery.of(context).size.width * 0.0266,
+                              top: MediaQuery.of(context).size.width * 0.0225,
+                              left: -MediaQuery.of(context).size.width * 0.045,
+                              right: -MediaQuery.of(context).size.width * 0.045,
                             ),
-                            // Tab(
-                            //   text: 'POSTS',
-                            // ),
-                            Tab(
-                              text: 'SHORTS',
+                            automaticIndicatorColorAdjustment: false,
+                            indicatorWeight: 2,
+                            indicatorSize: TabBarIndicatorSize.label,
+                            labelColor: primaryDark,
+                            labelStyle: const TextStyle(
+                              letterSpacing: 1,
+                              fontWeight: FontWeight.w800,
                             ),
-                          ],
-                        ),
-
-                        SizedBox(
-                          width: width,
-                          height: getScreenHeight() * 0.8,
-                          child: TabBarView(
+                            unselectedLabelStyle: const TextStyle(
+                              letterSpacing: 0,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            dividerColor: primary,
+                            indicatorColor: primaryDark,
                             controller: tabController,
-                            children: [
-                              VendorProductsTabPage(
-                                width: width,
-                                myProducts: products,
-                                myNumProductsLoaded: numProductsLoaded,
-                                myProductSort: productSort,
-                                height: constraints.maxHeight,
+                            tabs: const [
+                              Tab(
+                                text: 'PRODUCTS',
                               ),
-                              // VendorPostsTabPage(
-                              //   posts: posts,
-                              //   width: width,
+                              // Tab(
+                              //   text: 'POSTS',
                               // ),
-                              VendorShortsTabPage(
-                                width: width,
-                                shorts: shorts,
+                              Tab(
+                                text: 'SHORTS',
                               ),
                             ],
                           ),
-                        ),
 
-                        // PRODUCT & FILTER
-                      ],
+                          SizedBox(
+                            width: width,
+                            height: getScreenHeight() * 0.8,
+                            child: TabBarView(
+                              controller: tabController,
+                              children: [
+                                VendorProductsTabPage(
+                                  width: width,
+                                  myProducts: products,
+                                  myProductSort: productSort,
+                                  height: constraints.maxHeight,
+                                ),
+                                // VendorPostsTabPage(
+                                //   posts: posts,
+                                //   width: width,
+                                // ),
+                                VendorShortsTabPage(
+                                  width: width,
+                                  shorts: shorts,
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // PRODUCT & FILTER
+                        ],
+                      ),
                     ),
                   );
                 })),

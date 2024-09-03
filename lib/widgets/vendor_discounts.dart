@@ -23,6 +23,39 @@ class VendorDiscounts extends StatefulWidget {
 
 class _VendorDiscountsState extends State<VendorDiscounts> {
   final store = FirebaseFirestore.instance;
+  int noOf = 16;
+  bool isLoadMore = false;
+  final scrollController = ScrollController();
+
+  // INIT STATE
+  @override
+  void initState() {
+    scrollController.addListener(scrollListener);
+    super.initState();
+  }
+
+  // DISPOSE
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  // SCROLL LISTENER
+  Future<void> scrollListener() async {
+    if (scrollController.position.pixels ==
+        scrollController.position.maxScrollExtent) {
+      setState(() {
+        isLoadMore = true;
+      });
+      setState(() {
+        noOf = noOf + 8;
+      });
+      setState(() {
+        isLoadMore = false;
+      });
+    }
+  }
 
   // GET NAME
   Future<String> getName(
@@ -164,6 +197,7 @@ class _VendorDiscountsState extends State<VendorDiscounts> {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
 
     return Padding(
       padding: EdgeInsets.symmetric(
@@ -173,14 +207,19 @@ class _VendorDiscountsState extends State<VendorDiscounts> {
         width: width,
         height: width * 0.35,
         child: ListView.builder(
+          controller: scrollController,
+          cacheExtent: height * 1.5,
+          addAutomaticKeepAlives: true,
           shrinkWrap: true,
           scrollDirection: Axis.horizontal,
-          physics: widget.allDiscount.length > 3
-              ? const AlwaysScrollableScrollPhysics()
-              : const NeverScrollableScrollPhysics(),
+          physics: ClampingScrollPhysics(),
           itemCount: widget.allDiscount.length,
           itemBuilder: ((context, index) {
-            final currentDiscount = widget.allDiscount[index];
+            final currentDiscount = widget.allDiscount[isLoadMore
+                ? index == 0
+                    ? 0
+                    : index - 1
+                : index];
             // final String? image = currentDiscount['discountImageUrl'];
             final name = currentDiscount['discountName'];
             final amount = currentDiscount['discountAmount'];

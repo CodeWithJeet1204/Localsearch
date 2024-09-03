@@ -29,11 +29,15 @@ class _WishlistPageState extends State<WishlistPage>
   // bool getEventsData = false;
   // late TabController tabController;
   // late int currentIndex;
+  int noOf = 12;
+  bool isLoadMore = false;
+  final scrollController = ScrollController();
 
   // INIT STATE
   @override
   void initState() {
-    getProductWishlist();
+    scrollController.addListener(scrollListener);
+    getWishlists();
     // getEventWishlist();
     super.initState();
     // tabController = TabController(
@@ -48,13 +52,38 @@ class _WishlistPageState extends State<WishlistPage>
     // );
   }
 
-  // GET PRODUCT WISHLIST
-  Future<void> getProductWishlist() async {
+  // DISPOSE
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  // SCROLL LISTENER
+  Future<void> scrollListener() async {
+    if (scrollController.position.pixels ==
+        scrollController.position.maxScrollExtent) {
+      setState(() {
+        isLoadMore = true;
+      });
+      setState(() {
+        noOf = noOf + 8;
+      });
+      setState(() {
+        isLoadMore = false;
+      });
+    }
+  }
+
+  // GET WISHLISTS
+  Future<void> getWishlists() async {
     Map<String, List<dynamic>> wishlist = {};
 
     final userSnap =
         await store.collection('Users').doc(auth.currentUser!.uid).get();
+
     final userData = userSnap.data()!;
+
     final myWishlists = userData['wishlists'] as List;
 
     await Future.forEach(myWishlists, (productId) async {
@@ -197,7 +226,7 @@ class _WishlistPageState extends State<WishlistPage>
     });
     // }
 
-    await getProductWishlist();
+    await getWishlists();
   }
 
   @override
@@ -297,7 +326,8 @@ class _WishlistPageState extends State<WishlistPage>
                             return Padding(
                               padding: const EdgeInsets.all(8),
                               child: SkeletonContainer(
-                                width: MediaQuery.of(context).size.width * 0.3,
+                                width: (MediaQuery.of(context).size.width * 0.3)
+                                    .toDouble(),
                                 height: 40,
                               ),
                             );
@@ -418,7 +448,10 @@ class _WishlistPageState extends State<WishlistPage>
                                           shrinkWrap: true,
                                           physics:
                                               const ClampingScrollPhysics(),
-                                          itemCount: currentWishlists.length,
+                                          itemCount:
+                                              noOf > currentWishlists.length
+                                                  ? currentWishlists.length
+                                                  : noOf,
                                           itemBuilder: ((context, index) {
                                             final id = currentWishlists.keys
                                                 .toList()[index];
@@ -483,13 +516,15 @@ class _WishlistPageState extends State<WishlistPage>
                                                         RoundedRectangleBorder(
                                                       borderRadius:
                                                           BorderRadius.circular(
-                                                              12),
+                                                        12,
+                                                      ),
                                                     ),
                                                     leading: CircleAvatar(
                                                       backgroundColor: primary2,
                                                       backgroundImage:
                                                           NetworkImage(
-                                                              imageUrl),
+                                                        imageUrl,
+                                                      ),
                                                     ),
                                                     title: Text(
                                                       name,
@@ -499,7 +534,7 @@ class _WishlistPageState extends State<WishlistPage>
                                                     ),
                                                     subtitle: Text(
                                                       price == ''
-                                                          ? 'N/A'
+                                                          ? 'Rs. --'
                                                           : 'Rs. $price',
                                                       maxLines: 2,
                                                       overflow:
