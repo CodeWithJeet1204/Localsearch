@@ -1,4 +1,5 @@
-import 'package:Localsearch_User/models/household_types.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 // import 'package:image/image.dart' as img;
 // import 'package:flutter/services.dart' show NetworkAssetBundle;
@@ -6,13 +7,19 @@ import 'package:Localsearch_User/page/main/vendor/home/shop_categories_page.dart
 import 'package:Localsearch_User/utils/colors.dart';
 
 class AllShopTypesPage extends StatefulWidget {
-  const AllShopTypesPage({super.key});
+  const AllShopTypesPage({
+    super.key,
+    required this.shopTypesData,
+  });
+
+  final Map<String, dynamic> shopTypesData;
 
   @override
   State<AllShopTypesPage> createState() => _AllShopTypesPageState();
 }
 
 class _AllShopTypesPageState extends State<AllShopTypesPage> {
+  final storage = FirebaseStorage.instance;
   int noOf = 10;
   bool isLoadMore = false;
   final scrollController = ScrollController();
@@ -144,11 +151,13 @@ class _AllShopTypesPageState extends State<AllShopTypesPage> {
               childAspectRatio: 0.7525,
             ),
             physics: const ClampingScrollPhysics(),
-            itemCount:
-                noOf > householdTypes.length ? householdTypes.length : noOf,
+            itemCount: noOf > widget.shopTypesData.length
+                ? widget.shopTypesData.length
+                : noOf,
             itemBuilder: (context, index) {
-              final String name = householdTypes.keys.toList()[index];
-              final String imageUrl = householdTypes.values.toList()[index];
+              final String name = widget.shopTypesData.keys.toList()[index];
+              final String imageUrl =
+                  widget.shopTypesData.values.toList()[index];
               // final Color color = businessCategories[index][2];
 
               return GestureDetector(
@@ -179,12 +188,23 @@ class _AllShopTypesPageState extends State<AllShopTypesPage> {
                         borderRadius: const BorderRadius.vertical(
                           top: Radius.circular(8),
                         ),
-                        child: Image.network(
-                          imageUrl,
+                        child: CachedNetworkImage(
+                          imageUrl: imageUrl,
                           fit: BoxFit.cover,
                           filterQuality: FilterQuality.low,
+                          repeat: ImageRepeat.noRepeat,
                         ),
                       ),
+                      // ClipRRect(
+                      //   borderRadius: const BorderRadius.vertical(
+                      //     top: Radius.circular(8),
+                      //   ),
+                      //   child: Image.network(
+                      //     imageUrl,
+                      //     fit: BoxFit.cover,
+                      //     filterQuality: FilterQuality.low,
+                      //   ),
+                      // ),
                       Expanded(
                         child: Container(
                           alignment: Alignment.center,

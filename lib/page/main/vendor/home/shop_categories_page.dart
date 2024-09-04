@@ -1,8 +1,10 @@
-import 'package:Localsearch_User/models/household_sub_category.dart';
 import 'package:Localsearch_User/page/main/vendor/category/category_products_page.dart';
 import 'package:Localsearch_User/utils/colors.dart';
 import 'package:Localsearch_User/widgets/video_tutorial.dart';
+import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
 class ShopCategoriesPage extends StatefulWidget {
@@ -19,6 +21,8 @@ class ShopCategoriesPage extends StatefulWidget {
 
 class _ShopCategoriesPageState extends State<ShopCategoriesPage> {
   final auth = FirebaseAuth.instance;
+  final storage = FirebaseStorage.instance;
+  Map<String, dynamic>? categoryData;
   int noOf = 12;
   bool isLoadMore = false;
   final scrollController = ScrollController();
@@ -26,6 +30,7 @@ class _ShopCategoriesPageState extends State<ShopCategoriesPage> {
   // INIT STATE
   @override
   void initState() {
+    getData();
     scrollController.addListener(scrollListener);
     super.initState();
   }
@@ -53,13 +58,44 @@ class _ShopCategoriesPageState extends State<ShopCategoriesPage> {
     }
   }
 
+  // GET DATA
+  Future<void> getData() async {
+    final Map<String, String> myCategoryData = {};
+
+    final storageRef = FirebaseStorage.instance.ref();
+    final categoriesRef =
+        storageRef.child('Household Categories/${widget.shopName}');
+
+    final ListResult result = await categoriesRef.listAll();
+
+    final List<Future<void>> fetchTasks = [];
+
+    for (var item in result.items) {
+      fetchTasks.add(() async {
+        final String categoryName = item.name.replaceAll('.png', '');
+        final String imageUrl = await item.getDownloadURL();
+        myCategoryData[categoryName] = imageUrl;
+      }());
+    }
+
+    await Future.wait(fetchTasks);
+
+    final sortedEntries = myCategoryData.entries.toList()
+      ..sort((a, b) => a.key.compareTo(b.key));
+    final sortedCategoryData = Map<String, String>.fromEntries(sortedEntries);
+
+    setState(() {
+      categoryData = sortedCategoryData;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
 
-    Map<String, String> currentShopCategories =
-        householdSubCategories[widget.shopName]!;
+    // Map<String, String> currentShopCategories =
+    //     householdSubCategories[widget.shopName]!;
 
     return Scaffold(
       appBar: AppBar(
@@ -81,99 +117,107 @@ class _ShopCategoriesPageState extends State<ShopCategoriesPage> {
           ),
         ],
       ),
-      body: SafeArea(
-        child: GridView.builder(
-          controller: scrollController,
-          cacheExtent: height * 1.5,
-          addAutomaticKeepAlives: true,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 0.825,
-          ),
-          itemCount: noOf > currentShopCategories.length
-              ? currentShopCategories.length
-              : noOf,
-          physics: const ClampingScrollPhysics(),
-          itemBuilder: ((context, index) {
-            final name = currentShopCategories.keys.toList()[isLoadMore
-                ? index == 0
-                    ? 0
-                    : index - 1
-                : index];
-            final imageUrl = currentShopCategories.values.toList()[isLoadMore
-                ? index == 0
-                    ? 0
-                    : index - 1
-                : index];
+      body: categoryData == null
+          ? Container()
+          : SafeArea(
+              child: GridView.builder(
+                controller: scrollController,
+                cacheExtent: height * 1.5,
+                addAutomaticKeepAlives: true,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 0.825,
+                ),
+                itemCount:
+                    noOf > categoryData!.length ? categoryData!.length : noOf,
+                physics: const ClampingScrollPhysics(),
+                itemBuilder: ((context, index) {
+                  final name = categoryData!.keys.toList()[isLoadMore
+                      ? index == 0
+                          ? 0
+                          : index - 1
+                      : index];
+                  final imageUrl = categoryData!.values.toList()[isLoadMore
+                      ? index == 0
+                          ? 0
+                          : index - 1
+                      : index];
 
-            return Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: width * 0.015,
-                vertical: width * 0.015,
-              ),
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: ((context) => CategoryProductsPage(
-                            categoryName: name,
-                          )),
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: ((context) => CategoryProductsPage(
+                                categoryName: name,
+                              )),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(
+                          color: Colors.black,
+                          width: 0.25,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      margin: EdgeInsets.symmetric(
+                        horizontal: width * 0.015,
+                        vertical: width * 0.015,
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Container(
+                            decoration: const BoxDecoration(
+                              color: white,
+                              borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(8),
+                              ),
+                            ),
+                            padding: EdgeInsets.all(width * 0.0125),
+                            child: AutoSizeText(
+                              name.toUpperCase(),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                // fontSize: width * 0.04,
+                                fontWeight: FontWeight.bold,
+                                color: black,
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            child: ClipRRect(
+                              borderRadius: const BorderRadius.vertical(
+                                bottom: Radius.circular(8),
+                              ),
+                              child: CachedNetworkImage(
+                                imageUrl: imageUrl,
+                                fit: BoxFit.cover,
+                                filterQuality: FilterQuality.low,
+                                repeat: ImageRepeat.noRepeat,
+                              ),
+                            ),
+                          ),
+                          // ClipRRect(
+                          //   borderRadius: const BorderRadius.vertical(
+                          //     bottom: Radius.circular(8),
+                          //   ),
+                          //   child: Image.network(
+                          //     imageUrl,
+                          //     fit: BoxFit.cover,
+                          //   ),
+                          // ),
+                        ],
+                      ),
                     ),
                   );
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(
-                      color: Colors.black,
-                      width: 0.25,
-                    ),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  margin: const EdgeInsets.all(8),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Expanded(
-                        child: Container(
-                          decoration: const BoxDecoration(
-                            color: white,
-                            borderRadius: BorderRadius.vertical(
-                              top: Radius.circular(8),
-                            ),
-                          ),
-                          padding: const EdgeInsets.all(8),
-                          child: Text(
-                            name.toUpperCase(),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize:
-                                  MediaQuery.of(context).size.width * 0.045,
-                              fontWeight: FontWeight.bold,
-                              color: black,
-                            ),
-                          ),
-                        ),
-                      ),
-                      ClipRRect(
-                        borderRadius: const BorderRadius.vertical(
-                          bottom: Radius.circular(8),
-                        ),
-                        child: Image.network(
-                          imageUrl,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                }),
               ),
-            );
-          }),
-        ),
-      ),
+            ),
     );
   }
 }

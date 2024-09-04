@@ -1,7 +1,6 @@
 // ignore_for_file: avoid_function_literals_in_foreach_calls, unused_local_variable
 import 'dart:async';
 import 'dart:convert';
-import 'package:Localsearch_User/models/household_types.dart';
 import 'package:Localsearch_User/page/main/vendor/post_page_view.dart';
 import 'package:Localsearch_User/page/main/vendor/profile/wishlist_page.dart';
 import 'package:Localsearch_User/providers/review_provider.dart';
@@ -20,6 +19,7 @@ import 'package:Localsearch_User/page/main/vendor/vendor_page.dart';
 import 'package:Localsearch_User/providers/location_provider.dart';
 import 'package:Localsearch_User/utils/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:Localsearch_User/widgets/snack_bar.dart';
@@ -42,7 +42,9 @@ class ProductHomePage extends StatefulWidget {
 class _ProductHomePageState extends State<ProductHomePage> {
   final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
+  final storage = FirebaseStorage.instance;
   String? name;
+  Map<String, dynamic>? shopTypesData;
   String? recentShop;
   List<String> recentShopProducts = [];
   List<String> recentShopProductsImages = [];
@@ -436,6 +438,37 @@ class _ProductHomePageState extends State<ProductHomePage> {
       setState(() {
         posts = myPosts;
         isPostData = true;
+      });
+    }
+
+    // GET SHOP TYPES
+    Future<void> getShopTypes() async {
+      final Map<String, String> myShopTypesData = {};
+
+      final storageRef = storage.ref();
+      final shopTypesRef = storageRef.child('Shop Types/Household');
+
+      final ListResult result = await shopTypesRef.listAll();
+
+      final List<Future<void>> fetchTasks = [];
+
+      for (var item in result.items) {
+        fetchTasks.add(() async {
+          final String shopTypeName = item.name.replaceAll('.png', '');
+          final String imageUrl = await item.getDownloadURL();
+          myShopTypesData[shopTypeName] = imageUrl;
+        }());
+      }
+
+      await Future.wait(fetchTasks);
+
+      final sortedEntries = myShopTypesData.entries.toList()
+        ..sort((a, b) => a.key.compareTo(b.key));
+      final sortedShopTypesData =
+          Map<String, String>.fromEntries(sortedEntries);
+
+      setState(() {
+        shopTypesData = sortedShopTypesData;
       });
     }
 
@@ -935,23 +968,25 @@ class _ProductHomePageState extends State<ProductHomePage> {
     if (mounted) {
       await getName().then((value) async {
         await getPosts().then((value) async {
-          await getRecentShop().then((value) async {
-            await getNoOfProductsOfRecentShop().then((value) async {
-              await getRecentShopProductInfo().then((value) async {
-                await getWishlist().then((value) async {
-                  await getFollowedShops().then((value) async {
-                    await getFeatured().then((value) async {
-                      final reviewProvider = Provider.of<ReviewProvider>(
-                        context,
-                        listen: false,
-                      );
-                      final hasReviewed = reviewProvider.hasAsked;
+          await getShopTypes().then((value) async {
+            await getRecentShop().then((value) async {
+              await getNoOfProductsOfRecentShop().then((value) async {
+                await getRecentShopProductInfo().then((value) async {
+                  await getWishlist().then((value) async {
+                    await getFollowedShops().then((value) async {
+                      await getFeatured().then((value) async {
+                        final reviewProvider = Provider.of<ReviewProvider>(
+                          context,
+                          listen: false,
+                        );
+                        final hasReviewed = reviewProvider.hasAsked;
 
-                      if (!hasReviewed) {
-                        if (!fromRefreshIndicator) {
-                          await getHasReviewed();
+                        if (!hasReviewed) {
+                          if (!fromRefreshIndicator) {
+                            await getHasReviewed();
+                          }
                         }
-                      }
+                      });
                     });
                   });
                 });
@@ -1735,14 +1770,12 @@ class _ProductHomePageState extends State<ProductHomePage> {
                               ],
                             ),
                             border: Border.all(
-                              width: 2,
+                              width: 1,
                               color: primaryDark,
                             ),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 8,
-                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 4),
                           margin: EdgeInsets.symmetric(
                             horizontal: width * 0.0125,
                             vertical: 4,
@@ -1752,257 +1785,282 @@ class _ProductHomePageState extends State<ProductHomePage> {
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: primaryDark,
-                              fontSize: width * 0.066,
-                              fontWeight: FontWeight.w600,
+                              fontSize: width * 0.045,
+                              fontWeight: FontWeight.w400,
                             ),
                           ),
                         ),
                       ),
 
                       // SHOP TYPES
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: width * 0.025,
-                          vertical: width * 0.025,
-                        ),
-                        child: Text(
-                          'Shop Types',
-                          style: TextStyle(
-                            color: primaryDark,
-                            fontSize: width * 0.0675,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
+                      shopTypesData == null
+                          ? Container()
+                          : Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: width * 0.025,
+                                vertical: width * 0.025,
+                              ),
+                              child: Text(
+                                'Shop Types',
+                                style: TextStyle(
+                                  color: primaryDark,
+                                  fontSize: width * 0.0675,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
 
                       // SHOP TYPES BOX
-                      Container(
-                        width: width,
-                        height: width * 0.65,
-                        decoration: BoxDecoration(
-                          color: white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: lightGrey,
-                            width: 1,
-                          ),
-                        ),
-                        padding: EdgeInsets.only(
-                          right: width * 0.02,
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            SizedBox(
+                      shopTypesData == null
+                          ? Container()
+                          : Container(
                               width: width,
-                              height: width * 0.3,
-                              child: ListView.builder(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                scrollDirection: Axis.horizontal,
-                                itemCount: 4,
-                                itemBuilder: ((context, index) {
-                                  final String name =
-                                      householdTypes.keys.toList()[index];
-                                  final String imageUrl =
-                                      householdTypes.values.toList()[index];
+                              height: width * 0.65,
+                              decoration: BoxDecoration(
+                                color: white,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: lightGrey,
+                                  width: 1,
+                                ),
+                              ),
+                              padding: EdgeInsets.only(
+                                right: width * 0.02,
+                              ),
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    width: width,
+                                    height: width * 0.3,
+                                    child: ListView.builder(
+                                      shrinkWrap: true,
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: 4,
+                                      itemBuilder: ((context, index) {
+                                        final String name =
+                                            shopTypesData!.keys.toList()[index];
+                                        final String imageUrl = shopTypesData!
+                                            .values
+                                            .toList()[index];
 
-                                  return Padding(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: width * 0.025,
-                                      vertical: width * 0.015,
-                                    ),
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: ((context) =>
-                                                ShopCategoriesPage(
-                                                  shopName: name,
-                                                )),
+                                        return Padding(
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: width * 0.025,
+                                            vertical: width * 0.015,
+                                          ),
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                  builder: ((context) =>
+                                                      ShopCategoriesPage(
+                                                        shopName: name,
+                                                      )),
+                                                ),
+                                              );
+                                            },
+                                            child: Container(
+                                              width: width * 0.2,
+                                              height: width * 0.25,
+                                              decoration: BoxDecoration(
+                                                color: white,
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              child: Padding(
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: width * 0.0125,
+                                                ),
+                                                child: Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceAround,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  children: [
+                                                    ClipRRect(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              12),
+                                                      child: Image.network(
+                                                        imageUrl,
+                                                        fit: BoxFit.cover,
+                                                        height: width * 0.175,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      name,
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: const TextStyle(
+                                                        color: primaryDark,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
                                           ),
                                         );
-                                      },
-                                      child: Container(
-                                        width: width * 0.2,
-                                        height: width * 0.25,
-                                        decoration: BoxDecoration(
-                                          color: white,
-                                          borderRadius:
-                                              BorderRadius.circular(12),
+                                      }),
+                                    ),
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      SizedBox(
+                                        width: width * 0.725,
+                                        height: width * 0.3,
+                                        child: ListView.builder(
+                                          shrinkWrap: true,
+                                          physics:
+                                              const NeverScrollableScrollPhysics(),
+                                          scrollDirection: Axis.horizontal,
+                                          itemCount: 3,
+                                          itemBuilder: ((context, index) {
+                                            final String name = shopTypesData!
+                                                .keys
+                                                .toList()[index + 4];
+                                            final String imageUrl =
+                                                shopTypesData!.values
+                                                    .toList()[index + 4];
+
+                                            return Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: width * 0.025,
+                                                vertical: width * 0.015,
+                                              ),
+                                              child: GestureDetector(
+                                                onTap: () {
+                                                  Navigator.of(context).push(
+                                                    MaterialPageRoute(
+                                                      builder: ((context) =>
+                                                          ShopCategoriesPage(
+                                                            shopName: name,
+                                                          )),
+                                                    ),
+                                                  );
+                                                },
+                                                child: Container(
+                                                  width: width * 0.2,
+                                                  height: width * 0.25,
+                                                  decoration: BoxDecoration(
+                                                    color: white,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            12),
+                                                  ),
+                                                  child: Padding(
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                      horizontal:
+                                                          width * 0.0125,
+                                                    ),
+                                                    child: Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceAround,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        ClipRRect(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                            12,
+                                                          ),
+                                                          child: Image.network(
+                                                            imageUrl,
+                                                            height:
+                                                                width * 0.175,
+                                                            fit: BoxFit.cover,
+                                                          ),
+                                                        ),
+                                                        Text(
+                                                          name,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                          maxLines: 1,
+                                                          style:
+                                                              const TextStyle(
+                                                            color: primaryDark,
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          }),
                                         ),
-                                        child: Padding(
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: width * 0.0125,
+                                      ),
+
+                                      // SEE ALL
+                                      GestureDetector(
+                                        onTap: () {
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: ((context) =>
+                                                  AllShopTypesPage(
+                                                    shopTypesData:
+                                                        shopTypesData!,
+                                                  )),
+                                            ),
+                                          );
+                                        },
+                                        child: Container(
+                                          width: width * 0.225,
+                                          height: width * 0.25,
+                                          decoration: BoxDecoration(
+                                            color: primary2.withOpacity(0.125),
+                                            border: Border.all(
+                                              width: 0.125,
+                                              color: primaryDark,
+                                            ),
+                                            borderRadius:
+                                                BorderRadius.circular(12),
                                           ),
-                                          child: Column(
+                                          child: const Column(
                                             mainAxisAlignment:
-                                                MainAxisAlignment.spaceAround,
+                                                MainAxisAlignment.center,
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.center,
                                             children: [
-                                              ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                                child: Image.network(
-                                                  imageUrl,
-                                                  fit: BoxFit.cover,
-                                                  height: width * 0.175,
-                                                ),
+                                              Icon(
+                                                FeatherIcons.grid,
+                                                color: primaryDark,
                                               ),
+                                              SizedBox(height: 8),
                                               Text(
-                                                name,
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: const TextStyle(
-                                                  color: primaryDark,
+                                                'See All',
+                                                style: TextStyle(
                                                   fontWeight: FontWeight.w500,
                                                 ),
-                                              ),
+                                              )
                                             ],
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  );
-                                }),
+                                    ],
+                                  ),
+                                ],
                               ),
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                SizedBox(
-                                  width: width * 0.725,
-                                  height: width * 0.3,
-                                  child: ListView.builder(
-                                    shrinkWrap: true,
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    scrollDirection: Axis.horizontal,
-                                    itemCount: 3,
-                                    itemBuilder: ((context, index) {
-                                      final String name = householdTypes.keys
-                                          .toList()[index + 4];
-                                      final String imageUrl = householdTypes
-                                          .values
-                                          .toList()[index + 4];
-
-                                      return Padding(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: width * 0.025,
-                                          vertical: width * 0.015,
-                                        ),
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                builder: ((context) =>
-                                                    ShopCategoriesPage(
-                                                      shopName: name,
-                                                    )),
-                                              ),
-                                            );
-                                          },
-                                          child: Container(
-                                            width: width * 0.2,
-                                            height: width * 0.25,
-                                            decoration: BoxDecoration(
-                                              color: white,
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
-                                            child: Padding(
-                                              padding: EdgeInsets.symmetric(
-                                                horizontal: width * 0.0125,
-                                              ),
-                                              child: Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceAround,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  ClipRRect(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                      12,
-                                                    ),
-                                                    child: Image.network(
-                                                      imageUrl,
-                                                      height: width * 0.175,
-                                                      fit: BoxFit.cover,
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    name,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    maxLines: 1,
-                                                    style: const TextStyle(
-                                                      color: primaryDark,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    }),
-                                  ),
-                                ),
-
-                                // SEE ALL
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: ((context) =>
-                                            const AllShopTypesPage()),
-                                      ),
-                                    );
-                                  },
-                                  child: Container(
-                                    width: width * 0.225,
-                                    height: width * 0.25,
-                                    decoration: BoxDecoration(
-                                      color: primary2.withOpacity(0.125),
-                                      border: Border.all(
-                                        width: 0.125,
-                                        color: primaryDark,
-                                      ),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: const Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        Icon(
-                                          FeatherIcons.grid,
-                                          color: primaryDark,
-                                        ),
-                                        SizedBox(height: 8),
-                                        Text(
-                                          'See All',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
 
                       // posts.length < 2 ? Container() : Divider(),
 
