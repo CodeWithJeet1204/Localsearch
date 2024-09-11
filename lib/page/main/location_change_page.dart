@@ -2,9 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:Localsearch_User/providers/location_provider.dart';
-import 'package:Localsearch_User/utils/colors.dart';
-import 'package:Localsearch_User/widgets/snack_bar.dart';
+import 'package:localsearch_user/providers/location_provider.dart';
+import 'package:localsearch_user/utils/colors.dart';
+import 'package:localsearch_user/widgets/snack_bar.dart';
 import 'package:provider/provider.dart';
 
 class LocationChangePage extends StatefulWidget {
@@ -29,6 +29,7 @@ class _LocationChangePageState extends State<LocationChangePage> {
   int? total;
   bool isLoadMore = false;
   final scrollController = ScrollController();
+  bool isGettingLocation = false;
 
   // INIT STATE
   @override
@@ -252,6 +253,9 @@ class _LocationChangePageState extends State<LocationChangePage> {
                             ),
                             GestureDetector(
                               onTap: () async {
+                                setState(() {
+                                  isGettingLocation = true;
+                                });
                                 await getLocation().then((value) async {
                                   if (value != null) {
                                     locationProvider.changeCity({
@@ -263,6 +267,9 @@ class _LocationChangePageState extends State<LocationChangePage> {
                                       },
                                     });
                                   }
+                                });
+                                setState(() {
+                                  isGettingLocation = false;
                                 });
                                 if (context.mounted) {
                                   Navigator.of(context).pop();
@@ -289,38 +296,45 @@ class _LocationChangePageState extends State<LocationChangePage> {
                                 ),
                                 padding: EdgeInsets.all(width * 0.05),
                                 margin: EdgeInsets.all(width * 0.0225),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment:
-                                      cityName != 'Your Location' &&
-                                              cityName != null
-                                          ? MainAxisAlignment.start
-                                          : MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'Your Location 📍',
-                                      style: TextStyle(
-                                        fontSize: width * 0.05,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    cityName != 'Your Location' &&
-                                            cityName != null
-                                        ? Container()
-                                        : Container(
-                                            padding: const EdgeInsets.all(2),
-                                            decoration: const BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              color: primaryDark2,
-                                            ),
-                                            child: Icon(
-                                              FeatherIcons.check,
-                                              color: Colors.white,
-                                              size: width * 0.1,
+                                child: isGettingLocation
+                                    ? Center(
+                                        child: CircularProgressIndicator(),
+                                      )
+                                    : Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        mainAxisAlignment: cityName !=
+                                                    'Your Location' &&
+                                                cityName != null
+                                            ? MainAxisAlignment.start
+                                            : MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Your Location 📍',
+                                            style: TextStyle(
+                                              fontSize: width * 0.05,
+                                              fontWeight: FontWeight.w600,
                                             ),
                                           ),
-                                  ],
-                                ),
+                                          cityName != 'Your Location' &&
+                                                  cityName != null
+                                              ? Container()
+                                              : Container(
+                                                  padding:
+                                                      const EdgeInsets.all(2),
+                                                  decoration:
+                                                      const BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    color: primaryDark2,
+                                                  ),
+                                                  child: Icon(
+                                                    FeatherIcons.check,
+                                                    color: Colors.white,
+                                                    size: width * 0.1,
+                                                  ),
+                                                ),
+                                        ],
+                                      ),
                               ),
                             ),
                             const Divider(),

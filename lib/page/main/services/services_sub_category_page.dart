@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
-import 'package:Localsearch_User/page/main/services/services_man_page.dart';
-import 'package:Localsearch_User/widgets/video_tutorial.dart';
+import 'package:localsearch_user/page/main/services/services_man_page.dart';
+import 'package:localsearch_user/widgets/video_tutorial.dart';
 import 'package:flutter/material.dart';
 
 class ServicesSubCategoryPage extends StatefulWidget {

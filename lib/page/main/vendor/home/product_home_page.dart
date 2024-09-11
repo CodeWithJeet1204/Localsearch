@@ -1,39 +1,33 @@
 // ignore_for_file: avoid_function_literals_in_foreach_calls, unused_local_variable
 import 'dart:async';
 import 'dart:convert';
-import 'package:Localsearch_User/page/main/vendor/post_page_view.dart';
-import 'package:Localsearch_User/page/main/vendor/profile/wishlist_page.dart';
-import 'package:Localsearch_User/providers/review_provider.dart';
-import 'package:Localsearch_User/widgets/text_button.dart';
+import 'package:localsearch_user/page/main/vendor/post_page_view.dart';
+import 'package:localsearch_user/page/main/vendor/profile/wishlist_page.dart';
+import 'package:localsearch_user/widgets/text_button.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
-import 'package:Localsearch_User/page/main/vendor/discount/all_discount_page.dart';
-import 'package:Localsearch_User/page/main/location_change_page.dart';
-import 'package:Localsearch_User/page/main/main_page.dart';
-import 'package:Localsearch_User/page/main/vendor/category/all_shop_types_page.dart';
-import 'package:Localsearch_User/page/main/vendor/home/shop_categories_page.dart';
-import 'package:Localsearch_User/page/main/vendor/product/product_page.dart';
-import 'package:Localsearch_User/page/main/search/search_page.dart';
-import 'package:Localsearch_User/page/main/vendor/vendor_page.dart';
-import 'package:Localsearch_User/providers/location_provider.dart';
-import 'package:Localsearch_User/utils/colors.dart';
+import 'package:localsearch_user/page/main/vendor/discount/all_discount_page.dart';
+import 'package:localsearch_user/page/main/location_change_page.dart';
+import 'package:localsearch_user/page/main/main_page.dart';
+import 'package:localsearch_user/page/main/vendor/category/all_shop_types_page.dart';
+import 'package:localsearch_user/page/main/vendor/home/shop_categories_page.dart';
+import 'package:localsearch_user/page/main/vendor/product/product_page.dart';
+import 'package:localsearch_user/page/main/search/search_page.dart';
+import 'package:localsearch_user/page/main/vendor/vendor_page.dart';
+import 'package:localsearch_user/providers/location_provider.dart';
+import 'package:localsearch_user/utils/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:Localsearch_User/widgets/snack_bar.dart';
-import 'package:Localsearch_User/widgets/video_tutorial.dart';
+import 'package:localsearch_user/widgets/snack_bar.dart';
+import 'package:localsearch_user/widgets/video_tutorial.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class ProductHomePage extends StatefulWidget {
   const ProductHomePage({
     super.key,
-    this.cityName,
   });
-
-  final String? cityName;
 
   @override
   State<ProductHomePage> createState() => _ProductHomePageState();
@@ -42,7 +36,6 @@ class ProductHomePage extends StatefulWidget {
 class _ProductHomePageState extends State<ProductHomePage> {
   final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
-  final storage = FirebaseStorage.instance;
   String? name;
   Map<String, dynamic>? shopTypesData;
   String? recentShop;
@@ -443,29 +436,20 @@ class _ProductHomePageState extends State<ProductHomePage> {
 
     // GET SHOP TYPES
     Future<void> getShopTypes() async {
-      final Map<String, String> myShopTypesData = {};
+      final shopTypesSnap = await store
+          .collection('Shop Types And Category Data')
+          .doc('Shop Types Data')
+          .get();
 
-      final storageRef = storage.ref();
-      final shopTypesRef = storageRef.child('Shop Types/Household');
+      final shopTypeData = shopTypesSnap.data()!;
 
-      final ListResult result = await shopTypesRef.listAll();
-
-      final List<Future<void>> fetchTasks = [];
-
-      for (var item in result.items) {
-        fetchTasks.add(() async {
-          final String shopTypeName = item.name.replaceAll('.png', '');
-          final String imageUrl = await item.getDownloadURL();
-          myShopTypesData[shopTypeName] = imageUrl;
-        }());
-      }
-
-      await Future.wait(fetchTasks);
+      final Map<String, dynamic> myShopTypesData =
+          shopTypeData['shopTypesData'];
 
       final sortedEntries = myShopTypesData.entries.toList()
         ..sort((a, b) => a.key.compareTo(b.key));
       final sortedShopTypesData =
-          Map<String, String>.fromEntries(sortedEntries);
+          Map<String, dynamic>.fromEntries(sortedEntries);
 
       setState(() {
         shopTypesData = sortedShopTypesData;
@@ -514,7 +498,6 @@ class _ProductHomePageState extends State<ProductHomePage> {
             }
           }
         } catch (e) {
-          print('error: ${e.toString()}');
           if (mounted) {
             mySnackBar('Some error occured while fetching Location', context);
           }
@@ -594,18 +577,9 @@ class _ProductHomePageState extends State<ProductHomePage> {
           final String productName = productData['productName'];
           final String imageUrl = productData['images'][0];
           final String vendorId = productData['vendorId'];
-
-          final vendorSnap = await store
-              .collection('Business')
-              .doc('Owners')
-              .collection('Shops')
-              .doc(vendorId)
-              .get();
-
-          final vendorData = vendorSnap.data()!;
-
-          final vendorLatitude = vendorData['Latitude'];
-          final vendorLongitude = vendorData['Longitude'];
+          final String productCity = productData['City'];
+          final double productLatitude = productData['latitude'];
+          final double productLongitude = productData['longitude'];
 
           if (locationProvider.cityName == 'Your Location') {
             if (mounted) {
@@ -618,8 +592,8 @@ class _ProductHomePageState extends State<ProductHomePage> {
               final dist = await getDrivingDistance(
                 yourLatitude!,
                 yourLongitude!,
-                vendorLatitude,
-                vendorLongitude,
+                productLatitude,
+                productLongitude,
               );
 
               if (dist != null) {
@@ -640,7 +614,6 @@ class _ProductHomePageState extends State<ProductHomePage> {
               }
             } catch (e) {
               if (mounted) {
-                print('error: ${e.toString()}');
                 mySnackBar(
                   'Some error occured while fetching Location',
                   context,
@@ -648,52 +621,12 @@ class _ProductHomePageState extends State<ProductHomePage> {
               }
             }
           } else {
-            try {
-              final url =
-                  'https://maps.googleapis.com/maps/api/geocode/json?latlng=$vendorLatitude,$vendorLongitude&key=AIzaSyA-CD3MgDBzAsjmp_FlDbofynMMmW6fPsU';
-
-              final response = await http.get(Uri.parse(url));
-
-              if (response.statusCode == 200) {
-                final data = json.decode(response.body);
-                String? name;
-
-                if (data['status'] == 'OK') {
-                  for (var result in data['results']) {
-                    for (var component in result['address_components']) {
-                      if (component['types'].contains('locality')) {
-                        name = component['long_name'];
-                        break;
-                      } else if (component['types'].contains('sublocality')) {
-                        name = component['long_name'];
-                      } else if (component['types'].contains('neighborhood')) {
-                        name = component['long_name'];
-                      } else if (component['types'].contains('route')) {
-                        name = component['long_name'];
-                      } else if (component['types']
-                          .contains('administrative_area_level_3')) {
-                        name = component['long_name'];
-                      }
-                    }
-                    if (name != null) break;
-                  }
-
-                  if (name == locationProvider.cityName) {
-                    currentWishlist[productId] = [
-                      productName,
-                      imageUrl,
-                      productData,
-                    ];
-                  }
-                } else {}
-              } else {}
-            } catch (e) {
-              if (mounted) {
-                mySnackBar(
-                  'Failed to fetch your City: ${e.toString()}',
-                  context,
-                );
-              }
+            if (productCity == locationProvider.cityName) {
+              currentWishlist[productId] = [
+                productName,
+                imageUrl,
+                productData,
+              ];
             }
           }
 
@@ -906,65 +839,6 @@ class _ProductHomePageState extends State<ProductHomePage> {
       });
     }
 
-    // GET HAS REVIEWED
-    Future<void> getHasReviewed() async {
-      final reviewProvider = Provider.of<ReviewProvider>(
-        context,
-        listen: false,
-      );
-      final hasReviewed = userData['hasReviewed'];
-      final hasReviewedIndex = userData['hasReviewedIndex'];
-
-      await store.collection('Users').doc(auth.currentUser!.uid).update({
-        'hasReviewedIndex': hasReviewedIndex + 1,
-      });
-
-      if (!hasReviewed) {
-        if (hasReviewedIndex > 10) {
-          reviewProvider.reviewed();
-          await showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                title: Text('Rate this App'),
-                content: Text('If you liked our app, you can rate it 5⭐'),
-                actions: [
-                  MyTextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    text: 'Not Now',
-                    textColor: Colors.red,
-                  ),
-                  MyTextButton(
-                    onPressed: () async {
-                      await store
-                          .collection('Users')
-                          .doc(auth.currentUser!.uid)
-                          .update({
-                        'hasReviewed': true,
-                      });
-
-                      const url =
-                          'https://play.google.com/store/apps/details?id=com.localsearchuser.package';
-                      if (await canLaunchUrl(Uri.parse(url))) {
-                        await launchUrl(Uri.parse(url));
-                      } else {
-                        throw 'Could not launch $url';
-                      }
-                    },
-                    text: 'Yes',
-                    textColor: Colors.green,
-                    fontSize: MediaQuery.of(context).size.width * 0.0475,
-                  ),
-                ],
-              );
-            },
-          );
-        }
-      }
-    }
-
     if (mounted) {
       await getName().then((value) async {
         await getPosts().then((value) async {
@@ -975,17 +849,17 @@ class _ProductHomePageState extends State<ProductHomePage> {
                   await getWishlist().then((value) async {
                     await getFollowedShops().then((value) async {
                       await getFeatured().then((value) async {
-                        final reviewProvider = Provider.of<ReviewProvider>(
-                          context,
-                          listen: false,
-                        );
-                        final hasReviewed = reviewProvider.hasAsked;
+                        // final reviewProvider = Provider.of<ReviewProvider>(
+                        //   context,
+                        //   listen: false,
+                        // );
+                        // final hasReviewed = reviewProvider.hasAsked;
 
-                        if (!hasReviewed) {
-                          if (!fromRefreshIndicator) {
-                            await getHasReviewed();
-                          }
-                        }
+                        // if (!hasReviewed) {
+                        //   if (!fromRefreshIndicator) {
+                        //     await getHasReviewed();
+                        //   }
+                        // }
                       });
                     });
                   });
@@ -1415,7 +1289,6 @@ class _ProductHomePageState extends State<ProductHomePage> {
                 ],
               ),
             ),
-            const SizedBox(height: 4),
 
             // SELECT LOCATION
             GestureDetector(
@@ -1781,7 +1654,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                             vertical: 4,
                           ),
                           child: Text(
-                            "ONGOING OFFERS",
+                            'ONGOING OFFERS',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: primaryDark,
@@ -1859,7 +1732,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                                 MaterialPageRoute(
                                                   builder: ((context) =>
                                                       ShopCategoriesPage(
-                                                        shopName: name,
+                                                        shopType: name,
                                                       )),
                                                 ),
                                               );
@@ -1886,10 +1759,12 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                                     ClipRRect(
                                                       borderRadius:
                                                           BorderRadius.circular(
-                                                              12),
+                                                        12,
+                                                      ),
                                                       child: Image.network(
                                                         imageUrl,
                                                         fit: BoxFit.cover,
+                                                        width: width * 0.175,
                                                         height: width * 0.175,
                                                       ),
                                                     ),
@@ -1947,7 +1822,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                                     MaterialPageRoute(
                                                       builder: ((context) =>
                                                           ShopCategoriesPage(
-                                                            shopName: name,
+                                                            shopType: name,
                                                           )),
                                                     ),
                                                   );
@@ -1959,7 +1834,8 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                                     color: white,
                                                     borderRadius:
                                                         BorderRadius.circular(
-                                                            12),
+                                                      12,
+                                                    ),
                                                   ),
                                                   child: Padding(
                                                     padding:

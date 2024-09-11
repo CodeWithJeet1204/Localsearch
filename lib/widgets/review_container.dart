@@ -1,5 +1,5 @@
-import 'package:Localsearch_User/utils/colors.dart';
-import 'package:Localsearch_User/widgets/see_more_text.dart';
+import 'package:localsearch_user/utils/colors.dart';
+import 'package:localsearch_user/widgets/see_more_text.dart';
 import 'package:flutter/material.dart';
 
 class ReviewContainer extends StatefulWidget {

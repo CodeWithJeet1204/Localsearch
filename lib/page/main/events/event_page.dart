@@ -3,13 +3,13 @@ import 'package:http/http.dart' as http;
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
-import 'package:Localsearch_User/page/main/events/event_comments_page.dart';
-import 'package:Localsearch_User/page/main/events/events_organizer_page.dart';
-import 'package:Localsearch_User/utils/colors.dart';
-import 'package:Localsearch_User/widgets/image_view.dart';
-import 'package:Localsearch_User/widgets/see_more_text.dart';
-import 'package:Localsearch_User/widgets/snack_bar.dart';
-import 'package:Localsearch_User/widgets/video_tutorial.dart';
+import 'package:localsearch_user/page/main/events/event_comments_page.dart';
+import 'package:localsearch_user/page/main/events/events_organizer_page.dart';
+import 'package:localsearch_user/utils/colors.dart';
+import 'package:localsearch_user/widgets/image_view.dart';
+import 'package:localsearch_user/widgets/see_more_text.dart';
+import 'package:localsearch_user/widgets/snack_bar.dart';
+import 'package:localsearch_user/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -426,7 +426,7 @@ class _EventPageState extends State<EventPage> {
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Text(
-                                    "See Comments",
+                                    'See Comments',
                                     style: TextStyle(
                                       color: primaryDark,
                                       fontSize: width * 0.05,

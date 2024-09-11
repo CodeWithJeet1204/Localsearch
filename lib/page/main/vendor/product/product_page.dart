@@ -1,21 +1,21 @@
 import 'dart:async';
-import 'package:Localsearch_User/models/household_sub_category.dart';
-import 'package:Localsearch_User/page/main/vendor/brand/brand_page.dart';
+import 'package:auto_size_text/auto_size_text.dart';
+import 'package:localsearch_user/page/main/vendor/brand/brand_page.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
-import 'package:Localsearch_User/page/main/vendor/category/category_products_page.dart';
-import 'package:Localsearch_User/page/main/vendor/product/product_all_reviews_page.dart';
-import 'package:Localsearch_User/page/main/vendor/vendor_page.dart';
-import 'package:Localsearch_User/utils/colors.dart';
-import 'package:Localsearch_User/widgets/image_view.dart';
-import 'package:Localsearch_User/widgets/info_box.dart';
-import 'package:Localsearch_User/widgets/ratings_bar.dart';
-import 'package:Localsearch_User/widgets/review_container.dart';
-import 'package:Localsearch_User/widgets/search_bar.dart';
-import 'package:Localsearch_User/widgets/see_more_text.dart';
-import 'package:Localsearch_User/widgets/snack_bar.dart';
-import 'package:Localsearch_User/widgets/text_button.dart';
+import 'package:localsearch_user/page/main/vendor/category/category_products_page.dart';
+import 'package:localsearch_user/page/main/vendor/product/product_all_reviews_page.dart';
+import 'package:localsearch_user/page/main/vendor/vendor_page.dart';
+import 'package:localsearch_user/utils/colors.dart';
+import 'package:localsearch_user/widgets/image_view.dart';
+import 'package:localsearch_user/widgets/info_box.dart';
+import 'package:localsearch_user/widgets/ratings_bar.dart';
+import 'package:localsearch_user/widgets/review_container.dart';
+import 'package:localsearch_user/widgets/search_bar.dart';
+import 'package:localsearch_user/widgets/see_more_text.dart';
+import 'package:localsearch_user/widgets/snack_bar.dart';
+import 'package:localsearch_user/widgets/text_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -50,7 +50,7 @@ class _ProductPageState extends State<ProductPage> {
   bool isLiked = false;
   String? brandImageUrl;
   String? categoryImageUrl;
-  List? allDiscount;
+  Map<String, Map<String, dynamic>>? allDiscount;
   double userRating = 0.0;
   bool? hasReviewedBefore;
   double? previousRating;
@@ -397,24 +397,25 @@ class _ProductPageState extends State<ProductPage> {
         .where('vendorId', isEqualTo: widget.productData['vendorId'])
         .get();
 
-    List<Map<String, dynamic>> allDiscounts = [];
+    Map<String, Map<String, dynamic>> myAllDiscounts = {};
 
-    for (QueryDocumentSnapshot<Map<String, dynamic>> doc
-        in discountSnapshot.docs) {
-      final data = doc.data();
+    for (var discount in discountSnapshot.docs) {
+      final discountData = discount.data();
 
-      if ((data['discountEndDateTime'] as Timestamp)
+      if ((discountData['discountEndDateTime'] as Timestamp)
               .toDate()
               .isAfter(DateTime.now()) &&
-          !(data['discountStartDateTime'] as Timestamp)
+          !(discountData['discountStartDateTime'] as Timestamp)
               .toDate()
               .isAfter(DateTime.now())) {
-        allDiscounts.add(data);
+        myAllDiscounts.addAll({
+          discountData['discountId']: discountData,
+        });
       }
     }
 
     setState(() {
-      allDiscount = allDiscounts;
+      allDiscount = myAllDiscounts;
     });
   }
 
@@ -500,26 +501,24 @@ class _ProductPageState extends State<ProductPage> {
   }
 
   // GET CATEGORY IMAGE
-  Future<void> getCategoryImage(List vendorType) async {
-    for (var type in vendorType) {
-      if (householdSubCategories[type]!
-          .containsKey(widget.productData['categoryName'])) {
-        final categorySnap = await store
-            .collection('Business')
-            .doc('Special Categories')
-            .collection(type)
-            .doc(widget.productData['categoryName'])
-            .get();
+  Future<void> getCategoryImage(List shopTypes) async {
+    if (widget.productData['categoryName'] != '0') {
+      final categoriesSnap = await store
+          .collection('Shop Types And Category Data')
+          .doc('Just Category Data')
+          .get();
 
-        if (categorySnap.exists) {
-          final categoryData = categorySnap.data()!;
+      final categoriesData = categoriesSnap.data()!;
 
-          final categoryImage = categoryData['specialCategoryImageUrl'];
-          setState(() {
-            categoryImageUrl = categoryImage;
-          });
-        }
-      }
+      final Map<String, dynamic> householdCategories =
+          categoriesData['householdCategories'];
+
+      final categoryIimageUrl =
+          householdCategories[widget.productData['categoryName']];
+
+      setState(() {
+        categoryImageUrl = categoryIimageUrl;
+      });
     }
   }
 
@@ -1052,19 +1051,18 @@ class _ProductPageState extends State<ProductPage> {
         .collection('Business')
         .doc('Data')
         .collection('Discounts')
+        .where('discountId', isEqualTo: widget.productData['discountData'])
         .get();
 
     for (var discount in discountSnap.docs) {
       final currentDiscountData = discount.data();
 
-      final vendorId = currentDiscountData['vendorId'];
-      final discountId = currentDiscountData['discountId'];
       final Timestamp endDateTime = currentDiscountData['discountEndDateTime'];
 
-      if (vendorId == widget.productData['vendorId'] &&
-          endDateTime.toDate().isAfter(DateTime.now()) &&
-          discountId == widget.productData['discountId']) {
-        discountData = currentDiscountData;
+      if (endDateTime.toDate().isAfter(DateTime.now())) {
+        setState(() {
+          discountData = currentDiscountData;
+        });
       }
     }
   }
@@ -1073,7 +1071,7 @@ class _ProductPageState extends State<ProductPage> {
   Widget build(BuildContext context) {
     final Map<String, dynamic> data = widget.productData;
     final String name = data['productName'];
-    final String price = data['productPrice'];
+    final price = data['productPrice'];
     final String description = data['productDescription'];
     final String brand = data['productBrand'];
     final String brandId = data['productBrandId'];
@@ -1113,7 +1111,7 @@ class _ProductPageState extends State<ProductPage> {
       }
     }
 
-    final bool isAvailable = data['isAvailable'];
+    final int isAvailable = data['isAvailable'];
 
     final bool bulkSellAvailable = data['bulkSellAvailable'];
     final bool cardOffersAvailable = data['cardOffersAvailable'];
@@ -1435,62 +1433,48 @@ class _ProductPageState extends State<ProductPage> {
                                       padding: EdgeInsets.symmetric(
                                         horizontal: width * 0.0225,
                                       ),
-                                      child: price == '' || price == 'N/A'
-                                          ? Text(
-                                              'N/A',
-                                              overflow: TextOverflow.ellipsis,
+                                      child: RichText(
+                                        overflow: TextOverflow.ellipsis,
+                                        text: TextSpan(
+                                          text: 'Rs. ',
+                                          style: TextStyle(
+                                            color: isAvailable == 0
+                                                ? primaryDark
+                                                : darkGrey,
+                                            fontSize: 22,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                          children: [
+                                            TextSpan(
+                                              text: discountData['isPercent']
+                                                  ? '${price * (100 - (discountData['discountAmount'])) / 100}  '
+                                                  : '${price - (discountData['discountAmount'])}  ',
                                               style: TextStyle(
-                                                color: isAvailable
-                                                    ? black
+                                                color: isAvailable == 0
+                                                    ? Colors.green
                                                     : darkGrey,
                                               ),
-                                            )
-                                          : RichText(
-                                              overflow: TextOverflow.ellipsis,
-                                              text: TextSpan(
-                                                text: 'Rs. ',
-                                                style: TextStyle(
-                                                  color: isAvailable
-                                                      ? primaryDark
-                                                      : darkGrey,
-                                                  fontSize: 22,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                                children: [
-                                                  TextSpan(
-                                                    text: discountData[
-                                                            'isPercent']
-                                                        ? '${double.parse(price) * (100 - (discountData['discountAmount'])) / 100}  '
-                                                        : '${double.parse(price) - (discountData['discountAmount'])}  ',
-                                                    style: TextStyle(
-                                                      color: isAvailable
-                                                          ? Colors.green
-                                                          : darkGrey,
-                                                    ),
-                                                  ),
-                                                  TextSpan(
-                                                    text: price == ''
-                                                        ? 'Rs. --'
-                                                        : 'Rs. $price',
-                                                    style: TextStyle(
-                                                      fontSize: 20,
-                                                      color: isAvailable
-                                                          ? const Color
-                                                              .fromRGBO(
-                                                              255,
-                                                              134,
-                                                              125,
-                                                              1,
-                                                            )
-                                                          : darkGrey,
-                                                      decoration: TextDecoration
-                                                          .lineThrough,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              maxLines: 1,
                                             ),
+                                            TextSpan(
+                                              text: 'Rs. $price',
+                                              style: TextStyle(
+                                                fontSize: 20,
+                                                color: isAvailable == 0
+                                                    ? const Color.fromRGBO(
+                                                        255,
+                                                        134,
+                                                        125,
+                                                        1,
+                                                      )
+                                                    : darkGrey,
+                                                decoration:
+                                                    TextDecoration.lineThrough,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        maxLines: 1,
+                                      ),
                                     ),
                                     Padding(
                                       padding: EdgeInsets.symmetric(
@@ -1508,7 +1492,7 @@ class _ProductPageState extends State<ProductPage> {
                                             : '''${(discountData['discountEndDateTime'] as Timestamp).toDate().difference(DateTime.now()).inDays} Days Left''',
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
-                                          color: isAvailable
+                                          color: isAvailable == 0
                                               ? Colors.red
                                               : darkGrey,
                                           fontWeight: FontWeight.w500,
@@ -1553,22 +1537,37 @@ class _ProductPageState extends State<ProductPage> {
                       ),
 
                       // AVAILABLE
-                      isAvailable
-                          ? Padding(
-                              padding: EdgeInsets.symmetric(
-                                vertical: width * 0.0175,
-                                horizontal: width * 0.02,
-                              ),
-                              child: Text(
-                                'OUT OF STOCK',
-                                style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: width * 0.05,
-                                  fontWeight: FontWeight.w600,
+                      isAvailable == 0
+                          ? Container()
+                          : isAvailable == 1
+                              ? Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: width * 0.0175,
+                                    horizontal: width * 0.02,
+                                  ),
+                                  child: Text(
+                                    'Will be Available Within a Week',
+                                    style: TextStyle(
+                                      color: Colors.orange,
+                                      fontSize: width * 0.05,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                )
+                              : Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: width * 0.0175,
+                                    horizontal: width * 0.02,
+                                  ),
+                                  child: Text(
+                                    'OUT OF STOCK',
+                                    style: TextStyle(
+                                      color: Colors.red,
+                                      fontSize: width * 0.05,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            )
-                          : Container(),
 
                       // DELIVERY
                       Row(
@@ -1616,54 +1615,51 @@ class _ProductPageState extends State<ProductPage> {
                                 ),
 
                           // LIKES
-                          isAvailable
-                              ? GestureDetector(
-                                  onTap: () async {
-                                    await likeProduct();
-                                  },
-                                  child: Container(
-                                    padding: EdgeInsets.all(width * 0.0225),
-                                    margin: EdgeInsets.symmetric(
-                                      vertical: width * 0.0175,
-                                      horizontal: width * 0.02,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: isLiked
-                                          ? const Color.fromRGBO(
-                                              228,
-                                              228,
-                                              228,
-                                              1,
-                                            )
-                                          : white,
-                                      border: Border.all(
-                                        width: 1,
-                                        color: isLiked
-                                            ? white
-                                            : const Color.fromRGBO(
-                                                228, 228, 228, 1),
-                                      ),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceAround,
-                                      children: [
-                                        Text(
-                                          likesTimestamp.length.toString(),
-                                          style: const TextStyle(),
-                                        ),
-                                        SizedBox(width: width * 0.0225),
-                                        Icon(
-                                          isLiked
-                                              ? Icons.thumb_up
-                                              : Icons.thumb_up_outlined,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                )
-                              : Container(),
+                          // GestureDetector(
+                          //   onTap: () async {
+                          //     await likeProduct();
+                          //   },
+                          //   child: Container(
+                          //     padding: EdgeInsets.all(width * 0.0225),
+                          //     margin: EdgeInsets.symmetric(
+                          //       vertical: width * 0.0175,
+                          //       horizontal: width * 0.02,
+                          //     ),
+                          //     decoration: BoxDecoration(
+                          //       color: isLiked
+                          //           ? const Color.fromRGBO(
+                          //               228,
+                          //               228,
+                          //               228,
+                          //               1,
+                          //             )
+                          //           : white,
+                          //       border: Border.all(
+                          //         width: 1,
+                          //         color: isLiked
+                          //             ? white
+                          //             : const Color.fromRGBO(228, 228, 228, 1),
+                          //       ),
+                          //       borderRadius: BorderRadius.circular(12),
+                          //     ),
+                          //     child: Row(
+                          //       mainAxisAlignment:
+                          //           MainAxisAlignment.spaceAround,
+                          //       children: [
+                          //         Text(
+                          //           likesTimestamp.length.toString(),
+                          //           style: const TextStyle(),
+                          //         ),
+                          //         SizedBox(width: width * 0.0225),
+                          //         Icon(
+                          //           isLiked
+                          //               ? Icons.thumb_up
+                          //               : Icons.thumb_up_outlined,
+                          //         ),
+                          //       ],
+                          //     ),
+                          //   ),
+                          // ),
                         ],
                       ),
 
@@ -1728,44 +1724,47 @@ class _ProductPageState extends State<ProductPage> {
                                   );
                                 },
                                 child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     brandImageUrl == null
                                         ? Container()
                                         : CircleAvatar(
-                                            backgroundImage:
-                                                NetworkImage(brandImageUrl!),
+                                            backgroundImage: NetworkImage(
+                                              brandImageUrl!,
+                                            ),
+                                            radius: width * 0.06125,
                                             backgroundColor: lightGrey,
                                           ),
-                                    SizedBox(width: width * 0.0225),
-                                    Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceAround,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        const Text(
-                                          overflow: TextOverflow.ellipsis,
-                                          'Brand',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                            color: primaryDark2,
+                                    SizedBox(
+                                      width: width * 0.8,
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const Text(
+                                            overflow: TextOverflow.ellipsis,
+                                            'Brand',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w500,
+                                              color: primaryDark2,
+                                            ),
                                           ),
-                                        ),
-                                        Text(
-                                          brand,
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 1,
-                                          style: TextStyle(
-                                            fontSize: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.05833,
-                                            fontWeight: FontWeight.w600,
-                                            color: primaryDark,
+                                          AutoSizeText(
+                                            brand,
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                            style: TextStyle(
+                                              fontSize: width * 0.05833,
+                                              fontWeight: FontWeight.w500,
+                                              color: primaryDark,
+                                            ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -1789,47 +1788,54 @@ class _ProductPageState extends State<ProductPage> {
                                     );
                                   }
                                 },
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    categoryImageUrl == null
-                                        ? Container()
-                                        : CircleAvatar(
-                                            backgroundImage:
-                                                NetworkImage(categoryImageUrl!),
-                                            backgroundColor: lightGrey,
-                                          ),
-                                    SizedBox(width: width * 0.0225),
-                                    Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceAround,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        const Text(
-                                          overflow: TextOverflow.ellipsis,
-                                          'Category',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                            color: primaryDark2,
-                                          ),
+                                child: SizedBox(
+                                  width: width,
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      categoryImageUrl == null
+                                          ? Container()
+                                          : CircleAvatar(
+                                              backgroundImage: NetworkImage(
+                                                categoryImageUrl!,
+                                              ),
+                                              backgroundColor: lightGrey,
+                                              radius: width * 0.06125,
+                                            ),
+                                      SizedBox(
+                                        width: width * 0.8,
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            const Text(
+                                              overflow: TextOverflow.ellipsis,
+                                              'Category',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w500,
+                                                color: primaryDark2,
+                                              ),
+                                            ),
+                                            AutoSizeText(
+                                              categoryName,
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                              style: TextStyle(
+                                                fontSize: width * 0.05833,
+                                                color: primaryDark,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                        Text(
-                                          categoryName,
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 1,
-                                          style: TextStyle(
-                                            fontSize: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.05833,
-                                            fontWeight: FontWeight.w600,
-                                            color: primaryDark,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ],
@@ -2135,7 +2141,6 @@ class _ProductPageState extends State<ProductPage> {
                       allDiscount == null || allDiscount!.isEmpty
                           ? Container()
                           : AllDiscountsWidget(
-                              noOfDiscounts: allDiscount!.length,
                               allDiscount: allDiscount!,
                             ),
 
@@ -2178,7 +2183,7 @@ class _ProductPageState extends State<ProductPage> {
                                     child: ListView.builder(
                                       controller:
                                           scrollControllerOtherVendorProducts,
-                                      cacheExtent: height * 1.5,
+                                      cacheExtent: width * 1.5,
                                       addAutomaticKeepAlives: true,
                                       shrinkWrap: true,
                                       scrollDirection: Axis.horizontal,
@@ -2196,11 +2201,10 @@ class _ProductPageState extends State<ProductPage> {
                                                 isLoadMoreOtherVendorProducts
                                                     ? index - 1
                                                     : index]['productName'];
-                                        final String price =
-                                            otherVendorProductsDatas[
-                                                isLoadMoreOtherVendorProducts
-                                                    ? index - 1
-                                                    : index]['productPrice'];
+                                        final price = otherVendorProductsDatas[
+                                            isLoadMoreOtherVendorProducts
+                                                ? index - 1
+                                                : index]['productPrice'];
                                         final String image =
                                             otherVendorProductsDatas[
                                                 isLoadMoreOtherVendorProducts
@@ -2222,7 +2226,6 @@ class _ProductPageState extends State<ProductPage> {
                                                 },
                                                 child: Container(
                                                   width: width * 0.3,
-                                                  height: width * 0.2,
                                                   decoration: BoxDecoration(
                                                     color: white,
                                                     border: Border.all(
@@ -2234,13 +2237,13 @@ class _ProductPageState extends State<ProductPage> {
                                                     ),
                                                   ),
                                                   padding: EdgeInsets.all(
-                                                    width * 0.00625,
+                                                    width * 0.006125,
                                                   ),
                                                   margin: EdgeInsets.only(
                                                     left: width * 0.0125,
                                                     right: width * 0.0125,
                                                     top: width * 0.01,
-                                                    bottom: width * 0.015,
+                                                    bottom: width * 0.0125,
                                                   ),
                                                   child: Column(
                                                     mainAxisAlignment:
@@ -2270,23 +2273,21 @@ class _ProductPageState extends State<ProductPage> {
                                                         children: [
                                                           Text(
                                                             name,
+                                                            maxLines: 1,
                                                             overflow:
                                                                 TextOverflow
                                                                     .ellipsis,
-                                                            maxLines: 1,
                                                             style: TextStyle(
                                                               fontSize: width *
                                                                   0.04125,
                                                             ),
                                                           ),
                                                           Text(
-                                                            price == ''
-                                                                ? 'Rs. --'
-                                                                : 'Rs. $price',
+                                                            'Rs. $price',
+                                                            maxLines: 1,
                                                             overflow:
                                                                 TextOverflow
                                                                     .ellipsis,
-                                                            maxLines: 1,
                                                             style: TextStyle(
                                                               fontSize: width *
                                                                   0.0425,
@@ -2371,11 +2372,10 @@ class _ProductPageState extends State<ProductPage> {
                                                 isLoadMoreSimilarProducts
                                                     ? index - 1
                                                     : index]['productName'];
-                                        final String price =
-                                            similarProductsDatas[
-                                                isLoadMoreSimilarProducts
-                                                    ? index - 1
-                                                    : index]['productPrice'];
+                                        final price = similarProductsDatas[
+                                            isLoadMoreSimilarProducts
+                                                ? index - 1
+                                                : index]['productPrice'];
                                         final String image =
                                             similarProductsDatas[
                                                 isLoadMoreSimilarProducts
@@ -2462,9 +2462,7 @@ class _ProductPageState extends State<ProductPage> {
                                                               ),
                                                             ),
                                                             Text(
-                                                              price == ''
-                                                                  ? 'Rs. --'
-                                                                  : 'Rs. $price',
+                                                              'Rs. $price',
                                                               overflow:
                                                                   TextOverflow
                                                                       .ellipsis,
@@ -2823,12 +2821,10 @@ class Properties extends StatelessWidget {
 class AllDiscountsWidget extends StatefulWidget {
   const AllDiscountsWidget({
     super.key,
-    required this.noOfDiscounts,
     required this.allDiscount,
   });
 
-  final int noOfDiscounts;
-  final List allDiscount;
+  final Map<String, Map<String, dynamic>> allDiscount;
 
   @override
   State<AllDiscountsWidget> createState() => _AllDiscountsWidgetState();
@@ -2871,82 +2867,88 @@ class _AllDiscountsWidgetState extends State<AllDiscountsWidget> {
   }
 
   // GET NAME
-  Future<String> getName(int index, bool wantName) async {
+  Future<String> getName(String discountId, bool wantName) async {
     final discountSnap = await store
         .collection('Business')
         .doc('Data')
         .collection('Discounts')
-        .doc(widget.allDiscount[index]['discountId'])
+        .doc(discountId)
         .get();
 
     final discountData = discountSnap.data()!;
     final List products = discountData['products'];
-    // final List categories = discountData['categories'];
+    final List categories = discountData['categories'];
     final List brands = discountData['brands'];
+    final String discountName = discountData['discountName'];
+    final String? discountImageUrl = discountData['discountImageUrl'];
 
-    // PRODUCT
-    if (products.isNotEmpty) {
-      final productId = products[0];
+    if (wantName) {
+      return discountName;
+    } else {
+      if (discountImageUrl != null) {
+        return discountImageUrl;
+      } else {
+        // PRODUCT
+        if (products.isNotEmpty) {
+          final productId = products[0];
 
-      final productSnap = await store
-          .collection('Business')
-          .doc('Data')
-          .collection('Products')
-          .doc(productId)
-          .get();
+          final productSnap = await store
+              .collection('Business')
+              .doc('Data')
+              .collection('Products')
+              .doc(productId)
+              .get();
 
-      final productData = productSnap.data()!;
+          final productData = productSnap.data()!;
 
-      final String name = productData['productName'];
-      final String imageUrl = productData['images'][0];
+          final String imageUrl = productData['images'][0];
 
-      return wantName ? name : imageUrl;
+          return imageUrl;
+        }
+
+        // CATEGORY
+        if (categories.isNotEmpty) {
+          final categoryName = categories[0];
+
+          final justCategorySnap = await store
+              .collection('Shop Types And Category Data')
+              .doc('Just Category Data')
+              .get();
+
+          final categoryData = justCategorySnap.data()!;
+
+          final householdCategories = categoryData['householdCategories'];
+
+          final imageUrl = householdCategories[categoryName];
+
+          return imageUrl;
+        }
+
+        // BRAND
+        if (brands.isNotEmpty) {
+          final brandId = brands[0];
+
+          final brandSnap = await store
+              .collection('Business')
+              .doc('Data')
+              .collection('Brands')
+              .doc(brandId)
+              .get();
+
+          final brandData = brandSnap.data()!;
+
+          final imageUrl = brandData['imageUrl'];
+
+          return imageUrl;
+        }
+        return '';
+      }
     }
-
-    // CATEGORY
-    // if (categories.isNotEmpty) {
-    //   final categoryId = categories[0];
-
-    //   final categorySnap = await store
-    //       .collection('Business')
-    //       .doc('Data')
-    //       .collection('Category')
-    //       .doc(categoryId)
-    //       .get();
-
-    //   final categoryData = categorySnap.data()!;
-
-    //   final name = categoryData['categoryName'];
-    //   final imageUrl = categoryData['imageUrl'];
-
-    //   return wantName ? name : imageUrl;
-    // }
-
-    // BRAND
-    if (brands.isNotEmpty) {
-      final brandId = brands[0];
-
-      final brandSnap = await store
-          .collection('Business')
-          .doc('Data')
-          .collection('Brands')
-          .doc(brandId)
-          .get();
-
-      final brandData = brandSnap.data()!;
-
-      final name = brandData['brandName'];
-      final imageUrl = brandData['imageUrl'];
-
-      return wantName ? name : imageUrl;
-    }
-    return '';
   }
 
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    final height = MediaQuery.of(context).size.height;
 
     return Padding(
       padding: EdgeInsets.symmetric(
@@ -2970,11 +2972,10 @@ class _AllDiscountsWidgetState extends State<AllDiscountsWidget> {
           ),
         ),
         child: Container(
-          height: width * 0.66,
           padding: EdgeInsets.all(width * 0.0125),
           margin: EdgeInsets.all(width * 0.0125),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: white,
             borderRadius: BorderRadius.circular(8),
           ),
           child: NotificationListener<ScrollNotification>(
@@ -2993,23 +2994,26 @@ class _AllDiscountsWidgetState extends State<AllDiscountsWidget> {
                 children: [
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: width * 0.0125),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const Text(
-                          'Other Discounts From This Shop',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
+                    child: SizedBox(
+                      width: width * 0.85,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'Other Discounts From This Shop',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
-                        ),
-                        Text(
-                          widget.noOfDiscounts.toString(),
-                          style: TextStyle(
-                            fontSize: width * 0.045,
+                          Text(
+                            widget.allDiscount.length.toString(),
+                            style: TextStyle(
+                              fontSize: width * 0.045,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                   SizedBox(
@@ -3017,7 +3021,7 @@ class _AllDiscountsWidgetState extends State<AllDiscountsWidget> {
                     height: width * 0.5,
                     child: ListView.builder(
                       controller: scrollController,
-                      cacheExtent: height * 1.5,
+                      cacheExtent: width * 1.5,
                       addAutomaticKeepAlives: true,
                       shrinkWrap: true,
                       scrollDirection: Axis.horizontal,
@@ -3026,21 +3030,21 @@ class _AllDiscountsWidgetState extends State<AllDiscountsWidget> {
                           ? widget.allDiscount.length
                           : noOf,
                       itemBuilder: ((context, index) {
-                        final currentDiscount = widget.allDiscount[isLoadMore
-                            ? index == 0
-                                ? 0
-                                : index - 1
-                            : index];
+                        final discountId =
+                            widget.allDiscount.keys.toList()[index];
                         final String? image =
-                            currentDiscount['discountImageUrl'];
-                        final name = currentDiscount['discountName'];
-                        final amount = currentDiscount['discountAmount'];
-                        final isPercent = currentDiscount['isPercent'];
+                            widget.allDiscount[discountId]!['discountImageUrl'];
+
+                        final name =
+                            widget.allDiscount[discountId]!['discountName'];
+                        final amount =
+                            widget.allDiscount[discountId]!['discountAmount'];
+                        final isPercent =
+                            widget.allDiscount[discountId]!['isPercent'];
                         // final endData = currentDiscount['discountEndDateTime'];
 
                         return Container(
                           width: width * 0.3,
-                          height: width * 0.45,
                           decoration: BoxDecoration(
                             color: white,
                             border: Border.all(
@@ -3052,38 +3056,43 @@ class _AllDiscountsWidgetState extends State<AllDiscountsWidget> {
                           padding: EdgeInsets.all(
                             width * 0.003125,
                           ),
-                          margin: EdgeInsets.only(
-                            left: width * 0.025,
-                            right: width * 0.025,
-                            top: width * 0.01,
-                            bottom: width * 0.015,
-                          ),
+                          margin: EdgeInsets.all(width * 0.0125),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               // IMAGE
-                              FutureBuilder(
-                                  future: getName(index, false),
-                                  builder: (context, snapshot) {
-                                    if (snapshot.hasData) {
-                                      return ClipRRect(
-                                        borderRadius: BorderRadius.circular(2),
-                                        child: Image.network(
-                                          image ??
+                              image != null
+                                  ? ClipRRect(
+                                      borderRadius: BorderRadius.circular(2),
+                                      child: Image.network(
+                                        image,
+                                        fit: BoxFit.cover,
+                                        width: width * 0.3,
+                                        height: width * 0.3,
+                                      ),
+                                    )
+                                  : FutureBuilder(
+                                      future: getName(discountId, false),
+                                      builder: (context, snapshot) {
+                                        if (snapshot.hasData) {
+                                          return ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(2),
+                                            child: Image.network(
                                               snapshot.data ??
-                                              'https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/ProhibitionSign2.svg/800px-ProhibitionSign2.svg.png',
-                                          fit: BoxFit.cover,
-                                          width: width * 0.3,
-                                          height: width * 0.3,
-                                        ),
-                                      );
-                                    }
+                                                  'https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/ProhibitionSign2.svg/800px-ProhibitionSign2.svg.png',
+                                              fit: BoxFit.cover,
+                                              width: width * 0.3,
+                                              height: width * 0.3,
+                                            ),
+                                          );
+                                        }
 
-                                    return const Center(
-                                      child: CircularProgressIndicator(),
-                                    );
-                                  }),
+                                        return const Center(
+                                          child: CircularProgressIndicator(),
+                                        );
+                                      }),
 
                               // NAME
                               Column(
@@ -3092,15 +3101,15 @@ class _AllDiscountsWidgetState extends State<AllDiscountsWidget> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   FutureBuilder(
-                                      future: getName(index, true),
+                                      future: getName(discountId, true),
                                       builder: (context, snapshot) {
                                         if (snapshot.hasData) {
                                           return Text(
                                             snapshot.data ?? name,
-                                            overflow: TextOverflow.ellipsis,
                                             maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
                                             style: TextStyle(
-                                              fontSize: width * 0.05,
+                                              fontSize: width * 0.0425,
                                             ),
                                           );
                                         }
@@ -3116,6 +3125,7 @@ class _AllDiscountsWidgetState extends State<AllDiscountsWidget> {
                                     overflow: TextOverflow.ellipsis,
                                     maxLines: 1,
                                     style: TextStyle(
+                                      color: Colors.red,
                                       fontSize: width * 0.045,
                                       fontWeight: FontWeight.w500,
                                     ),

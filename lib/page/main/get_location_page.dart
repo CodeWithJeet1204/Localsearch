@@ -1,6 +1,6 @@
-import 'package:Localsearch_User/providers/location_provider.dart';
-import 'package:Localsearch_User/utils/colors.dart';
-import 'package:Localsearch_User/widgets/snack_bar.dart';
+import 'package:localsearch_user/providers/location_provider.dart';
+import 'package:localsearch_user/utils/colors.dart';
+import 'package:localsearch_user/widgets/snack_bar.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';

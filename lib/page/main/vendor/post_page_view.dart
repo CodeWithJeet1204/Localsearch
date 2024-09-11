@@ -1,7 +1,7 @@
-import 'package:Localsearch_User/page/main/vendor/vendor_page.dart';
+import 'package:localsearch_user/page/main/vendor/vendor_page.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:Localsearch_User/utils/colors.dart';
+import 'package:localsearch_user/utils/colors.dart';
 
 class PostPageView extends StatefulWidget {
   const PostPageView({

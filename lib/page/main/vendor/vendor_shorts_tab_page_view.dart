@@ -1,4 +1,4 @@
-import 'package:Localsearch_User/page/main/vendor/vendor_shorts_tab_tile.dart';
+import 'package:localsearch_user/page/main/vendor/vendor_shorts_tab_tile.dart';
 import 'package:flutter/material.dart';
 
 class VendorShortsTabPageView extends StatefulWidget {

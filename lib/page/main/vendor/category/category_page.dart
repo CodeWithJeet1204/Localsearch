@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:Localsearch_User/page/main/vendor/product/product_page.dart';
-import 'package:Localsearch_User/utils/colors.dart';
-import 'package:Localsearch_User/widgets/image_show.dart';
-import 'package:Localsearch_User/widgets/video_tutorial.dart';
+import 'package:localsearch_user/page/main/vendor/product/product_page.dart';
+import 'package:localsearch_user/utils/colors.dart';
+import 'package:localsearch_user/widgets/image_show.dart';
+import 'package:localsearch_user/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -10,11 +10,9 @@ class CategoryPage extends StatefulWidget {
   const CategoryPage({
     super.key,
     required this.categoryName,
-    required this.vendorType,
   });
 
   final String categoryName;
-  final List vendorType;
 
   @override
   State<CategoryPage> createState() => _CategoryPageState();
@@ -23,7 +21,6 @@ class CategoryPage extends StatefulWidget {
 class _CategoryPageState extends State<CategoryPage> {
   final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
-  String? name;
   String? imageUrl;
   Map? products;
   int noOf = 10;
@@ -36,7 +33,7 @@ class _CategoryPageState extends State<CategoryPage> {
   void initState() {
     getTotal();
     scrollController.addListener(scrollListener);
-    getData();
+    getCategoryImageUrl();
     getProducts();
     super.initState();
   }
@@ -71,6 +68,7 @@ class _CategoryPageState extends State<CategoryPage> {
         .collection('Business')
         .doc('Data')
         .collection('Products')
+        .where('categoryName', isEqualTo: widget.categoryName)
         .get();
 
     final totalLength = totalSnap.docs.length;
@@ -80,25 +78,22 @@ class _CategoryPageState extends State<CategoryPage> {
     });
   }
 
-  // GET DATA
-  Future<void> getData() async {
-    for (var type in widget.vendorType) {
-      final categorySnap = await store
-          .collection('Business')
-          .doc('Special Categories')
-          .collection(type)
-          .doc(widget.categoryName)
-          .get();
+  // GET CATEGORY IMAGE URL
+  Future<void> getCategoryImageUrl() async {
+    final categoriesSnap = await store
+        .collection('Shop Types And Category Data')
+        .doc('Just Category Data')
+        .get();
 
-      final categoryData = categorySnap.data()!;
-      final categoryName = categoryData['specialCategoryName'];
-      final categoryImageUrl = categoryData['specialCategoryImageUrl'];
+    final categoriesData = categoriesSnap.data()!;
 
-      setState(() {
-        name = categoryName;
-        imageUrl = categoryImageUrl;
-      });
-    }
+    final householdCategories = categoriesData['householdCategories'];
+
+    final categoryImageUrl = householdCategories[widget.categoryName];
+
+    setState(() {
+      imageUrl = categoryImageUrl;
+    });
   }
 
   // GET PRODUCTS
@@ -219,7 +214,7 @@ class _CategoryPageState extends State<CategoryPage> {
           ),
         ],
       ),
-      body: name == null || imageUrl == null || products == null
+      body: imageUrl == null || products == null
           ? const Center(
               child: CircularProgressIndicator(),
             )
@@ -265,7 +260,7 @@ class _CategoryPageState extends State<CategoryPage> {
                                 ),
                                 SizedBox(width: width * 0.05),
                                 Text(
-                                  name!,
+                                  widget.categoryName,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(

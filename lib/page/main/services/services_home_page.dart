@@ -1,11 +1,11 @@
 import 'package:feather_icons/feather_icons.dart';
-import 'package:Localsearch_User/models/services_image_map.dart';
-import 'package:Localsearch_User/page/main/services/services_place_page.dart';
-import 'package:Localsearch_User/page/main/services/services_search_page.dart';
-import 'package:Localsearch_User/utils/colors.dart';
-import 'package:Localsearch_User/widgets/name_container.dart';
-import 'package:Localsearch_User/widgets/speech_to_text.dart';
-import 'package:Localsearch_User/widgets/video_tutorial.dart';
+import 'package:localsearch_user/models/services_image_map.dart';
+import 'package:localsearch_user/page/main/services/services_place_page.dart';
+import 'package:localsearch_user/page/main/services/services_search_page.dart';
+import 'package:localsearch_user/utils/colors.dart';
+import 'package:localsearch_user/widgets/name_container.dart';
+import 'package:localsearch_user/widgets/speech_to_text.dart';
+import 'package:localsearch_user/widgets/video_tutorial.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 

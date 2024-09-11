@@ -1,13 +1,12 @@
-import 'package:Localsearch_User/firebase_options.dart';
-import 'package:Localsearch_User/page/auth/login_page.dart';
-import 'package:Localsearch_User/page/auth/register_method_page.dart';
-import 'package:Localsearch_User/page/main/get_location_page.dart';
-import 'package:Localsearch_User/page/main/main_page.dart';
-import 'package:Localsearch_User/providers/location_provider.dart';
-import 'package:Localsearch_User/providers/register_details_provider.dart';
-import 'package:Localsearch_User/providers/review_provider.dart';
-import 'package:Localsearch_User/providers/verification_provider.dart';
-import 'package:Localsearch_User/utils/colors.dart';
+import 'package:localsearch_user/firebase_options.dart';
+import 'package:localsearch_user/page/auth/login_page.dart';
+import 'package:localsearch_user/page/auth/register_method_page.dart';
+import 'package:localsearch_user/page/main/get_location_page.dart';
+import 'package:localsearch_user/page/main/main_page.dart';
+import 'package:localsearch_user/providers/location_provider.dart';
+import 'package:localsearch_user/providers/register_details_provider.dart';
+import 'package:localsearch_user/providers/verification_provider.dart';
+import 'package:localsearch_user/utils/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -25,9 +24,6 @@ void main() async {
       providers: [
         ChangeNotifierProvider(
           create: (_) => VerificationProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => ReviewProvider(),
         ),
         ChangeNotifierProvider(
           create: (_) => LocationProvider(),

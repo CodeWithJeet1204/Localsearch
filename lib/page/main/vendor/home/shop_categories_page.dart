@@ -1,6 +1,7 @@
-import 'package:Localsearch_User/page/main/vendor/category/category_products_page.dart';
-import 'package:Localsearch_User/utils/colors.dart';
-import 'package:Localsearch_User/widgets/video_tutorial.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:localsearch_user/page/main/vendor/category/category_products_page.dart';
+import 'package:localsearch_user/utils/colors.dart';
+import 'package:localsearch_user/widgets/video_tutorial.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -10,10 +11,10 @@ import 'package:flutter/material.dart';
 class ShopCategoriesPage extends StatefulWidget {
   const ShopCategoriesPage({
     super.key,
-    required this.shopName,
+    required this.shopType,
   });
 
-  final String shopName;
+  final String shopType;
 
   @override
   State<ShopCategoriesPage> createState() => _ShopCategoriesPageState();
@@ -21,6 +22,7 @@ class ShopCategoriesPage extends StatefulWidget {
 
 class _ShopCategoriesPageState extends State<ShopCategoriesPage> {
   final auth = FirebaseAuth.instance;
+  final store = FirebaseFirestore.instance;
   final storage = FirebaseStorage.instance;
   Map<String, dynamic>? categoryData;
   int noOf = 12;
@@ -60,29 +62,19 @@ class _ShopCategoriesPageState extends State<ShopCategoriesPage> {
 
   // GET DATA
   Future<void> getData() async {
-    final Map<String, String> myCategoryData = {};
+    final categoriesSnap = await store
+        .collection('Shop Types And Category Data')
+        .doc('Category Data')
+        .get();
 
-    final storageRef = FirebaseStorage.instance.ref();
-    final categoriesRef =
-        storageRef.child('Household Categories/${widget.shopName}');
+    final categoriesData = categoriesSnap.data()!;
 
-    final ListResult result = await categoriesRef.listAll();
-
-    final List<Future<void>> fetchTasks = [];
-
-    for (var item in result.items) {
-      fetchTasks.add(() async {
-        final String categoryName = item.name.replaceAll('.png', '');
-        final String imageUrl = await item.getDownloadURL();
-        myCategoryData[categoryName] = imageUrl;
-      }());
-    }
-
-    await Future.wait(fetchTasks);
+    final Map<String, dynamic> myCategoryData =
+        categoriesData['householdCategoryData'][widget.shopType];
 
     final sortedEntries = myCategoryData.entries.toList()
       ..sort((a, b) => a.key.compareTo(b.key));
-    final sortedCategoryData = Map<String, String>.fromEntries(sortedEntries);
+    final sortedCategoryData = Map<String, dynamic>.fromEntries(sortedEntries);
 
     setState(() {
       categoryData = sortedCategoryData;
@@ -94,12 +86,9 @@ class _ShopCategoriesPageState extends State<ShopCategoriesPage> {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
 
-    // Map<String, String> currentShopCategories =
-    //     householdSubCategories[widget.shopName]!;
-
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.shopName),
+        title: Text(widget.shopType),
         actions: [
           IconButton(
             onPressed: () async {

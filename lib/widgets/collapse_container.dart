@@ -1,5 +1,5 @@
-import 'package:Localsearch_User/utils/colors.dart';
-import 'package:Localsearch_User/utils/size.dart';
+import 'package:localsearch_user/utils/colors.dart';
+import 'package:localsearch_user/utils/size.dart';
 import 'package:flutter/material.dart';
 
 class MyCollapseContainer extends StatefulWidget {
@@ -27,8 +27,9 @@ class _MyCollapseContainerState extends State<MyCollapseContainer> {
       ),
       child: ExpansionTile(
         title: Text(
-          overflow: TextOverflow.ellipsis,
           widget.text,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           style: TextStyle(
             fontWeight: FontWeight.w600,
             fontSize: widget.width < screenSize

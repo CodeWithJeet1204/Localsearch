@@ -1,25 +1,24 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:Localsearch_User/page/main/vendor/vendor_products_tab_page.dart';
-import 'package:Localsearch_User/page/main/vendor/vendor_shorts_tab_page.dart';
-import 'package:Localsearch_User/providers/location_provider.dart';
-import 'package:Localsearch_User/widgets/vendor_discounts.dart';
-import 'package:auto_size_text/auto_size_text.dart';
+import 'package:localsearch_user/page/main/vendor/vendor_products_tab_page.dart';
+import 'package:localsearch_user/page/main/vendor/vendor_shorts_tab_page.dart';
+import 'package:localsearch_user/providers/location_provider.dart';
+import 'package:localsearch_user/widgets/vendor_discounts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:intl/intl.dart';
-import 'package:Localsearch_User/page/main/vendor/brand/all_brand_page.dart';
-import 'package:Localsearch_User/page/main/vendor/brand/brand_page.dart';
-import 'package:Localsearch_User/page/main/vendor/category/all_category_page.dart';
-import 'package:Localsearch_User/page/main/vendor/category/category_page.dart';
-import 'package:Localsearch_User/page/main/vendor/vendor_catalogue_page.dart';
-import 'package:Localsearch_User/utils/colors.dart';
-import 'package:Localsearch_User/widgets/image_show.dart';
-import 'package:Localsearch_User/widgets/see_more_text.dart';
-import 'package:Localsearch_User/widgets/snack_bar.dart';
-import 'package:Localsearch_User/widgets/text_button.dart';
-import 'package:Localsearch_User/widgets/video_tutorial.dart';
+import 'package:localsearch_user/page/main/vendor/brand/all_brand_page.dart';
+import 'package:localsearch_user/page/main/vendor/brand/brand_page.dart';
+import 'package:localsearch_user/page/main/vendor/category/all_category_page.dart';
+import 'package:localsearch_user/page/main/vendor/category/category_page.dart';
+import 'package:localsearch_user/page/main/vendor/vendor_catalogue_page.dart';
+import 'package:localsearch_user/utils/colors.dart';
+import 'package:localsearch_user/widgets/image_show.dart';
+import 'package:localsearch_user/widgets/see_more_text.dart';
+import 'package:localsearch_user/widgets/snack_bar.dart';
+import 'package:localsearch_user/widgets/text_button.dart';
+import 'package:localsearch_user/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -57,7 +56,7 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
   Map<String, List> posts = {};
   Map<String, List> shorts = {};
   List? allDiscounts;
-  Map<String, String>? categories;
+  Map<String, dynamic>? categories;
   Map<String, dynamic> products = {};
   String? productSort = 'Recently Added';
   bool isChangingAddress = false;
@@ -382,22 +381,21 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
 
   // GET CATEGORIES
   Future<void> getCategories() async {
-    Map<String, String> category = {};
-    final shopList = shopData!['Type'];
+    Map<String, dynamic> category = {};
+    final shopTypes = shopData!['Type'];
 
-    for (var shop in shopList) {
-      final categoriesSnap = await store
-          .collection('Business')
-          .doc('Special Categories')
-          .collection(shop)
-          .get();
+    final categoriesSnap = await store
+        .collection('Shop Types And Category Data')
+        .doc('Category Data')
+        .get();
 
-      for (var categoryData in categoriesSnap.docs) {
-        final name = categoryData['specialCategoryName'] as String;
-        final imageUrl = categoryData['specialCategoryImageUrl'] as String;
+    final categoriesData = categoriesSnap.data()!;
 
-        category[name] = imageUrl;
-      }
+    for (var shopType in shopTypes) {
+      final Map<String, dynamic> categoryData =
+          categoriesData['householdCategoryData'][shopType];
+
+      category.addAll(categoryData);
     }
     setState(() {
       categories = category;
@@ -534,8 +532,13 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
 
   // TIMEOFDAY TO DATETIME
   DateTime timeOfDayToDateTime(TimeOfDay time, DateTime referenceDate) {
-    return DateTime(referenceDate.year, referenceDate.month, referenceDate.day,
-        time.hour, time.minute);
+    return DateTime(
+      referenceDate.year,
+      referenceDate.month,
+      referenceDate.day,
+      time.hour,
+      time.minute,
+    );
   }
 
   // GET TIMEOFDAY FROM STRING
@@ -605,16 +608,6 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
     return false;
   }
 
-  // GET NEXT DAY OF WEEK
-  DateTime getNextDayOfWeek(int dayOfWeek) {
-    final now = DateTime.now();
-    int daysUntilNext = dayOfWeek - now.weekday;
-    if (daysUntilNext <= 0) {
-      daysUntilNext += 7;
-    }
-    return now.add(Duration(days: daysUntilNext));
-  }
-
   // FORMAT TIMEOFDAY
   String formatTimeOfDay(TimeOfDay time) {
     final now = DateTime.now();
@@ -644,7 +637,22 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
     final now = DateTime.now();
     final currentTime = timeOfDayToDateTime(TimeOfDay.now(), now);
 
-    if (now.weekday >= DateTime.monday && now.weekday <= DateTime.friday) {
+    if (now.weekday >= DateTime.monday && now.weekday <= DateTime.thursday) {
+      if (weekdayStartTime != null && weekdayEndTime != null) {
+        final startTime =
+            timeOfDayToDateTime(getTimeOfDay(weekdayStartTime), now);
+        final endTime = timeOfDayToDateTime(getTimeOfDay(weekdayEndTime), now);
+        if (currentTime.isAfter(startTime) && currentTime.isBefore(endTime)) {
+          return 'Open till ${formatTimeOfDay(getTimeOfDay(weekdayEndTime))} today';
+        } else if (currentTime.isBefore(startTime)) {
+          return 'Opens at ${formatTimeOfDay(getTimeOfDay(weekdayStartTime))} today';
+        } else {
+          return 'Opens at ${formatTimeOfDay(getTimeOfDay(weekdayStartTime))} tomorrow';
+        }
+      }
+    }
+
+    if (now.weekday == DateTime.friday) {
       if (weekdayStartTime != null && weekdayEndTime != null) {
         final startTime =
             timeOfDayToDateTime(getTimeOfDay(weekdayStartTime), now);
@@ -654,12 +662,12 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
         } else if (currentTime.isBefore(startTime)) {
           return 'Opens at ${formatTimeOfDay(getTimeOfDay(weekdayStartTime))} today';
         }
-      }
-      if (now.weekday <= DateTime.friday && saturdayStartTime != null) {
-        return 'Opens at ${formatTimeOfDay(getTimeOfDay(saturdayStartTime))} on Saturday';
-      }
-      if (now.weekday <= DateTime.friday && sundayStartTime != null) {
-        return 'Opens at ${formatTimeOfDay(getTimeOfDay(sundayStartTime))} on Sunday';
+        if (saturdayStartTime != null) {
+          return 'Opens at ${formatTimeOfDay(getTimeOfDay(saturdayStartTime))} on Saturday';
+        }
+        if (sundayStartTime != null) {
+          return 'Opens at ${formatTimeOfDay(getTimeOfDay(sundayStartTime))} on Sunday';
+        }
       }
     }
 
@@ -898,37 +906,53 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                         ),
                                       ),
                                     ),
-                                    Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceAround,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        // NAME
-                                        Text(
-                                          shopData!['Name'],
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                            color: primaryDark,
-                                            fontSize: width * 0.05,
-                                            fontWeight: FontWeight.w500,
+                                    SizedBox(
+                                      width: width * 0.725,
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          // NAME
+                                          Text(
+                                            shopData!['Name'],
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                              color: primaryDark,
+                                              fontSize: width * 0.05,
+                                              fontWeight: FontWeight.w500,
+                                            ),
                                           ),
-                                        ),
-                                        SizedBox(height: width * 0.035),
 
-                                        // TYPE
-                                        Text(
-                                          getTypes(shopData!['Type']),
-                                          maxLines: 3,
-                                          overflow: TextOverflow.ellipsis,
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            fontSize: width * 0.04,
+                                          // TYPE
+                                          GestureDetector(
+                                            onTap: () {
+                                              Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      VendorCataloguePage(
+                                                    vendorId: widget.vendorId,
+                                                    products:
+                                                        shopData!['Products'],
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                            child: Text(
+                                              getTypes(shopData!['Type']),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              textAlign: TextAlign.start,
+                                              style: TextStyle(
+                                                fontSize: width * 0.04,
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                        SizedBox(height: width * 0.0125),
-                                      ],
+                                          SizedBox(height: width * 0.0125),
+                                        ],
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -964,152 +988,86 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                       if (snapshot.hasData) {
                                         final isOpen = snapshot.data!;
 
-                                        return Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceEvenly,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            Container(
-                                              decoration: BoxDecoration(
-                                                color:
-                                                    isOpen && shopData!['Open']
+                                        return SizedBox(
+                                          width: width,
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceEvenly,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              Container(
+                                                decoration: BoxDecoration(
+                                                  color: white,
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                    12,
+                                                  ),
+                                                  border: Border.all(
+                                                    width: 2,
+                                                    color: isOpen &&
+                                                            shopData!['Open']
                                                         ? Colors.green
                                                             .withOpacity(0.2)
                                                         : Colors.red
                                                             .withOpacity(0.2),
-                                                borderRadius:
-                                                    BorderRadius.circular(
-                                                  8,
+                                                  ),
+                                                ),
+                                                padding: EdgeInsets.all(
+                                                  width * 0.0225,
+                                                ),
+                                                child: Text(
+                                                  isOpen && shopData!['Open']
+                                                      ? 'OPEN'
+                                                      : 'CLOSED',
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: TextStyle(
+                                                    color: isOpen &&
+                                                            shopData!['Open']
+                                                        ? Colors.green
+                                                        : Colors.red,
+                                                    fontSize: width * 0.04,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
                                                 ),
                                               ),
-                                              padding: EdgeInsets.all(
-                                                  width * 0.0225),
-                                              child: Text(
-                                                isOpen && shopData!['Open']
-                                                    ? 'OPEN'
-                                                    : 'CLOSED',
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: TextStyle(
-                                                  color: isOpen &&
-                                                          shopData!['Open']
-                                                      ? Colors.green
-                                                      : Colors.red,
-                                                  fontSize: width * 0.05,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              height: width * 0.02,
-                                            ),
-                                            FutureBuilder(
-                                              future:
-                                                  findNextOpeningOrClosingTime(),
-                                              builder: (context, snapshot) {
-                                                if (snapshot.hasError) {
+                                              FutureBuilder(
+                                                future:
+                                                    findNextOpeningOrClosingTime(),
+                                                builder: (context, snapshot) {
+                                                  if (snapshot.hasError) {
+                                                    return Container();
+                                                  }
+
+                                                  if (snapshot.hasData) {
+                                                    final text = snapshot.data!;
+
+                                                    return SizedBox(
+                                                      width: width * 0.66,
+                                                      child: Text(
+                                                        text,
+                                                        maxLines: 3,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                      ),
+                                                    );
+                                                  }
+
                                                   return Container();
-                                                }
-
-                                                if (snapshot.hasData) {
-                                                  final text = snapshot.data!;
-
-                                                  return Text(text);
-                                                }
-
-                                                return Container();
-                                              },
-                                            ),
-                                            SizedBox(
-                                              height: width * 0.035,
-                                            ),
-                                          ],
+                                                },
+                                              ),
+                                            ],
+                                          ),
                                         );
                                       }
 
                                       return Container();
                                     }),
-                                SizedBox(height: width * 0.035),
-
-                                // FOLLOW & CALL
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    // FOLLOW
-                                    GestureDetector(
-                                      onTap: () async {
-                                        await followShop();
-                                        await getIfFollowing();
-                                      },
-                                      child: Container(
-                                        width: width * 0.725,
-                                        height: 40,
-                                        alignment: Alignment.center,
-                                        decoration: BoxDecoration(
-                                          color:
-                                              isFollowing ? black : lightGrey,
-                                          border: Border.all(
-                                            color:
-                                                isFollowing ? lightGrey : black,
-                                            width: 0.75,
-                                          ),
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                        ),
-                                        child: Text(
-                                          isFollowing ? 'Following' : 'Follow',
-                                          style: TextStyle(
-                                            color: isFollowing ? white : black,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-
-                                    // CALL
-                                    GestureDetector(
-                                      onTap: () async {
-                                        await callVendor();
-                                      },
-                                      child: Container(
-                                        width: width * 0.225,
-                                        height: 40,
-                                        alignment: Alignment.center,
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: width * 0.00625,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: primary2.withOpacity(0.5),
-                                          border: Border.all(
-                                            color: primaryDark.withOpacity(0.5),
-                                            width: 0.25,
-                                          ),
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                        ),
-                                        child: const Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceAround,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              'Call',
-                                              style: TextStyle(
-                                                color: primaryDark,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                            Icon(FeatherIcons.phone),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: width * 0.0125),
+                                SizedBox(height: width * 0.04),
 
                                 // SOCIAL MEDIA
                                 Row(
@@ -1150,18 +1108,12 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                                   horizontal: width * 0.00625,
                                                 ),
                                                 margin: EdgeInsets.symmetric(
-                                                  horizontal: width * 0.006125,
+                                                  horizontal: width * 0.0125,
                                                 ),
                                                 decoration: BoxDecoration(
-                                                  color: const Color.fromRGBO(
-                                                    198,
-                                                    255,
-                                                    200,
-                                                    1,
-                                                  ),
+                                                  color: white,
                                                   border: Border.all(
-                                                    color: primaryDark
-                                                        .withOpacity(0.25),
+                                                    color: primaryDark,
                                                     width: 0.25,
                                                   ),
                                                   borderRadius:
@@ -1174,19 +1126,17 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                                   crossAxisAlignment:
                                                       CrossAxisAlignment.center,
                                                   children: [
-                                                    AutoSizeText(
-                                                      'Whatsapp',
-                                                      style: TextStyle(
-                                                        color: primaryDark,
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                        fontSize: width * 0.03,
-                                                      ),
-                                                    ),
                                                     Icon(
                                                       FeatherIcons
                                                           .messageCircle,
                                                       size: width * 0.05,
+                                                      color:
+                                                          const Color.fromARGB(
+                                                        255,
+                                                        0,
+                                                        208,
+                                                        7,
+                                                      ),
                                                     ),
                                                   ],
                                                 ),
@@ -1230,27 +1180,12 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                                   horizontal: width * 0.00625,
                                                 ),
                                                 margin: EdgeInsets.symmetric(
-                                                  horizontal: width * 0.006125,
+                                                  horizontal: width * 0.0125,
                                                 ),
                                                 decoration: BoxDecoration(
-                                                  gradient: LinearGradient(
-                                                    colors: [
-                                                      Color(0xA8050AE6),
-                                                      Color.fromRGBO(
-                                                          88, 81, 216, 0.66),
-                                                      Color.fromRGBO(
-                                                          131, 58, 180, 0.66),
-                                                      Color.fromRGBO(
-                                                          193, 53, 132, 0.66),
-                                                      Color.fromRGBO(
-                                                          225, 48, 108, 0.66),
-                                                      Color.fromRGBO(
-                                                          253, 36, 76, 0.66),
-                                                    ],
-                                                  ),
+                                                  color: white,
                                                   border: Border.all(
-                                                    color: primaryDark
-                                                        .withOpacity(0.25),
+                                                    color: primaryDark,
                                                     width: 0.25,
                                                   ),
                                                   borderRadius:
@@ -1263,18 +1198,10 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                                   crossAxisAlignment:
                                                       CrossAxisAlignment.center,
                                                   children: [
-                                                    AutoSizeText(
-                                                      'Instagram',
-                                                      style: TextStyle(
-                                                        color: primaryDark,
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                        fontSize: width * 0.03,
-                                                      ),
-                                                    ),
                                                     Icon(
                                                       FeatherIcons.instagram,
                                                       size: width * 0.05,
+                                                      color: Colors.red,
                                                     ),
                                                   ],
                                                 ),
@@ -1318,14 +1245,12 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                                   horizontal: width * 0.00625,
                                                 ),
                                                 margin: EdgeInsets.symmetric(
-                                                  horizontal: width * 0.006125,
+                                                  horizontal: width * 0.0125,
                                                 ),
                                                 decoration: BoxDecoration(
-                                                  color: Color.fromRGBO(
-                                                      24, 119, 242, 0.66),
+                                                  color: white,
                                                   border: Border.all(
-                                                    color: primaryDark
-                                                        .withOpacity(0.25),
+                                                    color: primaryDark,
                                                     width: 0.25,
                                                   ),
                                                   borderRadius:
@@ -1338,18 +1263,15 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                                   crossAxisAlignment:
                                                       CrossAxisAlignment.center,
                                                   children: [
-                                                    AutoSizeText(
-                                                      'Facebook',
-                                                      style: TextStyle(
-                                                        color: primaryDark,
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                        fontSize: width * 0.03,
-                                                      ),
-                                                    ),
                                                     Icon(
                                                       FeatherIcons.facebook,
                                                       size: width * 0.05,
+                                                      color: Color.fromRGBO(
+                                                        24,
+                                                        119,
+                                                        242,
+                                                        1,
+                                                      ),
                                                     ),
                                                   ],
                                                 ),
@@ -1393,13 +1315,12 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                                   horizontal: width * 0.00625,
                                                 ),
                                                 margin: EdgeInsets.symmetric(
-                                                  horizontal: width * 0.006125,
+                                                  horizontal: width * 0.0125,
                                                 ),
                                                 decoration: BoxDecoration(
-                                                  color: Colors.grey.shade300,
+                                                  color: white,
                                                   border: Border.all(
-                                                    color: primaryDark
-                                                        .withOpacity(0.25),
+                                                    color: primaryDark,
                                                     width: 0.25,
                                                   ),
                                                   borderRadius:
@@ -1412,24 +1333,114 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                                   crossAxisAlignment:
                                                       CrossAxisAlignment.center,
                                                   children: [
-                                                    AutoSizeText(
-                                                      'Website',
-                                                      style: TextStyle(
-                                                        color: primaryDark,
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                        fontSize: width * 0.03,
-                                                      ),
-                                                    ),
                                                     Icon(
                                                       FeatherIcons.globe,
                                                       size: width * 0.05,
+                                                      color:
+                                                          Colors.grey.shade800,
                                                     ),
                                                   ],
                                                 ),
                                               ),
                                             ),
                                           ),
+                                  ],
+                                ),
+                                SizedBox(height: width * 0.025),
+
+                                // FOLLOW & CALL
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    // FOLLOW
+                                    Expanded(
+                                      flex: 3,
+                                      child: GestureDetector(
+                                        onTap: () async {
+                                          await followShop();
+                                          await getIfFollowing();
+                                        },
+                                        child: Container(
+                                          width: width * 0.6875,
+                                          height: 40,
+                                          alignment: Alignment.center,
+                                          decoration: BoxDecoration(
+                                            color: isFollowing
+                                                ? primary2.withOpacity(0.5)
+                                                : primary2.withOpacity(0.5),
+                                            border: Border.all(
+                                              color: isFollowing
+                                                  ? black
+                                                  : primary2.withOpacity(0.125),
+                                              width: 0.75,
+                                            ),
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                          margin: EdgeInsets.symmetric(
+                                            horizontal: width * 0.006125,
+                                          ),
+                                          child: Text(
+                                            isFollowing
+                                                ? 'Following'
+                                                : 'Follow',
+                                            style: TextStyle(
+                                              color: primaryDark,
+                                              fontWeight: isFollowing
+                                                  ? FontWeight.w500
+                                                  : FontWeight.normal,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+
+                                    // CALL
+                                    Expanded(
+                                      flex: 1,
+                                      child: GestureDetector(
+                                        onTap: () async {
+                                          await callVendor();
+                                        },
+                                        child: Container(
+                                          width: width * 0.25,
+                                          height: 40,
+                                          alignment: Alignment.center,
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: width * 0.00625,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: primary2.withOpacity(0.5),
+                                            border: Border.all(
+                                              color: primaryDark,
+                                              width: 0.25,
+                                            ),
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                          margin: EdgeInsets.symmetric(
+                                            horizontal: width * 0.006125,
+                                          ),
+                                          child: const Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceAround,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                'Call',
+                                                style: TextStyle(
+                                                  color: primaryDark,
+                                                ),
+                                              ),
+                                              Icon(FeatherIcons.phone),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                   ],
                                 ),
 
@@ -1577,7 +1588,6 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                     overflow: TextOverflow.ellipsis,
                                     'More Info',
                                     style: TextStyle(
-                                      fontWeight: FontWeight.w600,
                                       fontSize: width * 0.045,
                                     ),
                                   ),
@@ -1647,7 +1657,7 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                             CrossAxisAlignment.center,
                                         children: [
                                           const Text(
-                                            "Followers",
+                                            'Followers',
                                           ),
                                           Padding(
                                             padding: EdgeInsets.only(
@@ -1683,7 +1693,7 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                             CrossAxisAlignment.center,
                                         children: [
                                           const Text(
-                                            "Total Products",
+                                            'Total Products',
                                           ),
                                           Padding(
                                             padding: EdgeInsets.only(
@@ -1726,7 +1736,8 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                               right: width * 0.034,
                                             ),
                                             child: const Icon(
-                                                Icons.factory_outlined),
+                                              Icons.factory_outlined,
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -1743,7 +1754,8 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                       children: [
                                         Padding(
                                           padding: EdgeInsets.only(
-                                              left: width * 0.015),
+                                            left: width * 0.015,
+                                          ),
                                           child: SizedBox(
                                             width: width * 0.85,
                                             child: Align(
@@ -1756,7 +1768,8 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                         ),
                                         Padding(
                                           padding: EdgeInsets.only(
-                                              right: width * 0.04),
+                                            right: width * 0.04,
+                                          ),
                                           child: Icon(
                                             Icons.info_outline,
                                             size: width * 0.075,
@@ -1946,8 +1959,8 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                                   MaterialPageRoute(
                                                     builder: ((context) =>
                                                         AllCategoryPage(
-                                                          vendorId:
-                                                              widget.vendorId,
+                                                          categoryData:
+                                                              categories!,
                                                         )),
                                                   ),
                                                 );
@@ -1992,8 +2005,6 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                               builder: ((context) =>
                                                   CategoryPage(
                                                     categoryName: name,
-                                                    vendorType:
-                                                        shopData!['Type'],
                                                   )),
                                             ),
                                           );

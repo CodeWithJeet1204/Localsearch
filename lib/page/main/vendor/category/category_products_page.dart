@@ -1,14 +1,14 @@
 // ignore_for_file: unnecessary_null_comparison
 
 import 'dart:convert';
-import 'package:Localsearch_User/page/main/location_change_page.dart';
-import 'package:Localsearch_User/providers/location_provider.dart';
-import 'package:Localsearch_User/widgets/snack_bar.dart';
+import 'package:localsearch_user/page/main/location_change_page.dart';
+import 'package:localsearch_user/providers/location_provider.dart';
+import 'package:localsearch_user/widgets/snack_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:Localsearch_User/page/main/vendor/product/product_page.dart';
-import 'package:Localsearch_User/utils/colors.dart';
-import 'package:Localsearch_User/widgets/skeleton_container.dart';
-import 'package:Localsearch_User/widgets/video_tutorial.dart';
+import 'package:localsearch_user/page/main/vendor/product/product_page.dart';
+import 'package:localsearch_user/utils/colors.dart';
+import 'package:localsearch_user/widgets/skeleton_container.dart';
+import 'package:localsearch_user/widgets/video_tutorial.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
@@ -101,8 +101,6 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
         .limit(noOf)
         .get();
 
-    print('docs length: ${productsSnap.docs.length}');
-
     double? yourLatitude = locationProvider.cityLatitude;
     double? yourLongitude = locationProvider.cityLongitude;
 
@@ -117,7 +115,6 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
           'https://maps.googleapis.com/maps/api/distancematrix/json?origins=$startLat,$startLong&destinations=$endLat,$endLong&key=AIzaSyA-CD3MgDBzAsjmp_FlDbofynMMmW6fPsU';
       try {
         var response = await http.get(Uri.parse(url));
-        print('response status code: ${response.statusCode}');
         if (response.statusCode == 200) {
           final data = jsonDecode(response.body);
           if (data['rows'].isNotEmpty &&
@@ -137,7 +134,6 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
       yourLatitude = locationProvider.cityLatitude;
       yourLongitude = locationProvider.cityLongitude;
 
-      print('your location');
       await Future.forEach(
         productsSnap.docs,
         (productData) async {
@@ -163,11 +159,6 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
           final vendorLatitude = vendorData['Latitude'];
           final vendorLongitude = vendorData['Longitude'];
 
-          print('yourLatitude: $yourLatitude');
-          print('yourLongitude: $yourLongitude');
-          print('shopLatitude: $vendorLatitude');
-          print('shopLongitude: $vendorLongitude');
-
           if (yourLatitude != null && yourLongitude != null) {
             distance = await getDrivingDistance(
               yourLatitude,
@@ -175,8 +166,6 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
               vendorLatitude,
               vendorLongitude,
             );
-
-            print('distance: $distance');
           }
 
           if (distance != null) {

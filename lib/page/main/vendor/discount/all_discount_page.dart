@@ -3,12 +3,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:Localsearch_User/page/main/vendor/discount/discount_page.dart';
-import 'package:Localsearch_User/page/main/location_change_page.dart';
-import 'package:Localsearch_User/providers/location_provider.dart';
-import 'package:Localsearch_User/utils/colors.dart';
-import 'package:Localsearch_User/widgets/shimmer_skeleton_container.dart';
-import 'package:Localsearch_User/widgets/snack_bar.dart';
+import 'package:localsearch_user/page/main/vendor/discount/discount_page.dart';
+import 'package:localsearch_user/page/main/location_change_page.dart';
+import 'package:localsearch_user/providers/location_provider.dart';
+import 'package:localsearch_user/utils/colors.dart';
+import 'package:localsearch_user/widgets/shimmer_skeleton_container.dart';
+import 'package:localsearch_user/widgets/snack_bar.dart';
 import 'package:provider/provider.dart';
 
 class AllDiscountPage extends StatefulWidget {
@@ -61,7 +61,7 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
         .collection('Business')
         .doc('Data')
         .collection('Discounts')
-        .limit(noOfListView)
+        .limit(isGridView ? noOfGridView : noOfListView)
         .get();
 
     double? yourLatitude;
@@ -104,21 +104,9 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
 
           final discountId = discount.id;
           final Timestamp endDateTime = discountData['discountEndDateTime'];
-          final String vendorId = discountData['vendorId'];
+          final vendorLatitude = discountData['Latitude'];
+          final vendorLongitude = discountData['Longitude'];
           double? distance;
-
-          final vendorSnap = await store
-              .collection('Business')
-              .doc('Owners')
-              .collection('Shops')
-              .doc(vendorId)
-              .get();
-
-          final vendorData = vendorSnap.data()!;
-
-          final vendorName = vendorData['Name'];
-          final vendorLatitude = vendorData['Latitude'];
-          final vendorLongitude = vendorData['Longitude'];
 
           if (yourLatitude != null && yourLongitude != null) {
             distance = await getDrivingDistance(
@@ -133,7 +121,6 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
             if (distance * 0.925 < 5) {
               if (endDateTime.toDate().isAfter(DateTime.now())) {
                 discountData.addAll({
-                  'vendorName': vendorName,
                   'distance': distance,
                 });
                 myDiscounts[discountId] = discountData;
@@ -143,11 +130,13 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
         },
       );
 
-      setState(() {
-        currentDiscounts = myDiscounts;
-        allDiscounts = myDiscounts;
-        isData = true;
-      });
+      if (mounted) {
+        setState(() {
+          currentDiscounts = myDiscounts;
+          allDiscounts = myDiscounts;
+          isData = true;
+        });
+      }
     } else {
       try {
         await Future.forEach(
@@ -157,68 +146,11 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
 
             final discountId = discount.id;
             final Timestamp endDateTime = discountData['discountEndDateTime'];
-            final String vendorId = discountData['vendorId'];
+            final cityName = discountData['City'];
 
-            final vendorSnap = await store
-                .collection('Business')
-                .doc('Owners')
-                .collection('Shops')
-                .doc(vendorId)
-                .get();
-
-            final vendorData = vendorSnap.data()!;
-
-            final vendorName = vendorData['Name'];
-            final vendorLatitude = vendorData['Latitude'];
-            final vendorLongitude = vendorData['Longitude'];
-
-            final url =
-                'https://maps.googleapis.com/maps/api/geocode/json?latlng=$vendorLatitude,$vendorLongitude&key=AIzaSyA-CD3MgDBzAsjmp_FlDbofynMMmW6fPsU';
-
-            final response = await http.get(Uri.parse(url));
-
-            if (response.statusCode == 200) {
-              final data = json.decode(response.body);
-              String? name;
-
-              if (data['status'] == 'OK') {
-                for (var result in data['results']) {
-                  for (var component in result['address_components']) {
-                    if (component['types'].contains('locality')) {
-                      name = component['long_name'];
-                      break;
-                    } else if (component['types'].contains('sublocality')) {
-                      name = component['long_name'];
-                    } else if (component['types'].contains('neighborhood')) {
-                      name = component['long_name'];
-                    } else if (component['types'].contains('route')) {
-                      name = component['long_name'];
-                    } else if (component['types']
-                        .contains('administrative_area_level_3')) {
-                      name = component['long_name'];
-                    }
-                  }
-                  if (name != null) break;
-                }
-
-                if (name == locationProvider.cityName) {
-                  if (endDateTime.toDate().isAfter(DateTime.now())) {
-                    await getDrivingDistance(
-                      yourLatitude!,
-                      yourLongitude!,
-                      vendorLatitude,
-                      vendorLongitude,
-                    ).then(
-                      (distance) {
-                        discountData.addAll({
-                          'vendorName': vendorName,
-                          'distance': distance,
-                        });
-                        myDiscounts[discountId] = discountData;
-                      },
-                    );
-                  }
-                }
+            if (cityName == locationProvider.cityName) {
+              if (endDateTime.toDate().isAfter(DateTime.now())) {
+                myDiscounts[discountId] = discountData;
               }
             }
           },
@@ -320,8 +252,7 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          overflow: TextOverflow.ellipsis,
-          'ALL DISCOUNTS',
+          'All Discounts',
         ),
         bottom: PreferredSize(
           preferredSize: Size(width, width * 0.2),
@@ -369,7 +300,9 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
                             filteredDiscounts.remove(key);
                           }
 
-                          currentDiscounts = filteredDiscounts;
+                          setState(() {
+                            currentDiscounts = filteredDiscounts;
+                          });
                         }
                       });
                     },
@@ -411,7 +344,8 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
                   child: GridViewSkeleton(
                     width: width,
                     isPrice: true,
-                    isDelete: true,
+                    isDelete: false,
+                    isDiscount: true,
                   ),
                 );
               },
@@ -421,8 +355,8 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
                 padding: EdgeInsets.all(width * 0.006125),
                 child: LayoutBuilder(
                   builder: ((context, constraints) {
-                    double width = constraints.maxWidth;
-                    double height = constraints.maxHeight;
+                    final width = constraints.maxWidth;
+                    final height = constraints.maxHeight;
 
                     return NotificationListener<ScrollNotification>(
                       onNotification: (ScrollNotification scrollInfo) {
@@ -501,7 +435,11 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
                                           value: distanceRange,
                                           activeColor: primaryDark,
                                           inactiveColor: const Color.fromRGBO(
-                                              197, 243, 255, 1),
+                                            197,
+                                            243,
+                                            255,
+                                            1,
+                                          ),
                                           onChanged: (newValue) {
                                             setState(() {
                                               isData = false;
@@ -567,7 +505,7 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
                                           gridDelegate:
                                               const SliverGridDelegateWithFixedCrossAxisCount(
                                             crossAxisCount: 1,
-                                            childAspectRatio: 16 / 10,
+                                            childAspectRatio: 16 / 11,
                                           ),
                                           itemCount: currentDiscounts.length,
                                           itemBuilder: ((context, index) {
@@ -595,8 +533,7 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
                                               },
                                               child: Container(
                                                 decoration: BoxDecoration(
-                                                  color: primary2
-                                                      .withOpacity(0.125),
+                                                  color: white,
                                                   border: Border.all(
                                                     width: 0.25,
                                                     color: primaryDark,
@@ -605,7 +542,8 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
                                                       BorderRadius.circular(2),
                                                 ),
                                                 margin: EdgeInsets.all(
-                                                    width * 0.00625),
+                                                  width * 0.00625,
+                                                ),
                                                 child: Column(
                                                   crossAxisAlignment:
                                                       CrossAxisAlignment.start,
@@ -695,9 +633,6 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
                                                                   primaryDark,
                                                               fontSize:
                                                                   width * 0.06,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w600,
                                                             ),
                                                           ),
                                                         ),
@@ -735,9 +670,6 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
                                                                   fontSize:
                                                                       width *
                                                                           0.045,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w500,
                                                                 ),
                                                               ),
                                                             ),
@@ -803,9 +735,6 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
                                                                   fontSize:
                                                                       width *
                                                                           0.045,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w500,
                                                                 ),
                                                               ),
                                                             ),
@@ -970,9 +899,6 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
                                                                   fontSize:
                                                                       width *
                                                                           0.035,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w500,
                                                                 ),
                                                               ),
                                                             ),
@@ -1038,9 +964,6 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
                                                                   fontSize:
                                                                       width *
                                                                           0.035,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w500,
                                                                 ),
                                                               ),
                                                             ),

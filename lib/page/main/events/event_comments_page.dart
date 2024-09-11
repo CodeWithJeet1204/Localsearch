@@ -2,8 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:Localsearch_User/utils/colors.dart';
-import 'package:Localsearch_User/widgets/skeleton_container.dart';
+import 'package:localsearch_user/utils/colors.dart';
+import 'package:localsearch_user/widgets/skeleton_container.dart';
 import 'package:uuid/uuid.dart';
 
 class EventCommentsPage extends StatefulWidget {
@@ -276,7 +276,7 @@ class _EventCommentsPageState extends State<EventCommentsPage> {
                           ),
                           color: Colors.red,
                           iconSize: width * 0.066,
-                          tooltip: "Delete Comment",
+                          tooltip: 'Delete Comment',
                         )
                       : Container(),
                 ],
@@ -360,7 +360,7 @@ class _EventCommentsPageState extends State<EventCommentsPage> {
                       builder: (context, snapshot) {
                         if (snapshot.hasError) {
                           return const Center(
-                            child: Text("Something Went Wrong"),
+                            child: Text('Something Went Wrong'),
                           );
                         }
 
@@ -504,7 +504,7 @@ class _EventCommentsPageState extends State<EventCommentsPage> {
                                                           iconSize:
                                                               width * 0.066,
                                                           tooltip:
-                                                              "Delete Comment",
+                                                              'Delete Comment',
                                                         ),
 
                                                   // REPLY
@@ -531,7 +531,7 @@ class _EventCommentsPageState extends State<EventCommentsPage> {
                                                     ),
                                                     color: primaryDark2,
                                                     iconSize: width * 0.066,
-                                                    tooltip: "Reply",
+                                                    tooltip: 'Reply',
                                                   ),
                                                 ],
                                               ),

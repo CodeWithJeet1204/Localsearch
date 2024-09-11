@@ -1,13 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
-import 'package:Localsearch_User/page/auth/login_page.dart';
-import 'package:Localsearch_User/page/main/vendor/profile/followed_page.dart';
-import 'package:Localsearch_User/page/main/vendor/profile/user_details_page.dart';
-import 'package:Localsearch_User/page/main/vendor/profile/wishlist_page.dart';
-import 'package:Localsearch_User/utils/colors.dart';
-import 'package:Localsearch_User/widgets/small_text_container.dart';
-import 'package:Localsearch_User/widgets/snack_bar.dart';
-import 'package:Localsearch_User/widgets/video_tutorial.dart';
+import 'package:localsearch_user/page/auth/login_page.dart';
+import 'package:localsearch_user/page/main/vendor/profile/followed_page.dart';
+import 'package:localsearch_user/page/main/vendor/profile/user_details_page.dart';
+import 'package:localsearch_user/page/main/vendor/profile/wishlist_page.dart';
+import 'package:localsearch_user/utils/colors.dart';
+import 'package:localsearch_user/widgets/small_text_container.dart';
+import 'package:localsearch_user/widgets/snack_bar.dart';
+import 'package:localsearch_user/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -23,10 +23,13 @@ class _ProfilePageState extends State<ProfilePage> {
   final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
   String? name;
+  bool canReview = false;
+  bool hasReviewed = true;
 
   // INIT STATE
   @override
   void initState() {
+    getHasReviewed();
     super.initState();
     getData();
   }
@@ -63,6 +66,25 @@ class _ProfilePageState extends State<ProfilePage> {
         mySnackBar(e.toString(), context);
       }
     }
+  }
+
+  // GET HAS REVIEWED
+  Future<void> getHasReviewed() async {
+    final userSnap =
+        await store.collection('Users').doc(auth.currentUser!.uid).get();
+
+    final userData = userSnap.data()!;
+
+    final myHasReviewed = userData['hasReviewed'];
+    final hasReviewedIndex = userData['hasReviewedIndex'];
+
+    setState(() {
+      hasReviewed = myHasReviewed;
+    });
+
+    await store.collection('Users').doc(auth.currentUser!.uid).update({
+      'hasReviewedIndex': hasReviewedIndex + 1,
+    });
   }
 
   @override
@@ -197,6 +219,60 @@ class _ProfilePageState extends State<ProfilePage> {
 
                     Divider(),
 
+                    // RATE THIS APP
+                    hasReviewed
+                        ? Container()
+                        : Padding(
+                            padding: EdgeInsets.all(width * 0.0225),
+                            child: InkWell(
+                              onTap: () async {
+                                await store
+                                    .collection('Users')
+                                    .doc(auth.currentUser!.uid)
+                                    .update({
+                                  'hasReviewed': true,
+                                });
+
+                                const url =
+                                    'https://play.google.com/store/apps/details?id=com.localsearchuser.package';
+                                if (await canLaunchUrl(Uri.parse(url))) {
+                                  await launchUrl(Uri.parse(url));
+                                } else {
+                                  return mySnackBar(
+                                    'Some error occured, Try Again Later',
+                                    context,
+                                  );
+                                }
+                              },
+                              customBorder: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Padding(
+                                padding: EdgeInsets.all(width * 0.0225),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Rate This App',
+                                      style: TextStyle(
+                                        fontSize: width * 0.0425,
+                                        color: primaryDark,
+                                      ),
+                                    ),
+                                    Icon(
+                                      Icons.star,
+                                      size: width * 0.075,
+                                      color: Colors.yellow,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+
+                    // CALL HELPLINE
                     InkWell(
                       onTap: () async {
                         final helplineSnap = await store

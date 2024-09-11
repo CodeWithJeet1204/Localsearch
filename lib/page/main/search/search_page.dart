@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
-import 'package:Localsearch_User/page/main/vendor/product/product_page.dart';
-import 'package:Localsearch_User/page/main/search/search_results_page.dart';
-import 'package:Localsearch_User/page/main/search/top_searches_page.dart';
-import 'package:Localsearch_User/utils/colors.dart';
-import 'package:Localsearch_User/widgets/search_bar.dart';
-import 'package:Localsearch_User/widgets/text_button.dart';
+import 'package:localsearch_user/page/main/vendor/product/product_page.dart';
+import 'package:localsearch_user/page/main/search/search_results_page.dart';
+import 'package:localsearch_user/page/main/search/top_searches_page.dart';
+import 'package:localsearch_user/utils/colors.dart';
+import 'package:localsearch_user/widgets/search_bar.dart';
+import 'package:localsearch_user/widgets/text_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 

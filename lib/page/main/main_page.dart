@@ -1,16 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:Localsearch_User/page/auth/login_page.dart';
-import 'package:Localsearch_User/page/auth/register_details_page.dart';
-import 'package:Localsearch_User/page/auth/verify/email_verify.dart';
-import 'package:Localsearch_User/page/main/vendor/home/product_home_page.dart';
-import 'package:Localsearch_User/page/main/vendor/home/product_scroll_page.dart';
-import 'package:Localsearch_User/page/main/vendor/profile/profile_page.dart';
-import 'package:Localsearch_User/page/main/vendor/shorts_page.dart';
-import 'package:Localsearch_User/utils/colors.dart';
-// import 'package:Localsearch_User/utils/notification_handler.dart';
-import 'package:Localsearch_User/widgets/snack_bar.dart';
+import 'package:localsearch_user/page/auth/login_page.dart';
+import 'package:localsearch_user/page/auth/register_details_page.dart';
+import 'package:localsearch_user/page/auth/verify/email_verify.dart';
+import 'package:localsearch_user/page/main/vendor/home/product_home_page.dart';
+import 'package:localsearch_user/page/main/vendor/home/product_scroll_page.dart';
+import 'package:localsearch_user/page/main/vendor/profile/profile_page.dart';
+import 'package:localsearch_user/page/main/vendor/shorts_page.dart';
+import 'package:localsearch_user/utils/colors.dart';
+// import 'package:localsearch_user/utils/notification_handler.dart';
+import 'package:localsearch_user/widgets/snack_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -167,11 +167,11 @@ class _MainPageState extends State<MainPage> {
               ),
               BottomNavigationBarItem(
                 icon: Icon(
-                  FeatherIcons.box,
+                  FeatherIcons.compass,
                 ),
-                activeIcon: Icon(FeatherIcons.box),
-                label: 'Products',
-                tooltip: 'PRODUCTS',
+                activeIcon: Icon(FeatherIcons.compass),
+                label: 'Posts',
+                tooltip: 'POSTS',
               ),
               BottomNavigationBarItem(
                 icon: Icon(

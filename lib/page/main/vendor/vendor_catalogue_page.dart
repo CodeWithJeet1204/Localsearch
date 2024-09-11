@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:Localsearch_User/models/household_type_category_subCategory.dart';
-import 'package:Localsearch_User/widgets/snack_bar.dart';
+import 'package:localsearch_user/widgets/snack_bar.dart';
 
 class VendorCataloguePage extends StatefulWidget {
   const VendorCataloguePage({
@@ -36,12 +35,21 @@ class _VendorCataloguePageState extends State<VendorCataloguePage> {
 
       final Map<String, Map<String, List<String>>> tempCategorizedProducts = {};
 
+      final catalogueSnap = await store
+          .collection('Shop Types And Category Data')
+          .doc('Catalogue')
+          .get();
+
+      final catalogueData = catalogueSnap.data()!;
+
+      final catalogue = catalogueData['catalogueData'];
+
       for (String product in fetchedProducts) {
         String? category;
         String? shopType;
 
-        for (var type in householdTypeCategorySubCategory.keys) {
-          final categories = householdTypeCategorySubCategory[type];
+        for (var type in catalogue.keys) {
+          final categories = catalogue[type];
           if (categories != null) {
             for (var cat in categories.keys) {
               if (categories[cat]!.contains(product)) {

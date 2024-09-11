@@ -1,12 +1,10 @@
-import 'package:Localsearch_User/models/household_type_category_subCategory.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:Localsearch_User/page/main/vendor/product/product_page.dart';
-import 'package:Localsearch_User/utils/colors.dart';
-import 'package:Localsearch_User/widgets/skeleton_container.dart';
-import 'package:Localsearch_User/widgets/video_tutorial.dart';
+import 'package:localsearch_user/page/main/vendor/product/product_page.dart';
+import 'package:localsearch_user/utils/colors.dart';
+import 'package:localsearch_user/widgets/skeleton_container.dart';
+import 'package:localsearch_user/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 
 class WishlistPage extends StatefulWidget {
   const WishlistPage({super.key});
@@ -15,17 +13,14 @@ class WishlistPage extends StatefulWidget {
   State<WishlistPage> createState() => _WishlistPageState();
 }
 
-class _WishlistPageState extends State<WishlistPage>
-    with TickerProviderStateMixin {
+class _WishlistPageState extends State<WishlistPage> {
   final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
   Map<String, List<dynamic>> wishlistProducts = {};
-  // Map<String, Map<String, dynamic>> events = {};
-  List types = [];
   String? selectedCategory;
-  String? selectedType;
-  List categories = ['Pens'];
-  bool getProductsData = false;
+  List categories = [];
+  bool isData = false;
+  // Map<String, Map<String, dynamic>> events = {};
   // bool getEventsData = false;
   // late TabController tabController;
   // late int currentIndex;
@@ -86,84 +81,85 @@ class _WishlistPageState extends State<WishlistPage>
 
     final myWishlists = userData['wishlists'] as List;
 
-    await Future.forEach(myWishlists, (productId) async {
-      final productSnap = await store
-          .collection('Business')
-          .doc('Data')
-          .collection('Products')
-          .doc(productId)
-          .get();
-
-      if (productSnap.exists) {
-        final productData = productSnap.data()!;
-        final id = productId as String;
-        final name = productData['productName'] as String;
-        final imageUrl = productData['images'][0] as String;
-        final price = productData['productPrice'] as String;
-        final productCategoryName = productData['categoryName'] as String;
-        final vendorId = productData['vendorId'];
-
-        final vendorSnap = await store
+    await Future.forEach(
+      myWishlists,
+      (productId) async {
+        final productSnap = await store
             .collection('Business')
-            .doc('Owners')
-            .collection('Shops')
-            .doc(vendorId)
+            .doc('Data')
+            .collection('Products')
+            .doc(productId)
             .get();
 
-        final vendorData = vendorSnap.data()!;
+        if (productSnap.exists) {
+          final productData = productSnap.data()!;
+          final id = productId as String;
+          final name = productData['productName'];
+          final imageUrl = productData['images'][0];
+          final price = productData['productPrice'];
+          final productCategoryName = productData['categoryName'];
+          final vendorId = productData['vendorId'];
 
-        final List shopType = vendorData['Type'];
+          final vendorSnap = await store
+              .collection('Business')
+              .doc('Owners')
+              .collection('Shops')
+              .doc(vendorId)
+              .get();
 
-        if (productCategoryName != '0') {
-          for (var type in shopType) {
-            if (householdTypeCategorySubCategory[type]!
-                .containsKey([productCategoryName])) {
-              final categorySnap = await store
-                  .collection('Business')
-                  .doc('Special Categories')
-                  .collection(type)
-                  .doc(productCategoryName)
-                  .get();
+          final vendorData = vendorSnap.data()!;
 
-              if (categorySnap.exists) {
-                final categoryData = categorySnap.data()!;
+          final List shopTypes = vendorData['Type'];
 
-                final categoryName = categoryData['specialCategoryName'];
+          if (productCategoryName != '0') {
+            final categoriesSnap = await store
+                .collection('Shop Types And Category Data')
+                .doc('Category Data')
+                .get();
 
-                if (!categories.contains(categoryName)) {
-                  categories.add(categoryName);
-                }
-                wishlist[id] = [
-                  name,
-                  imageUrl,
-                  price,
-                  categoryName,
-                  productData,
-                ];
+            final categoriesData = categoriesSnap.data()!;
+
+            final householdCategories = categoriesData['householdCategoryData'];
+
+            householdCategories.forEach((shopType, categoryData) {
+              if (shopTypes.contains(shopType)) {
+                categoryData.forEach((categoryName, categoryImage) {
+                  if (categoryName == productCategoryName &&
+                      !categories.contains(categoryName)) {
+                    categories.add(categoryName);
+                    wishlist[id] = [
+                      name,
+                      imageUrl,
+                      price,
+                      categoryName,
+                      productData,
+                    ];
+                  }
+                });
               }
-            }
+            });
+          } else {
+            wishlist[id] = [
+              name,
+              imageUrl,
+              price,
+              '0',
+              productData,
+            ];
           }
         } else {
-          wishlist[id] = [
-            name,
-            imageUrl,
-            price,
-            '0',
-            productData,
-          ];
-        }
-      } else {
-        myWishlists.remove(productId);
+          myWishlists.remove(productId);
 
-        await store.collection('Users').doc(auth.currentUser!.uid).update({
-          'wishlists': myWishlists,
-        });
-      }
-    });
+          await store.collection('Users').doc(auth.currentUser!.uid).update({
+            'wishlists': myWishlists,
+          });
+        }
+      },
+    );
 
     setState(() {
       wishlistProducts = wishlist;
-      getProductsData = true;
+      isData = true;
     });
   }
 
@@ -219,7 +215,12 @@ class _WishlistPageState extends State<WishlistPage>
     //     'wishlistEvents': events.keys.toList(),
     //   });
     // } else {
+    setState(() {
+      isData = false;
+    });
+
     wishlistProducts.removeWhere((key, value) => key == id);
+    categories = [];
 
     await store.collection('Users').doc(auth.currentUser!.uid).update({
       'wishlists': wishlistProducts.keys.toList(),
@@ -245,6 +246,23 @@ class _WishlistPageState extends State<WishlistPage>
                   '',
                 ),
               );
+
+              // final Map<String, dynamic> householdCategories = {};
+
+              // householdSubCategories.forEach((shopType, shopTypeData) {
+              //   shopTypeData.forEach((categoryName, categoryImageUrl) {
+              //     householdCategories.addAll({
+              //       categoryName: categoryImageUrl,
+              //     });
+              //   });
+              // });
+
+              // await store
+              //     .collection('Shop Types And Category Data')
+              //     .doc('Just Category Data')
+              //     .update({
+              //   'householdCategories': householdCategories,
+              // });
             },
             icon: const Icon(
               Icons.question_mark_outlined,
@@ -252,7 +270,6 @@ class _WishlistPageState extends State<WishlistPage>
             tooltip: 'Help',
           ),
         ],
-        forceMaterialTransparency: true,
         // bottom: PreferredSize(
         //   preferredSize: Size(
         //     MediaQuery.of(context).size.width,
@@ -310,259 +327,236 @@ class _WishlistPageState extends State<WishlistPage>
           controller: tabController,
           physics: const NeverScrollableScrollPhysics(),
           children: [*/
-            // PRODUCTS
-            !getProductsData
-                ? Column(
-                    children: [
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width,
-                        height: MediaQuery.of(context).size.width * 0.175,
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: 4,
-                          scrollDirection: Axis.horizontal,
-                          physics: const ClampingScrollPhysics(),
-                          itemBuilder: ((context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.all(8),
-                              child: SkeletonContainer(
-                                width: (MediaQuery.of(context).size.width * 0.3)
-                                    .toDouble(),
-                                height: 40,
-                              ),
-                            );
-                          }),
-                        ),
-                      ),
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width,
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: 4,
-                          physics: const ClampingScrollPhysics(),
-                          itemBuilder: ((context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.all(8),
-                              child: SkeletonContainer(
-                                width: MediaQuery.of(context).size.width,
-                                height: 80,
-                              ),
-                            );
-                          }),
-                        ),
-                      ),
-                    ],
-                  )
-                : Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: MediaQuery.of(context).size.width * 0.00625,
-                    ),
-                    child: LayoutBuilder(
-                      builder: ((context, constraints) {
-                        final width = constraints.maxWidth;
-                        final currentWishlists = selectedCategory == null
-                            ? wishlistProducts
-                            : Map.fromEntries(
-                                wishlistProducts.entries.where((entry) =>
-                                    entry.value[3] == selectedCategory),
-                              );
 
-                        return SingleChildScrollView(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // CATEGORY CHIPS
-                              categories.length < 2
-                                  ? Container()
-                                  : Padding(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: width * 0.0125,
-                                        vertical: width * 0.00625,
-                                      ),
-                                      child: SizedBox(
-                                        width: width,
-                                        height: 40,
-                                        child: ListView.builder(
-                                          shrinkWrap: true,
-                                          scrollDirection: Axis.horizontal,
-                                          physics:
-                                              const ClampingScrollPhysics(),
-                                          itemCount: categories.length,
-                                          itemBuilder: ((context, index) {
-                                            final category = categories[index];
-
-                                            return Padding(
-                                              padding: EdgeInsets.symmetric(
-                                                horizontal: width * 0.01,
-                                              ),
-                                              child: ActionChip(
-                                                label: Text(
-                                                  category,
-                                                  style: TextStyle(
-                                                    color: selectedCategory ==
-                                                            category
-                                                        ? white
-                                                        : primaryDark,
-                                                  ),
-                                                ),
-                                                tooltip: 'See $category',
-                                                onPressed: () {
-                                                  setState(() {
-                                                    if (selectedCategory ==
-                                                        category) {
-                                                      selectedCategory = null;
-                                                    } else {
-                                                      selectedCategory =
-                                                          category;
-                                                    }
-                                                  });
-                                                },
-                                                backgroundColor:
-                                                    selectedCategory == category
-                                                        ? primaryDark
-                                                        : primary2,
-                                              ),
-                                            );
-                                          }),
-                                        ),
-                                      ),
-                                    ),
-
-                              currentWishlists.isEmpty
-                                  ? const SizedBox(
-                                      height: 80,
-                                      child: Center(
-                                        child: Text(
-                                          'No Products',
-                                        ),
-                                      ),
-                                    )
-                                  : Padding(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: width * 0.0125,
-                                        vertical: width * 0.0125,
-                                      ),
-                                      child: SizedBox(
-                                        width: width,
-                                        child: ListView.builder(
-                                          shrinkWrap: true,
-                                          physics:
-                                              const ClampingScrollPhysics(),
-                                          itemCount:
-                                              noOf > currentWishlists.length
-                                                  ? currentWishlists.length
-                                                  : noOf,
-                                          itemBuilder: ((context, index) {
-                                            final id = currentWishlists.keys
-                                                .toList()[index];
-                                            final name = currentWishlists.values
-                                                .toList()[index][0];
-                                            final imageUrl = currentWishlists
-                                                .values
-                                                .toList()[index][1];
-                                            final price = currentWishlists
-                                                .values
-                                                .toList()[index][2];
-                                            final data = currentWishlists.values
-                                                .toList()[index][4];
-
-                                            return Slidable(
-                                              endActionPane: ActionPane(
-                                                extentRatio: 0.325,
-                                                motion: const StretchMotion(),
-                                                children: [
-                                                  SlidableAction(
-                                                    onPressed: (context) async {
-                                                      await remove(
-                                                        id /*, false*/,
-                                                      );
-                                                    },
-                                                    backgroundColor: Colors.red,
-                                                    icon: Icons
-                                                        .heart_broken_outlined,
-                                                    label: 'Remove',
-                                                    borderRadius:
-                                                        const BorderRadius.only(
-                                                      topRight:
-                                                          Radius.circular(12),
-                                                      bottomRight:
-                                                          Radius.circular(12),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              child: Padding(
-                                                padding: EdgeInsets.symmetric(
-                                                  vertical: width * 0.0125,
-                                                ),
-                                                child: GestureDetector(
-                                                  onTap: () {
-                                                    Navigator.of(context).push(
-                                                      MaterialPageRoute(
-                                                        builder: ((context) =>
-                                                            ProductPage(
-                                                              productData: data,
-                                                            )),
-                                                      ),
-                                                    );
-                                                  },
-                                                  child: ListTile(
-                                                    splashColor: white,
-                                                    visualDensity: VisualDensity
-                                                        .comfortable,
-                                                    tileColor: primary2
-                                                        .withOpacity(0.5),
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                        12,
-                                                      ),
-                                                    ),
-                                                    leading: CircleAvatar(
-                                                      backgroundColor: primary2,
-                                                      backgroundImage:
-                                                          NetworkImage(
-                                                        imageUrl,
-                                                      ),
-                                                    ),
-                                                    title: Text(
-                                                      name,
-                                                      maxLines: 2,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                    ),
-                                                    subtitle: Text(
-                                                      price == ''
-                                                          ? 'Rs. --'
-                                                          : 'Rs. $price',
-                                                      maxLines: 2,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                    ),
-                                                    titleTextStyle: TextStyle(
-                                                      color: primaryDark,
-                                                      fontSize: width * 0.0475,
-                                                    ),
-                                                    subtitleTextStyle:
-                                                        TextStyle(
-                                                      color: primaryDark2,
-                                                      fontSize: width * 0.04,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            );
-                                          }),
-                                        ),
-                                      ),
-                                    ),
-                            ],
+            Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: MediaQuery.of(context).size.width * 0.0125,
+              ),
+              child: LayoutBuilder(
+                builder: ((context, constraints) {
+                  final width = constraints.maxWidth;
+                  final currentWishlists = selectedCategory == null
+                      ? wishlistProducts
+                      : Map.fromEntries(
+                          wishlistProducts.entries.where(
+                            (entry) => entry.value[3] == selectedCategory,
                           ),
                         );
-                      }),
+
+                  return SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // CATEGORY CHIPS
+                        !isData
+                            ? SizedBox(
+                                width: MediaQuery.of(context).size.width,
+                                height:
+                                    MediaQuery.of(context).size.width * 0.175,
+                                child: ListView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: 4,
+                                  scrollDirection: Axis.horizontal,
+                                  physics: const ClampingScrollPhysics(),
+                                  itemBuilder: ((context, index) {
+                                    return Padding(
+                                      padding: const EdgeInsets.all(8),
+                                      child: SkeletonContainer(
+                                        width:
+                                            (MediaQuery.of(context).size.width *
+                                                    0.3)
+                                                .toDouble(),
+                                        height: 40,
+                                      ),
+                                    );
+                                  }),
+                                ),
+                              )
+                            : categories.length < 2
+                                ? Container()
+                                : Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: width * 0.0125,
+                                      vertical: width * 0.00625,
+                                    ),
+                                    child: SizedBox(
+                                      width: width,
+                                      height: 40,
+                                      child: ListView.builder(
+                                        shrinkWrap: true,
+                                        scrollDirection: Axis.horizontal,
+                                        physics: const ClampingScrollPhysics(),
+                                        itemCount: categories.length,
+                                        itemBuilder: ((context, index) {
+                                          final category = categories[index];
+
+                                          return Padding(
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: width * 0.01,
+                                            ),
+                                            child: ActionChip(
+                                              label: Text(
+                                                category,
+                                                style: TextStyle(
+                                                  color: selectedCategory ==
+                                                          category
+                                                      ? white
+                                                      : primaryDark,
+                                                ),
+                                              ),
+                                              tooltip: 'See $category',
+                                              onPressed: () {
+                                                setState(() {
+                                                  if (selectedCategory ==
+                                                      category) {
+                                                    selectedCategory = null;
+                                                  } else {
+                                                    selectedCategory = category;
+                                                  }
+                                                });
+                                              },
+                                              backgroundColor:
+                                                  selectedCategory == category
+                                                      ? primaryDark
+                                                      : primary2,
+                                            ),
+                                          );
+                                        }),
+                                      ),
+                                    ),
+                                  ),
+
+                        !isData
+                            ? SizedBox(
+                                width: MediaQuery.of(context).size.width,
+                                child: ListView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: 4,
+                                  physics: const ClampingScrollPhysics(),
+                                  itemBuilder: ((context, index) {
+                                    return Padding(
+                                      padding: const EdgeInsets.all(8),
+                                      child: SkeletonContainer(
+                                        width:
+                                            MediaQuery.of(context).size.width,
+                                        height: 80,
+                                      ),
+                                    );
+                                  }),
+                                ),
+                              )
+                            : currentWishlists.isEmpty
+                                ? const SizedBox(
+                                    height: 80,
+                                    child: Center(
+                                      child: Text(
+                                        'No Products',
+                                      ),
+                                    ),
+                                  )
+                                : SizedBox(
+                                    width: width,
+                                    child: ListView.builder(
+                                      shrinkWrap: true,
+                                      physics: const ClampingScrollPhysics(),
+                                      itemCount: noOf > currentWishlists.length
+                                          ? currentWishlists.length
+                                          : noOf,
+                                      itemBuilder: ((context, index) {
+                                        final id = currentWishlists.keys
+                                            .toList()[index];
+                                        final name = currentWishlists.values
+                                            .toList()[index][0];
+                                        final imageUrl = currentWishlists.values
+                                            .toList()[index][1];
+                                        final price = currentWishlists.values
+                                            .toList()[index][2];
+                                        final data = currentWishlists.values
+                                            .toList()[index][4];
+
+                                        return Padding(
+                                          padding: EdgeInsets.symmetric(
+                                            vertical: width * 0.0125,
+                                          ),
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                  builder: ((context) =>
+                                                      ProductPage(
+                                                        productData: data,
+                                                      )),
+                                                ),
+                                              );
+                                            },
+                                            child: ListTile(
+                                              splashColor: white,
+                                              visualDensity:
+                                                  VisualDensity.comfortable,
+                                              tileColor: white,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                  8,
+                                                ),
+                                                side: BorderSide(
+                                                  color: primaryDark
+                                                      .withOpacity(0.5),
+                                                ),
+                                              ),
+                                              leading: CircleAvatar(
+                                                backgroundColor: primary2,
+                                                backgroundImage: NetworkImage(
+                                                  imageUrl,
+                                                ),
+                                              ),
+                                              title: Text(
+                                                name,
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                              subtitle: Text(
+                                                'Rs. $price',
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                              titleTextStyle: TextStyle(
+                                                color: primaryDark,
+                                                fontSize: width * 0.0475,
+                                              ),
+                                              subtitleTextStyle: TextStyle(
+                                                color: primaryDark2,
+                                                fontSize: width * 0.04,
+                                              ),
+                                              trailing: IconButton(
+                                                onPressed: () async {
+                                                  await remove(
+                                                    id /*, false*/,
+                                                  );
+                                                },
+                                                icon: Icon(
+                                                  Icons.heart_broken,
+                                                  color: Colors.red,
+                                                ),
+                                                color: Colors.red,
+                                                tooltip: 'Remove',
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      }),
+                                    ),
+                                  ),
+                      ],
                     ),
-                  ),
+                  );
+                }),
+              ),
+            ),
+          ],
+        ),
 
         // EVENTS
         // !getEventsData

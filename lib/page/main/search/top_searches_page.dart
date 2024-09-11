@@ -1,7 +1,7 @@
 import 'package:feather_icons/feather_icons.dart';
-import 'package:Localsearch_User/page/main/search/search_results_page.dart';
-import 'package:Localsearch_User/utils/colors.dart';
-import 'package:Localsearch_User/widgets/video_tutorial.dart';
+import 'package:localsearch_user/page/main/search/search_results_page.dart';
+import 'package:localsearch_user/utils/colors.dart';
+import 'package:localsearch_user/widgets/video_tutorial.dart';
 import 'package:flutter/material.dart';
 
 class TopSearchPage extends StatefulWidget {

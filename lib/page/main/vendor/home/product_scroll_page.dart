@@ -1,11 +1,11 @@
-import 'package:Localsearch_User/page/main/vendor/product/product_page.dart';
-import 'package:Localsearch_User/widgets/post_skeleton_container.dart';
+import 'package:localsearch_user/page/main/vendor/product/product_page.dart';
+import 'package:localsearch_user/widgets/post_skeleton_container.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
-import 'package:Localsearch_User/page/main/vendor/vendor_page.dart';
-import 'package:Localsearch_User/utils/colors.dart';
-import 'package:Localsearch_User/widgets/video_tutorial.dart';
+import 'package:localsearch_user/page/main/vendor/vendor_page.dart';
+import 'package:localsearch_user/utils/colors.dart';
+import 'package:localsearch_user/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -48,7 +48,6 @@ class _ProductsScrollPageState extends State<ProductsScrollPage> {
     if (total != null && noOf < total!) {
       if (scrollController.position.pixels ==
           scrollController.position.maxScrollExtent) {
-        print('increasing');
         setState(() {
           isLoadMore = true;
         });
@@ -94,7 +93,7 @@ class _ProductsScrollPageState extends State<ProductsScrollPage> {
       final String productId = productData['productId'];
       final String name = productData['productName'];
       final List? imageUrl = productData['images'];
-      final String price = productData['productPrice'];
+      final price = productData['productPrice'];
       final Map<String, dynamic> wishlistsTimestamp =
           productData['productWishlistTimestamp'];
       final String vendorId = productData['vendorId'];
@@ -282,7 +281,7 @@ class _ProductsScrollPageState extends State<ProductsScrollPage> {
                               .toList()[isLoadMore ? index - 1 : index][0];
                           final List? imageUrl = products.values
                               .toList()[isLoadMore ? index - 1 : index][1];
-                          final String? price = products.values
+                          final price = products.values
                               .toList()[isLoadMore ? index - 1 : index][2];
                           final String vendorId = products.values
                               .toList()[isLoadMore ? index - 1 : index][3];
@@ -524,9 +523,7 @@ class _ProductsScrollPageState extends State<ProductsScrollPage> {
                                                   child: SizedBox(
                                                     width: width * 0.75,
                                                     child: Text(
-                                                      price == ''
-                                                          ? 'Rs. --'
-                                                          : 'Rs. $price',
+                                                      'Rs. $price',
                                                       maxLines: 1,
                                                       overflow:
                                                           TextOverflow.ellipsis,
