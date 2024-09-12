@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:intl/intl.dart';
 import 'package:localsearch_user/page/main/vendor/vendor_products_tab_page.dart';
 import 'package:localsearch_user/page/main/vendor/vendor_shorts_tab_page.dart';
 import 'package:localsearch_user/providers/location_provider.dart';
@@ -7,7 +8,6 @@ import 'package:localsearch_user/widgets/vendor_discounts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:intl/intl.dart';
 import 'package:localsearch_user/page/main/vendor/brand/all_brand_page.dart';
 import 'package:localsearch_user/page/main/vendor/brand/brand_page.dart';
 import 'package:localsearch_user/page/main/vendor/category/all_category_page.dart';
@@ -1371,9 +1371,8 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                                 ? primary2.withOpacity(0.5)
                                                 : primary2.withOpacity(0.5),
                                             border: Border.all(
-                                              color: isFollowing
-                                                  ? black
-                                                  : primary2.withOpacity(0.125),
+                                              color:
+                                                  isFollowing ? black : white,
                                               width: 0.75,
                                             ),
                                             borderRadius:

@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 // import 'package:image/image.dart' as img;
@@ -188,8 +187,8 @@ class _AllShopTypesPageState extends State<AllShopTypesPage> {
                         borderRadius: const BorderRadius.vertical(
                           top: Radius.circular(8),
                         ),
-                        child: CachedNetworkImage(
-                          imageUrl: imageUrl,
+                        child: Image.network(
+                          imageUrl,
                           fit: BoxFit.cover,
                           filterQuality: FilterQuality.low,
                           repeat: ImageRepeat.noRepeat,

@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
+// import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:localsearch_user/page/auth/login_page.dart';
 import 'package:localsearch_user/page/auth/register_details_page.dart';
 import 'package:localsearch_user/page/auth/verify/email_verify.dart';
@@ -25,7 +25,7 @@ class _MainPageState extends State<MainPage> {
   // final NotificationHandler _notificationHandler = NotificationHandler();
   final auth = FirebaseAuth.instance.currentUser!;
   final store = FirebaseFirestore.instance;
-  final messaging = FirebaseMessaging.instance;
+  // final messaging = FirebaseMessaging.instance;
   int currentIndex = 0;
   List loadedPages = [0];
   Widget? detailsPage;

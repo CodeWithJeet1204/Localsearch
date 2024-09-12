@@ -1,6 +1,5 @@
 import 'package:localsearch_user/utils/colors.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class HeadText extends StatelessWidget {
   const HeadText({
@@ -23,7 +22,7 @@ class HeadText extends StatelessWidget {
     return Text(
       textFormat(text),
       textAlign: TextAlign.center,
-      style: GoogleFonts.josefinSans(
+      style: TextStyle(
         fontSize: text == 'MEMBERSHIPS' ? 28 : 32,
         color: primaryDark,
         fontWeight: FontWeight.bold,

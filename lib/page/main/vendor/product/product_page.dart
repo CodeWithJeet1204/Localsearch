@@ -2573,7 +2573,7 @@ class _ProductPageState extends State<ProductPage> {
                                             vertical: width * 0.0125,
                                           ),
                                           decoration: BoxDecoration(
-                                            color: primary2.withOpacity(0.125),
+                                            color: white,
                                             borderRadius:
                                                 BorderRadius.circular(12),
                                           ),
@@ -3054,9 +3054,11 @@ class _AllDiscountsWidgetState extends State<AllDiscountsWidget> {
                             borderRadius: BorderRadius.circular(2),
                           ),
                           padding: EdgeInsets.all(
-                            width * 0.003125,
+                            width * 0.006125,
                           ),
-                          margin: EdgeInsets.all(width * 0.0125),
+                          margin: EdgeInsets.symmetric(
+                            horizontal: width * 0.0125,
+                          ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,14 +1,13 @@
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:feather_icons/feather_icons.dart';
 import 'package:localsearch_user/page/main/vendor/vendor_page.dart';
 import 'package:localsearch_user/utils/colors.dart';
 import 'package:localsearch_user/widgets/skeleton_container.dart';
 import 'package:localsearch_user/widgets/snack_bar.dart';
+import 'package:localsearch_user/widgets/text_button.dart';
 import 'package:localsearch_user/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:http/http.dart' as http;
 
 class FollowedPage extends StatefulWidget {
@@ -473,84 +472,80 @@ class _FollowedPageState extends State<FollowedPage>
                                                         ? index - 1
                                                         : index][3];
 
-                                            return Slidable(
-                                              endActionPane: ActionPane(
-                                                extentRatio: 0.325,
-                                                motion: const StretchMotion(),
-                                                children: [
-                                                  SlidableAction(
-                                                    onPressed: (context) async {
-                                                      await remove(id);
-                                                    },
-                                                    backgroundColor: Colors.red,
-                                                    icon: FeatherIcons.trash,
-                                                    label: 'Unfollow',
-                                                    borderRadius:
-                                                        const BorderRadius.only(
-                                                      topRight:
-                                                          Radius.circular(12),
-                                                      bottomRight:
-                                                          Radius.circular(12),
+                                            return GestureDetector(
+                                              onTap: () {
+                                                Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                    builder: ((context) =>
+                                                        VendorPage(
+                                                          vendorId: id,
+                                                        )),
+                                                  ),
+                                                );
+                                              },
+                                              child: ListTile(
+                                                splashColor: white,
+                                                visualDensity:
+                                                    VisualDensity.standard,
+                                                tileColor: white,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                    8,
+                                                  ),
+                                                  side: BorderSide(
+                                                    color: primaryDark
+                                                        .withOpacity(0.5),
+                                                  ),
+                                                ),
+                                                leading: CircleAvatar(
+                                                  backgroundColor: primary2,
+                                                  backgroundImage:
+                                                      NetworkImage(imageUrl),
+                                                ),
+                                                title: Text(
+                                                  name,
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                                subtitle: FutureBuilder(
+                                                    future: getAddress(
+                                                      latitude,
+                                                      longitude,
                                                     ),
-                                                  ),
-                                                ],
-                                              ),
-                                              child: GestureDetector(
-                                                onTap: () {
-                                                  Navigator.of(context).push(
-                                                    MaterialPageRoute(
-                                                      builder: ((context) =>
-                                                          VendorPage(
-                                                            vendorId: id,
-                                                          )),
-                                                    ),
-                                                  );
-                                                },
-                                                child: ListTile(
-                                                  splashColor: white,
-                                                  visualDensity:
-                                                      VisualDensity.comfortable,
-                                                  tileColor:
-                                                      primary2.withOpacity(0.5),
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            12),
-                                                  ),
-                                                  leading: CircleAvatar(
-                                                    backgroundColor: primary2,
-                                                    backgroundImage:
-                                                        NetworkImage(imageUrl),
-                                                  ),
-                                                  title: Text(name),
-                                                  subtitle: FutureBuilder(
-                                                      future: getAddress(
-                                                        latitude,
-                                                        longitude,
-                                                      ),
-                                                      builder:
-                                                          (context, snapshot) {
-                                                        if (snapshot.hasError) {
-                                                          return Container();
-                                                        }
-
-                                                        if (snapshot.hasData) {
-                                                          return Text(
-                                                            snapshot.data!
-                                                                .toString(),
-                                                          );
-                                                        }
-
+                                                    builder:
+                                                        (context, snapshot) {
+                                                      if (snapshot.hasError) {
                                                         return Container();
-                                                      }),
-                                                  titleTextStyle: TextStyle(
-                                                    color: primaryDark,
-                                                    fontSize: width * 0.0475,
-                                                  ),
-                                                  subtitleTextStyle: TextStyle(
-                                                    color: primaryDark2,
-                                                    fontSize: width * 0.04,
-                                                  ),
+                                                      }
+
+                                                      if (snapshot.hasData) {
+                                                        return Text(
+                                                          snapshot.data!
+                                                              .toString(),
+                                                          maxLines: 1,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                        );
+                                                      }
+
+                                                      return Container();
+                                                    }),
+                                                titleTextStyle: TextStyle(
+                                                  color: primaryDark,
+                                                  fontSize: width * 0.0475,
+                                                ),
+                                                subtitleTextStyle: TextStyle(
+                                                  color: primaryDark2,
+                                                  fontSize: width * 0.04,
+                                                ),
+                                                trailing: MyTextButton(
+                                                  onPressed: () async {
+                                                    await remove(id);
+                                                  },
+                                                  text: 'Unfollow',
+                                                  textColor: Colors.red,
                                                 ),
                                               ),
                                             );

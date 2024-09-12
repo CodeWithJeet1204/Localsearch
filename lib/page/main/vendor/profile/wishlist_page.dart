@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:localsearch_user/page/main/vendor/product/product_page.dart';
 import 'package:localsearch_user/utils/colors.dart';
 import 'package:localsearch_user/widgets/skeleton_container.dart';
+import 'package:localsearch_user/widgets/text_button.dart';
 import 'package:localsearch_user/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -514,12 +515,12 @@ class _WishlistPageState extends State<WishlistPage> {
                                               ),
                                               title: Text(
                                                 name,
-                                                maxLines: 2,
+                                                maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
                                               ),
                                               subtitle: Text(
                                                 'Rs. $price',
-                                                maxLines: 2,
+                                                maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
                                               ),
                                               titleTextStyle: TextStyle(
@@ -530,18 +531,12 @@ class _WishlistPageState extends State<WishlistPage> {
                                                 color: primaryDark2,
                                                 fontSize: width * 0.04,
                                               ),
-                                              trailing: IconButton(
+                                              trailing: MyTextButton(
                                                 onPressed: () async {
-                                                  await remove(
-                                                    id /*, false*/,
-                                                  );
+                                                  await remove(id);
                                                 },
-                                                icon: Icon(
-                                                  Icons.heart_broken,
-                                                  color: Colors.red,
-                                                ),
-                                                color: Colors.red,
-                                                tooltip: 'Remove',
+                                                text: 'Remove',
+                                                textColor: Colors.red,
                                               ),
                                             ),
                                           ),

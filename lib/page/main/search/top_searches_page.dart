@@ -108,7 +108,7 @@ class _TopSearchPageState extends State<TopSearchPage> {
 
                   return Container(
                     decoration: BoxDecoration(
-                      color: primary2.withOpacity(0.125),
+                      color: white,
                       border: Border.all(
                         width: 0.5,
                         color: primaryDark.withOpacity(0.25),

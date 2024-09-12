@@ -212,8 +212,8 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
           allShops[vendorId] = {
             'name': name,
             'imageUrl': imageUrl,
-            'latitude': latitude,
-            'longitude': longitude,
+            'Latitude': latitude,
+            'Longitude': longitude,
             'address': address,
             'distance': distance,
           };
@@ -244,8 +244,8 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
           allShops[vendorId] = {
             'name': name,
             'imageUrl': imageUrl,
-            'latitude': latitude,
-            'longitude': longitude,
+            'Latitude': latitude,
+            'Longitude': longitude,
             'address': address,
           };
         }
@@ -347,8 +347,8 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
         final Map<String, dynamic> ratings = productData['ratings'];
         final Timestamp datetime = productData['datetime'];
         final List views = productData['productViewsTimestamp'];
-        final double vendorLatitude = productData['latitude'];
-        final double vendorLongitude = productData['longitude'];
+        final double vendorLatitude = productData['Latitude'];
+        final double vendorLongitude = productData['Longitude'];
         double distance = 0;
 
         final productNameLower = productName.toLowerCase();
@@ -1172,8 +1172,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                                     );
                                                   },
                                                   splashColor: white,
-                                                  tileColor: primary2
-                                                      .withOpacity(0.125),
+                                                  tileColor: white,
                                                   contentPadding:
                                                       EdgeInsets.symmetric(
                                                     vertical: width * 0.0125,

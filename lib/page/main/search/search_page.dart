@@ -318,7 +318,7 @@ class _SearchPageState extends State<SearchPage> {
                                       },
                                       child: Container(
                                         decoration: BoxDecoration(
-                                          color: primary2.withOpacity(0.125),
+                                          color: white,
                                           border: Border.all(
                                             width: 0.5,
                                             color:
@@ -428,7 +428,7 @@ class _SearchPageState extends State<SearchPage> {
                                   },
                                   child: Container(
                                     decoration: BoxDecoration(
-                                      color: primary2.withOpacity(0.125),
+                                      color: white,
                                       border: Border.all(
                                         width: 0.5,
                                         color: primaryDark.withOpacity(0.25),

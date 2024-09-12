@@ -578,8 +578,8 @@ class _ProductHomePageState extends State<ProductHomePage> {
           final String imageUrl = productData['images'][0];
           final String vendorId = productData['vendorId'];
           final String productCity = productData['City'];
-          final double productLatitude = productData['latitude'];
-          final double productLongitude = productData['longitude'];
+          final double productLatitude = productData['Latitude'];
+          final double productLongitude = productData['Longitude'];
 
           if (locationProvider.cityName == 'Your Location') {
             if (mounted) {
@@ -1369,7 +1369,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                               ),
                             );
                           },
-                          splashColor: white.withOpacity(0.125),
+                          splashColor: white,
                           customBorder: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -1903,7 +1903,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                           width: width * 0.225,
                                           height: width * 0.25,
                                           decoration: BoxDecoration(
-                                            color: primary2.withOpacity(0.125),
+                                            color: white,
                                             border: Border.all(
                                               width: 0.125,
                                               color: primaryDark,

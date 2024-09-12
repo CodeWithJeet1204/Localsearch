@@ -34,7 +34,7 @@ class InfoBox extends StatelessWidget {
           width * 0.0125,
         ),
         decoration: BoxDecoration(
-          color: primary2.withOpacity(0.125),
+          color: white,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Column(

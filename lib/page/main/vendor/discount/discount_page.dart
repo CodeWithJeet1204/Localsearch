@@ -27,6 +27,7 @@ class _DiscountPageState extends State<DiscountPage> {
   Map<String, dynamic> products = {};
   Map<String, dynamic> brands = {};
   Map<String, dynamic> categories = {};
+  String? vendorId;
   bool isFit = false;
   bool isGridView = true;
   bool isData = false;
@@ -62,6 +63,7 @@ class _DiscountPageState extends State<DiscountPage> {
     final myVendorId = myDiscountData['vendorId'];
 
     setState(() {
+      vendorId = myVendorId;
       discountData = myDiscountData;
     });
 
@@ -281,7 +283,7 @@ class _DiscountPageState extends State<DiscountPage> {
                           Container(
                             width: width,
                             decoration: BoxDecoration(
-                              color: primary2.withOpacity(0.125),
+                              color: white,
                               borderRadius: BorderRadius.circular(8),
                             ),
                             padding: EdgeInsets.all(
@@ -846,8 +848,7 @@ class _DiscountPageState extends State<DiscountPage> {
                                               crossAxisCount: 2,
                                               crossAxisSpacing: 0,
                                               mainAxisSpacing: 0,
-                                              childAspectRatio:
-                                                  width * 0.5 / width * 1.545,
+                                              childAspectRatio: 0.5 / 1.545,
                                             ),
                                             itemCount: 4,
                                             itemBuilder: (context, index) {
@@ -876,7 +877,7 @@ class _DiscountPageState extends State<DiscountPage> {
                                                     gridDelegate:
                                                         const SliverGridDelegateWithFixedCrossAxisCount(
                                                       crossAxisCount: 2,
-                                                      childAspectRatio: 0.75,
+                                                      childAspectRatio: 0.725,
                                                     ),
                                                     itemCount: brands.length,
                                                     itemBuilder:
@@ -902,10 +903,7 @@ class _DiscountPageState extends State<DiscountPage> {
                                                         child: Container(
                                                           decoration:
                                                               BoxDecoration(
-                                                            color: primary2
-                                                                .withOpacity(
-                                                              0.125,
-                                                            ),
+                                                            color: white,
                                                             border: Border.all(
                                                               width: 0.25,
                                                               color:
@@ -967,7 +965,7 @@ class _DiscountPageState extends State<DiscountPage> {
                                                                 ),
                                                                 child: SizedBox(
                                                                   width: width *
-                                                                      0.275,
+                                                                      0.45,
                                                                   child: Text(
                                                                     brandData[
                                                                         'brandName'],
@@ -1029,39 +1027,37 @@ class _DiscountPageState extends State<DiscountPage> {
                                                               4,
                                                             ),
                                                           ),
+                                                          padding:
+                                                              EdgeInsets.all(
+                                                            width * 0.0125,
+                                                          ),
                                                           margin: EdgeInsets
                                                               .symmetric(
                                                             horizontal: width *
-                                                                0.000625,
+                                                                0.006125,
                                                             vertical:
-                                                                width * 0.02,
+                                                                width * 0.0125,
                                                           ),
                                                           child: ListTile(
                                                             visualDensity:
                                                                 VisualDensity
                                                                     .standard,
-                                                            leading: Padding(
-                                                              padding: EdgeInsets
-                                                                  .all(width *
-                                                                      0.0125),
-                                                              child: ClipRRect(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                  4,
-                                                                ),
-                                                                child: Image
-                                                                    .network(
-                                                                  brandData[
-                                                                      'imageUrl'],
-                                                                  width: width *
-                                                                      0.15,
-                                                                  height:
-                                                                      width *
-                                                                          0.15,
-                                                                  fit: BoxFit
-                                                                      .cover,
-                                                                ),
+                                                            leading: ClipRRect(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                4,
+                                                              ),
+                                                              child:
+                                                                  Image.network(
+                                                                brandData[
+                                                                    'imageUrl'],
+                                                                width: width *
+                                                                    0.15,
+                                                                height: width *
+                                                                    0.15,
+                                                                fit: BoxFit
+                                                                    .cover,
                                                               ),
                                                             ),
                                                             title: Text(
@@ -1201,6 +1197,8 @@ class _DiscountPageState extends State<DiscountPage> {
                                                                       CategoryPage(
                                                                         categoryName:
                                                                             categoryName,
+                                                                        vendorId:
+                                                                            vendorId,
                                                                       )),
                                                             ),
                                                           );
@@ -1332,6 +1330,8 @@ class _DiscountPageState extends State<DiscountPage> {
                                                                       CategoryPage(
                                                                         categoryName:
                                                                             categoryName,
+                                                                        vendorId:
+                                                                            vendorId,
                                                                       )),
                                                             ),
                                                           );

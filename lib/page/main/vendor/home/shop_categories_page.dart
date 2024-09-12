@@ -3,7 +3,6 @@ import 'package:localsearch_user/page/main/vendor/category/category_products_pag
 import 'package:localsearch_user/utils/colors.dart';
 import 'package:localsearch_user/widgets/video_tutorial.dart';
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -183,8 +182,8 @@ class _ShopCategoriesPageState extends State<ShopCategoriesPage> {
                               borderRadius: const BorderRadius.vertical(
                                 bottom: Radius.circular(8),
                               ),
-                              child: CachedNetworkImage(
-                                imageUrl: imageUrl,
+                              child: Image.network(
+                                imageUrl,
                                 fit: BoxFit.cover,
                                 filterQuality: FilterQuality.low,
                                 repeat: ImageRepeat.noRepeat,

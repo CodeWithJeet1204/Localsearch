@@ -1,4 +1,4 @@
-import 'package:avatar_glow/avatar_glow.dart';
+// import 'package:avatar_glow/avatar_glow.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:localsearch_user/utils/colors.dart';
 import 'package:flutter/material.dart';
@@ -102,22 +102,32 @@ class _SpeechToTextState extends State<SpeechToText> {
                 SizedBox(
                   width: width * 0.15,
                 ),
-                AvatarGlow(
-                  animate: isListening,
-                  glowCount: 3,
-                  glowRadiusFactor: 0.2,
-                  glowColor: Theme.of(context).primaryColor,
-                  duration: const Duration(milliseconds: 1750),
-                  child: IconButton.filledTonal(
-                    onPressed: () async {
-                      await listen();
-                    },
-                    icon: Icon(
-                      isListening ? FeatherIcons.mic : FeatherIcons.micOff,
-                      size: width * 0.1125,
-                    ),
-                    tooltip: isListening ? 'Done' : 'Start Speaking',
+                // AvatarGlow(
+                //   animate: isListening,
+                //   glowCount: 3,
+                //   glowRadiusFactor: 0.2,
+                //   glowColor: Theme.of(context).primaryColor,
+                //   duration: const Duration(milliseconds: 1750),
+                //   child: IconButton.filledTonal(
+                //     onPressed: () async {
+                //       await listen();
+                //     },
+                //     icon: Icon(
+                //       isListening ? FeatherIcons.mic : FeatherIcons.micOff,
+                //       size: width * 0.1125,
+                //     ),
+                //     tooltip: isListening ? 'Done' : 'Start Speaking',
+                //   ),
+                // ),
+                IconButton.filledTonal(
+                  onPressed: () async {
+                    await listen();
+                  },
+                  icon: Icon(
+                    isListening ? FeatherIcons.mic : FeatherIcons.micOff,
+                    size: width * 0.1125,
                   ),
+                  tooltip: isListening ? 'Done' : 'Start Speaking',
                 ),
                 Padding(
                   padding: EdgeInsets.only(right: width * 0.0125),

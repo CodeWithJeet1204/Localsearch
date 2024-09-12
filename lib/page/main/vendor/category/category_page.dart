@@ -10,9 +10,11 @@ class CategoryPage extends StatefulWidget {
   const CategoryPage({
     super.key,
     required this.categoryName,
+    this.vendorId,
   });
 
   final String categoryName;
+  final String? vendorId;
 
   @override
   State<CategoryPage> createState() => _CategoryPageState();
@@ -99,13 +101,22 @@ class _CategoryPageState extends State<CategoryPage> {
   // GET PRODUCTS
   Future<void> getProducts() async {
     Map product = {};
-    final productsSnap = await store
-        .collection('Business')
-        .doc('Data')
-        .collection('Products')
-        .where('categoryName', isEqualTo: widget.categoryName)
-        .limit(noOf)
-        .get();
+    final productsSnap = widget.vendorId != null
+        ? await store
+            .collection('Business')
+            .doc('Data')
+            .collection('Products')
+            .where('vendorId', isEqualTo: widget.vendorId)
+            .where('categoryName', isEqualTo: widget.categoryName)
+            .limit(noOf)
+            .get()
+        : await store
+            .collection('Business')
+            .doc('Data')
+            .collection('Products')
+            .where('categoryName', isEqualTo: widget.categoryName)
+            .limit(noOf)
+            .get();
 
     for (var productData in productsSnap.docs) {
       final id = productData['productId'];
