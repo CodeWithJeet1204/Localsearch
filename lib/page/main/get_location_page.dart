@@ -138,13 +138,14 @@ class _GetLocationPageState extends State<GetLocationPage>
         });
       }
     });
-
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(
-        builder: (context) => widget.nextPage,
-      ),
-      (route) => false,
-    );
+    if (mounted) {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (context) => widget.nextPage,
+        ),
+        (route) => false,
+      );
+    }
   }
 
   @override

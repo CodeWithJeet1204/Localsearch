@@ -125,9 +125,7 @@ class _WishlistPageState extends State<WishlistPage> {
             householdCategories.forEach((shopType, categoryData) {
               if (shopTypes.contains(shopType)) {
                 categoryData.forEach((categoryName, categoryImage) {
-                  if (categoryName == productCategoryName &&
-                      !categories.contains(categoryName)) {
-                    categories.add(categoryName);
+                  if (categoryName == productCategoryName) {
                     wishlist[id] = [
                       name,
                       imageUrl,
@@ -135,6 +133,10 @@ class _WishlistPageState extends State<WishlistPage> {
                       categoryName,
                       productData,
                     ];
+                    if (!categories.contains(categoryName)) {
+                      categories.add(categoryName);
+                    }
+                    return;
                   }
                 });
               }

@@ -281,7 +281,7 @@ class _ProductPageState extends State<ProductPage> {
 
     final productData = productSnap.data()!;
 
-    Map wishlists = productData['productWishlistTimestamp'];
+    final wishlists = productData['productWishlistTimestamp'];
 
     if (!alreadyInWishlist) {
       wishlists.addAll({

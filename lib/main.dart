@@ -138,37 +138,39 @@ class MainPageContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final locationProvider = Provider.of<LocationProvider>(context);
+    // final locationProvider = Provider.of<LocationProvider>(context);
 
     return StreamBuilder<bool>(
       stream: Geolocator.getServiceStatusStream().map((serviceStatus) {
         return serviceStatus == ServiceStatus.enabled;
       }),
       builder: (context, snapshot) {
-        if (snapshot.hasData && !snapshot.data!) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (context) => const GetLocationPage(
-                  nextPage: MainPage(),
-                ),
-              ),
-            );
-          });
-        } else if (locationProvider.cityLatitude == null ||
-            locationProvider.cityLongitude == null) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (context) => const GetLocationPage(
-                  nextPage: MainPage(),
-                ),
-              ),
-            );
-          });
-        }
+        // if (snapshot.hasData && !snapshot.data!) {
+        //   WidgetsBinding.instance.addPostFrameCallback((_) {
+        //     Navigator.of(context).pushReplacement(
+        //       MaterialPageRoute(
+        //         builder: (context) => const GetLocationPage(
+        //           nextPage: MainPage(),
+        //         ),
+        //       ),
+        //     );
+        //   });
+        // } else if (locationProvider.cityLatitude == null ||
+        //     locationProvider.cityLongitude == null) {
+        //   WidgetsBinding.instance.addPostFrameCallback((_) {
+        //     Navigator.of(context).pushReplacement(
+        //       MaterialPageRoute(
+        //         builder: (context) => const GetLocationPage(
+        //           nextPage: MainPage(),
+        //         ),
+        //       ),
+        //     );
+        //   });
+        // }
 
-        return const MainPage();
+        return const GetLocationPage(
+          nextPage: MainPage(),
+        );
       },
     );
   }

@@ -287,9 +287,11 @@ class _ProductHomePageState extends State<ProductHomePage> {
             '$newCapitalName${myName.substring(0, 1).toUpperCase()}${myName.substring(1)} ';
       }
 
-      setState(() {
-        name = newCapitalName;
-      });
+      if (mounted) {
+        setState(() {
+          name = newCapitalName;
+        });
+      }
     }
 
     // GET POSTS
@@ -428,10 +430,12 @@ class _ProductHomePageState extends State<ProductHomePage> {
         sortedEntries,
       );
 
-      setState(() {
-        posts = myPosts;
-        isPostData = true;
-      });
+      if (mounted) {
+        setState(() {
+          posts = myPosts;
+          isPostData = true;
+        });
+      }
     }
 
     // GET SHOP TYPES
@@ -451,9 +455,11 @@ class _ProductHomePageState extends State<ProductHomePage> {
       final sortedShopTypesData =
           Map<String, dynamic>.fromEntries(sortedEntries);
 
-      setState(() {
-        shopTypesData = sortedShopTypesData;
-      });
+      if (mounted) {
+        setState(() {
+          shopTypesData = sortedShopTypesData;
+        });
+      }
     }
 
     // GET RECENT SHOP
@@ -483,23 +489,49 @@ class _ProductHomePageState extends State<ProductHomePage> {
         }
 
         try {
-          final dist = await getDrivingDistance(
-            yourLatitude!,
-            yourLongitude!,
-            vendorLatitude,
-            vendorLongitude,
-          );
+          if (yourLatitude == null || yourLongitude == null) {
+            await Future.delayed(Duration(seconds: 10));
+            yourLatitude = locationProvider.cityLatitude;
+            yourLongitude = locationProvider.cityLongitude;
+            if (yourLatitude != null) {
+              final dist = await getDrivingDistance(
+                yourLatitude!,
+                yourLongitude!,
+                vendorLatitude,
+                vendorLongitude,
+              );
 
-          if (dist != null) {
-            if (dist < 5) {
-              setState(() {
-                recentShop = myRecentShop;
-              });
+              if (dist != null) {
+                if (dist < 5) {
+                  if (mounted) {
+                    setState(() {
+                      recentShop = myRecentShop;
+                    });
+                  }
+                }
+              }
+            } else {}
+          } else {
+            final dist = await getDrivingDistance(
+              yourLatitude!,
+              yourLongitude!,
+              vendorLatitude,
+              vendorLongitude,
+            );
+
+            if (dist != null) {
+              if (dist < 5) {
+                if (mounted) {
+                  setState(() {
+                    recentShop = myRecentShop;
+                  });
+                }
+              }
             }
           }
         } catch (e) {
           if (mounted) {
-            mySnackBar('Some error occured while fetching Location', context);
+            mySnackBar('Some error occured: ${e.toString()}', context);
           }
         }
       }
@@ -542,12 +574,14 @@ class _ProductHomePageState extends State<ProductHomePage> {
         temporaryNameList.add(productData['productName']);
         temporaryImageList.add(productData['images'][0]);
         temporaryDataList.add(productData);
-        setState(() {
-          recentShopProductsNames = temporaryNameList;
-          recentShopProductsImages = temporaryImageList;
-          recentShopProductsData = temporaryDataList;
-          getRecentData = true;
-        });
+        if (mounted) {
+          setState(() {
+            recentShopProductsNames = temporaryNameList;
+            recentShopProductsImages = temporaryImageList;
+            recentShopProductsData = temporaryDataList;
+            getRecentData = true;
+          });
+        }
       });
 
       return recentShopProductsImages.length;
@@ -615,7 +649,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
             } catch (e) {
               if (mounted) {
                 mySnackBar(
-                  'Some error occured while fetching Location',
+                  'Some error occured: ${e.toString()}',
                   context,
                 );
               }
@@ -755,9 +789,11 @@ class _ProductHomePageState extends State<ProductHomePage> {
         });
       }
 
-      setState(() {
-        getFollowedData = true;
-      });
+      if (mounted) {
+        setState(() {
+          getFollowedData = true;
+        });
+      }
     }
 
     // GET FEATURED
@@ -829,14 +865,16 @@ class _ProductHomePageState extends State<ProductHomePage> {
         });
       });
 
-      setState(() {
-        featured1 = myFeatured1;
-        featured2 = myFeatured2;
-        featured3 = myFeatured3;
-        featuredCategory1 = category1;
-        featuredCategory2 = category2;
-        featuredCategory3 = category3;
-      });
+      if (mounted) {
+        setState(() {
+          featured1 = myFeatured1;
+          featured2 = myFeatured2;
+          featured3 = myFeatured3;
+          featuredCategory1 = category1;
+          featuredCategory2 = category2;
+          featuredCategory3 = category3;
+        });
+      }
     }
 
     if (mounted) {
@@ -1139,9 +1177,11 @@ class _ProductHomePageState extends State<ProductHomePage> {
         tempWishlist[key] = value;
       }
     });
-    setState(() {
-      currentWishlist = tempWishlist;
-    });
+    if (mounted) {
+      setState(() {
+        currentWishlist = tempWishlist;
+      });
+    }
   }
 
   // UPDATE FOLLOWED
@@ -1153,9 +1193,11 @@ class _ProductHomePageState extends State<ProductHomePage> {
         tempFollowed[key] = value;
       }
     });
-    setState(() {
-      currentFollowedShops = tempFollowed;
-    });
+    if (mounted) {
+      setState(() {
+        currentFollowedShops = tempFollowed;
+      });
+    }
   }
 
   // UPDATE DISCOUNTS
@@ -1573,21 +1615,25 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                     inactiveColor:
                                         const Color.fromRGBO(197, 243, 255, 1),
                                     onChanged: (newValue) {
-                                      setState(() {
-                                        getWishlistData = false;
-                                        getFollowedData = false;
-                                        distanceRange = newValue;
-                                      });
+                                      if (mounted) {
+                                        setState(() {
+                                          getWishlistData = false;
+                                          getFollowedData = false;
+                                          distanceRange = newValue;
+                                        });
+                                      }
                                       updateWishlist(newValue);
                                       updateFollowed(newValue);
                                       // updateDiscounts(
                                       //   newValue,
                                       //   locationProvider,
                                       // );
-                                      setState(() {
-                                        getWishlistData = true;
-                                        getFollowedData = true;
-                                      });
+                                      if (mounted) {
+                                        setState(() {
+                                          getWishlistData = true;
+                                          getFollowedData = true;
+                                        });
+                                      }
                                     },
                                   ),
                                 ),
@@ -1625,7 +1671,8 @@ class _ProductHomePageState extends State<ProductHomePage> {
                         onTap: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                                builder: (context) => const AllDiscountPage()),
+                              builder: (context) => const AllDiscountPage(),
+                            ),
                           );
                         },
                         child: Container(
