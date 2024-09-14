@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:localsearch_user/firebase/auth_methods.dart';
 import 'package:localsearch_user/page/auth/register_details_page.dart';
+import 'package:localsearch_user/page/main/main_page.dart';
 import 'package:localsearch_user/utils/colors.dart';
 import 'package:localsearch_user/widgets/button.dart';
 import 'package:localsearch_user/widgets/snack_bar.dart';
@@ -11,17 +12,19 @@ import 'package:flutter/material.dart';
 class EmailVerifyPage extends StatefulWidget {
   const EmailVerifyPage({
     super.key,
+    this.updatingEmail,
   });
+
+  final String? updatingEmail;
 
   @override
   State<EmailVerifyPage> createState() => _EmailVerifyPageState();
 }
 
 class _EmailVerifyPageState extends State<EmailVerifyPage> {
-  // ignore: no_leading_underscores_for_local_identifiers
-  final FirebaseAuth auth = FirebaseAuth.instance;
+  final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
-  final AuthMethods authMethods = AuthMethods();
+  final authMethods = AuthMethods();
   bool checkingEmailVerified = false;
   bool canResendEmail = false;
   Timer? timer;
@@ -31,31 +34,64 @@ class _EmailVerifyPageState extends State<EmailVerifyPage> {
   @override
   void initState() {
     super.initState();
-    sendEmailVerification();
+    widget.updatingEmail == null
+        ? sendEmailVerification()
+        : auth.currentUser!.verifyBeforeUpdateEmail(widget.updatingEmail!);
+
     isEmailVerified = auth.currentUser!.emailVerified;
 
     if (!isEmailVerified) {
       timer = Timer.periodic(const Duration(seconds: 2), (_) async {
         await checkEmailVerification(fromButton: false);
       });
+    } else {
+      if (mounted) {
+        if (widget.updatingEmail == null) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: ((context) => const RegisterDetailsPage(
+                    emailPhoneGoogleChosen: 1,
+                  )),
+            ),
+            (route) => false,
+          );
+        } else {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: ((context) => const MainPage()),
+            ),
+            (route) => false,
+          );
+        }
+      }
     }
   }
 
   // CHECK EMAIL VERIFICATION
   Future<void> checkEmailVerification({bool? fromButton}) async {
-    await FirebaseAuth.instance.currentUser!.reload();
+    await auth.currentUser!.reload();
 
-    isEmailVerified = FirebaseAuth.instance.currentUser!.emailVerified;
+    isEmailVerified = auth.currentUser!.emailVerified;
 
     if (isEmailVerified) {
       if (mounted) {
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(
+        if (widget.updatingEmail == null) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
               builder: ((context) => const RegisterDetailsPage(
                     emailPhoneGoogleChosen: 1,
-                  ))),
-          (route) => false,
-        );
+                  )),
+            ),
+            (route) => false,
+          );
+        } else {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: ((context) => const MainPage()),
+            ),
+            (route) => false,
+          );
+        }
       }
     } else if (fromButton != null) {
       if (mounted) {
@@ -65,9 +101,9 @@ class _EmailVerifyPageState extends State<EmailVerifyPage> {
   }
 
   // SEND EMAIL VERIFICATION
-  void sendEmailVerification() async {
+  Future<void> sendEmailVerification() async {
     try {
-      final user = FirebaseAuth.instance.currentUser!;
+      final user = auth.currentUser!;
       await user.sendEmailVerification();
       if (mounted) {
         mySnackBar(
@@ -133,7 +169,12 @@ class _EmailVerifyPageState extends State<EmailVerifyPage> {
               child: MyButton(
                 text: 'Resend Email',
                 onTap: canResendEmail
-                    ? sendEmailVerification
+                    ? () async {
+                        widget.updatingEmail == null
+                            ? await sendEmailVerification()
+                            : await auth.currentUser!
+                                .verifyBeforeUpdateEmail(widget.updatingEmail!);
+                      }
                     : () {
                         mySnackBar(
                           'Wait for 5 seconds',

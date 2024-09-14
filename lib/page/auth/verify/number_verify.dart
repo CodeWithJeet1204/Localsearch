@@ -26,6 +26,8 @@ class NumberVerifyPage extends StatefulWidget {
 }
 
 class _NumberVerifyPageState extends State<NumberVerifyPage> {
+  final auth = FirebaseAuth.instance;
+  final store = FirebaseFirestore.instance;
   final otpController = TextEditingController();
   bool isOTPVerifying = false;
 
@@ -48,29 +50,30 @@ class _NumberVerifyPageState extends State<NumberVerifyPage> {
           isOTPVerifying = true;
         });
 
-        await FirebaseAuth.instance.signInWithCredential(credential);
-        if (!widget.isLogging) {
-          await FirebaseFirestore.instance
-              .collection('Users')
-              .doc(FirebaseAuth.instance.currentUser!.uid)
-              .set({
-            'uid': FirebaseAuth.instance.currentUser!.uid,
-            'Phone Number': '+91 ${widget.phoneNumber}',
-            'numberVerified': false,
-            'Email': null,
-            'Name': null,
-            'recentShop': '',
-            'followedShops': [],
-            'wishlists': [],
-            'likedProducts': [],
-            'recentSearches': [],
-            'recentProducts': [],
-            'hasReviewed': false,
-            'hasReviewedIndex': 0,
-            // 'followedOrganizers': [],
-            // 'wishlistEvents': [],
-            // 'fcmToken': '',
-          });
+        await auth.signInWithCredential(credential);
+        if (auth.currentUser != null) {
+          await auth.currentUser!
+              .linkWithPhoneNumber('+91 ${widget.phoneNumber}');
+          if (!widget.isLogging) {
+            await store.collection('Users').doc(auth.currentUser!.uid).set({
+              'uid': auth.currentUser!.uid,
+              'Phone Number': '+91 ${widget.phoneNumber}',
+              'registration': 'phone number',
+              'Email': null,
+              'Name': null,
+              'recentShop': '',
+              'followedShops': [],
+              'wishlists': [],
+              'likedProducts': [],
+              'recentSearches': [],
+              'recentProducts': [],
+              'hasReviewed': false,
+              'hasReviewedIndex': 0,
+              // 'followedOrganizers': [],
+              // 'wishlistEvents': [],
+              // 'fcmToken': '',
+            });
+          }
         }
 
         setState(() {

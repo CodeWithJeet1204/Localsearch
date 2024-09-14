@@ -105,34 +105,45 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
         return mySnackBar('Get Location', context);
       }
       if (selectedGender == null) {
-        return mySnackBar('Select Gender', context);
+        return mySnackBar(
+          'Select Gender',
+          context,
+        );
       }
       setState(() {
         isSaving = true;
       });
 
       try {
-        auth.currentUser!.email == null
-            ? await store
-                .collection('Users')
-                .doc(auth.currentUser!.uid)
-                .update({
-                'Name': nameController.text,
-                'Email': emailController.text,
-                'Gender': selectedGender,
-                'Latitude': latitude,
-                'Longitude': longitude,
-              })
-            : await store
-                .collection('Users')
-                .doc(auth.currentUser!.uid)
-                .update({
-                'Name': nameController.text,
-                'Phone Number': '+91${phoneController.text}',
-                'Gender': selectedGender,
-                'Latitude': latitude,
-                'Longitude': longitude,
-              });
+        if (auth.currentUser!.email == null) {
+          await auth.currentUser!.verifyBeforeUpdateEmail(emailController.text);
+          await showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text('Verify Email'),
+              content: Text(
+                'Open mail, and verify your email to set it as your email',
+              ),
+            ),
+          );
+
+          await store.collection('Users').doc(auth.currentUser!.uid).update({
+            'Name': nameController.text,
+            'Email': emailController.text,
+            'Gender': selectedGender,
+            'Latitude': latitude,
+            'Longitude': longitude,
+          });
+        } else {
+          // TODO: NUMBER UPDATING
+          await store.collection('Users').doc(auth.currentUser!.uid).update({
+            'Name': nameController.text,
+            'Phone Number': '+91${phoneController.text}',
+            'Gender': selectedGender,
+            'Latitude': latitude,
+            'Longitude': longitude,
+          });
+        }
 
         setState(() {
           isSaving = false;
@@ -152,6 +163,8 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
       }
     }
   }
+
+  // TODO: UPDATE EMAIL, PHONE NUMBER, PROFILE
 
   @override
   Widget build(BuildContext context) {

@@ -3,6 +3,7 @@ import 'package:feather_icons/feather_icons.dart';
 // import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:localsearch_user/page/auth/login_page.dart';
 import 'package:localsearch_user/page/auth/register_details_page.dart';
+import 'package:localsearch_user/page/auth/set_email_page.dart';
 import 'package:localsearch_user/page/auth/verify/email_verify.dart';
 import 'package:localsearch_user/page/main/vendor/home/product_home_page.dart';
 import 'package:localsearch_user/page/main/vendor/home/product_scroll_page.dart';
@@ -23,20 +24,27 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   // final NotificationHandler _notificationHandler = NotificationHandler();
-  final auth = FirebaseAuth.instance.currentUser!;
+  final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
   // final messaging = FirebaseMessaging.instance;
   int currentIndex = 0;
   List loadedPages = [0];
   Widget? detailsPage;
 
+  // INIT STATE
+  void initState() {
+    getData();
+    super.initState();
+  }
+
   // GET DATA
   Future<void> getData() async {
     try {
-      final userSnap = await store.collection('Users').doc(auth.uid).get();
+      final userSnap =
+          await store.collection('Users').doc(auth.currentUser!.uid).get();
 
       if (!userSnap.exists) {
-        await FirebaseAuth.instance.signOut();
+        await auth.signOut();
         if (mounted) {
           Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(
@@ -45,35 +53,35 @@ class _MainPageState extends State<MainPage> {
             (route) => false,
           );
           mySnackBar(
-            'The account you created was for business app, create / login with another account for this app',
+            'The account you created was for Business app, create / login with another account for this app',
             context,
           );
         }
         return;
-      }
-
-      final userData = userSnap.data()!;
-
-      if (!auth.emailVerified) {
-        setState(() {
-          detailsPage = const EmailVerifyPage();
-        });
-      } else if (userData['Name'] == null || userData['Email'] == null) {
-        setState(() {
-          detailsPage = const RegisterDetailsPage(
-            emailPhoneGoogleChosen: 0,
-          );
-        });
-      } else if (auth.email != null &&
-          auth.email!.length > 4 &&
-          !auth.emailVerified) {
-        setState(() {
-          detailsPage = const EmailVerifyPage();
-        });
       } else {
-        setState(() {
-          detailsPage = null;
-        });
+        final userData = userSnap.data()!;
+
+        if (userData['Name'] == null || userData['Email'] == null) {
+          setState(() {
+            detailsPage = const RegisterDetailsPage(
+              emailPhoneGoogleChosen: 0,
+            );
+          });
+        } else if (auth.currentUser!.email == null) {
+          setState(() {
+            detailsPage = SetEmailPage();
+          });
+        } else if (auth.currentUser!.email != null &&
+            auth.currentUser!.email!.length > 4 &&
+            !auth.currentUser!.emailVerified) {
+          setState(() {
+            detailsPage = EmailVerifyPage();
+          });
+        } else {
+          setState(() {
+            detailsPage = null;
+          });
+        }
       }
     } catch (e) {
       if (mounted) {

@@ -1,5 +1,8 @@
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image/image.dart' as img;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 // import 'package:image/image.dart' as img;
 // import 'package:flutter/services.dart' show NetworkAssetBundle;
 import 'package:localsearch_user/page/main/vendor/home/shop_categories_page.dart';
@@ -18,7 +21,9 @@ class AllShopTypesPage extends StatefulWidget {
 }
 
 class _AllShopTypesPageState extends State<AllShopTypesPage> {
-  final storage = FirebaseStorage.instance;
+  final store = FirebaseFirestore.instance;
+  Map<String, List>? shopTypesData;
+  Map<String, Color>? colors;
   int noOf = 10;
   bool isLoadMore = false;
   final scrollController = ScrollController();
@@ -27,6 +32,8 @@ class _AllShopTypesPageState extends State<AllShopTypesPage> {
   @override
   void initState() {
     scrollController.addListener(scrollListener);
+    getOrder();
+    getTopColor();
     super.initState();
   }
 
@@ -35,6 +42,60 @@ class _AllShopTypesPageState extends State<AllShopTypesPage> {
   void dispose() {
     scrollController.dispose();
     super.dispose();
+  }
+
+  // GET ORDER
+  Future<void> getOrder() async {
+    // GET COLOR
+    Color getColor(String colorString) {
+      print('ColorString: $colorString');
+      var hexColor = colorString.replaceAll("#", "");
+      print('hexColor: $hexColor');
+      if (hexColor.length == 6) {
+        print('error1');
+        hexColor = "FF" + hexColor;
+      }
+      if (hexColor.length == 8) {
+        print('done');
+        return Color(int.parse("0x$hexColor"));
+      }
+      return Color(0xFF000000);
+    }
+
+    final orderSnap = await store
+        .collection('Shop Types And Category Data')
+        .doc('Shop Types Order')
+        .get();
+
+    final orderData = orderSnap.data()!;
+
+    final Map<String, dynamic> order = orderData['shopTypesOrder'];
+
+    final shopTypesSnap = await store
+        .collection('Shop Types And Category Data')
+        .doc('Shop Types Data')
+        .get();
+
+    final myShopTypesData = shopTypesSnap.data()!;
+
+    final Map<String, dynamic> shopTypes = myShopTypesData['shopTypesData'];
+
+    final Map<String, List> sortedShopTypesData = {};
+    for (int i = 0; i < order.length; i++) {
+      final stringI = i.toString();
+      final categoryData = order[stringI];
+      final categoryName = categoryData[0];
+      final categoryColor = getColor(categoryData[1]);
+      final categoryImageUrl = shopTypes[categoryName];
+      sortedShopTypesData[categoryName] = [
+        categoryImageUrl,
+        categoryColor,
+      ];
+    }
+
+    setState(() {
+      shopTypesData = sortedShopTypesData;
+    });
   }
 
   // SCROLL LISTENER
@@ -70,33 +131,47 @@ class _AllShopTypesPageState extends State<AllShopTypesPage> {
   //   }
   // }
 
-  // // CALCULATE TOP LINE COLOR
-  // Future<Color> calculateTopLineColor(String imageUrl) async {
-  //   try {
-  //     final ByteData imageData =
-  //         await NetworkAssetBundle(Uri.parse(imageUrl)).load('');
-  //     final Uint8List imageBytes = imageData.buffer.asUint8List();
-  //     final img.Image image = img.decodeImage(imageBytes)!;
-  //     double redSum = 0, greenSum = 0, blueSum = 0;
-  //     final int width = image.width;
-  //     for (int x = 0; x < width; x++) {
-  //       final color = image.getPixel(x, 0);
-  //       redSum += color.r;
-  //       greenSum += color.g;
-  //       blueSum += color.b;
-  //     }
-  //     final int pixelCount = width;
-  //     final Color averageColor = Color.fromRGBO(
-  //       redSum ~/ pixelCount,
-  //       greenSum ~/ pixelCount,
-  //       blueSum ~/ pixelCount,
-  //       1.0,
-  //     );
-  //     return averageColor;
-  //   } catch (e) {
-  //     return white;
-  //   }
-  // }
+  // GET TOP COLOR
+  Future<void> getTopColor() async {
+    Map<String, Color> myColors = {};
+
+    for (var entry in widget.shopTypesData.entries) {
+      try {
+        final ByteData imageData =
+            await NetworkAssetBundle(Uri.parse(entry.value)).load('');
+        final Uint8List imageBytes = imageData.buffer.asUint8List();
+        final img.Image image = img.decodeImage(imageBytes)!;
+        double redSum = 0, greenSum = 0, blueSum = 0;
+        final int width = image.width;
+        for (int x = 0; x < width; x++) {
+          final color = image.getPixel(x, 0);
+          redSum += color.r;
+          greenSum += color.g;
+          blueSum += color.b;
+        }
+        final int pixelCount = width;
+        final Color averageColor = Color.fromRGBO(
+          redSum ~/ pixelCount,
+          greenSum ~/ pixelCount,
+          blueSum ~/ pixelCount,
+          1.0,
+        );
+        myColors.addAll({
+          entry.key: averageColor,
+        });
+      } catch (e) {
+        myColors.addAll({
+          entry.key: white,
+        });
+      }
+    }
+
+    if (mounted) {
+      setState(() {
+        colors = myColors;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -139,100 +214,103 @@ class _AllShopTypesPageState extends State<AllShopTypesPage> {
               ),
             )
           :*/
-          SafeArea(
-        child: GridView.builder(
-            controller: scrollController,
-            cacheExtent: height * 1.5,
-            addAutomaticKeepAlives: true,
-            shrinkWrap: true,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 0.7525,
-            ),
-            physics: const ClampingScrollPhysics(),
-            itemCount: noOf > widget.shopTypesData.length
-                ? widget.shopTypesData.length
-                : noOf,
-            itemBuilder: (context, index) {
-              final String name = widget.shopTypesData.keys.toList()[index];
-              final String imageUrl =
-                  widget.shopTypesData.values.toList()[index];
-              // final Color color = businessCategories[index][2];
+          shopTypesData == null
+              ? Container()
+              : SafeArea(
+                  child: GridView.builder(
+                      controller: scrollController,
+                      cacheExtent: height * 1.5,
+                      addAutomaticKeepAlives: true,
+                      shrinkWrap: true,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        childAspectRatio: 0.7525,
+                      ),
+                      physics: const ClampingScrollPhysics(),
+                      itemCount: noOf > shopTypesData!.length
+                          ? shopTypesData!.length
+                          : noOf,
+                      itemBuilder: (context, index) {
+                        final String name = shopTypesData!.keys.toList()[index];
+                        final String imageUrl =
+                            shopTypesData!.values.toList()[index][0];
+                        final Color color =
+                            shopTypesData!.values.toList()[index][1];
 
-              return GestureDetector(
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => ShopCategoriesPage(
-                        shopType: name,
-                      ),
-                    ),
-                  );
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(
-                      color: Colors.black,
-                      width: 0.25,
-                    ),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  margin: const EdgeInsets.all(8),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      ClipRRect(
-                        borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(8),
-                        ),
-                        child: Image.network(
-                          imageUrl,
-                          fit: BoxFit.cover,
-                          filterQuality: FilterQuality.low,
-                          repeat: ImageRepeat.noRepeat,
-                        ),
-                      ),
-                      // ClipRRect(
-                      //   borderRadius: const BorderRadius.vertical(
-                      //     top: Radius.circular(8),
-                      //   ),
-                      //   child: Image.network(
-                      //     imageUrl,
-                      //     fit: BoxFit.cover,
-                      //     filterQuality: FilterQuality.low,
-                      //   ),
-                      // ),
-                      Expanded(
-                        child: Container(
-                          alignment: Alignment.center,
-                          decoration: const BoxDecoration(
-                            color: white,
-                            borderRadius: BorderRadius.vertical(
-                              bottom: Radius.circular(8),
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => ShopCategoriesPage(
+                                  shopType: name,
+                                ),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border.all(
+                                color: Colors.black,
+                                width: 0.25,
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            margin: const EdgeInsets.all(8),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Expanded(
+                                  child: Container(
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      color: color,
+                                      borderRadius: BorderRadius.vertical(
+                                        top: Radius.circular(8),
+                                      ),
+                                    ),
+                                    padding: EdgeInsets.all(width * 0.025),
+                                    child: AutoSizeText(
+                                      name.toUpperCase(),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: black,
+                                        fontSize: width * 0.0425,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                ClipRRect(
+                                  borderRadius: const BorderRadius.vertical(
+                                    bottom: Radius.circular(8),
+                                  ),
+                                  child: Image.network(
+                                    imageUrl,
+                                    fit: BoxFit.cover,
+                                    filterQuality: FilterQuality.high,
+                                    repeat: ImageRepeat.noRepeat,
+                                  ),
+                                ),
+                                // ClipRRect(
+                                //   borderRadius: const BorderRadius.vertical(
+                                //     top: Radius.circular(8),
+                                //   ),
+                                //   child: Image.network(
+                                //     imageUrl,
+                                //     fit: BoxFit.cover,
+                                //     filterQuality: FilterQuality.low,
+                                //   ),
+                                // ),
+                              ],
                             ),
                           ),
-                          padding: EdgeInsets.all(width * 0.025),
-                          child: Text(
-                            name.toUpperCase(),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.left,
-                            style: TextStyle(
-                              fontSize: width * 0.04125,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                        );
+                      }),
                 ),
-              );
-            }),
-      ),
     );
   }
 }

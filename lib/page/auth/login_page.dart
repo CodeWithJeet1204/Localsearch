@@ -26,13 +26,14 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final auth = FirebaseAuth.instance;
+  final authMethods = AuthMethods();
   final store = FirebaseFirestore.instance;
   final GlobalKey<FormState> emailLoginFormKey = GlobalKey<FormState>();
   final GlobalKey<FormState> numberLoginFormKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final phoneController = TextEditingController();
-  String phoneText = 'VERIFY';
   String googleText = 'Sign in with GOOGLE';
   bool isGoogleLogging = false;
   bool isEmailLogging = false;
@@ -54,34 +55,86 @@ class _LoginPageState extends State<LoginPage> {
         setState(() {
           isEmailLogging = true;
         });
-        UserCredential? user =
-            await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: emailController.text.toString(),
-          password: passwordController.text.toString(),
-        );
-        if (user != null) {
+
+        final vendorExistsSnap = await store
+            .collection('Business')
+            .doc('Owners')
+            .collection('Shops')
+            .where('Email', isEqualTo: emailController.text)
+            .where('registration', isEqualTo: 'email')
+            .get();
+
+        if (vendorExistsSnap.docs.isNotEmpty) {
           if (mounted) {
-            mySnackBar('Signed In', context);
+            setState(() {
+              isEmailLogging = false;
+            });
+            return mySnackBar(
+              'This account was created in Business app, use a different Email here',
+              context,
+            );
           }
+          return;
+        }
+
+        final userExistsSnap = await store
+            .collection('Users')
+            .where('Email', isEqualTo: emailController.text)
+            .where('registration', isEqualTo: 'email')
+            .get();
+
+        if (userExistsSnap.docs.isEmpty) {
           if (mounted) {
+            setState(() {
+              isEmailLogging = false;
+            });
+            await showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: Text('Not Registered'),
+                content: Text(
+                  'This account is not registered. Register with this Email',
+                ),
+              ),
+            );
             Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(
-                builder: ((context) => const MainPage()),
+                builder: (context) => RegisterMethodPage(),
               ),
               (route) => false,
             );
           }
+          return;
         } else {
-          if (mounted) {
-            mySnackBar(
-              'Some error occured',
-              context,
-            );
+          await auth.signInWithEmailAndPassword(
+            email: emailController.text.toString(),
+            password: passwordController.text.toString(),
+          );
+
+          if (auth.currentUser != null) {
+            if (mounted) {
+              mySnackBar('Signed In', context);
+            }
+            if (mounted) {
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(
+                  builder: ((context) => const MainPage()),
+                ),
+                (route) => false,
+              );
+            }
+          } else {
+            if (mounted) {
+              mySnackBar(
+                'Some error occured',
+                context,
+              );
+            }
           }
+          setState(() {
+            isEmailLogging = false;
+          });
         }
-        setState(() {
-          isEmailLogging = false;
-        });
       } catch (e) {
         setState(() {
           isEmailLogging = false;
@@ -99,92 +152,119 @@ class _LoginPageState extends State<LoginPage> {
   // LOGIN WITH PHONE NUMBER
   Future<void> loginWithPhone() async {
     if (numberLoginFormKey.currentState!.validate()) {
-      Future<bool> isPhoneRegistered() async {
-        final phoneSnap = await store
+      try {
+        setState(() {
+          isPhoneLogging = true;
+        });
+
+        final vendorExistsSnap = await store
             .collection('Business')
             .doc('Owners')
             .collection('Users')
-            .where('Phone Number', isEqualTo: phoneController.text)
+            .where('Phone Number', isEqualTo: '+91 ${phoneController.text}')
+            .where('registration', isEqualTo: 'phone number')
             .get();
 
-        return phoneSnap.docs.isNotEmpty;
-      }
-
-      Future<void> signInIfRegistered() async {
-        final isRegistered = await isPhoneRegistered();
-        if (isRegistered) {
-          try {
-            setState(() {
-              isPhoneLogging = true;
-            });
-            // Register with Phone
-
-            await FirebaseAuth.instance.verifyPhoneNumber(
-                phoneNumber: '+91 ${phoneController.text}',
-                timeout: const Duration(seconds: 120),
-                verificationCompleted: (PhoneAuthCredential credential) async {
-                  await FirebaseAuth.instance.signInWithCredential(credential);
-                  setState(() {
-                    isPhoneLogging = false;
-                  });
-                },
-                verificationFailed: (e) {
-                  if (context.mounted) {
-                    mySnackBar(
-                      e.toString(),
-                      context,
-                    );
-                  }
-                  setState(() {
-                    isPhoneLogging = false;
-                  });
-                },
-                codeSent: (String verificationId, int? token) {
-                  SystemChannels.textInput.invokeMethod('TextInput.hide');
-                  Navigator.of(context).pop();
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => NumberVerifyPage(
-                        verificationId: verificationId,
-                        isLogging: true,
-                        phoneNumber: phoneController.text,
-                      ),
-                    ),
-                  );
-                  setState(() {
-                    isPhoneLogging = false;
-                  });
-                },
-                codeAutoRetrievalTimeout: (e) {
-                  if (context.mounted) {
-                    mySnackBar(e.toString(), context);
-                  }
-                  isPhoneLogging = false;
-                });
-
-            setState(() {
-              isPhoneLogging = false;
-            });
-          } catch (e) {
-            setState(() {
-              isPhoneLogging = false;
-              phoneText = 'VERIFY';
-            });
-            if (mounted) {
-              mySnackBar(e.toString(), context);
-            }
-          }
-        } else {
+        if (vendorExistsSnap.docs.isNotEmpty) {
           if (mounted) {
-            mySnackBar(
-              'You have not registered with this phone number',
+            setState(() {
+              isPhoneLogging = false;
+            });
+            return mySnackBar(
+              'This account was created in Business app, use a different Phone Number here',
               context,
             );
           }
+          return;
+        }
+
+        final phoneUserSnap = await store
+            .collection('Users')
+            .where('Phone Number', isEqualTo: '+91 ${phoneController.text}')
+            .where('registration', isEqualTo: 'phone number')
+            .get();
+
+        if (phoneUserSnap.docs.isEmpty) {
+          if (mounted) {
+            setState(() {
+              isPhoneLogging = false;
+            });
+            await showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: Text('Not Registered'),
+                content: Text(
+                  'This account is not registered. Register with this Phone Number',
+                ),
+              ),
+            );
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(
+                builder: (context) => RegisterMethodPage(),
+              ),
+              (route) => false,
+            );
+          }
+          return;
+        } else {
+          // Register with Phone
+          await auth.verifyPhoneNumber(
+              phoneNumber: '+91 ${phoneController.text}',
+              timeout: const Duration(seconds: 120),
+              verificationCompleted: (PhoneAuthCredential credential) async {
+                await auth.signInWithCredential(credential);
+                setState(() {
+                  isPhoneLogging = false;
+                });
+              },
+              verificationFailed: (e) {
+                setState(() {
+                  isPhoneLogging = false;
+                });
+                if (context.mounted) {
+                  mySnackBar(
+                    e.toString(),
+                    context,
+                  );
+                }
+              },
+              codeSent: (String verificationId, int? token) {
+                setState(() {
+                  isPhoneLogging = false;
+                });
+                SystemChannels.textInput.invokeMethod('TextInput.hide');
+                Navigator.of(context).pop();
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => NumberVerifyPage(
+                      verificationId: verificationId,
+                      isLogging: true,
+                      phoneNumber: phoneController.text,
+                    ),
+                  ),
+                );
+              },
+              codeAutoRetrievalTimeout: (e) {
+                setState(() {
+                  isPhoneLogging = true;
+                });
+                if (context.mounted) {
+                  mySnackBar(e.toString(), context);
+                }
+              });
+
+          setState(() {
+            isPhoneLogging = false;
+          });
+        }
+      } catch (e) {
+        setState(() {
+          isPhoneLogging = false;
+        });
+        if (mounted) {
+          mySnackBar(e.toString(), context);
         }
       }
-
-      await signInIfRegistered();
     }
   }
 
@@ -194,35 +274,90 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         isGoogleLogging = true;
       });
+
       await AuthMethods().signInWithGoogle(context);
-      if (FirebaseAuth.instance.currentUser != null) {
-        setState(() {
-          isGoogleLogging = false;
-        });
-        if (mounted) {
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(
-              builder: ((context) => const MainPage()),
-            ),
-            (route) => false,
-          );
+
+      if (auth.currentUser != null) {
+        final vendorExistsSnap = await store
+            .collection('Business')
+            .doc('Owners')
+            .collection('Users')
+            .where('Email', isEqualTo: auth.currentUser!.email)
+            .where('registration', isEqualTo: 'google')
+            .get();
+
+        if (vendorExistsSnap.docs.isNotEmpty) {
+          await auth.signOut();
+          setState(() {
+            isGoogleLogging = false;
+          });
+          if (mounted) {
+            return mySnackBar(
+              'This account was created in Business app, use a different Google Account here',
+              context,
+            );
+          }
+        }
+
+        final userExistsSnap = await store
+            .collection('Users')
+            .where('Email', isEqualTo: auth.currentUser!.email)
+            .where('registration', isEqualTo: 'google')
+            .get();
+
+        if (userExistsSnap.docs.isEmpty) {
+          if (mounted) {
+            await auth.signOut();
+            setState(() {
+              isGoogleLogging = false;
+            });
+            await showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: Text('Not Registered'),
+                content: Text(
+                  'This account is not registered. Register with this Google Account',
+                ),
+              ),
+            );
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(
+                builder: (context) => RegisterMethodPage(),
+              ),
+              (route) => false,
+            );
+          }
+          return;
+        } else {
+          setState(() {
+            isGoogleLogging = false;
+          });
+          if (mounted) {
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(
+                builder: ((context) => const MainPage()),
+              ),
+              (route) => false,
+            );
+          }
         }
       } else {
         if (mounted) {
-          mySnackBar('Some error occured!', context);
+          mySnackBar('Some error occured', context);
         }
       }
-    } on FirebaseAuthException catch (e) {
-      if (mounted) {
-        mySnackBar(e.toString(), context);
+    } catch (e) {
+      if (context.mounted) {
+        mySnackBar(
+          e.toString(),
+          context,
+        );
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final FirebaseAuth auth = FirebaseAuth.instance;
-    final AuthMethods authMethods = AuthMethods();
     final width = MediaQuery.of(context).size.width;
 
     return Scaffold(
@@ -359,7 +494,7 @@ class _LoginPageState extends State<LoginPage> {
                                   ),
                                   const SizedBox(height: 8),
                                   MyButton(
-                                    text: phoneText,
+                                    text: 'VERIFY',
                                     onTap: () async {
                                       await loginWithPhone();
                                     },
@@ -547,7 +682,7 @@ class _LoginPageState extends State<LoginPage> {
                                         ),
                                         const SizedBox(height: 8),
                                         MyButton(
-                                          text: phoneText,
+                                          text: 'VERIFY',
                                           onTap: () async {
                                             if (numberLoginFormKey.currentState!
                                                 .validate()) {
@@ -564,8 +699,9 @@ class _LoginPageState extends State<LoginPage> {
                                                 } else if (phoneController.text
                                                     .contains('+91 ')) {
                                                   await authMethods.phoneSignIn(
-                                                      context,
-                                                      phoneController.text);
+                                                    context,
+                                                    phoneController.text,
+                                                  );
                                                 } else {
                                                   setState(() {
                                                     isPhoneLogging = true;
@@ -592,9 +728,10 @@ class _LoginPageState extends State<LoginPage> {
                                                               false;
                                                         });
                                                       },
-                                                      codeSent: (String
-                                                              verificationId,
-                                                          int? token) {
+                                                      codeSent: (
+                                                        String verificationId,
+                                                        int? token,
+                                                      ) {
                                                         SystemChannels.textInput
                                                             .invokeMethod(
                                                                 'TextInput.hide');
@@ -679,11 +816,14 @@ class _LoginPageState extends State<LoginPage> {
                               //                 context, 'Some error occured!');
                               //           }
                               //         }
-                              //       } on FirebaseAuthException catch (e) {
-                              //         if (context.mounted) {
-                              //           mySnackBar(e.toString(), context);
-                              //         }
+                              //       } catch (e) {
+                              //       if (context.mounted) {
+                              //         mySnackBar(
+                              //           e.toString(),
+                              //           context,
+                              //         );
                               //       }
+                              //     }
                               //     },
                               //     child: Container(
                               //       margin: EdgeInsets.symmetric(

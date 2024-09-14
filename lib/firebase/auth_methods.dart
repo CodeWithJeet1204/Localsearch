@@ -47,10 +47,10 @@ class AuthMethods {
         'Email Verification has been sent',
         context,
       );
-    } on FirebaseAuthException catch (e) {
+    } catch (e) {
       if (context.mounted) {
         mySnackBar(
-          e.message!,
+          e.toString(),
           context,
         );
       }
@@ -70,10 +70,10 @@ class AuthMethods {
           await sendEmailVerification(context);
         }
       }
-    } on FirebaseAuthException catch (e) {
+    } catch (e) {
       if (context.mounted) {
         mySnackBar(
-          e.message!,
+          e.toString(),
           context,
         );
       }
@@ -114,10 +114,10 @@ class AuthMethods {
       }
       // }
       return userCredential;
-    } on FirebaseAuthException catch (e) {
+    } catch (e) {
       if (context.mounted) {
         mySnackBar(
-          e.message!,
+          e.toString(),
           context,
         );
       }
@@ -167,10 +167,10 @@ class AuthMethods {
   Future<void> signOut(BuildContext context) async {
     try {
       await _auth.signOut();
-    } on FirebaseAuthException catch (e) {
+    } catch (e) {
       if (context.mounted) {
         mySnackBar(
-          e.message!,
+          e.toString(),
           context,
         );
       }
@@ -181,10 +181,10 @@ class AuthMethods {
   Future<void> deleteAccount(BuildContext context) async {
     try {
       await _auth.currentUser!.delete();
-    } on FirebaseAuthException catch (e) {
+    } catch (e) {
       if (context.mounted) {
         mySnackBar(
-          e.message!,
+          e.toString(),
           context,
         );
       }

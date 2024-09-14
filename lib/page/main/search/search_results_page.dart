@@ -339,11 +339,12 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
       for (var productSnap in productsSnap.docs) {
         final productData = productSnap.data();
 
-        final String productName = productData['productName'].toString();
+        final String productName = productData['productName'];
         final List tags = productData['Tags'];
-        final String imageUrl = productData['images'][0].toString();
-        final String productPrice = productData['productPrice'].toString();
-        final String productId = productData['productId'].toString();
+        final String imageUrl = productData['images'][0];
+        final productPrice = productData['productPrice'];
+        final String productId = productData['productId'];
+        final String categoryName = productData['categoryName'];
         final Map<String, dynamic> ratings = productData['ratings'];
         final Timestamp datetime = productData['datetime'];
         final List views = productData['productViewsTimestamp'];
@@ -354,20 +355,24 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
         final productNameLower = productName.toLowerCase();
         final searchLower = widget.search.toLowerCase();
 
-        if (yourLatitude != null && yourLongitude != null) {
-          distance = await getDrivingDistance(
-                yourLatitude!,
-                yourLongitude!,
-                vendorLatitude,
-                vendorLongitude,
-              ) ??
-              0;
-        }
+        if (productNameLower.contains(searchLower) ||
+            tags.any(
+              (tag) => tag.toString().toLowerCase().contains(
+                    searchLower,
+                  ),
+            ) ||
+            categoryName.toString().toLowerCase().contains(searchLower)) {
+          if (yourLatitude != null && yourLongitude != null) {
+            distance = await getDrivingDistance(
+                  yourLatitude!,
+                  yourLongitude!,
+                  vendorLatitude,
+                  vendorLongitude,
+                ) ??
+                0;
+          }
 
-        if (distance * 0.925 < 5) {
-          if (productNameLower.contains(searchLower) ||
-              tags.any((tag) =>
-                  tag.toString().toLowerCase().contains(searchLower))) {
+          if (distance * 0.925 < 5) {
             int relevanceScore = calculateRelevanceScore(
               productNameLower,
               searchLower,
