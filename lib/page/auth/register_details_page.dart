@@ -135,7 +135,6 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
             'Longitude': longitude,
           });
         } else {
-          // TODO: NUMBER UPDATING
           await store.collection('Users').doc(auth.currentUser!.uid).update({
             'Name': nameController.text,
             'Phone Number': '+91${phoneController.text}',
@@ -163,8 +162,6 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
       }
     }
   }
-
-  // TODO: UPDATE EMAIL, PHONE NUMBER, PROFILE
 
   @override
   Widget build(BuildContext context) {

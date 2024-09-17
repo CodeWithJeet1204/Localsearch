@@ -134,7 +134,6 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
             // }
 
             await store.collection('Users').doc(auth.currentUser!.uid).set({
-              'uid': auth.currentUser!.uid,
               'Email': emailController.text,
               'registration': 'email',
               'Name': null,
@@ -377,7 +376,6 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
         }
 
         await store.collection('Users').doc(auth.currentUser!.uid).set({
-          'uid': auth.currentUser!.uid,
           'Email': emailController.text.toString(),
           'registration': 'google',
           'Name': null,
@@ -795,7 +793,6 @@ class _RegisterMethodPageState extends State<RegisterMethodPage> {
           //             //               auth.currentUser!.email,
           //             //           'Name': FirebaseAuth
           //             //               .instance.currentUser!.displayName,
-          //             //           'uid': auth.currentUser!.uid,
           //             //           'Image': null,
           //             //           'Phone Number': null,
           //             //         });

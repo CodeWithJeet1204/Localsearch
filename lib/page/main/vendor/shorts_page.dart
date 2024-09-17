@@ -2,6 +2,8 @@
 import 'package:localsearch_user/page/main/vendor/shorts_tile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:localsearch_user/providers/main_page_provider.dart';
+import 'package:provider/provider.dart';
 // import 'package:preload_page_view/preload_page_view.dart';
 import 'package:video_player/video_player.dart';
 
@@ -82,6 +84,7 @@ class _ShortsPageState extends State<ShortsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final mainPageProvider = Provider.of<MainPageProvider>(context);
     final shortsStream = store
         .collection('Business')
         .doc('Data')
@@ -89,58 +92,77 @@ class _ShortsPageState extends State<ShortsPage> {
         .orderBy('datetime', descending: true)
         .snapshots();
 
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: SafeArea(
-        child: StreamBuilder<QuerySnapshot>(
-            stream: shortsStream,
-            builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                return const Center(
-                  child: Text(
-                    'Some Error Occurred',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                );
-              }
-
-              if (snapshot.hasData) {
-                final shortsSnap = snapshot.data!;
-                if (shortsSnap.docs.isEmpty) {
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        mainPageProvider.goToHomePage();
+      },
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: SafeArea(
+          child: StreamBuilder<QuerySnapshot>(
+              stream: shortsStream,
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
                   return const Center(
                     child: Text(
-                      'No Shorts Available',
-                      style: TextStyle(color: Colors.grey),
+                      'Some Error Occurred',
+                      style: TextStyle(color: Colors.white),
                     ),
                   );
                 }
 
-                // return PreloadPageView.builder(
-                return PageView.builder(
-                  controller: _pageController,
-                  scrollDirection: Axis.vertical,
-                  itemCount: shortsSnap.docs.length,
-                  // preloadPagesCount: 2,
-                  itemBuilder: (context, index) {
-                    final currentShort = shortsSnap.docs[index];
-                    final data = currentShort.data() as Map<String, dynamic>;
-
-                    // final controller = _videoControllers[index];
-
-                    return ShortsTile(
-                      data: data,
-                      snappedPageIndex: _currentPage,
-                      currentIndex: index,
-                      bottomNavIndex: widget.bottomNavIndex,
+                if (snapshot.hasData) {
+                  final shortsSnap = snapshot.data!;
+                  if (shortsSnap.docs.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        'No Shorts Available',
+                        style: TextStyle(color: Colors.grey),
+                      ),
                     );
-                  },
-                );
-              }
+                  }
 
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }),
+                  // return PreloadPageView.builder(
+                  return PopScope(
+                    canPop: false,
+                    onPopInvokedWithResult: (didPop, result) {
+                      mainPageProvider.goToHomePage();
+                    },
+                    child: PageView.builder(
+                      controller: _pageController,
+                      scrollDirection: Axis.vertical,
+                      itemCount: shortsSnap.docs.length,
+                      // preloadPagesCount: 2,
+                      itemBuilder: (context, index) {
+                        final currentShort = shortsSnap.docs[index];
+                        final data =
+                            currentShort.data() as Map<String, dynamic>;
+
+                        // final controller = _videoControllers[index];
+
+                        return PopScope(
+                          canPop: false,
+                          onPopInvokedWithResult: (didPop, result) {
+                            mainPageProvider.goToHomePage();
+                          },
+                          child: ShortsTile(
+                            data: data,
+                            snappedPageIndex: _currentPage,
+                            currentIndex: index,
+                            bottomNavIndex: widget.bottomNavIndex,
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                }
+
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }),
+        ),
       ),
     );
   }

@@ -56,7 +56,6 @@ class _NumberVerifyPageState extends State<NumberVerifyPage> {
               .linkWithPhoneNumber('+91 ${widget.phoneNumber}');
           if (!widget.isLogging) {
             await store.collection('Users').doc(auth.currentUser!.uid).set({
-              'uid': auth.currentUser!.uid,
               'Phone Number': '+91 ${widget.phoneNumber}',
               'registration': 'phone number',
               'Email': null,

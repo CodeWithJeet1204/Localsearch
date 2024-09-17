@@ -5,15 +5,18 @@ import 'package:localsearch_user/page/auth/login_page.dart';
 import 'package:localsearch_user/page/auth/register_details_page.dart';
 import 'package:localsearch_user/page/auth/set_email_page.dart';
 import 'package:localsearch_user/page/auth/verify/email_verify.dart';
+import 'package:localsearch_user/page/main/under_development_page.dart';
 import 'package:localsearch_user/page/main/vendor/home/product_home_page.dart';
 import 'package:localsearch_user/page/main/vendor/home/product_scroll_page.dart';
 import 'package:localsearch_user/page/main/vendor/profile/profile_page.dart';
 import 'package:localsearch_user/page/main/vendor/shorts_page.dart';
+import 'package:localsearch_user/providers/main_page_provider.dart';
 import 'package:localsearch_user/utils/colors.dart';
 // import 'package:localsearch_user/utils/notification_handler.dart';
 import 'package:localsearch_user/widgets/snack_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -23,12 +26,10 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  // final NotificationHandler _notificationHandler = NotificationHandler();
   final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
+  // final NotificationHandler _notificationHandler = NotificationHandler();
   // final messaging = FirebaseMessaging.instance;
-  int currentIndex = 0;
-  List loadedPages = [0];
   Widget? detailsPage;
 
   // INIT STATE
@@ -40,47 +41,58 @@ class _MainPageState extends State<MainPage> {
   // GET DATA
   Future<void> getData() async {
     try {
-      final userSnap =
-          await store.collection('Users').doc(auth.currentUser!.uid).get();
+      final developmentSnap =
+          await store.collection('Development').doc('Under Development').get();
 
-      if (!userSnap.exists) {
-        await auth.signOut();
-        if (mounted) {
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(
-              builder: ((context) => const LoginPage()),
-            ),
-            (route) => false,
-          );
-          mySnackBar(
-            'The account you created was for Business app, create / login with another account for this app',
-            context,
-          );
-        }
-        return;
+      final developmentData = developmentSnap.data()!;
+
+      final userUnderDevelopment = developmentData['userUnderDevelopment'];
+
+      if (userUnderDevelopment) {
+        detailsPage = UnderDevelopmentPage();
       } else {
-        final userData = userSnap.data()!;
+        final userSnap =
+            await store.collection('Users').doc(auth.currentUser!.uid).get();
 
-        if (userData['Name'] == null || userData['Email'] == null) {
-          setState(() {
-            detailsPage = const RegisterDetailsPage(
-              emailPhoneGoogleChosen: 0,
+        if (!userSnap.exists) {
+          await auth.signOut();
+          if (mounted) {
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(
+                builder: ((context) => const LoginPage()),
+              ),
+              (route) => false,
             );
-          });
-        } else if (auth.currentUser!.email == null) {
-          setState(() {
-            detailsPage = SetEmailPage();
-          });
-        } else if (auth.currentUser!.email != null &&
-            auth.currentUser!.email!.length > 4 &&
-            !auth.currentUser!.emailVerified) {
-          setState(() {
-            detailsPage = EmailVerifyPage();
-          });
+            mySnackBar(
+              'The account you created was for Business app, create / login with another account for this app',
+              context,
+            );
+          }
+          return;
         } else {
-          setState(() {
-            detailsPage = null;
-          });
+          final userData = userSnap.data()!;
+
+          if (userData['Name'] == null || userData['Email'] == null) {
+            setState(() {
+              detailsPage = const RegisterDetailsPage(
+                emailPhoneGoogleChosen: 0,
+              );
+            });
+          } else if (auth.currentUser!.email == null) {
+            setState(() {
+              detailsPage = SetEmailPage();
+            });
+          } else if (auth.currentUser!.email != null &&
+              auth.currentUser!.email!.length > 4 &&
+              !auth.currentUser!.emailVerified) {
+            setState(() {
+              detailsPage = EmailVerifyPage();
+            });
+          } else {
+            setState(() {
+              detailsPage = null;
+            });
+          }
         }
       }
     } catch (e) {
@@ -101,19 +113,13 @@ class _MainPageState extends State<MainPage> {
     // messaging.subscribeToTopic('all').then((_) {}).catchError((e) {});
   }
 
-  // CHANGE PAGE
-  void changePage(int index) {
-    if (!loadedPages.contains(index)) {
-      loadedPages.add(index);
-    }
-    setState(() {
-      currentIndex = index;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    List<Widget> items = [
+    final mainPageProvider = Provider.of<MainPageProvider>(context);
+    final loadedPages = mainPageProvider.loadedPages;
+    final currentIndex = mainPageProvider.index;
+
+    final List<Widget> items = [
       const ProductHomePage(),
       loadedPages.contains(1) ? const ProductsScrollPage() : Container(),
       loadedPages.contains(2)
@@ -162,7 +168,7 @@ class _MainPageState extends State<MainPage> {
             ),
             currentIndex: currentIndex,
             onTap: (index) {
-              changePage(index);
+              mainPageProvider.changeIndex(index);
             },
             items: const [
               BottomNavigationBarItem(

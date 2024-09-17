@@ -1,4 +1,5 @@
 import 'package:localsearch_user/page/main/vendor/product/product_page.dart';
+import 'package:localsearch_user/providers/main_page_provider.dart';
 import 'package:localsearch_user/widgets/post_skeleton_container.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -8,6 +9,7 @@ import 'package:localsearch_user/utils/colors.dart';
 import 'package:localsearch_user/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ProductsScrollPage extends StatefulWidget {
   const ProductsScrollPage({super.key});
@@ -205,385 +207,395 @@ class _ProductsScrollPageState extends State<ProductsScrollPage> {
 
   @override
   Widget build(BuildContext context) {
+    final mainPageProvider = Provider.of<MainPageProvider>(context);
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Posts'),
-        actions: [
-          IconButton(
-            onPressed: () async {
-              await showYouTubePlayerDialog(
-                context,
-                getYoutubeVideoId(
-                  '',
-                ),
-              );
-            },
-            icon: const Icon(
-              Icons.question_mark_outlined,
-            ),
-            tooltip: 'Help',
-          ),
-        ],
-        automaticallyImplyLeading: false,
-      ),
-      body: !isData
-          ? SizedBox(
-              width: width,
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: 4,
-                physics: const ClampingScrollPhysics(),
-                itemBuilder: ((context, index) {
-                  return PostSkeletonContainer(
-                    width: width,
-                    height: width * 1.25,
-                  );
-                }),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        mainPageProvider.goToHomePage();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Posts'),
+          actions: [
+            IconButton(
+              onPressed: () async {
+                await showYouTubePlayerDialog(
+                  context,
+                  getYoutubeVideoId(
+                    '',
+                  ),
+                );
+              },
+              icon: const Icon(
+                Icons.question_mark_outlined,
               ),
-            )
-          : products.isEmpty
-              ? const Center(
-                  child: Text('No Posts Available'),
-                )
-              : SafeArea(
-                  child: RefreshIndicator(
-                    onRefresh: () async {
-                      await getTotal();
-                      setState(() {
-                        noOf = 2;
-                      });
-                      await getPosts();
-                    },
-                    color: primaryDark,
-                    backgroundColor: const Color.fromARGB(255, 243, 253, 255),
-                    semanticsLabel: 'Refresh',
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: width * 0.00625,
-                      ),
-                      child: ListView.builder(
-                        controller: scrollController,
-                        cacheExtent: height * 1.5,
-                        addAutomaticKeepAlives: true,
-                        primary: false,
-                        shrinkWrap: true,
-                        physics: const ClampingScrollPhysics(),
-                        itemCount:
-                            isLoadMore ? products.length + 1 : products.length,
-                        itemBuilder: ((context, index) {
-                          final String id = products.keys
-                              .toList()[isLoadMore ? index - 1 : index];
+              tooltip: 'Help',
+            ),
+          ],
+          automaticallyImplyLeading: false,
+        ),
+        body: !isData
+            ? SizedBox(
+                width: width,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: 4,
+                  physics: const ClampingScrollPhysics(),
+                  itemBuilder: ((context, index) {
+                    return PostSkeletonContainer(
+                      width: width,
+                      height: width * 1.25,
+                    );
+                  }),
+                ),
+              )
+            : products.isEmpty
+                ? const Center(
+                    child: Text('No Posts Available'),
+                  )
+                : SafeArea(
+                    child: RefreshIndicator(
+                      onRefresh: () async {
+                        await getTotal();
+                        setState(() {
+                          noOf = 2;
+                        });
+                        await getPosts();
+                      },
+                      color: primaryDark,
+                      backgroundColor: const Color.fromARGB(255, 243, 253, 255),
+                      semanticsLabel: 'Refresh',
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: width * 0.00625,
+                        ),
+                        child: ListView.builder(
+                          controller: scrollController,
+                          cacheExtent: height * 1.5,
+                          addAutomaticKeepAlives: true,
+                          primary: false,
+                          shrinkWrap: true,
+                          physics: const ClampingScrollPhysics(),
+                          itemCount: isLoadMore
+                              ? products.length + 1
+                              : products.length,
+                          itemBuilder: ((context, index) {
+                            final String id = products.keys
+                                .toList()[isLoadMore ? index - 1 : index];
 
-                          final String name = products.values
-                              .toList()[isLoadMore ? index - 1 : index][0];
-                          final List? imageUrl = products.values
-                              .toList()[isLoadMore ? index - 1 : index][1];
-                          final price = products.values
-                              .toList()[isLoadMore ? index - 1 : index][2];
-                          final String vendorId = products.values
-                              .toList()[isLoadMore ? index - 1 : index][3];
-                          final bool isWishlist = products.values
-                              .toList()[isLoadMore ? index - 1 : index][5];
+                            final String name = products.values
+                                .toList()[isLoadMore ? index - 1 : index][0];
+                            final List? imageUrl = products.values
+                                .toList()[isLoadMore ? index - 1 : index][1];
+                            final price = products.values
+                                .toList()[isLoadMore ? index - 1 : index][2];
+                            final String vendorId = products.values
+                                .toList()[isLoadMore ? index - 1 : index][3];
+                            final bool isWishlist = products.values
+                                .toList()[isLoadMore ? index - 1 : index][5];
 
-                          bool isWishListed = isWishlist;
+                            bool isWishListed = isWishlist;
 
-                          final String vendorName =
-                              vendors.isEmpty ? '' : vendors[vendorId][0];
-                          final String vendorImageUrl =
-                              vendors.isEmpty ? '' : vendors[vendorId][1];
+                            final String vendorName =
+                                vendors.isEmpty ? '' : vendors[vendorId][0];
+                            final String vendorImageUrl =
+                                vendors.isEmpty ? '' : vendors[vendorId][1];
 
-                          return index <= products.length
-                              ? GestureDetector(
-                                  onTap: () async {
-                                    final productSnap = await store
-                                        .collection('Business')
-                                        .doc('Data')
-                                        .collection('Products')
-                                        .doc(id)
-                                        .get();
+                            return index <= products.length
+                                ? GestureDetector(
+                                    onTap: () async {
+                                      final productSnap = await store
+                                          .collection('Business')
+                                          .doc('Data')
+                                          .collection('Products')
+                                          .doc(id)
+                                          .get();
 
-                                    final productData = productSnap.data()!;
-                                    if (context.mounted) {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: (context) => ProductPage(
-                                            productData: productData,
+                                      final productData = productSnap.data()!;
+                                      if (context.mounted) {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (context) => ProductPage(
+                                              productData: productData,
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    child: Container(
+                                      width: width,
+                                      decoration: const BoxDecoration(
+                                        border: Border(
+                                          left: BorderSide(
+                                            width: 0.06125,
+                                            color: black,
+                                          ),
+                                          right: BorderSide(
+                                            width: 0.06125,
+                                            color: black,
+                                          ),
+                                          top: BorderSide(
+                                            width: 0.06125,
+                                            color: black,
                                           ),
                                         ),
-                                      );
-                                    }
-                                  },
-                                  child: Container(
-                                    width: width,
-                                    decoration: const BoxDecoration(
-                                      border: Border(
-                                        left: BorderSide(
-                                          width: 0.06125,
-                                          color: black,
-                                        ),
-                                        right: BorderSide(
-                                          width: 0.06125,
-                                          color: black,
-                                        ),
-                                        top: BorderSide(
-                                          width: 0.06125,
-                                          color: black,
-                                        ),
                                       ),
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        const SizedBox(height: 4),
-                                        // VENDOR INFO
-                                        vendors.isEmpty
-                                            ? Container()
-                                            : Padding(
-                                                padding: EdgeInsets.symmetric(
-                                                  horizontal: width * 0.0125,
-                                                ),
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.center,
-                                                  children: [
-                                                    GestureDetector(
-                                                      onTap: () {
-                                                        Navigator.of(context)
-                                                            .push(
-                                                          MaterialPageRoute(
-                                                            builder:
-                                                                ((context) =>
-                                                                    VendorPage(
-                                                                      vendorId:
-                                                                          vendorId,
-                                                                    )),
-                                                          ),
-                                                        );
-                                                      },
-                                                      child: Row(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .center,
-                                                        children: [
-                                                          CircleAvatar(
-                                                            radius:
-                                                                width * 0.04,
-                                                            backgroundColor:
-                                                                primary2,
-                                                            backgroundImage:
-                                                                NetworkImage(
-                                                              vendorImageUrl,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const SizedBox(height: 4),
+                                          // VENDOR INFO
+                                          vendors.isEmpty
+                                              ? Container()
+                                              : Padding(
+                                                  padding: EdgeInsets.symmetric(
+                                                    horizontal: width * 0.0125,
+                                                  ),
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      GestureDetector(
+                                                        onTap: () {
+                                                          Navigator.of(context)
+                                                              .push(
+                                                            MaterialPageRoute(
+                                                              builder:
+                                                                  ((context) =>
+                                                                      VendorPage(
+                                                                        vendorId:
+                                                                            vendorId,
+                                                                      )),
                                                             ),
-                                                          ),
-                                                          SizedBox(
-                                                            width:
-                                                                width * 0.0125,
-                                                          ),
-                                                          Text(
-                                                            vendorName,
-                                                            maxLines: 1,
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .ellipsis,
-                                                            style:
-                                                                const TextStyle(
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w500,
+                                                          );
+                                                        },
+                                                        child: Row(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            CircleAvatar(
+                                                              radius:
+                                                                  width * 0.04,
+                                                              backgroundColor:
+                                                                  primary2,
+                                                              backgroundImage:
+                                                                  NetworkImage(
+                                                                vendorImageUrl,
+                                                              ),
                                                             ),
-                                                          ),
-                                                        ],
+                                                            SizedBox(
+                                                              width: width *
+                                                                  0.0125,
+                                                            ),
+                                                            Text(
+                                                              vendorName,
+                                                              maxLines: 1,
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                              style:
+                                                                  const TextStyle(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+
+                                                      // SHARE
+                                                      IconButton(
+                                                        onPressed: () {},
+                                                        icon: const Icon(
+                                                          FeatherIcons.share2,
+                                                        ),
+                                                        tooltip: 'Share Post',
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+
+                                          // IMAGES
+                                          Stack(
+                                            alignment: Alignment.bottomCenter,
+                                            children: [
+                                              Container(
+                                                width: width,
+                                                height: width,
+                                                decoration: const BoxDecoration(
+                                                  color: Color.fromRGBO(
+                                                    237,
+                                                    237,
+                                                    237,
+                                                    1,
+                                                  ),
+                                                ),
+                                                child: CarouselSlider(
+                                                  items: imageUrl!
+                                                      .map(
+                                                        (e) => Image.network(
+                                                          e,
+                                                          width: width,
+                                                          height: width,
+                                                          fit: BoxFit.cover,
+                                                        ),
+                                                      )
+                                                      .toList(),
+                                                  options: CarouselOptions(
+                                                    enableInfiniteScroll:
+                                                        imageUrl.length > 1
+                                                            ? true
+                                                            : false,
+                                                    viewportFraction: 1,
+                                                    aspectRatio: 0.7875,
+                                                    enlargeCenterPage: false,
+                                                  ),
+                                                ),
+                                              ),
+
+                                              // DOTS
+                                              // isTextPost
+                                              //     ? Container()
+                                              //     : Padding(
+                                              //         padding: const EdgeInsets.only(
+                                              //           bottom: 8,
+                                              //         ),
+                                              //         child: Row(
+                                              //           mainAxisAlignment:
+                                              //               MainAxisAlignment.center,
+                                              //           crossAxisAlignment:
+                                              //               CrossAxisAlignment.center,
+                                              //           children: (imageUrl).map((e) {
+                                              //             int index = imageUrl.indexOf(e);
+
+                                              //             return Container(
+                                              //               width: 8,
+                                              //               height: 8,
+                                              //               margin: const EdgeInsets.all(4),
+                                              //               decoration: BoxDecoration(
+                                              //                 shape: BoxShape.circle,
+                                              //                 color: currentIndex == index
+                                              //                     ? primaryDark
+                                              //                     : primary2,
+                                              //               ),
+                                              //             );
+                                              //           }).toList(),
+                                              //         ),
+                                              //       ),
+                                            ],
+                                          ),
+
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceAround,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  // NAME
+                                                  Padding(
+                                                    padding: EdgeInsets.all(
+                                                      width * 0.0125,
+                                                    ),
+                                                    child: SizedBox(
+                                                      width: width * 0.75,
+                                                      child: Text(
+                                                        name,
+                                                        maxLines: 2,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        textAlign:
+                                                            TextAlign.start,
                                                       ),
                                                     ),
+                                                  ),
 
-                                                    // SHARE
-                                                    IconButton(
-                                                      onPressed: () {},
-                                                      icon: const Icon(
-                                                        FeatherIcons.share2,
+                                                  // PRICE
+                                                  Padding(
+                                                    padding: EdgeInsets.all(
+                                                      width * 0.0125,
+                                                    ),
+                                                    child: SizedBox(
+                                                      width: width * 0.75,
+                                                      child: Text(
+                                                        'Rs. $price',
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        textAlign:
+                                                            TextAlign.start,
                                                       ),
-                                                      tooltip: 'Share Post',
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-
-                                        // IMAGES
-                                        Stack(
-                                          alignment: Alignment.bottomCenter,
-                                          children: [
-                                            Container(
-                                              width: width,
-                                              height: width,
-                                              decoration: const BoxDecoration(
-                                                color: Color.fromRGBO(
-                                                  237,
-                                                  237,
-                                                  237,
-                                                  1,
-                                                ),
-                                              ),
-                                              child: CarouselSlider(
-                                                items: imageUrl!
-                                                    .map(
-                                                      (e) => Image.network(
-                                                        e,
-                                                        width: width,
-                                                        height: width,
-                                                        fit: BoxFit.cover,
-                                                      ),
-                                                    )
-                                                    .toList(),
-                                                options: CarouselOptions(
-                                                  enableInfiniteScroll:
-                                                      imageUrl.length > 1
-                                                          ? true
-                                                          : false,
-                                                  viewportFraction: 1,
-                                                  aspectRatio: 0.7875,
-                                                  enlargeCenterPage: false,
-                                                ),
-                                              ),
-                                            ),
-
-                                            // DOTS
-                                            // isTextPost
-                                            //     ? Container()
-                                            //     : Padding(
-                                            //         padding: const EdgeInsets.only(
-                                            //           bottom: 8,
-                                            //         ),
-                                            //         child: Row(
-                                            //           mainAxisAlignment:
-                                            //               MainAxisAlignment.center,
-                                            //           crossAxisAlignment:
-                                            //               CrossAxisAlignment.center,
-                                            //           children: (imageUrl).map((e) {
-                                            //             int index = imageUrl.indexOf(e);
-
-                                            //             return Container(
-                                            //               width: 8,
-                                            //               height: 8,
-                                            //               margin: const EdgeInsets.all(4),
-                                            //               decoration: BoxDecoration(
-                                            //                 shape: BoxShape.circle,
-                                            //                 color: currentIndex == index
-                                            //                     ? primaryDark
-                                            //                     : primary2,
-                                            //               ),
-                                            //             );
-                                            //           }).toList(),
-                                            //         ),
-                                            //       ),
-                                          ],
-                                        ),
-
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.spaceAround,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                // NAME
-                                                Padding(
-                                                  padding: EdgeInsets.all(
-                                                    width * 0.0125,
-                                                  ),
-                                                  child: SizedBox(
-                                                    width: width * 0.75,
-                                                    child: Text(
-                                                      name,
-                                                      maxLines: 2,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      textAlign:
-                                                          TextAlign.start,
                                                     ),
                                                   ),
-                                                ),
-
-                                                // PRICE
-                                                Padding(
-                                                  padding: EdgeInsets.all(
-                                                    width * 0.0125,
-                                                  ),
-                                                  child: SizedBox(
-                                                    width: width * 0.75,
-                                                    child: Text(
-                                                      'Rs. $price',
-                                                      maxLines: 1,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      textAlign:
-                                                          TextAlign.start,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-
-                                            // WISHLIST
-                                            Padding(
-                                              padding: EdgeInsets.only(
-                                                right: width * 0.0125,
+                                                ],
                                               ),
-                                              child: IconButton(
-                                                onPressed: () async {
-                                                  setState(() {
-                                                    products[id][5] =
-                                                        !isWishListed;
-                                                  });
-                                                  await wishlistProduct(
-                                                    id,
-                                                    !products[id][5],
-                                                  );
-                                                },
-                                                icon: Icon(
-                                                  products[id][5]
-                                                      ? Icons.favorite_rounded
-                                                      : Icons
-                                                          .favorite_outline_rounded,
-                                                  size: width * 0.095,
+
+                                              // WISHLIST
+                                              Padding(
+                                                padding: EdgeInsets.only(
+                                                  right: width * 0.0125,
+                                                ),
+                                                child: IconButton(
+                                                  onPressed: () async {
+                                                    setState(() {
+                                                      products[id][5] =
+                                                          !isWishListed;
+                                                    });
+                                                    await wishlistProduct(
+                                                      id,
+                                                      !products[id][5],
+                                                    );
+                                                  },
+                                                  icon: Icon(
+                                                    products[id][5]
+                                                        ? Icons.favorite_rounded
+                                                        : Icons
+                                                            .favorite_outline_rounded,
+                                                    size: width * 0.095,
+                                                    color: Colors.red,
+                                                  ),
                                                   color: Colors.red,
+                                                  tooltip: 'WISHLIST',
                                                 ),
-                                                color: Colors.red,
-                                                tooltip: 'WISHLIST',
                                               ),
-                                            ),
-                                          ],
-                                        ),
+                                            ],
+                                          ),
 
-                                        const SizedBox(height: 4),
-                                      ],
-                                    ),
-                                  ),
-                                )
-                              : isLoadMore
-                                  ? SizedBox(
-                                      height: 45,
-                                      child: Center(
-                                        child: CircularProgressIndicator(),
+                                          const SizedBox(height: 4),
+                                        ],
                                       ),
-                                    )
-                                  : Container();
-                        }),
+                                    ),
+                                  )
+                                : isLoadMore
+                                    ? SizedBox(
+                                        height: 45,
+                                        child: Center(
+                                          child: CircularProgressIndicator(),
+                                        ),
+                                      )
+                                    : Container();
+                          }),
+                        ),
                       ),
                     ),
                   ),
-                ),
+      ),
     );
   }
 }

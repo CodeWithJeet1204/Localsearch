@@ -4,6 +4,7 @@ import 'package:localsearch_user/page/auth/register_method_page.dart';
 import 'package:localsearch_user/page/main/get_location_page.dart';
 import 'package:localsearch_user/page/main/main_page.dart';
 import 'package:localsearch_user/providers/location_provider.dart';
+import 'package:localsearch_user/providers/main_page_provider.dart';
 import 'package:localsearch_user/providers/register_details_provider.dart';
 import 'package:localsearch_user/providers/verification_provider.dart';
 import 'package:localsearch_user/utils/colors.dart';
@@ -30,6 +31,9 @@ void main() async {
         ),
         ChangeNotifierProvider(
           create: (_) => RegisterDetailsProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => MainPageProvider(),
         ),
       ],
       child: const MyApp(),
