@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:localsearch_user/widgets/snack_bar.dart';
+import 'package:localsearch/widgets/snack_bar.dart';
 
 class VendorCataloguePage extends StatefulWidget {
   const VendorCataloguePage({

@@ -1,5 +1,5 @@
-import 'package:localsearch_user/page/main/vendor/discount/discount_page.dart';
-import 'package:localsearch_user/utils/colors.dart';
+import 'package:localsearch/page/main/vendor/discount/discount_page.dart';
+import 'package:localsearch/utils/colors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 

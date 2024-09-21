@@ -1,5 +1,5 @@
-import 'package:localsearch_user/utils/colors.dart';
-import 'package:localsearch_user/widgets/text_button.dart';
+import 'package:localsearch/utils/colors.dart';
+import 'package:localsearch/widgets/text_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 

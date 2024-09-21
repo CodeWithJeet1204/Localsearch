@@ -1,12 +1,12 @@
-import 'package:localsearch_user/widgets/shimmer_skeleton_container.dart';
+import 'package:localsearch/widgets/shimmer_skeleton_container.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:localsearch_user/page/main/vendor/brand/brand_page.dart';
-import 'package:localsearch_user/page/main/vendor/category/category_page.dart';
-import 'package:localsearch_user/page/main/vendor/product/product_page.dart';
-import 'package:localsearch_user/utils/colors.dart';
+import 'package:localsearch/page/main/vendor/brand/brand_page.dart';
+import 'package:localsearch/page/main/vendor/category/category_page.dart';
+import 'package:localsearch/page/main/vendor/product/product_page.dart';
+import 'package:localsearch/utils/colors.dart';
 
 class DiscountPage extends StatefulWidget {
   const DiscountPage({

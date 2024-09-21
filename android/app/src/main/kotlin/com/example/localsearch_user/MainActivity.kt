@@ -1,4 +1,4 @@
-package com.example.localsearch_user
+package com.example.localsearch
 
 import io.flutter.embedding.android.FlutterActivity
 

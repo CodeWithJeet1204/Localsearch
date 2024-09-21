@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:localsearch_user/page/main/vendor/category/category_products_page.dart';
-import 'package:localsearch_user/utils/colors.dart';
-import 'package:localsearch_user/widgets/video_tutorial.dart';
+import 'package:localsearch/page/main/vendor/category/category_products_page.dart';
+import 'package:localsearch/utils/colors.dart';
+import 'package:localsearch/widgets/video_tutorial.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';

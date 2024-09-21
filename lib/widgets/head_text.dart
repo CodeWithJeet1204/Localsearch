@@ -1,4 +1,4 @@
-import 'package:localsearch_user/utils/colors.dart';
+import 'package:localsearch/utils/colors.dart';
 import 'package:flutter/material.dart';
 
 class HeadText extends StatelessWidget {

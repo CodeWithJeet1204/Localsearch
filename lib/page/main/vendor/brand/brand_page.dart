@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:localsearch_user/page/main/vendor/product/product_page.dart';
-import 'package:localsearch_user/utils/colors.dart';
-import 'package:localsearch_user/widgets/image_show.dart';
-import 'package:localsearch_user/widgets/video_tutorial.dart';
+import 'package:localsearch/page/main/vendor/product/product_page.dart';
+import 'package:localsearch/utils/colors.dart';
+import 'package:localsearch/widgets/image_show.dart';
+import 'package:localsearch/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 

@@ -1,27 +1,27 @@
 // ignore_for_file: avoid_function_literals_in_foreach_calls, unused_local_variable
 import 'dart:async';
 import 'dart:convert';
-import 'package:localsearch_user/page/main/vendor/post_page_view.dart';
-import 'package:localsearch_user/page/main/vendor/profile/wishlist_page.dart';
-import 'package:localsearch_user/widgets/text_button.dart';
+import 'package:localsearch/page/main/vendor/post_page_view.dart';
+import 'package:localsearch/page/main/vendor/profile/wishlist_page.dart';
+import 'package:localsearch/widgets/text_button.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
-import 'package:localsearch_user/page/main/vendor/discount/all_discount_page.dart';
-import 'package:localsearch_user/page/main/location_change_page.dart';
-import 'package:localsearch_user/page/main/main_page.dart';
-import 'package:localsearch_user/page/main/vendor/category/all_shop_types_page.dart';
-import 'package:localsearch_user/page/main/vendor/home/shop_categories_page.dart';
-import 'package:localsearch_user/page/main/vendor/product/product_page.dart';
-import 'package:localsearch_user/page/main/search/search_page.dart';
-import 'package:localsearch_user/page/main/vendor/vendor_page.dart';
-import 'package:localsearch_user/providers/location_provider.dart';
-import 'package:localsearch_user/utils/colors.dart';
+import 'package:localsearch/page/main/vendor/discount/all_discount_page.dart';
+import 'package:localsearch/page/main/location_change_page.dart';
+import 'package:localsearch/page/main/main_page.dart';
+import 'package:localsearch/page/main/vendor/category/all_shop_types_page.dart';
+import 'package:localsearch/page/main/vendor/home/shop_categories_page.dart';
+import 'package:localsearch/page/main/vendor/product/product_page.dart';
+import 'package:localsearch/page/main/search/search_page.dart';
+import 'package:localsearch/page/main/vendor/vendor_page.dart';
+import 'package:localsearch/providers/location_provider.dart';
+import 'package:localsearch/utils/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:localsearch_user/widgets/snack_bar.dart';
-import 'package:localsearch_user/widgets/video_tutorial.dart';
+import 'package:localsearch/widgets/snack_bar.dart';
+import 'package:localsearch/widgets/video_tutorial.dart';
 import 'package:provider/provider.dart';
 
 class ProductHomePage extends StatefulWidget {

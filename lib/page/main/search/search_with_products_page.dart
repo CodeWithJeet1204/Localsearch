@@ -1,11 +1,11 @@
 // import 'package:cloud_firestore/cloud_firestore.dart';
 // import 'package:feather_icons/feather_icons.dart';
-// import 'package:localsearch_user/page/main/vendor/product/product_page.dart';
-// import 'package:localsearch_user/page/main/search/search_page.dart';
-// import 'package:localsearch_user/utils/colors.dart';
-// import 'package:localsearch_user/widgets/product_quick_view.dart';
-// import 'package:localsearch_user/widgets/skeleton_container.dart';
-// import 'package:localsearch_user/widgets/snack_bar.dart';
+// import 'package:localsearch/page/main/vendor/product/product_page.dart';
+// import 'package:localsearch/page/main/search/search_page.dart';
+// import 'package:localsearch/utils/colors.dart';
+// import 'package:localsearch/widgets/product_quick_view.dart';
+// import 'package:localsearch/widgets/skeleton_container.dart';
+// import 'package:localsearch/widgets/snack_bar.dart';
 // import 'package:flutter/material.dart';
 // import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 

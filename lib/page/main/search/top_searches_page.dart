@@ -1,7 +1,7 @@
 import 'package:feather_icons/feather_icons.dart';
-import 'package:localsearch_user/page/main/search/search_results_page.dart';
-import 'package:localsearch_user/utils/colors.dart';
-import 'package:localsearch_user/widgets/video_tutorial.dart';
+import 'package:localsearch/page/main/search/search_results_page.dart';
+import 'package:localsearch/utils/colors.dart';
+import 'package:localsearch/widgets/video_tutorial.dart';
 import 'package:flutter/material.dart';
 
 class TopSearchPage extends StatefulWidget {
@@ -36,7 +36,7 @@ class _TopSearchPageState extends State<TopSearchPage> {
   }
 
   // SCROLL LISTENER
-  Future<void> scrollListener() async {
+  void scrollListener() {
     if (noOf < widget.data.length) {
       if (scrollController.position.pixels ==
           scrollController.position.maxScrollExtent) {

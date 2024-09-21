@@ -1,13 +1,13 @@
 import 'dart:convert';
-import 'package:localsearch_user/providers/location_provider.dart';
+import 'package:localsearch/providers/location_provider.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:http/http.dart' as http;
-import 'package:localsearch_user/utils/colors.dart';
-import 'package:localsearch_user/widgets/button.dart';
-import 'package:localsearch_user/widgets/snack_bar.dart';
-import 'package:localsearch_user/widgets/video_tutorial.dart';
+import 'package:localsearch/utils/colors.dart';
+import 'package:localsearch/widgets/button.dart';
+import 'package:localsearch/widgets/snack_bar.dart';
+import 'package:localsearch/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';

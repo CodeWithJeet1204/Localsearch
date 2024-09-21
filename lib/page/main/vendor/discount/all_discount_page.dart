@@ -3,12 +3,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:localsearch_user/page/main/vendor/discount/discount_page.dart';
-import 'package:localsearch_user/page/main/location_change_page.dart';
-import 'package:localsearch_user/providers/location_provider.dart';
-import 'package:localsearch_user/utils/colors.dart';
-import 'package:localsearch_user/widgets/shimmer_skeleton_container.dart';
-import 'package:localsearch_user/widgets/snack_bar.dart';
+import 'package:localsearch/page/main/vendor/discount/discount_page.dart';
+import 'package:localsearch/page/main/location_change_page.dart';
+import 'package:localsearch/providers/location_provider.dart';
+import 'package:localsearch/utils/colors.dart';
+import 'package:localsearch/widgets/shimmer_skeleton_container.dart';
+import 'package:localsearch/widgets/snack_bar.dart';
 import 'package:provider/provider.dart';
 
 class AllDiscountPage extends StatefulWidget {
@@ -52,6 +52,64 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
     scrollControllerListView.dispose();
     searchController.dispose();
     super.dispose();
+  }
+
+  // SCROLL LISTENER LIST VIEW
+  Future<void> scrollListenerListView() async {
+    if (totalListView != null && noOfListView < totalListView!) {
+      if (scrollControllerListView.position.pixels ==
+          scrollControllerListView.position.maxScrollExtent) {
+        final locationProvider = Provider.of<LocationProvider>(
+          context,
+          listen: false,
+        );
+        setState(() {
+          isLoadMoreListView = true;
+        });
+        noOfListView = noOfListView + 4;
+        await getDiscounts(locationProvider);
+        setState(() {
+          isLoadMoreListView = false;
+        });
+      }
+    }
+  }
+
+  // SCROLL LISTENER GRID VIEW
+  Future<void> scrollListenerGridView() async {
+    if (totalGridView != null && noOfGridView < totalGridView!) {
+      if (scrollControllerGridView.position.pixels ==
+          scrollControllerGridView.position.maxScrollExtent) {
+        final locationProvider = Provider.of<LocationProvider>(
+          context,
+          listen: false,
+        );
+        setState(() {
+          isLoadMoreGridView = true;
+        });
+        noOfGridView = noOfGridView + 4;
+        await getDiscounts(locationProvider);
+        setState(() {
+          isLoadMoreGridView = false;
+        });
+      }
+    }
+  }
+
+  // GET TOTAL
+  Future<void> getTotal() async {
+    final totalSnap = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Discounts')
+        .get();
+
+    final totalLength = totalSnap.docs.length;
+
+    setState(() {
+      totalListView = totalLength;
+      totalGridView = totalLength;
+    });
   }
 
   // GET DATA
@@ -183,64 +241,6 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
     });
     setState(() {
       currentDiscounts = tempDiscounts;
-    });
-  }
-
-  // SCROLL LISTENER LIST VIEW
-  Future<void> scrollListenerListView() async {
-    if (totalListView != null && noOfListView < totalListView!) {
-      if (scrollControllerListView.position.pixels ==
-          scrollControllerListView.position.maxScrollExtent) {
-        final locationProvider = Provider.of<LocationProvider>(
-          context,
-          listen: false,
-        );
-        setState(() {
-          isLoadMoreListView = true;
-        });
-        noOfListView = noOfListView + 4;
-        await getDiscounts(locationProvider);
-        setState(() {
-          isLoadMoreListView = false;
-        });
-      }
-    }
-  }
-
-  // SCROLL LISTENER GRID VIEW
-  Future<void> scrollListenerGridView() async {
-    if (totalGridView != null && noOfGridView < totalGridView!) {
-      if (scrollControllerGridView.position.pixels ==
-          scrollControllerGridView.position.maxScrollExtent) {
-        final locationProvider = Provider.of<LocationProvider>(
-          context,
-          listen: false,
-        );
-        setState(() {
-          isLoadMoreGridView = true;
-        });
-        noOfGridView = noOfGridView + 4;
-        await getDiscounts(locationProvider);
-        setState(() {
-          isLoadMoreGridView = false;
-        });
-      }
-    }
-  }
-
-  // GET TOTAL
-  Future<void> getTotal() async {
-    final totalSnap = await store
-        .collection('Business')
-        .doc('Data')
-        .collection('Discounts')
-        .get();
-
-    final totalLength = totalSnap.docs.length;
-
-    setState(() {
-      totalListView = totalLength;
-      totalGridView = totalLength;
     });
   }
 

@@ -2,9 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:localsearch_user/providers/location_provider.dart';
-import 'package:localsearch_user/utils/colors.dart';
-import 'package:localsearch_user/widgets/snack_bar.dart';
+import 'package:localsearch/providers/location_provider.dart';
+import 'package:localsearch/utils/colors.dart';
+import 'package:localsearch/widgets/snack_bar.dart';
 import 'package:provider/provider.dart';
 
 class LocationChangePage extends StatefulWidget {

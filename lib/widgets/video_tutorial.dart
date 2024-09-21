@@ -1,5 +1,5 @@
-import 'package:localsearch_user/utils/colors.dart';
-import 'package:localsearch_user/widgets/snack_bar.dart';
+import 'package:localsearch/utils/colors.dart';
+import 'package:localsearch/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 

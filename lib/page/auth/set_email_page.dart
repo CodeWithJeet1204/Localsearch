@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:localsearch_user/page/auth/verify/email_verify.dart';
-import 'package:localsearch_user/widgets/button.dart';
-import 'package:localsearch_user/widgets/text_form_field.dart';
+import 'package:localsearch/page/auth/verify/email_verify.dart';
+import 'package:localsearch/widgets/button.dart';
+import 'package:localsearch/widgets/text_form_field.dart';
 
 class SetEmailPage extends StatefulWidget {
   const SetEmailPage({super.key});

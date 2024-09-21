@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:localsearch_user/page/main/vendor/vendor_page.dart';
-import 'package:localsearch_user/utils/colors.dart';
-import 'package:localsearch_user/widgets/skeleton_container.dart';
-import 'package:localsearch_user/widgets/snack_bar.dart';
-import 'package:localsearch_user/widgets/text_button.dart';
-import 'package:localsearch_user/widgets/video_tutorial.dart';
+import 'package:localsearch/page/main/vendor/vendor_page.dart';
+import 'package:localsearch/utils/colors.dart';
+import 'package:localsearch/widgets/skeleton_container.dart';
+import 'package:localsearch/widgets/snack_bar.dart';
+import 'package:localsearch/widgets/text_button.dart';
+import 'package:localsearch/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;

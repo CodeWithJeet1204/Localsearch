@@ -1,8 +1,8 @@
 // ignore_for_file: unused_field
-import 'package:localsearch_user/page/main/vendor/shorts_tile.dart';
+import 'package:localsearch/page/main/vendor/shorts_tile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:localsearch_user/providers/main_page_provider.dart';
+import 'package:localsearch/providers/main_page_provider.dart';
 import 'package:provider/provider.dart';
 // import 'package:preload_page_view/preload_page_view.dart';
 import 'package:video_player/video_player.dart';

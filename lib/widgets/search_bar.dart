@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
-import 'package:localsearch_user/page/main/search/search_results_page.dart';
-import 'package:localsearch_user/utils/colors.dart';
-import 'package:localsearch_user/widgets/speech_to_text.dart';
+import 'package:localsearch/page/main/search/search_results_page.dart';
+import 'package:localsearch/utils/colors.dart';
+import 'package:localsearch/widgets/speech_to_text.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 

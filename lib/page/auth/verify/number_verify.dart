@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:localsearch_user/page/auth/register_details_page.dart';
-import 'package:localsearch_user/page/main/main_page.dart';
-import 'package:localsearch_user/utils/colors.dart';
-import 'package:localsearch_user/widgets/button.dart';
-import 'package:localsearch_user/widgets/snack_bar.dart';
-import 'package:localsearch_user/widgets/text_form_field.dart';
+import 'package:localsearch/page/auth/register_details_page.dart';
+import 'package:localsearch/page/main/main_page.dart';
+import 'package:localsearch/utils/colors.dart';
+import 'package:localsearch/widgets/button.dart';
+import 'package:localsearch/widgets/snack_bar.dart';
+import 'package:localsearch/widgets/text_form_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

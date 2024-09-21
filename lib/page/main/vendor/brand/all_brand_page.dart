@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:localsearch_user/page/main/vendor/brand/brand_page.dart';
-import 'package:localsearch_user/utils/colors.dart';
-import 'package:localsearch_user/widgets/video_tutorial.dart';
+import 'package:localsearch/page/main/vendor/brand/brand_page.dart';
+import 'package:localsearch/utils/colors.dart';
+import 'package:localsearch/widgets/video_tutorial.dart';
 import 'package:flutter/material.dart';
 
 class AllBrandPage extends StatefulWidget {

@@ -1,4 +1,4 @@
-name: localsearch_user
+name: localsearch
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -45,7 +45,7 @@ dependencies:
   feather_icons: ^1.2.0
   cached_network_image: ^3.3.1
   path_provider: ^2.1.2
-  speech_to_text: ^6.6.0
+  speech_to_text: ^7.0.0
   # avatar_glow: ^3.0.1
   auto_size_text: ^3.0.0
   flutter_rating_bar: ^4.0.1
@@ -60,7 +60,7 @@ dependencies:
   youtube_player_flutter: ^9.0.3
   # firebase_messaging: ^15.0.4
   # flutter_local_notifications: ^17.1.2
-  geolocator: ^12.0.0
+  geolocator: ^13.0.1
   http: ^1.2.1
   image: ^4.2.0
   carousel_slider: ^5.0.0
