@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,7 @@ class AllDiscountPage extends StatefulWidget {
 }
 
 class _AllDiscountPageState extends State<AllDiscountPage> {
+  final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
   Map<String, Map<String, dynamic>> allDiscounts = {};
   Map<String, Map<String, dynamic>> currentDiscounts = {};
@@ -151,15 +153,18 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
       }
     }
 
-    if (locationProvider.cityName == 'Your Location') {
-      yourLatitude = locationProvider.cityLatitude;
-      yourLongitude = locationProvider.cityLongitude;
+    try {
+      final userSnap =
+          await store.collection('Users').doc(auth.currentUser!.uid).get();
+      final userData = userSnap.data()!;
+      final followedShops = userData['followedShops'];
 
-      await Future.forEach(
-        discountSnap.docs,
-        (discount) async {
+      if (locationProvider.cityName == 'Your Location') {
+        yourLatitude = locationProvider.cityLatitude;
+        yourLongitude = locationProvider.cityLongitude;
+
+        await Future.forEach(discountSnap.docs, (discount) async {
           final discountData = discount.data();
-
           final discountId = discount.id;
           final Timestamp endDateTime = discountData['discountEndDateTime'];
           final vendorLatitude = discountData['Latitude'];
@@ -168,64 +173,76 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
 
           if (yourLatitude != null && yourLongitude != null) {
             distance = await getDrivingDistance(
-              yourLatitude,
-              yourLongitude,
-              vendorLatitude,
-              vendorLongitude,
-            );
+                yourLatitude, yourLongitude, vendorLatitude, vendorLongitude);
           }
 
           if (distance != null) {
             if (distance * 0.925 < 5) {
               if (endDateTime.toDate().isAfter(DateTime.now())) {
-                discountData.addAll({
-                  'distance': distance,
-                });
+                discountData.addAll({'distance': distance});
                 myDiscounts[discountId] = discountData;
               }
             }
           }
-        },
-      );
+        });
 
-      if (mounted) {
+        if (mounted) {
+          List<MapEntry<String, Map<String, dynamic>>> sortedDiscounts =
+              myDiscounts.entries.toList()
+                ..sort((a, b) {
+                  bool aIsFollowed =
+                      followedShops.contains(a.value['vendorId']);
+                  bool bIsFollowed =
+                      followedShops.contains(b.value['vendorId']);
+                  if (aIsFollowed && !bIsFollowed) return -1;
+                  if (!aIsFollowed && bIsFollowed) return 1;
+                  return 0;
+                });
+
+          myDiscounts =
+              Map<String, Map<String, dynamic>>.fromEntries(sortedDiscounts);
+          setState(() {
+            currentDiscounts = myDiscounts;
+            allDiscounts = myDiscounts;
+            isData = true;
+          });
+        }
+      } else {
+        await Future.forEach(discountSnap.docs, (discount) async {
+          final discountData = discount.data();
+          final discountId = discount.id;
+          final Timestamp endDateTime = discountData['discountEndDateTime'];
+          final cityName = discountData['City'];
+
+          if (cityName == locationProvider.cityName) {
+            if (endDateTime.toDate().isAfter(DateTime.now())) {
+              myDiscounts[discountId] = discountData;
+            }
+          }
+        });
+
+        List<MapEntry<String, Map<String, dynamic>>> sortedDiscounts =
+            myDiscounts.entries.toList()
+              ..sort((a, b) {
+                bool aIsFollowed = followedShops.contains(a.value['vendorId']);
+                bool bIsFollowed = followedShops.contains(b.value['vendorId']);
+                if (aIsFollowed && !bIsFollowed) return -1;
+                if (!aIsFollowed && bIsFollowed) return 1;
+                return 0;
+              });
+
+        myDiscounts =
+            Map<String, Map<String, dynamic>>.fromEntries(sortedDiscounts);
+
         setState(() {
           currentDiscounts = myDiscounts;
           allDiscounts = myDiscounts;
           isData = true;
         });
       }
-    } else {
-      try {
-        await Future.forEach(
-          discountSnap.docs,
-          (discount) async {
-            final discountData = discount.data();
-
-            final discountId = discount.id;
-            final Timestamp endDateTime = discountData['discountEndDateTime'];
-            final cityName = discountData['City'];
-
-            if (cityName == locationProvider.cityName) {
-              if (endDateTime.toDate().isAfter(DateTime.now())) {
-                myDiscounts[discountId] = discountData;
-              }
-            }
-          },
-        );
-
-        setState(() {
-          currentDiscounts = myDiscounts;
-          allDiscounts = myDiscounts;
-          isData = true;
-        });
-      } catch (e) {
-        if (mounted) {
-          mySnackBar(
-            'Failed to fetch your City: ${e.toString()}',
-            context,
-          );
-        }
+    } catch (e) {
+      if (mounted) {
+        mySnackBar('Failed to fetch your City: ${e.toString()}', context);
       }
     }
   }

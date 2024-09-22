@@ -136,8 +136,11 @@ class _ShortsPageState extends State<ShortsPage> {
                       // preloadPagesCount: 2,
                       itemBuilder: (context, index) {
                         final currentShort = shortsSnap.docs[index];
-                        final data =
-                            currentShort.data() as Map<String, dynamic>;
+                        final currentShortData = currentShort.data();
+                        (currentShortData as Map<String, dynamic>).addAll({
+                          'shortsId': currentShort.id,
+                        });
+                        final data = currentShortData;
 
                         // final controller = _videoControllers[index];
 

@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 // import 'package:image/image.dart' as img;
 // import 'package:flutter/services.dart' show NetworkAssetBundle;
-import 'package:localsearch/page/main/vendor/home/shop_categories_page.dart';
+import 'package:localsearch/page/main/vendor/home/products/shop_categories_page.dart';
 import 'package:localsearch/utils/colors.dart';
 
 class AllShopTypesPage extends StatefulWidget {

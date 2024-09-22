@@ -46,7 +46,8 @@ class _ShortsTileState extends State<ShortsTile> {
         ),
       ),
     );
-    getIfWishlist(widget.data['productId']);
+    print('widget.data: ${widget.data}');
+    getIfWishlist(widget.data['shortsId']);
     flickManager.flickVideoManager!.videoPlayerController?.addListener(() {
       if (flickManager
               .flickVideoManager!.videoPlayerController!.value.position ==
@@ -252,7 +253,7 @@ class _ShortsTileState extends State<ShortsTile> {
                               isWishlistLocked
                                   ? null
                                   : await wishlistProduct(
-                                      widget.data['productId'],
+                                      widget.data['shortsId'],
                                     );
                             },
                             icon: Icon(
@@ -331,7 +332,7 @@ class _ShortsTileState extends State<ShortsTile> {
                                     ),
                                     FutureBuilder(
                                       future: getProductName(
-                                          widget.data['productId']),
+                                          widget.data['shortsId']),
                                       builder: (context, snapshot) {
                                         if (snapshot.hasError) {
                                           return Container();
@@ -344,7 +345,7 @@ class _ShortsTileState extends State<ShortsTile> {
                                                   .collection('Business')
                                                   .doc('Data')
                                                   .collection('Products')
-                                                  .doc(widget.data['productId'])
+                                                  .doc(widget.data['shortsId'])
                                                   .get();
 
                                               final productData =

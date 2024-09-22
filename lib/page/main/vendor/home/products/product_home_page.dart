@@ -11,7 +11,7 @@ import 'package:localsearch/page/main/vendor/discount/all_discount_page.dart';
 import 'package:localsearch/page/main/location_change_page.dart';
 import 'package:localsearch/page/main/main_page.dart';
 import 'package:localsearch/page/main/vendor/category/all_shop_types_page.dart';
-import 'package:localsearch/page/main/vendor/home/shop_categories_page.dart';
+import 'package:localsearch/page/main/vendor/home/products/shop_categories_page.dart';
 import 'package:localsearch/page/main/vendor/product/product_page.dart';
 import 'package:localsearch/page/main/search/search_page.dart';
 import 'package:localsearch/page/main/vendor/vendor_page.dart';
@@ -47,7 +47,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
   Map<String, dynamic> currentWishlist = {};
   Map<String, dynamic> allFollowedShops = {};
   Map<String, dynamic> currentFollowedShops = {};
-  Map<String, Map<String, dynamic>> posts = {};
+  Map<String, Map<String, dynamic>> status = {};
   Map<String, Map<String, dynamic>> featured1 = {};
   Map<String, Map<String, dynamic>> featured2 = {};
   Map<String, Map<String, dynamic>> featured3 = {};
@@ -57,7 +57,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
   bool getRecentData = false;
   bool getWishlistData = false;
   bool getFollowedData = false;
-  bool isPostData = false;
+  bool isStatusData = false;
   double distanceRange = 5;
   // int noOf1 = 4;
   // int noOf2 = 4;
@@ -81,188 +81,6 @@ class _ProductHomePageState extends State<ProductHomePage> {
     // scrollController3.addListener(scrollListener3);
     getData(false);
     super.initState();
-  }
-
-  // // SCROLL LISTENER 1
-  // Future<void> scrollListener1() async {
-  //   Future<void> getFeatured1() async {
-  //     Map<String, Map<String, dynamic>> myFeatured1 = {};
-  //     final featuredSnap1 =
-  //         await store.collection('Featured').doc('Vendor').get();
-  //     final featuredData1 = featuredSnap1.data()!;
-  //     final category1 = featuredData1['category1'];
-  //     final productSnap1 = await store
-  //         .collection('Business')
-  //         .doc('Data')
-  //         .collection('Products')
-  //         .where('categoryName', isEqualTo: category1)
-  //         .limit(noOf1)
-  //         .get();
-  //     productSnap1.docs.forEach((product1) {
-  //       final productId1 = product1.id;
-  //       final productData1 = product1.data();
-  //       myFeatured1.addAll({
-  //         productId1: productData1,
-  //       });
-  //     });
-  //     setState(() {
-  //       featured1 = myFeatured1;
-  //     });
-  //   }
-  //   if (total1 != null && noOf1 < total1!) {
-  //     if (scrollController1.position.pixels ==
-  //         scrollController1.position.maxScrollExtent) {
-  //       setState(() {
-  //         isLoadMore1 = true;
-  //       });
-  //       noOf1 = noOf1 + 4;
-  //       await getFeatured1();
-  //       setState(() {
-  //         isLoadMore1 = false;
-  //       });
-  //     }
-  //   }
-  // }
-
-  // // SCROLL LISTENER 2
-  // Future<void> scrollListener2() async {
-  //   Future<void> getFeatured2() async {
-  //     Map<String, Map<String, dynamic>> myFeatured2 = {};
-  //     final featuredSnap2 =
-  //         await store.collection('Featured').doc('Vendor').get();
-  //     final featuredData2 = featuredSnap2.data()!;
-  //     final category2 = featuredData2['category2'];
-  //     final productSnap2 = await store
-  //         .collection('Business')
-  //         .doc('Data')
-  //         .collection('Products')
-  //         .where('categoryName', isEqualTo: category2)
-  //         .limit(noOf2)
-  //         .get();
-  //     productSnap2.docs.forEach((product2) {
-  //       final productId2 = product2.id;
-  //       final productData2 = product2.data();
-  //       myFeatured2.addAll({
-  //         productId2: productData2,
-  //       });
-  //     });
-  //     setState(() {
-  //       featured2 = myFeatured2;
-  //     });
-  //   }
-  //   if (total2 != null && noOf2 < total2!) {
-  //     if (scrollController2.position.pixels ==
-  //         scrollController2.position.maxScrollExtent) {
-  //       setState(() {
-  //         isLoadMore2 = true;
-  //       });
-  //       noOf2 = noOf2 + 4;
-  //       await getFeatured2();
-  //       setState(() {
-  //         isLoadMore2 = false;
-  //       });
-  //     }
-  //   }
-  // }
-
-  // // SCROLL LISTENER 3
-  // Future<void> scrollListener3() async {
-  //   Future<void> getFeatured3() async {
-  //     Map<String, Map<String, dynamic>> myFeatured3 = {};
-  //     final featuredSnap3 =
-  //         await store.collection('Featured').doc('Vendor').get();
-  //     final featuredData3 = featuredSnap3.data()!;
-  //     final category3 = featuredData3['category3'];
-  //     final productSnap3 = await store
-  //         .collection('Business')
-  //         .doc('Data')
-  //         .collection('Products')
-  //         .where('categoryName', isEqualTo: category3)
-  //         .limit(noOf3)
-  //         .get();
-  //     productSnap3.docs.forEach((product3) {
-  //       final productId3 = product3.id;
-  //       final productData3 = product3.data();
-  //       myFeatured3.addAll({
-  //         productId3: productData3,
-  //       });
-  //     });
-  //     setState(() {
-  //       featured3 = myFeatured3;
-  //     });
-  //   }
-  //   if (total3 != null && noOf3 < total3!) {
-  //     if (scrollController3.position.pixels ==
-  //         scrollController3.position.maxScrollExtent) {
-  //       setState(() {
-  //         isLoadMore3 = true;
-  //       });
-  //       noOf3 = noOf3 + 1;
-  //       await getFeatured3();
-  //       setState(() {
-  //         isLoadMore3 = false;
-  //       });
-  //     }
-  //   }
-  // }
-
-  // // GET TOTAL
-  // Future<void> getTotal() async {
-  //   final featuredSnap = await store.collection('Featured').doc('Vendor').get();
-  //   final featuredData = featuredSnap.data()!;
-  //   final category1 = featuredData['category1'];
-  //   final category2 = featuredData['category2'];
-  //   final category3 = featuredData['category3'];
-  //   final totalSnap1 = await store
-  //       .collection('Business')
-  //       .doc('Data')
-  //       .collection('Products')
-  //       .where('categoryName', isEqualTo: category1)
-  //       .get();
-  //   final totalLength1 = totalSnap1.docs.length;
-  //   final totalSnap2 = await store
-  //       .collection('Business')
-  //       .doc('Data')
-  //       .collection('Products')
-  //       .where('categoryName', isEqualTo: category2)
-  //       .get();
-  //   final totalLength2 = totalSnap2.docs.length;
-  //   final totalSnap3 = await store
-  //       .collection('Business')
-  //       .doc('Data')
-  //       .collection('Products')
-  //       .where('categoryName', isEqualTo: category3)
-  //       .get();
-  //   final totalLength3 = totalSnap3.docs.length;
-  //   setState(() {
-  //     total1 = totalLength1;
-  //     total2 = totalLength2;
-  //     total3 = totalLength3;
-  //   });
-  // }
-
-  // GET DISTANCE
-  Future<double?> getDrivingDistance(
-    double startLat,
-    double startLong,
-    double endLat,
-    double endLong,
-  ) async {
-    String url =
-        'https://maps.googleapis.com/maps/api/distancematrix/json?origins=$startLat,$startLong&destinations=$endLat,$endLong&key=AIzaSyA-CD3MgDBzAsjmp_FlDbofynMMmW6fPsU';
-    try {
-      var response = await http.get(Uri.parse(url));
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        if (data['rows'].isNotEmpty && data['rows'][0]['elements'].isNotEmpty) {
-          final distance = data['rows'][0]['elements'][0]['distance']['value'];
-          return distance / 1000;
-        }
-      }
-      return null;
-    } catch (e) {
-      return null;
-    }
   }
 
   // GET DATA
@@ -294,9 +112,16 @@ class _ProductHomePageState extends State<ProductHomePage> {
       }
     }
 
-    // GET POSTS
-    Future<void> getPosts() async {
-      Map<String, Map<String, dynamic>> myPosts = {};
+    // GET STATUS
+    Future<void> getStatus() async {
+      Map<String, Map<String, dynamic>> myStatus = {};
+
+      final userSnap =
+          await store.collection('Users').doc(auth.currentUser!.uid).get();
+
+      final userData = userSnap.data()!;
+
+      final List followedShops = userData['followedShops'];
 
       final postSnap = await store
           .collection('Business')
@@ -322,29 +147,30 @@ class _ProductHomePageState extends State<ProductHomePage> {
             isViewed = true;
           }
 
-          final vendorSnap = await store
-              .collection('Business')
-              .doc('Owners')
-              .collection('Shops')
-              .doc(vendorId)
-              .get();
-
-          final vendorData = vendorSnap.data()!;
-
-          final String vendorName = vendorData['Name'];
-          final String vendorImageUrl = vendorData['Image'];
-
-          if (myPosts.containsKey(vendorId)) {
-            myPosts[vendorId]!['posts']![postId] = {
+          if (myStatus.containsKey(vendorId)) {
+            myStatus[vendorId]!['posts']![postId] = {
               'postText': postText,
               'postImage': postImage,
               'postViews': postViews,
               'isViewed': isViewed,
             };
           } else {
-            myPosts[vendorId] = {
+            final vendorSnap = await store
+                .collection('Business')
+                .doc('Owners')
+                .collection('Shops')
+                .doc(vendorId)
+                .get();
+
+            final vendorData = vendorSnap.data()!;
+
+            final String vendorName = vendorData['Name'];
+            final String vendorImageUrl = vendorData['Image'];
+
+            myStatus[vendorId] = {
               'vendorName': vendorName,
               'vendorImageUrl': vendorImageUrl,
+              'isFollowed': followedShops.contains(vendorId),
               'posts': {
                 postId: {
                   'postText': postText,
@@ -358,82 +184,40 @@ class _ProductHomePageState extends State<ProductHomePage> {
         },
       );
 
-      // myPosts = {
-      //   'vendorId1': {
-      //     'postId1': {
-      //       'postText': 'postText1',
-      //       'postImage': 'postImage1',
-      //       'postViews': 'postViews1',
-      //       'isViewed': 'isViewed1',
-      //     },
-      //     'postId2': {
-      //       'postText': 'postText2',
-      //       'postImage': 'postImage2',
-      //       'postViews': 'postViews2',
-      //       'isViewed': 'isViewed2',
-      //     },
-      //     'postId3': {
-      //       'postText': 'postText3',
-      //       'postImage': 'postImage3',
-      //       'postViews': 'postViews3',
-      //       'isViewed': 'isViewed3',
-      //     },
-      //   },
-      //   'vendorId2': {
-      //     'postId1': {
-      //       'postText': 'postText1',
-      //       'postImage': 'postImage1',
-      //       'postViews': 'postViews1',
-      //       'isViewed': 'isViewed1',
-      //     },
-      //   },
-      //   'vendorId3': {
-      //     'postId1': {
-      //       'postText': 'postText1',
-      //       'postImage': 'postImage1',
-      //       'postViews': 'postViews1',
-      //       'isViewed': 'isViewed1',
-      //     },
-      //     'postId2': {
-      //       'postText': 'postText2',
-      //       'postImage': 'postImage2',
-      //       'postViews': 'postViews2',
-      //       'isViewed': 'isViewed2',
-      //     },
-      //     'postId3': {
-      //       'postText': 'postText3',
-      //       'postImage': 'postImage3',
-      //       'postViews': 'postViews3',
-      //       'isViewed': 'isViewed3',
-      //     },
-      //   },
-      // };
-
-      final sortedEntries = myPosts.entries.toList()
+      final sortedEntries = myStatus.entries.toList()
         ..sort((a, b) {
-          final aTotalViews = a.value.values.fold<int>(
+          final bool aIsFollowed = a.value['isFollowed'] as bool;
+          final bool bIsFollowed = b.value['isFollowed'] as bool;
+
+          if (aIsFollowed && !bIsFollowed) {
+            return -1;
+          } else if (!aIsFollowed && bIsFollowed) {
+            return 1;
+          }
+
+          final aTotalViews = a.value['posts'].values.fold<int>(
             0,
             (additionSum, post) =>
-                additionSum + (int.parse(post['postViews'] as String)),
+                additionSum +
+                int.parse((post as Map<String, dynamic>)['postViews']),
           );
 
-          final bTotalViews = b.value.values.fold<int>(
+          final bTotalViews = b.value['posts'].values.fold<int>(
             0,
             (additionSum, post) =>
-                additionSum + (int.parse(post['postViews'] as String)),
+                additionSum +
+                int.parse((post as Map<String, dynamic>)['postViews']),
           );
 
           return bTotalViews.compareTo(aTotalViews);
         });
 
-      myPosts = Map<String, Map<String, dynamic>>.fromEntries(
-        sortedEntries,
-      );
+      myStatus = Map<String, Map<String, dynamic>>.fromEntries(sortedEntries);
 
       if (mounted) {
         setState(() {
-          posts = myPosts;
-          isPostData = true;
+          status = myStatus;
+          isStatusData = true;
         });
       }
     }
@@ -467,67 +251,45 @@ class _ProductHomePageState extends State<ProductHomePage> {
       final myRecentShop = userData['recentShop'];
 
       if (myRecentShop != '') {
-        final vendorSnap = await store
-            .collection('Business')
-            .doc('Owners')
-            .collection('Shops')
-            .doc(myRecentShop)
-            .get();
-
-        final vendorData = vendorSnap.data()!;
-
-        final vendorLatitude = vendorData['Latitude'];
-        final vendorLongitude = vendorData['Longitude'];
-
-        double? yourLatitude;
-        double? yourLongitude;
-        if (mounted) {
-          setState(() {
-            yourLatitude = locationProvider.cityLatitude;
-            yourLongitude = locationProvider.cityLongitude;
-          });
-        }
-
         try {
-          if (yourLatitude == null || yourLongitude == null) {
-            await Future.delayed(Duration(seconds: 10));
-            yourLatitude = locationProvider.cityLatitude;
-            yourLongitude = locationProvider.cityLongitude;
-            if (yourLatitude != null) {
-              final dist = await getDrivingDistance(
-                yourLatitude!,
-                yourLongitude!,
-                vendorLatitude,
-                vendorLongitude,
-              );
+          final productSnap = await store
+              .collection('Business')
+              .doc('Data')
+              .collection('Products')
+              .where('vendorId', isEqualTo: myRecentShop)
+              .get();
 
-              if (dist != null) {
-                if (dist < 5) {
-                  if (mounted) {
-                    setState(() {
-                      recentShop = myRecentShop;
-                    });
-                  }
-                }
-              }
-            } else {}
-          } else {
-            final dist = await getDrivingDistance(
-              yourLatitude!,
-              yourLongitude!,
-              vendorLatitude,
-              vendorLongitude,
-            );
+          List<Map<String, dynamic>> productsWithViews = [];
 
-            if (dist != null) {
-              if (dist < 5) {
-                if (mounted) {
-                  setState(() {
-                    recentShop = myRecentShop;
-                  });
-                }
-              }
+          for (var productDoc in productSnap.docs) {
+            final productData = productDoc.data();
+            final productViewsTimestamp = productData['productViewsTimestamp'];
+            final productViews = productViewsTimestamp.length;
+
+            if (!recentShopProducts.contains(productDoc.id)) {
+              productsWithViews.add({
+                'id': productDoc.id,
+                'views': productViews,
+              });
             }
+          }
+
+          productsWithViews.sort(
+            (a, b) => b['views'].compareTo(
+              a['views'],
+            ),
+          );
+
+          recentShopProducts.clear();
+          recentShopProducts.addAll(
+            productsWithViews.map(
+              (product) => product['id'],
+            ),
+          );
+          if (mounted) {
+            setState(() {
+              recentShop = myRecentShop;
+            });
           }
         } catch (e) {
           if (mounted) {
@@ -535,56 +297,6 @@ class _ProductHomePageState extends State<ProductHomePage> {
           }
         }
       }
-    }
-
-    // GET NO OF PRODUCTS OF RECENT SHOP
-    Future<void> getNoOfProductsOfRecentShop() async {
-      if (recentShop != null) {
-        final recentProducts = await store
-            .collection('Business')
-            .doc('Data')
-            .collection('Products')
-            .where('vendorId', isEqualTo: recentShop)
-            .get();
-
-        for (final doc in recentProducts.docs) {
-          if (!recentShopProducts.contains(doc['productId'])) {
-            recentShopProducts.add(doc['productId']);
-          }
-        }
-      }
-    }
-
-    // GET RECENT SHOP PRODUCT INFO
-    Future<int> getRecentShopProductInfo() async {
-      List<String> temporaryNameList = [];
-      List<String> temporaryImageList = [];
-      List<Map<String, dynamic>> temporaryDataList = [];
-
-      recentShopProducts.forEach((productId) async {
-        final productSnap = await store
-            .collection('Business')
-            .doc('Data')
-            .collection('Products')
-            .doc(productId)
-            .get();
-
-        final productData = productSnap.data()!;
-
-        temporaryNameList.add(productData['productName']);
-        temporaryImageList.add(productData['images'][0]);
-        temporaryDataList.add(productData);
-        if (mounted) {
-          setState(() {
-            recentShopProductsNames = temporaryNameList;
-            recentShopProductsImages = temporaryImageList;
-            recentShopProductsData = temporaryDataList;
-            getRecentData = true;
-          });
-        }
-      });
-
-      return recentShopProductsImages.length;
     }
 
     // GET WISHLIST
@@ -879,27 +591,23 @@ class _ProductHomePageState extends State<ProductHomePage> {
 
     if (mounted) {
       await getName().then((value) async {
-        await getPosts().then((value) async {
+        await getStatus().then((value) async {
           await getShopTypes().then((value) async {
             await getRecentShop().then((value) async {
-              await getNoOfProductsOfRecentShop().then((value) async {
-                await getRecentShopProductInfo().then((value) async {
-                  await getWishlist().then((value) async {
-                    await getFollowedShops().then((value) async {
-                      await getFeatured().then((value) async {
-                        // final reviewProvider = Provider.of<ReviewProvider>(
-                        //   context,
-                        //   listen: false,
-                        // );
-                        // final hasReviewed = reviewProvider.hasAsked;
+              await getWishlist().then((value) async {
+                await getFollowedShops().then((value) async {
+                  await getFeatured().then((value) async {
+                    // final reviewProvider = Provider.of<ReviewProvider>(
+                    //   context,
+                    //   listen: false,
+                    // );
+                    // final hasReviewed = reviewProvider.hasAsked;
 
-                        // if (!hasReviewed) {
-                        //   if (!fromRefreshIndicator) {
-                        //     await getHasReviewed();
-                        //   }
-                        // }
-                      });
-                    });
+                    // if (!hasReviewed) {
+                    //   if (!fromRefreshIndicator) {
+                    //     await getHasReviewed();
+                    //   }
+                    // }
                   });
                 });
               });
@@ -910,262 +618,152 @@ class _ProductHomePageState extends State<ProductHomePage> {
     }
   }
 
-  // GET NO OF DISCOUNTS
-  // Future<bool> getNoOfDiscounts(LocationProvider locationProvider) async {
-  //   final Completer<bool> completer = Completer<bool>();
-  //   final discountSnap = await store
-  //       .collection('Business')
-  //       .doc('Data')
-  //       .collection('Discounts')
-  //       .get();
-  //   double? yourLatitude;
-  //   double? yourLongitude;
-  //   // GET LOCATION
-  //   Future<Position?> getLocation() async {
-  //     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-  //     if (!serviceEnabled) {
-  //       if (mounted) {
-  //         mySnackBar('Turn ON Location Services to Continue', context);
-  //       }
-  //       return null;
-  //     } else {
-  //       LocationPermission permission = await Geolocator.checkPermission();
-  //       // LOCATION PERMISSION GIVEN
-  //       Future<Position> locationPermissionGiven() async {
-  //         return await Geolocator.getCurrentPosition();
-  //       }
-  //       if (permission == LocationPermission.denied) {
-  //         permission = await Geolocator.requestPermission();
-  //         if (permission == LocationPermission.denied) {
-  //           if (mounted) {
-  //             mySnackBar('Pls give Location Permission to Continue', context);
-  //           }
-  //         }
-  //         permission = await Geolocator.requestPermission();
-  //         if (permission == LocationPermission.deniedForever) {
-  //           setState(() {
-  //             yourLatitude = 0;
-  //             yourLongitude = 0;
-  //           });
-  //           if (mounted) {
-  //             mySnackBar(
-  //               'Because Location permission is denied, We are continuing without Location',
-  //               context,
-  //             );
-  //           }
-  //         } else {
-  //           return await locationPermissionGiven();
-  //         }
-  //       } else {
-  //         return await locationPermissionGiven();
-  //       }
-  //     }
-  //     return null;
-  //   }
-  //
-  //   if (locationProvider.cityName == 'Your Location') {
-  //     final position = await getLocation();
-  //     if (position != null) {
-  //       setState(() {
-  //         yourLatitude = position.latitude;
-  //         yourLongitude = position.longitude;
+  // // SCROLL LISTENER 1
+  // Future<void> scrollListener1() async {
+  //   Future<void> getFeatured1() async {
+  //     Map<String, Map<String, dynamic>> myFeatured1 = {};
+  //     final featuredSnap1 =
+  //         await store.collection('Featured').doc('Vendor').get();
+  //     final featuredData1 = featuredSnap1.data()!;
+  //     final category1 = featuredData1['category1'];
+  //     final productSnap1 = await store
+  //         .collection('Business')
+  //         .doc('Data')
+  //         .collection('Products')
+  //         .where('categoryName', isEqualTo: category1)
+  //         .limit(noOf1)
+  //         .get();
+  //     productSnap1.docs.forEach((product1) {
+  //       final productId1 = product1.id;
+  //       final productData1 = product1.data();
+  //       myFeatured1.addAll({
+  //         productId1: productData1,
   //       });
-  //       for (var discount in discountSnap.docs) {
-  //         final discountData = discount.data();
-  //         final Timestamp endDateTime = discountData['discountEndDateTime'];
-  //         final vendorId = discountData['vendorId'];
-  //         final vendorSnap = await store
-  //             .collection('Business')
-  //             .doc('Owners')
-  //             .collection('Shops')
-  //             .doc(vendorId)
-  //             .get();
-  //         final vendorData = vendorSnap.data()!;
-  //         final vendorLatitude = vendorData['Latitude'];
-  //         final vendorLongitude = vendorData['Longitude'];
-  //         try {
-  //           final dist = await getDrivingDistance(
-  //             yourLatitude!,
-  //             yourLongitude!,
-  //             vendorLatitude,
-  //             vendorLongitude,
-  //           );
-  //           if (dist != null) {
-  //             if (dist < 5) {
-  //               if (endDateTime.toDate().isAfter(DateTime.now())) {
-  //                 completer.complete(true);
-  //                 return true;
-  //               }
-  //               completer.complete(false);
-  //               return false;
-  //             }
-  //             completer.complete(false);
-  //             return false;
-  //           }
-  //           completer.complete(false);
-  //           return false;
-  //         } catch (e) {
-  //           mySnackBar(e.toString(), context);
-  //           completer.complete(false);
-  //           return false;
-  //         }
-  //       }
-  //       completer.complete(false);
-  //       return false;
-  //     }
-  //     completer.complete(false);
-  //     return false;
-  //   } else {
-  //     for (var discount in discountSnap.docs) {
-  //       final discountData = discount.data();
-  //       final vendorId = discountData['vendorId'];
-  //       final vendorSnap = await store
-  //           .collection('Business')
-  //           .doc('Owners')
-  //           .collection('Shops')
-  //           .doc(vendorId)
-  //           .get();
-  //       final vendorData = vendorSnap.data()!;
-  //       final vendorLatitude = vendorData['Latitude'];
-  //       final vendorLongitude = vendorData['Longitude'];
-  //       try {
-  //         final url =
-  //             'https://maps.googleapis.com/maps/api/geocode/json?latlng=$vendorLatitude,$vendorLongitude&key=AIzaSyA-CD3MgDBzAsjmp_FlDbofynMMmW6fPsU';
-  //         final response = await http.get(Uri.parse(url));
-  //         if (response.statusCode == 200) {
-  //           final data = json.decode(response.body);
-  //           String? name;
-  //           if (data['status'] == 'OK') {
-  //             for (var result in data['results']) {
-  //               for (var component in result['address_components']) {
-  //                 if (component['types'].contains('locality')) {
-  //                   name = component['long_name'];
-  //                   break;
-  //                 } else if (component['types'].contains('sublocality')) {
-  //                   name = component['long_name'];
-  //                 } else if (component['types'].contains('neighborhood')) {
-  //                   name = component['long_name'];
-  //                 } else if (component['types'].contains('route')) {
-  //                   name = component['long_name'];
-  //                 } else if (component['types']
-  //                     .contains('administrative_area_level_3')) {
-  //                   name = component['long_name'];
-  //                 }
-  //               }
-  //               if (name != null) break;
-  //             }
-  //             final discountData = discount.data();
-  //             final Timestamp endDateTime = discountData['discountEndDateTime'];
-  //             if (name == locationProvider.cityName!) {
-  //               if (endDateTime.toDate().isAfter(DateTime.now())) {
-  //                 completer.complete(true);
-  //                 return true;
-  //               }
-  //               completer.complete(false);
-  //               return false;
-  //             }
-  //             completer.complete(false);
-  //             return false;
-  //           }
-  //           completer.complete(false);
-  //           return false;
-  //         }
-  //         completer.complete(false);
-  //         return false;
-  //       } catch (e) {
-  //         mySnackBar(
-  //           'Failed to fetch your City: ${e.toString()}',
-  //           context,
-  //         );
-  //         completer.complete(false);
-  //         return false;
-  //       }
-  //     }
-  //     completer.complete(false);
-  //     return false;
-  //   }
-  // }
-
-  // GET POSTS
-  // Future<void> getPosts() async {
-  //   Map<String, dynamic> myPosts = {};
-  //   final postsSnap = await store
-  //       .collection('Business')
-  //       .doc('Data')
-  //       .collection('Posts')
-  //       .get();
-  //   for (final postSnap in postsSnap.docs) {
-  //     final postData = postSnap.data();
-  //     final String productId = postData['postProductId'];
-  //     final String name = postData['postProductName'];
-  //     final String price = postData['postProductPrice'];
-  //     final bool isTextPost = postData['isTextPost'];
-  //     final List imageUrl = isTextPost ? [] : postData['postImage'];
-  //     final String vendorId = postData['postVendorId'];
-  //     final Timestamp datetime = postData['postDateTime'];
-  //     myPosts[isTextPost ? '${productId}text' : '${productId}image'] = [
-  //       name,
-  //       price,
-  //       imageUrl,
-  //       vendorId,
-  //       isTextPost,
-  //       datetime,
-  //     ];
-  //     myPosts = Map.fromEntries(
-  //       myPosts.entries.toList()
-  //         ..sort(
-  //           (a, b) => (b.value[5] as Timestamp).compareTo(
-  //             a.value[5] as Timestamp,
-  //           ),
-  //         ),
-  //     );
-  //     await getVendorInfo(vendorId);
-  //     await getPostProductData(productId, isTextPost);
-  //   }
-  //   setState(() {
-  //     posts = myPosts;
-  //     isPostData = true;
-  //   });
-  // }
-
-  // // GET POST PRODUCT DATA
-  // Future<Map<String, dynamic>?> getPostProductData(
-  //     String productId, bool isTextPost,
-  //     {bool? wantData}) async {
-  //   final productSnap = await store
-  //       .collection('Business')
-  //       .doc('Data')
-  //       .collection('Products')
-  //       .doc(productId)
-  //       .get();
-  //   final productData = productSnap.data();
-  //   productsData[isTextPost ? '${productId}text' : '${productId}image'] =
-  //       productData;
-  //   if (wantData != null) {
-  //     return productsData[isTextPost ? productId : productId];
-  //   } else {
-  //     return null;
-  //   }
-  // }
-
-  // // GET VENDOR INFO
-  // Future<void> getVendorInfo(String vendorId) async {
-  //   final vendorSnap = await store
-  //       .collection('Business')
-  //       .doc('Owners')
-  //       .collection('Shops')
-  //       .doc(vendorId)
-  //       .get();
-  //   final vendorData = vendorSnap.data();
-  //   if (vendorData != null) {
-  //     final id = vendorSnap.id;
-  //     final name = vendorData['Name'];
-  //     final imageUrl = vendorData['Image'];
+  //     });
   //     setState(() {
-  //       vendors[id] = [name, imageUrl];
+  //       featured1 = myFeatured1;
   //     });
   //   }
+  //   if (total1 != null && noOf1 < total1!) {
+  //     if (scrollController1.position.pixels ==
+  //         scrollController1.position.maxScrollExtent) {
+  //       setState(() {
+  //         isLoadMore1 = true;
+  //       });
+  //       noOf1 = noOf1 + 4;
+  //       await getFeatured1();
+  //       setState(() {
+  //         isLoadMore1 = false;
+  //       });
+  //     }
+  //   }
   // }
+
+  // // SCROLL LISTENER 2
+  // Future<void> scrollListener2() async {
+  //   Future<void> getFeatured2() async {
+  //     Map<String, Map<String, dynamic>> myFeatured2 = {};
+  //     final featuredSnap2 =
+  //         await store.collection('Featured').doc('Vendor').get();
+  //     final featuredData2 = featuredSnap2.data()!;
+  //     final category2 = featuredData2['category2'];
+  //     final productSnap2 = await store
+  //         .collection('Business')
+  //         .doc('Data')
+  //         .collection('Products')
+  //         .where('categoryName', isEqualTo: category2)
+  //         .limit(noOf2)
+  //         .get();
+  //     productSnap2.docs.forEach((product2) {
+  //       final productId2 = product2.id;
+  //       final productData2 = product2.data();
+  //       myFeatured2.addAll({
+  //         productId2: productData2,
+  //       });
+  //     });
+  //     setState(() {
+  //       featured2 = myFeatured2;
+  //     });
+  //   }
+  //   if (total2 != null && noOf2 < total2!) {
+  //     if (scrollController2.position.pixels ==
+  //         scrollController2.position.maxScrollExtent) {
+  //       setState(() {
+  //         isLoadMore2 = true;
+  //       });
+  //       noOf2 = noOf2 + 4;
+  //       await getFeatured2();
+  //       setState(() {
+  //         isLoadMore2 = false;
+  //       });
+  //     }
+  //   }
+  // }
+
+  // // SCROLL LISTENER 3
+  // Future<void> scrollListener3() async {
+  //   Future<void> getFeatured3() async {
+  //     Map<String, Map<String, dynamic>> myFeatured3 = {};
+  //     final featuredSnap3 =
+  //         await store.collection('Featured').doc('Vendor').get();
+  //     final featuredData3 = featuredSnap3.data()!;
+  //     final category3 = featuredData3['category3'];
+  //     final productSnap3 = await store
+  //         .collection('Business')
+  //         .doc('Data')
+  //         .collection('Products')
+  //         .where('categoryName', isEqualTo: category3)
+  //         .limit(noOf3)
+  //         .get();
+  //     productSnap3.docs.forEach((product3) {
+  //       final productId3 = product3.id;
+  //       final productData3 = product3.data();
+  //       myFeatured3.addAll({
+  //         productId3: productData3,
+  //       });
+  //     });
+  //     setState(() {
+  //       featured3 = myFeatured3;
+  //     });
+  //   }
+  //   if (total3 != null && noOf3 < total3!) {
+  //     if (scrollController3.position.pixels ==
+  //         scrollController3.position.maxScrollExtent) {
+  //       setState(() {
+  //         isLoadMore3 = true;
+  //       });
+  //       noOf3 = noOf3 + 1;
+  //       await getFeatured3();
+  //       setState(() {
+  //         isLoadMore3 = false;
+  //       });
+  //     }
+  //   }
+  // }
+
+  // GET DISTANCE
+  Future<double?> getDrivingDistance(
+    double startLat,
+    double startLong,
+    double endLat,
+    double endLong,
+  ) async {
+    String url =
+        'https://maps.googleapis.com/maps/api/distancematrix/json?origins=$startLat,$startLong&destinations=$endLat,$endLong&key=AIzaSyA-CD3MgDBzAsjmp_FlDbofynMMmW6fPsU';
+    try {
+      var response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['rows'].isNotEmpty && data['rows'][0]['elements'].isNotEmpty) {
+          final distance = data['rows'][0]['elements'][0]['distance']['value'];
+          return distance / 1000;
+        }
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
 
   // UPDATE WISHLIST
   void updateWishlist(double endDistance) {
@@ -1199,105 +797,6 @@ class _ProductHomePageState extends State<ProductHomePage> {
       });
     }
   }
-
-  // UPDATE DISCOUNTS
-  // void updateDiscounts(
-  //   double endDistance,
-  //   LocationProvider locationProvider,
-  // ) async {
-  //   final discountSnap = await store
-  //       .collection('Business')
-  //       .doc('Data')
-  //       .collection('Discounts')
-  //       .get();
-  //   double? yourLatitude;
-  //   double? yourLongitude;
-  //   // GET LOCATION
-  //   Future<Position?> getLocation() async {
-  //     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-  //     if (!serviceEnabled) {
-  //       if (mounted) {
-  //         mySnackBar('Turn ON Location Services to Continue', context);
-  //       }
-  //       return null;
-  //     } else {
-  //       LocationPermission permission = await Geolocator.checkPermission();
-  //       // LOCATION PERMISSION GIVEN
-  //       Future<Position> locationPermissionGiven() async {
-  //         return await Geolocator.getCurrentPosition();
-  //       }
-  //       if (permission == LocationPermission.denied) {
-  //         permission = await Geolocator.requestPermission();
-  //         if (permission == LocationPermission.denied) {
-  //           if (mounted) {
-  //             mySnackBar('Pls give Location Permission to Continue', context);
-  //           }
-  //         }
-  //         permission = await Geolocator.requestPermission();
-  //         if (permission == LocationPermission.deniedForever) {
-  //           setState(() {
-  //             yourLatitude = 0;
-  //             yourLongitude = 0;
-  //           });
-  //           if (mounted) {
-  //             mySnackBar(
-  //               'Because Location permission is denied, We are continuing without Location',
-  //               context,
-  //             );
-  //           }
-  //         } else {
-  //           return await locationPermissionGiven();
-  //         }
-  //       } else {
-  //         return await locationPermissionGiven();
-  //       }
-  //     }
-  //     return null;
-  //   }
-  //
-  //   if (locationProvider.cityName == null) {
-  //     await getLocation().then((value) async {
-  //       if (value != null) {
-  //         setState(() {
-  //           yourLatitude = value.latitude;
-  //           yourLongitude = value.longitude;
-  //         });
-  //         for (var discount in discountSnap.docs) {
-  //           final discountData = discount.data();
-  //           final Timestamp endDateTime = discountData['discountEndDateTime'];
-  //           final vendorId = discountData['vendorId'];
-  //           final vendorSnap = await store
-  //               .collection('Business')
-  //               .doc('Owners')
-  //               .collection('Shops')
-  //               .doc(vendorId)
-  //               .get();
-  //           final vendorData = vendorSnap.data()!;
-  //           final vendorLatitude = vendorData['Latitude'];
-  //           final vendorLongitude = vendorData['Longitude'];
-  //           try {
-  //             final dist = await getDrivingDistance(
-  //               yourLatitude!,
-  //               yourLongitude!,
-  //               vendorLatitude,
-  //               vendorLongitude,
-  //             );
-  //             if (dist != null) {
-  //               if (dist < endDistance) {
-  //                 if (endDateTime.toDate().isAfter(DateTime.now())) {
-  //                   setState(() {
-  //                     isDiscount = true;
-  //                   });
-  //                   ;
-  //                 }
-  //               }
-  //             }
-  //           } catch (e) {}
-  //         }
-  //       }
-  //     });
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -1449,8 +948,8 @@ class _ProductHomePageState extends State<ProductHomePage> {
                         ),
                       ),
 
-                      // POSTS
-                      !isPostData
+                      // STATUS
+                      !isStatusData
                           ? /*SizedBox(
                               width: width,
                               height: width * 0.3,
@@ -1473,7 +972,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                               ),
                             )*/
                           Container()
-                          : posts.isEmpty
+                          : status.isEmpty
                               ? Container()
                               : AnimatedContainer(
                                   width: width,
@@ -1483,17 +982,19 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                     shrinkWrap: true,
                                     physics: const ClampingScrollPhysics(),
                                     scrollDirection: Axis.horizontal,
-                                    itemCount:
-                                        posts.length >= 10 ? 10 : posts.length,
+                                    itemCount: status.length >= 10
+                                        ? 10
+                                        : status.length,
                                     itemBuilder: (context, index) {
                                       final String vendorId =
-                                          posts.keys.toList()[index];
-                                      final String vendorName = posts.values
+                                          status.keys.toList()[index];
+                                      final String vendorName = status.values
                                           .toList()[index]['vendorName'];
-                                      final String vendorImageUrl = posts.values
-                                          .toList()[index]['vendorImageUrl'];
+                                      final String vendorImageUrl =
+                                          status.values.toList()[index]
+                                              ['vendorImageUrl'];
                                       final bool isViewed =
-                                          (posts[vendorId]!['posts'] as Map<
+                                          (status[vendorId]!['posts'] as Map<
                                                   String, Map<String, dynamic>>)
                                               .values
                                               .every(
@@ -1514,7 +1015,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                                 builder: (context) =>
                                                     PostPageView(
                                                   currentIndex: index,
-                                                  posts: posts,
+                                                  posts: status,
                                                 ),
                                               ),
                                             );

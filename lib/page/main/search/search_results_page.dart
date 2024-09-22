@@ -294,6 +294,12 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
 
   // GET PRODUCTS
   Future<void> getProducts(LocationProvider locationProvider) async {
+    final userSnap =
+        await store.collection('Users').doc(auth.currentUser!.uid).get();
+
+    final userData = userSnap.data()!;
+    final followedShops = userData['followedShops'];
+
     double? yourLatitude;
     double? yourLongitude;
 
@@ -336,9 +342,11 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
         yourLongitude = locationProvider.cityLongitude;
       });
 
+      List<Map<String, dynamic>> followedProducts = [];
+      List<Map<String, dynamic>> nonFollowedProducts = [];
+
       for (var productSnap in productsSnap.docs) {
         final productData = productSnap.data();
-
         final String productName = productData['productName'];
         final List tags = productData['Tags'];
         final String imageUrl = productData['images'][0];
@@ -357,10 +365,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
 
         if (productNameLower.contains(searchLower) ||
             tags.any(
-              (tag) => tag.toString().toLowerCase().contains(
-                    searchLower,
-                  ),
-            ) ||
+                (tag) => tag.toString().toLowerCase().contains(searchLower)) ||
             categoryName.toString().toLowerCase().contains(searchLower)) {
           if (yourLatitude != null && yourLongitude != null) {
             distance = await getDrivingDistance(
@@ -380,8 +385,9 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
               searchLower,
             );
 
-            searchedProducts[productName] = {
+            Map<String, dynamic> productInfo = {
               'imageUrl': imageUrl,
+              'productName': productName,
               'productPrice': productPrice,
               'productId': productId,
               'relevanceScore': relevanceScore,
@@ -390,19 +396,30 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
               'views': views,
               'distance': distance,
             };
-            rangeProducts[productName] = {
-              'imageUrl': imageUrl,
-              'productPrice': productPrice,
-              'productId': productId,
-              'relevanceScore': relevanceScore,
-              'ratings': ratings,
-              'datetime': datetime,
-              'views': views,
-              'distance': distance,
-            };
+
+            if (followedShops.contains(productData['vendorId'])) {
+              followedProducts.add(productInfo);
+            } else {
+              nonFollowedProducts.add(productInfo);
+            }
           }
         }
       }
+
+      followedProducts
+          .sort((a, b) => b['views'].length.compareTo(a['views'].length));
+      nonFollowedProducts
+          .sort((a, b) => b['views'].length.compareTo(a['views'].length));
+
+      followedProducts.forEach((product) {
+        searchedProducts[product['productName']] = product;
+        rangeProducts[product['productName']] = product;
+      });
+
+      nonFollowedProducts.forEach((product) {
+        searchedProducts[product['productName']] = product;
+        rangeProducts[product['productName']] = product;
+      });
     } else {
       final productsSnap = await store
           .collection('Business')
@@ -414,7 +431,6 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
 
       for (var productSnap in productsSnap.docs) {
         final productData = productSnap.data();
-
         final String productName = productData['productName'].toString();
         final List tags = productData['Tags'];
         final String imageUrl = productData['images'][0].toString();

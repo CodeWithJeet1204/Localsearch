@@ -1,6 +1,7 @@
 // ignore_for_file: unnecessary_null_comparison
 
 import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:localsearch/page/main/location_change_page.dart';
 import 'package:localsearch/providers/location_provider.dart';
 import 'package:localsearch/widgets/snack_bar.dart';
@@ -26,6 +27,7 @@ class CategoryProductsPage extends StatefulWidget {
 }
 
 class _CategoryProductsPageState extends State<CategoryProductsPage> {
+  final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
   final searchController = TextEditingController();
   double distanceRange = 5;
@@ -101,6 +103,12 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
         .limit(noOf)
         .get();
 
+    final userSnap =
+        await store.collection('Users').doc(auth.currentUser!.uid).get();
+
+    final userData = userSnap.data()!;
+    final followedShops = userData['followedShops'];
+
     double? yourLatitude = locationProvider.cityLatitude;
     double? yourLongitude = locationProvider.cityLongitude;
 
@@ -130,140 +138,99 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
       }
     }
 
-    if (locationProvider.cityName == 'Your Location') {
-      yourLatitude = locationProvider.cityLatitude;
-      yourLongitude = locationProvider.cityLongitude;
+    try {
+      List<Map<String, dynamic>> followedProducts = [];
+      List<Map<String, dynamic>> nonFollowedProducts = [];
 
-      await Future.forEach(
-        productsSnap.docs,
-        (productData) async {
-          double? distance;
+      await Future.forEach(productsSnap.docs, (productData) async {
+        final id = productData.id;
+        final name = productData['productName'];
+        final price = productData['productPrice'];
+        final imageUrl = productData['images'][0];
+        final ratings = productData['ratings'];
+        final myProductData = productData.data();
+        final vendorId = productData['vendorId'];
+        final productViewsTimestamp = productData['productViewsTimestamp'];
+        final productViews = productViewsTimestamp.length;
+        final vendorLatitude = productData['Latitude'];
+        final vendorLongitude = productData['Longitude'];
+        double? distance;
 
-          final id = productData.id;
-          final name = productData['productName'];
-          final price = productData['productPrice'];
-          final imageUrl = productData['images'][0];
-          final ratings = productData['ratings'];
-          final vendorId = productData['vendorId'];
-          final myProductData = productData.data();
-
-          final vendorSnap = await store
-              .collection('Business')
-              .doc('Owners')
-              .collection('Shops')
-              .doc(vendorId)
-              .get();
-
-          final vendorData = vendorSnap.data()!;
-
-          final vendorLatitude = vendorData['Latitude'];
-          final vendorLongitude = vendorData['Longitude'];
-
-          if (yourLatitude != null && yourLongitude != null) {
-            distance = await getDrivingDistance(
-              yourLatitude,
-              yourLongitude,
-              vendorLatitude,
-              vendorLongitude,
-            );
-          }
-
-          if (distance != null) {
-            if (distance * 0.925 < 5) {
-              myProducts[id] = [
-                name,
-                price,
-                imageUrl,
-                ratings,
-                myProductData,
-                distance,
-              ];
-            }
-          }
-        },
-      );
-    } else {
-      try {
-        await Future.forEach(
-          productsSnap.docs,
-          (productData) async {
-            final id = productData.id;
-            final productName = productData['productName'];
-            final price = productData['productPrice'];
-            final imageUrl = productData['images'][0];
-            final ratings = productData['ratings'];
-            final vendorId = productData['vendorId'];
-            final myProductData = productData.data();
-
-            final vendorSnap = await store
-                .collection('Business')
-                .doc('Owners')
-                .collection('Shops')
-                .doc(vendorId)
-                .get();
-
-            final vendorData = vendorSnap.data()!;
-
-            final vendorLatitude = vendorData['Latitude'];
-            final vendorLongitude = vendorData['Longitude'];
-
-            final url =
-                'https://maps.googleapis.com/maps/api/geocode/json?latlng=$vendorLatitude,$vendorLongitude&key=AIzaSyA-CD3MgDBzAsjmp_FlDbofynMMmW6fPsU';
-
-            final response = await http.get(Uri.parse(url));
-
-            if (response.statusCode == 200) {
-              final data = json.decode(response.body);
-              String? name;
-
-              if (data['status'] == 'OK') {
-                for (var result in data['results']) {
-                  for (var component in result['address_components']) {
-                    if (component['types'].contains('locality')) {
-                      name = component['long_name'];
-                      break;
-                    } else if (component['types'].contains('sublocality')) {
-                      name = component['long_name'];
-                    } else if (component['types'].contains('neighborhood')) {
-                      name = component['long_name'];
-                    } else if (component['types'].contains('route')) {
-                      name = component['long_name'];
-                    } else if (component['types']
-                        .contains('administrative_area_level_3')) {
-                      name = component['long_name'];
-                    }
-                  }
-                  if (name != null) break;
-                }
-
-                if (name == locationProvider.cityName) {
-                  await getDrivingDistance(
-                    yourLatitude!,
-                    yourLongitude!,
-                    vendorLatitude,
-                    vendorLongitude,
-                  ).then((distance) {
-                    myProducts[id] = [
-                      productName,
-                      price,
-                      imageUrl,
-                      ratings,
-                      myProductData,
-                      distance,
-                    ];
-                  });
-                }
-              }
-            }
-          },
-        );
-      } catch (e) {
-        if (mounted) {
-          mySnackBar(
-            'Failed to fetch your City: ${e.toString()}',
-            context,
+        if (yourLatitude != null && yourLongitude != null) {
+          distance = await getDrivingDistance(
+            yourLatitude,
+            yourLongitude,
+            vendorLatitude,
+            vendorLongitude,
           );
         }
+
+        if (locationProvider.cityName == 'Your Location') {
+          if (distance != null && distance * 0.925 < 5) {
+            myProducts[id] = [
+              name,
+              price,
+              imageUrl,
+              ratings,
+              myProductData,
+              distance,
+            ];
+          }
+        } else {
+          final city = productData['City'];
+          if (city == locationProvider.cityName) {
+            myProducts[id] = [
+              name,
+              price,
+              imageUrl,
+              ratings,
+              myProductData,
+            ];
+          }
+        }
+
+        if (followedShops.contains(vendorId)) {
+          followedProducts.add({
+            'id': id,
+            'name': name,
+            'price': price,
+            'imageUrl': imageUrl,
+            'ratings': ratings,
+            'myProductData': myProductData,
+            'views': productViews,
+          });
+        } else {
+          nonFollowedProducts.add({
+            'id': id,
+            'name': name,
+            'price': price,
+            'imageUrl': imageUrl,
+            'ratings': ratings,
+            'myProductData': myProductData,
+            'views': productViews,
+          });
+        }
+      });
+
+      followedProducts.sort((a, b) => b['views'].compareTo(a['views']));
+      nonFollowedProducts.sort((a, b) => b['views'].compareTo(a['views']));
+
+      final sortedProducts = followedProducts + nonFollowedProducts;
+
+      myProducts = Map.fromIterable(
+        sortedProducts,
+        key: (item) => item['id'],
+        value: (item) => [
+          item['name'],
+          item['price'],
+          item['imageUrl'],
+          item['ratings'],
+          item['myProductData'],
+        ],
+      );
+    } catch (e) {
+      if (mounted) {
+        mySnackBar('Failed to fetch your City: ${e.toString()}', context);
       }
     }
 

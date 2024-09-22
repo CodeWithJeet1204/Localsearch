@@ -1,18 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
-// import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:localsearch/page/auth/login_page.dart';
 import 'package:localsearch/page/auth/register_details_page.dart';
 import 'package:localsearch/page/auth/set_email_page.dart';
 import 'package:localsearch/page/auth/verify/email_verify.dart';
 import 'package:localsearch/page/main/under_development_page.dart';
-import 'package:localsearch/page/main/vendor/home/product_home_page.dart';
-import 'package:localsearch/page/main/vendor/home/product_scroll_page.dart';
+import 'package:localsearch/page/main/vendor/home/posts/posts_page.dart';
+import 'package:localsearch/page/main/vendor/home/products/product_home_page.dart';
 import 'package:localsearch/page/main/vendor/profile/profile_page.dart';
 import 'package:localsearch/page/main/vendor/shorts_page.dart';
 import 'package:localsearch/providers/main_page_provider.dart';
 import 'package:localsearch/utils/colors.dart';
-// import 'package:localsearch/utils/notification_handler.dart';
 import 'package:localsearch/widgets/snack_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -121,7 +119,7 @@ class _MainPageState extends State<MainPage> {
 
     final List<Widget> items = [
       const ProductHomePage(),
-      loadedPages.contains(1) ? const ProductsScrollPage() : Container(),
+      loadedPages.contains(1) ? const PostsPage() : Container(),
       loadedPages.contains(2)
           ? ShortsPage(
               bottomNavIndex: currentIndex,
