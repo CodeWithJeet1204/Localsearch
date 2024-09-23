@@ -1,8 +1,6 @@
 plugins {
     id "com.android.application"
-    // START: FlutterFire Configuration
-    id 'com.google.gms.google-services'
-    // END: FlutterFire Configuration
+    id "com.google.gms.google-services"
     id "kotlin-android"
     id "dev.flutter.flutter-gradle-plugin"
 }
@@ -44,10 +42,7 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId "com.example.localsearch"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
         minSdkVersion 23
         targetSdkVersion 34
         versionCode flutterVersionCode.toInteger()
@@ -57,17 +52,10 @@ android {
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.debug
-            compileOptions {
-                sourceCompatibility JavaVersion.VERSION_1_8
-                targetCompatibility JavaVersion.VERSION_1_8
-                lintOptions {
-                    enable 'deprecation'
-                    enable 'unchecked'
-                }
-}
         }
     }
 }
@@ -78,6 +66,6 @@ flutter {
 
 dependencies {
     implementation("com.google.firebase:firebase-auth:22.3.0")
-    implementation('com.google.firebase:firebase-appcheck-playintegrity:17.0.0')
+    implementation 'androidx.activity:activity:1.6.0-alpha05'
     // implementation('androidx.activity:activity:1.6.0-alpha05')
 }

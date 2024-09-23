@@ -9,7 +9,6 @@ import 'package:localsearch/widgets/button.dart';
 import 'package:localsearch/widgets/snack_bar.dart';
 import 'package:localsearch/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -21,8 +20,7 @@ class UserDetailsPage extends StatefulWidget {
 }
 
 class _UserDetailsPageState extends State<UserDetailsPage> {
-  final FirebaseAuth auth = FirebaseAuth.instance;
-  final storage = FirebaseStorage.instance;
+  final auth = FirebaseAuth.instance;
   final nameController = TextEditingController();
   final numberController = TextEditingController();
   bool isChangingName = false;

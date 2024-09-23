@@ -62,7 +62,7 @@ dependencies:
   # flutter_local_notifications: ^17.1.2
   geolocator: ^13.0.1
   http: ^1.2.1
-  image: ^4.2.0
+  image: ^4.2.0 #only used inone file
   carousel_slider: ^5.0.0
 
 dev_dependencies:

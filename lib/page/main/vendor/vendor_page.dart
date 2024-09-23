@@ -48,6 +48,7 @@ class VendorPage extends StatefulWidget {
 class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
   final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
+  final storage = FirebaseStorage.instance;
   Map<String, dynamic>? shopData;
   Map<String, dynamic>? ownerData;
   bool isFollowing = false;
@@ -739,20 +740,18 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
 
       final shortsId = short.id;
       final datetime = shortsData['datetime'];
-      final productId = shortsData['productId'];
       final shortsUrl = shortsData['shortsURL'];
       final vendorId = widget.vendorId;
 
-      Reference thumbnailRef = FirebaseStorage.instance
+      String thumbnailDownloadUrl = await storage
           .ref()
-          .child('Data/Thumbnails')
-          .child(productId);
-
-      String thumbnailDownloadUrl = await thumbnailRef.getDownloadURL();
+          .child('Vendor/Thumbnails')
+          .child(shortsId)
+          .getDownloadURL();
 
       myShorts[shortsId] = [
         shortsUrl,
-        productId,
+        shortsId,
         datetime,
         thumbnailDownloadUrl,
         vendorId,
@@ -881,7 +880,7 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                             ),
                             padding: EdgeInsets.all(width * 0.006125),
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
                                   mainAxisAlignment:
@@ -1081,24 +1080,32 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                         : Expanded(
                                             child: GestureDetector(
                                               onTap: () async {
-                                                final String phoneNumber =
-                                                    ownerData!['Phone Number'];
-                                                const String message =
-                                                    'Hey, I found you on Localsearch\n';
-                                                final url =
-                                                    'https://wa.me/$phoneNumber?text=$message';
+                                                if (ownerData!['allowChat']) {
+                                                  final String phoneNumber =
+                                                      ownerData![
+                                                          'Phone Number'];
+                                                  const String message =
+                                                      'Hey, I found you on Localsearch\n';
+                                                  final url =
+                                                      'https://wa.me/$phoneNumber?text=$message';
 
-                                                if (await canLaunchUrl(
-                                                    Uri.parse(url))) {
-                                                  await launchUrl(
-                                                      Uri.parse(url));
-                                                } else {
-                                                  if (context.mounted) {
-                                                    mySnackBar(
-                                                      'Something went Wrong',
-                                                      context,
-                                                    );
+                                                  if (await canLaunchUrl(
+                                                      Uri.parse(url))) {
+                                                    await launchUrl(
+                                                        Uri.parse(url));
+                                                  } else {
+                                                    if (context.mounted) {
+                                                      mySnackBar(
+                                                        'Something went Wrong',
+                                                        context,
+                                                      );
+                                                    }
                                                   }
+                                                } else {
+                                                  return mySnackBar(
+                                                    'Vendor does not allows to chat with them.',
+                                                    context,
+                                                  );
                                                 }
                                               },
                                               child: Container(
@@ -1401,7 +1408,14 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                       flex: 1,
                                       child: GestureDetector(
                                         onTap: () async {
-                                          await callVendor();
+                                          if (ownerData!['allowCall']) {
+                                            await callVendor();
+                                          } else {
+                                            return mySnackBar(
+                                              'Vendor does not allows to call them.',
+                                              context,
+                                            );
+                                          }
                                         },
                                         child: Container(
                                           width: width * 0.25,
@@ -1445,10 +1459,22 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
 
                                 Divider(),
 
+                                // ADDRESS
+                                shopData!['Address'] == ''
+                                    ? Container()
+                                    : Padding(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: width * 0.025,
+                                        ),
+                                        child: Text(
+                                          shopData!['Address'],
+                                        ),
+                                      ),
+
                                 // LOCATION
                                 Padding(
                                   padding: EdgeInsets.symmetric(
-                                    horizontal: width * 0.0125,
+                                    horizontal: width * 0.025,
                                   ),
                                   child: FutureBuilder(
                                       future: getAddress(
@@ -1466,81 +1492,79 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                         }
 
                                         if (snapshot.hasData) {
-                                          return Padding(
-                                            padding: EdgeInsets.symmetric(
-                                              horizontal: width * 0.0125,
-                                            ),
-                                            child: GestureDetector(
-                                              onTap: () async {
-                                                Uri mapsUrl = Uri.parse(
-                                                    'https://www.google.com/maps/search/?api=1&query=${shopData!['Latitude']},${shopData!['Longitude']}');
+                                          return GestureDetector(
+                                            onTap: () async {
+                                              Uri mapsUrl = Uri.parse(
+                                                  'https://www.google.com/maps/search/?api=1&query=${shopData!['Latitude']},${shopData!['Longitude']}');
 
-                                                if (await canLaunchUrl(
-                                                    mapsUrl)) {
-                                                  await launchUrl(mapsUrl);
-                                                } else {
-                                                  if (context.mounted) {
-                                                    mySnackBar(
-                                                      'Something went wrong',
-                                                      context,
-                                                    );
-                                                  }
+                                              if (await canLaunchUrl(mapsUrl)) {
+                                                await launchUrl(mapsUrl);
+                                              } else {
+                                                if (context.mounted) {
+                                                  mySnackBar(
+                                                    'Something went wrong',
+                                                    context,
+                                                  );
                                                 }
-                                              },
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      SizedBox(
-                                                        width: width * 0.8,
-                                                        child: Text(
-                                                            snapshot.data![0]),
+                                              }
+                                            },
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              crossAxisAlignment:
+                                                  shopData!['Address'] == ''
+                                                      ? CrossAxisAlignment
+                                                          .center
+                                                      : CrossAxisAlignment
+                                                          .start,
+                                              children: [
+                                                Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    SizedBox(
+                                                      width: width * 0.8,
+                                                      child: Text(
+                                                        snapshot.data![0],
                                                       ),
-                                                      Text(
-                                                        snapshot.data![1] ==
-                                                                null
-                                                            ? '-- km'
-                                                            : '${snapshot.data![1]} km',
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  IconButton(
-                                                    onPressed: () async {
-                                                      Uri mapsUrl = Uri.parse(
-                                                        'https://www.google.com/maps/search/?api=1&query=${shopData!['Latitude']},${shopData!['Longitude']}',
-                                                      );
-
-                                                      if (await canLaunchUrl(
-                                                          mapsUrl)) {
-                                                        await launchUrl(
-                                                            mapsUrl);
-                                                      } else {
-                                                        if (context.mounted) {
-                                                          mySnackBar(
-                                                            'Something went wrong while finding Location',
-                                                            context,
-                                                          );
-                                                        }
-                                                      }
-                                                    },
-                                                    icon: const Icon(
-                                                      FeatherIcons.mapPin,
                                                     ),
-                                                    tooltip: 'Locate on Maps',
+                                                    Text(
+                                                      snapshot.data![1] == null
+                                                          ? '-- km'
+                                                          : '${snapshot.data![1]} km',
+                                                    ),
+                                                  ],
+                                                ),
+                                                IconButton(
+                                                  onPressed: () async {
+                                                    Uri mapsUrl = Uri.parse(
+                                                      'https://www.google.com/maps/search/?api=1&query=${shopData!['Latitude']},${shopData!['Longitude']}',
+                                                    );
+
+                                                    if (await canLaunchUrl(
+                                                      mapsUrl,
+                                                    )) {
+                                                      await launchUrl(
+                                                        mapsUrl,
+                                                      );
+                                                    } else {
+                                                      if (context.mounted) {
+                                                        mySnackBar(
+                                                          'Something went wrong while finding Location',
+                                                          context,
+                                                        );
+                                                      }
+                                                    }
+                                                  },
+                                                  icon: const Icon(
+                                                    FeatherIcons.mapPin,
                                                   ),
-                                                ],
-                                              ),
+                                                  tooltip: 'Locate on Maps',
+                                                ),
+                                              ],
                                             ),
                                           );
                                         }
@@ -1713,36 +1737,35 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                     SizedBox(height: width * 0.033),
 
                                     // INDUSTRY
-                                    Padding(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: width * 0.0125,
-                                        vertical: width * 0.0175,
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          SizedBox(
-                                            width: width * 0.8,
-                                            child: Text(
-                                              shopData!['Industry'],
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.only(
-                                              right: width * 0.034,
-                                            ),
-                                            child: const Icon(
-                                              Icons.factory_outlined,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-
-                                    SizedBox(height: width * 0.033),
+                                    // Padding(
+                                    //   padding: EdgeInsets.symmetric(
+                                    //     horizontal: width * 0.0125,
+                                    //     vertical: width * 0.0175,
+                                    //   ),
+                                    //   child: Row(
+                                    //     mainAxisAlignment:
+                                    //         MainAxisAlignment.spaceBetween,
+                                    //     crossAxisAlignment:
+                                    //         CrossAxisAlignment.center,
+                                    //     children: [
+                                    //       SizedBox(
+                                    //         width: width * 0.8,
+                                    //         child: Text(
+                                    //           shopData!['Industry'],
+                                    //         ),
+                                    //       ),
+                                    //       Padding(
+                                    //         padding: EdgeInsets.only(
+                                    //           right: width * 0.034,
+                                    //         ),
+                                    //         child: const Icon(
+                                    //           Icons.factory_outlined,
+                                    //         ),
+                                    //       ),
+                                    //     ],
+                                    //   ),
+                                    // ),
+                                    // SizedBox(height: width * 0.033),
 
                                     // DESCRIPTION
                                     Row(

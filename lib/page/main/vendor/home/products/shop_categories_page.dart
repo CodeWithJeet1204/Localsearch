@@ -4,7 +4,6 @@ import 'package:localsearch/utils/colors.dart';
 import 'package:localsearch/widgets/video_tutorial.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
 class ShopCategoriesPage extends StatefulWidget {
@@ -22,7 +21,6 @@ class ShopCategoriesPage extends StatefulWidget {
 class _ShopCategoriesPageState extends State<ShopCategoriesPage> {
   final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
-  final storage = FirebaseStorage.instance;
   Map<String, dynamic>? categoryData;
   int noOf = 12;
   bool isLoadMore = false;
