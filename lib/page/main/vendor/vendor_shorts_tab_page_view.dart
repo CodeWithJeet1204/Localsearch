@@ -6,9 +6,11 @@ class VendorShortsTabPageView extends StatefulWidget {
     super.key,
     required this.shorts,
     required this.shortsId,
+    required this.index,
   });
 
   final Map<String, dynamic> shorts;
+  final int index;
   final String shortsId;
 
   @override
@@ -23,7 +25,7 @@ class _VendorShortsTabPageViewState extends State<VendorShortsTabPageView> {
   @override
   void initState() {
     setState(() {
-      snappedPageIndex = widget.shorts.keys.toList().indexOf(widget.shortsId);
+      snappedPageIndex = widget.index;
     });
     super.initState();
   }
@@ -32,7 +34,7 @@ class _VendorShortsTabPageViewState extends State<VendorShortsTabPageView> {
   Widget build(BuildContext context) {
     return PageView.builder(
       controller: PageController(
-        initialPage: 0,
+        initialPage: snappedPageIndex,
         viewportFraction: 1,
       ),
       scrollDirection: Axis.vertical,
@@ -43,16 +45,15 @@ class _VendorShortsTabPageViewState extends State<VendorShortsTabPageView> {
       },
       itemCount: widget.shorts.length,
       itemBuilder: ((context, index) {
-        final String currentKey = widget.shorts.keys.toList()[index];
-        final List<dynamic> currentValue = widget.shorts.values.toList()[index];
-        final Map<String, dynamic> currentShort = {
-          currentKey: currentValue,
-        };
+        final currentShortsId = widget.shorts.keys.toList()[index];
+        final Map<String, dynamic> currentShortsData =
+            widget.shorts.values.toList()[index];
+        currentShortsData.addAll({
+          'shortsId': currentShortsId,
+        });
 
         return VendorShortsTabTile(
-          data: currentShort,
-          snappedPageIndex: index,
-          currentIndex: snappedPageIndex,
+          data: currentShortsData,
         );
       }),
     );

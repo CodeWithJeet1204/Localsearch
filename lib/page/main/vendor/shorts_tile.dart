@@ -13,14 +13,10 @@ class ShortsTile extends StatefulWidget {
   const ShortsTile({
     super.key,
     required this.data,
-    required this.snappedPageIndex,
-    required this.currentIndex,
     required this.bottomNavIndex,
   });
 
   final Map<String, dynamic> data;
-  final int snappedPageIndex;
-  final int currentIndex;
   final int bottomNavIndex;
 
   @override
@@ -47,7 +43,9 @@ class _ShortsTileState extends State<ShortsTile> {
       ),
     );
     print('widget.data: ${widget.data}');
-    getIfWishlist(widget.data['shortsId']);
+    if (widget.data['productId'] != null) {
+      getIfWishlist();
+    }
     flickManager.flickVideoManager!.videoPlayerController?.addListener(() {
       if (flickManager
               .flickVideoManager!.videoPlayerController!.value.position ==
@@ -60,6 +58,9 @@ class _ShortsTileState extends State<ShortsTile> {
         );
         flickManager.flickControlManager!.play();
       }
+    });
+    setState(() {
+      isData = true;
     });
     super.initState();
   }
@@ -91,7 +92,7 @@ class _ShortsTileState extends State<ShortsTile> {
   }
 
   // GET IF WISHLIST
-  Future<void> getIfWishlist(String productId) async {
+  Future<void> getIfWishlist() async {
     final userSnap =
         await store.collection('Users').doc(auth.currentUser!.uid).get();
 
@@ -99,29 +100,28 @@ class _ShortsTileState extends State<ShortsTile> {
     final userWishlist = userData['wishlists'] as List;
 
     setState(() {
-      if (userWishlist.contains(productId)) {
+      if (userWishlist.contains(widget.data['productId'])) {
         isWishListed = true;
       } else {
         isWishListed = false;
       }
-      isData = true;
     });
   }
 
   // WISHLIST PRODUCT
-  Future<void> wishlistProduct(String productId) async {
+  Future<void> wishlistProduct() async {
     final userSnap =
         await store.collection('Users').doc(auth.currentUser!.uid).get();
 
     final userData = userSnap.data()!;
     List<dynamic> userWishlist = userData['wishlists'] as List<dynamic>;
 
-    bool alreadyInWishlist = userWishlist.contains(productId);
+    bool alreadyInWishlist = userWishlist.contains(widget.data['productId']);
 
     if (!alreadyInWishlist) {
-      userWishlist.add(productId);
+      userWishlist.add(widget.data['productId']);
     } else {
-      userWishlist.remove(productId);
+      userWishlist.remove(widget.data['productId']);
     }
 
     await store.collection('Users').doc(auth.currentUser!.uid).update({
@@ -132,7 +132,7 @@ class _ShortsTileState extends State<ShortsTile> {
         .collection('Business')
         .doc('Data')
         .collection('Products')
-        .doc(productId)
+        .doc(widget.data['productId'])
         .get();
 
     final productData = productSnap.data()!;
@@ -151,7 +151,7 @@ class _ShortsTileState extends State<ShortsTile> {
         .collection('Business')
         .doc('Data')
         .collection('Products')
-        .doc(productId)
+        .doc(widget.data['productId'])
         .update({
       'productWishlistTimestamp': wishlists,
     });
@@ -193,265 +193,278 @@ class _ShortsTileState extends State<ShortsTile> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
 
-    if (isData) {
-      return VisibilityDetector(
-        key: const Key('Shorts'),
-        onVisibilityChanged: (info) {
-          if (info.visibleBounds == Rect.zero) {
-            flickManager.flickControlManager?.pause();
-          } else {
-            flickManager.flickControlManager?.play();
-          }
-        },
-        child: Stack(
-          children: [
-            GestureDetector(
-              onTap: pausePlayShort,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  FlickVideoPlayer(
-                    flickManager: flickManager,
-                    flickVideoWithControls: const FlickVideoWithControls(
-                      videoFit: BoxFit.contain,
-                      playerLoadingFallback: Align(
-                        alignment: Alignment.center,
-                        child: CircularProgressIndicator(
-                          color: white,
-                        ),
-                      ),
-                    ),
-                  ),
-                  flickManager.flickVideoManager == null
-                      ? Container()
-                      : Visibility(
-                          visible: !flickManager.flickVideoManager!.isPlaying,
-                          child: IconButton(
-                            onPressed: pausePlayShort,
-                            icon: const Icon(
-                              Icons.play_arrow_rounded,
-                              size: 80,
+    return isData
+        ? VisibilityDetector(
+            key: const Key('Shorts'),
+            onVisibilityChanged: (info) {
+              if (info.visibleBounds == Rect.zero) {
+                flickManager.flickControlManager?.pause();
+              } else {
+                flickManager.flickControlManager?.play();
+              }
+            },
+            child: Stack(
+              children: [
+                GestureDetector(
+                  onTap: pausePlayShort,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      FlickVideoPlayer(
+                        flickManager: flickManager,
+                        flickVideoWithControls: const FlickVideoWithControls(
+                          videoFit: BoxFit.contain,
+                          playerLoadingFallback: Align(
+                            alignment: Alignment.center,
+                            child: CircularProgressIndicator(
                               color: white,
                             ),
                           ),
                         ),
-                  Padding(
-                    padding: EdgeInsets.all(width * 0.025),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.only(left: width * 0.05),
-                          child: IconButton(
-                            onPressed: () async {
-                              isWishlistLocked
-                                  ? null
-                                  : setState(() {
-                                      isWishListed = !isWishListed;
-                                    });
-                              isWishlistLocked
-                                  ? null
-                                  : await wishlistProduct(
-                                      widget.data['shortsId'],
-                                    );
-                            },
-                            icon: Icon(
-                              isWishListed
-                                  ? Icons.favorite_rounded
-                                  : Icons.favorite_outline_rounded,
-                              size: width * 0.095,
-                              color: Colors.red,
-                            ),
-                            color: Colors.red,
-                            tooltip: 'WISHLIST',
-                          ),
-                        ),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            Expanded(
-                              child: Container(
-                                padding: EdgeInsets.only(
-                                  left: width * 0.0125,
+                      ),
+                      flickManager.flickVideoManager == null
+                          ? Container()
+                          : Visibility(
+                              visible:
+                                  !flickManager.flickVideoManager!.isPlaying,
+                              child: IconButton(
+                                onPressed: pausePlayShort,
+                                icon: const Icon(
+                                  Icons.play_arrow_rounded,
+                                  size: 80,
+                                  color: white,
                                 ),
-                                child: Column(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Row(
+                              ),
+                            ),
+                      Padding(
+                        padding: EdgeInsets.all(width * 0.025),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            widget.data['productId'] == null
+                                ? Container()
+                                : Padding(
+                                    padding:
+                                        EdgeInsets.only(left: width * 0.05),
+                                    child: IconButton(
+                                      onPressed: () async {
+                                        isWishlistLocked
+                                            ? null
+                                            : setState(() {
+                                                isWishListed = !isWishListed;
+                                              });
+                                        isWishlistLocked
+                                            ? null
+                                            : await wishlistProduct();
+                                      },
+                                      icon: Icon(
+                                        isWishListed
+                                            ? Icons.favorite_rounded
+                                            : Icons.favorite_outline_rounded,
+                                        size: width * 0.095,
+                                        color: Colors.red,
+                                      ),
+                                      color: Colors.red,
+                                      tooltip: 'WISHLIST',
+                                    ),
+                                  ),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              mainAxisSize: MainAxisSize.max,
+                              children: [
+                                Expanded(
+                                  child: Container(
+                                    padding: EdgeInsets.only(
+                                      left: width * 0.0125,
+                                    ),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
                                       crossAxisAlignment:
-                                          CrossAxisAlignment.center,
+                                          CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        FutureBuilder(
-                                          future: getVendorInfo(
-                                              widget.data['vendorId']),
-                                          builder: (context, snapshot) {
-                                            if (snapshot.hasError) {
-                                              return Container();
-                                            }
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            FutureBuilder(
+                                              future: getVendorInfo(
+                                                widget.data['vendorId'],
+                                              ),
+                                              builder: (context, snapshot) {
+                                                if (snapshot.hasError) {
+                                                  return Container();
+                                                }
 
-                                            if (snapshot.hasData) {
-                                              return GestureDetector(
-                                                onTap: () {
-                                                  Navigator.of(context).push(
-                                                    MaterialPageRoute(
-                                                      builder: ((context) =>
-                                                          VendorPage(
-                                                            vendorId:
-                                                                widget.data[
+                                                if (snapshot.hasData) {
+                                                  return GestureDetector(
+                                                    onTap: () {
+                                                      Navigator.of(context)
+                                                          .push(
+                                                        MaterialPageRoute(
+                                                          builder: ((context) =>
+                                                              VendorPage(
+                                                                vendorId: widget
+                                                                        .data[
                                                                     'vendorId'],
-                                                          )),
+                                                              )),
+                                                        ),
+                                                      );
+                                                    },
+                                                    child: Padding(
+                                                      padding: EdgeInsets.all(
+                                                        width * 0.006125,
+                                                      ),
+                                                      child: Text(
+                                                        snapshot.data!,
+                                                        style: TextStyle(
+                                                          color: white,
+                                                          fontSize:
+                                                              width * 0.05,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                        ),
+                                                      ),
                                                     ),
                                                   );
-                                                },
-                                                child: Padding(
-                                                  padding: EdgeInsets.all(
-                                                    width * 0.006125,
-                                                  ),
-                                                  child: Text(
-                                                    snapshot.data!,
-                                                    style: TextStyle(
-                                                      color: white,
-                                                      fontSize: width * 0.05,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                    ),
-                                                  ),
-                                                ),
-                                              );
-                                            }
+                                                }
 
-                                            return Container();
-                                          },
+                                                return Container();
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                        GestureDetector(
+                                          onTap: widget.data['productId'] ==
+                                                  null
+                                              ? null
+                                              : () async {
+                                                  final productSnap =
+                                                      await store
+                                                          .collection(
+                                                              'Business')
+                                                          .doc('Data')
+                                                          .collection(
+                                                              'Products')
+                                                          .doc(widget.data[
+                                                              'productId'])
+                                                          .get();
+
+                                                  final productData =
+                                                      productSnap.data()!;
+                                                  if (context.mounted) {
+                                                    Navigator.of(context).push(
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            ProductPage(
+                                                          productData:
+                                                              productData,
+                                                        ),
+                                                      ),
+                                                    );
+                                                  }
+                                                },
+                                          child: Padding(
+                                            padding: EdgeInsets.all(
+                                              width * 0.006125,
+                                            ),
+                                            child: Text(
+                                              widget.data['productName'] ??
+                                                  widget.data['caption'] ??
+                                                  '<No Short Name>',
+                                              style: TextStyle(
+                                                color: white,
+                                                fontSize: width * 0.05,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ),
                                         ),
                                       ],
                                     ),
-                                    FutureBuilder(
-                                      future: getProductName(
-                                          widget.data['shortsId']),
-                                      builder: (context, snapshot) {
-                                        if (snapshot.hasError) {
-                                          return Container();
-                                        }
-
-                                        if (snapshot.hasData) {
-                                          return GestureDetector(
-                                            onTap: () async {
-                                              final productSnap = await store
-                                                  .collection('Business')
-                                                  .doc('Data')
-                                                  .collection('Products')
-                                                  .doc(widget.data['shortsId'])
-                                                  .get();
-
-                                              final productData =
-                                                  productSnap.data()!;
-                                              if (context.mounted) {
-                                                Navigator.of(context).push(
-                                                  MaterialPageRoute(
-                                                    builder: ((context) =>
-                                                        ProductPage(
-                                                          productData:
-                                                              productData,
-                                                        )),
-                                                  ),
-                                                );
-                                              }
-                                            },
-                                            child: Padding(
-                                              padding: EdgeInsets.all(
-                                                width * 0.006125,
-                                              ),
-                                              child: Text(
-                                                snapshot.data!,
-                                                style: TextStyle(
-                                                  color: white,
-                                                  fontSize: width * 0.05,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                            ),
-                                          );
-                                        }
-
-                                        return Container();
-                                      },
-                                    ),
-                                  ],
+                                  ),
                                 ),
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(left: width * 0.05),
-                              child: IconButton(
-                                onPressed: () {},
-                                icon: Icon(
-                                  FeatherIcons.share2,
-                                  size: width * 0.095,
-                                  color: white,
-                                ),
-                                tooltip: 'SHARE',
-                              ),
+                                widget.data['productId'] == null
+                                    ? Container()
+                                    : Padding(
+                                        padding:
+                                            EdgeInsets.only(left: width * 0.05),
+                                        child: IconButton(
+                                          onPressed: () {},
+                                          icon: Icon(
+                                            FeatherIcons.share2,
+                                            size: width * 0.095,
+                                            color: white,
+                                          ),
+                                          tooltip: 'SHARE',
+                                        ),
+                                      ),
+                              ],
                             ),
                           ],
                         ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      );
-    } else {
-      return Stack(
-        children: [
-          const Center(
-            child: CircularProgressIndicator(
-              color: white,
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.all(width * 0.025),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(left: width * 0.05),
-                  child: IconButton(
-                    onPressed: () {},
-                    icon: Icon(
-                      Icons.favorite_outline_rounded,
-                      size: width * 0.095,
-                      color: Colors.red,
-                    ),
-                    color: Colors.red,
-                    tooltip: 'WISHLIST',
+                      ),
+                    ],
                   ),
                 ),
-                Row(
+              ],
+            ),
+          )
+        : Stack(
+            children: [
+              const Center(
+                child: CircularProgressIndicator(
+                  color: white,
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.all(width * 0.025),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.end,
-                  mainAxisSize: MainAxisSize.max,
                   children: [
-                    Expanded(
-                      child: Container(
-                        padding: EdgeInsets.only(
-                          left: width * 0.0125,
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
+                    widget.data['productId'] == null
+                        ? Container()
+                        : Padding(
+                            padding: EdgeInsets.only(left: width * 0.05),
+                            child: IconButton(
+                              onPressed: () {},
+                              icon: Icon(
+                                Icons.favorite_outline_rounded,
+                                size: width * 0.095,
+                                color: Colors.red,
+                              ),
+                              color: Colors.red,
+                              tooltip: 'WISHLIST',
+                            ),
+                          ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Expanded(
+                          child: Container(
+                            padding: EdgeInsets.only(
+                              left: width * 0.0125,
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
                               children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Padding(
+                                      padding: EdgeInsets.all(
+                                        width * 0.006125,
+                                      ),
+                                      child: Container(),
+                                    ),
+                                  ],
+                                ),
                                 Padding(
                                   padding: EdgeInsets.all(
                                     width * 0.006125,
@@ -460,35 +473,28 @@ class _ShortsTileState extends State<ShortsTile> {
                                 ),
                               ],
                             ),
-                            Padding(
-                              padding: EdgeInsets.all(
-                                width * 0.006125,
+                          ),
+                        ),
+                        widget.data['productId'] == null
+                            ? Container()
+                            : Padding(
+                                padding: EdgeInsets.only(left: width * 0.05),
+                                child: IconButton(
+                                  onPressed: () {},
+                                  icon: Icon(
+                                    FeatherIcons.share2,
+                                    size: width * 0.095,
+                                    color: white,
+                                  ),
+                                  tooltip: 'SHARE',
+                                ),
                               ),
-                              child: Container(),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left: width * 0.05),
-                      child: IconButton(
-                        onPressed: () {},
-                        icon: Icon(
-                          FeatherIcons.share2,
-                          size: width * 0.095,
-                          color: white,
-                        ),
-                        tooltip: 'SHARE',
-                      ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
-          ),
-        ],
-      );
-    }
+              ),
+            ],
+          );
   }
 }

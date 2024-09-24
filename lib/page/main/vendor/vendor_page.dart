@@ -54,8 +54,8 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
   bool isFollowing = false;
   bool isFollowingLocked = false;
   Map brands = {};
-  Map<String, List> posts = {};
-  Map<String, List> shorts = {};
+  // Map<String, List> posts = {};
+  Map<String, Map<String, dynamic>> shorts = {};
   List? allDiscounts;
   Map<String, dynamic>? categories;
   Map<String, dynamic> products = {};
@@ -79,7 +79,7 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
     getBrands();
     getDiscounts();
     getProducts();
-    getPosts();
+    // getPosts();
     getShorts();
     sortProducts(EventSorting.recentlyAdded);
     super.initState();
@@ -441,40 +441,35 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
   }
 
   // GET POSTS
-  Future<void> getPosts() async {
-    Map<String, List> myPosts = {};
-    final postsSnap = await store
-        .collection('Business')
-        .doc('Data')
-        .collection('Posts')
-        .where('postVendorId', isEqualTo: widget.vendorId)
-        .where('isLinked', isEqualTo: false)
-        .get();
-
-    for (var post in postsSnap.docs) {
-      final postData = post.data();
-
-      final postId = postData['postId'];
-      final postText = postData['postText'];
-      final isTextPost = postData['isTextPost'];
-      final postImage = postData['postImage'];
-      final postDateTime = postData['postDateTime'];
-
-      myPosts[postId] = [
-        postText,
-        isTextPost,
-        postImage,
-        postDateTime,
-      ];
-    }
-
-    myPosts = Map.fromEntries(myPosts.entries.toList()
-      ..sort((a, b) => (b.value[3] as Timestamp).compareTo(a.value[3])));
-
-    setState(() {
-      posts = myPosts;
-    });
-  }
+  // Future<void> getPosts() async {
+  //   Map<String, List> myPosts = {};
+  //   final postsSnap = await store
+  //       .collection('Business')
+  //       .doc('Data')
+  //       .collection('Posts')
+  //       .where('postVendorId', isEqualTo: widget.vendorId)
+  //       .where('isLinked', isEqualTo: false)
+  //       .get();
+  //   for (var post in postsSnap.docs) {
+  //     final postData = post.data();
+  //     final postId = postData['postId'];
+  //     final postText = postData['postText'];
+  //     final isTextPost = postData['isTextPost'];
+  //     final postImage = postData['postImage'];
+  //     final postDateTime = postData['postDateTime'];
+  //     myPosts[postId] = [
+  //       postText,
+  //       isTextPost,
+  //       postImage,
+  //       postDateTime,
+  //     ];
+  //   }
+  //   myPosts = Map.fromEntries(myPosts.entries.toList()
+  //     ..sort((a, b) => (b.value[3] as Timestamp).compareTo(a.value[3])));
+  //   setState(() {
+  //     posts = myPosts;
+  //   });
+  // }
 
   // SORT PRODUCTS
   void sortProducts(EventSorting sorting) {
@@ -727,7 +722,7 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
 
   // GET SHORTS
   Future<void> getShorts() async {
-    Map<String, List> myShorts = {};
+    Map<String, Map<String, dynamic>> myShorts = {};
     final shortsSnap = await store
         .collection('Business')
         .doc('Data')
@@ -739,27 +734,34 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
       final shortsData = short.data();
 
       final shortsId = short.id;
+      final shortsURL = shortsData['shortsURL'];
+      final shortsThumbnail = shortsData['shortsThumbnail'];
+      final productName = shortsData['productName'];
+      final productId = shortsData['productId'];
+      final caption = shortsData['caption'];
       final datetime = shortsData['datetime'];
-      final shortsUrl = shortsData['shortsURL'];
       final vendorId = widget.vendorId;
 
-      String thumbnailDownloadUrl = await storage
-          .ref()
-          .child('Vendor/Thumbnails')
-          .child(shortsId)
-          .getDownloadURL();
-
-      myShorts[shortsId] = [
-        shortsUrl,
-        shortsId,
-        datetime,
-        thumbnailDownloadUrl,
-        vendorId,
-      ];
+      myShorts[shortsId] = {
+        'shortsId': shortsId,
+        'shortsURL': shortsURL,
+        'shortsThumbnail': shortsThumbnail,
+        'productName': productName,
+        'productId': productId,
+        'caption': caption,
+        'datetime': datetime,
+        'vendorId': vendorId,
+      };
     });
 
-    myShorts = Map.fromEntries(myShorts.entries.toList()
-      ..sort((a, b) => (b.value[2] as Timestamp).compareTo(a.value[2])));
+    myShorts = Map.fromEntries(
+      myShorts.entries.toList()
+        ..sort(
+          (a, b) => (b.value['datetime'] as Timestamp).compareTo(
+            a.value['datetime'],
+          ),
+        ),
+    );
 
     setState(() {
       shorts = myShorts;

@@ -151,8 +151,6 @@ class _ShortsPageState extends State<ShortsPage> {
                           },
                           child: ShortsTile(
                             data: data,
-                            snappedPageIndex: _currentPage,
-                            currentIndex: index,
                             bottomNavIndex: widget.bottomNavIndex,
                           ),
                         );

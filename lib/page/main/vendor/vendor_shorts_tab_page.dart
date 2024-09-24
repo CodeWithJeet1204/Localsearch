@@ -10,7 +10,7 @@ class VendorShortsTabPage extends StatefulWidget {
   });
 
   final width;
-  final Map<String, List> shorts;
+  final Map<String, Map<String, dynamic>> shorts;
 
   @override
   State<VendorShortsTabPage> createState() => _VendorShortsTabPageState();
@@ -100,7 +100,7 @@ class _VendorShortsTabPageState extends State<VendorShortsTabPage> {
                             ? index == 0
                                 ? 0
                                 : index - 1
-                            : index][3];
+                            : index]['shortsThumbnail'];
 
                     return GestureDetector(
                       onTap: () {
@@ -109,6 +109,7 @@ class _VendorShortsTabPageState extends State<VendorShortsTabPage> {
                             builder: (context) => VendorShortsTabPageView(
                               shorts: widget.shorts,
                               shortsId: shortsId,
+                              index: index,
                             ),
                           ),
                         );
