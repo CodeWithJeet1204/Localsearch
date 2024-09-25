@@ -7,9 +7,45 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:851488762803:android:1598df55d39880003979c6",
+        "android_client_info": {
+          "package_name": "com.example.Localsearch"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "851488762803-820pd8np863ivnf4deb2snd7dckv3qq9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA-CD3MgDBzAsjmp_FlDbofynMMmW6fPsU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "851488762803-820pd8np863ivnf4deb2snd7dckv3qq9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "851488762803-g71j7te9u229qdmbddcu74pmag1lvhja.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.mycompany.findeasy"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:851488762803:android:056f9e3dd850bff53979c6",
         "android_client_info": {
-          "package_name": "com.example.localsearch"
+          "package_name": "com.example.Localsearch_User"
         }
       },
       "oauth_client": [
