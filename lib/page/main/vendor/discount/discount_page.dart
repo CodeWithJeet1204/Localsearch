@@ -200,43 +200,49 @@ class _DiscountPageState extends State<DiscountPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // IMAGE
-                          Container(
-                            width: width,
-                            height: width * 9 / 16,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: primaryDark2,
-                                width: 1,
-                              ),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: GestureDetector(
-                              onTap: changeFit,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(
-                                  10,
-                                ),
-                                child: InteractiveViewer(
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(
-                                      10,
+                          discountData['discountImageUrl'] == null
+                              ? Center(
+                                  child: Text('No Image'),
+                                )
+                              : Container(
+                                  width: width,
+                                  height: width * 9 / 16,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: primaryDark2,
+                                      width: 1,
                                     ),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        image: DecorationImage(
-                                          image: NetworkImage(
-                                            discountData['discountImageUrl'],
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: GestureDetector(
+                                    onTap: changeFit,
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(
+                                        10,
+                                      ),
+                                      child: InteractiveViewer(
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            10,
                                           ),
-                                          fit: isFit ? null : BoxFit.cover,
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              image: DecorationImage(
+                                                image: NetworkImage(
+                                                  discountData[
+                                                      'discountImageUrl'],
+                                                ),
+                                                fit:
+                                                    isFit ? null : BoxFit.cover,
+                                              ),
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ),
-                          ),
                           const SizedBox(height: 28),
 
                           // NAME

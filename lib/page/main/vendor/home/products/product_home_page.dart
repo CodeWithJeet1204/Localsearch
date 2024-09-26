@@ -185,28 +185,33 @@ class _ProductHomePageState extends State<ProductHomePage> {
       );
 
       final sortedEntries = myStatus.entries.toList()
-        ..sort((a, b) {
+        ..sort((MapEntry<String, Map<String, dynamic>> a,
+            MapEntry<String, Map<String, dynamic>> b) {
           final bool aIsFollowed = a.value['isFollowed'] as bool;
           final bool bIsFollowed = b.value['isFollowed'] as bool;
 
+          // Sort followed shops first
           if (aIsFollowed && !bIsFollowed) {
             return -1;
           } else if (!aIsFollowed && bIsFollowed) {
             return 1;
           }
 
+          // Sort by total views in descending order
           final aTotalViews = a.value['posts'].values.fold<int>(
             0,
-            (additionSum, post) =>
-                additionSum +
-                int.parse((post as Map<String, dynamic>)['postViews']),
+            (int additionSum, dynamic post) {
+              final postMap = post as Map<String, dynamic>;
+              return additionSum + int.parse(postMap['postViews']);
+            },
           );
 
           final bTotalViews = b.value['posts'].values.fold<int>(
             0,
-            (additionSum, post) =>
-                additionSum +
-                int.parse((post as Map<String, dynamic>)['postViews']),
+            (int additionSum, dynamic post) {
+              final postMap = post as Map<String, dynamic>;
+              return additionSum + int.parse(postMap['postViews']);
+            },
           );
 
           return bTotalViews.compareTo(aTotalViews);
