@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:localsearch/page/main/main_page.dart';
 import 'package:localsearch/utils/colors.dart';
 import 'package:localsearch/widgets/button.dart';
-import 'package:localsearch/widgets/head_text.dart';
 import 'package:localsearch/widgets/snack_bar.dart';
 import 'package:localsearch/widgets/text_form_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -169,6 +168,9 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
     final locationProvider = Provider.of<LocationProvider>(context);
 
     return Scaffold(
+      appBar: AppBar(
+        title: Text('User Details'),
+      ),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: width * 0.045),
@@ -181,13 +183,6 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // USER DETAILS HEADTEXT
-                    const SizedBox(height: 80),
-                    const HeadText(
-                      text: 'USER\nDETAILS',
-                    ),
-                    const SizedBox(height: 40),
-
                     // FORM
                     Form(
                       key: registerDetailsKey,

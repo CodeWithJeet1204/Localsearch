@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
-import 'package:localsearch/page/auth/login_page.dart';
+import 'package:localsearch/page/auth/sign_in_page.dart';
 import 'package:localsearch/page/main/vendor/profile/followed_page.dart';
 import 'package:localsearch/page/main/vendor/profile/user_details_page.dart';
 import 'package:localsearch/page/main/vendor/profile/wishlist_page.dart';
@@ -25,19 +25,16 @@ class _ProfilePageState extends State<ProfilePage> {
   final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
   String? name;
-  bool canReview = false;
-  bool hasReviewed = true;
 
   // INIT STATE
   @override
   void initState() {
-    getHasReviewed();
+    getUserData();
     super.initState();
-    getData();
   }
 
   // GET DATA
-  Future<void> getData() async {
+  Future<void> getUserData() async {
     final userSnap =
         await store.collection('Users').doc(auth.currentUser!.uid).get();
 
@@ -82,10 +79,9 @@ class _ProfilePageState extends State<ProfilePage> {
                 try {
                   await auth.signOut();
                   if (context.mounted) {
-                    Navigator.of(context).pop();
                     Navigator.of(context).pushAndRemoveUntil(
                       MaterialPageRoute(
-                        builder: ((context) => const LoginPage()),
+                        builder: (context) => const SignInPage(),
                       ),
                       (route) => false,
                     );
@@ -111,23 +107,19 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   // GET HAS REVIEWED
-  Future<void> getHasReviewed() async {
-    final userSnap =
-        await store.collection('Users').doc(auth.currentUser!.uid).get();
-
-    final userData = userSnap.data()!;
-
-    final myHasReviewed = userData['hasReviewed'];
-    final hasReviewedIndex = userData['hasReviewedIndex'];
-
-    setState(() {
-      hasReviewed = myHasReviewed;
-    });
-
-    await store.collection('Users').doc(auth.currentUser!.uid).update({
-      'hasReviewedIndex': hasReviewedIndex + 1,
-    });
-  }
+  // Future<void> getHasReviewed() async {
+  //   final userSnap =
+  //       await store.collection('Users').doc(auth.currentUser!.uid).get();
+  //   final userData = userSnap.data()!;
+  //   final myHasReviewed = userData['hasReviewed'];
+  //   final hasReviewedIndex = userData['hasReviewedIndex'];
+  //   setState(() {
+  //     hasReviewed = myHasReviewed;
+  //   });
+  //   await store.collection('Users').doc(auth.currentUser!.uid).update({
+  //     'hasReviewedIndex': hasReviewedIndex + 1,
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -182,9 +174,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     children: [
                       Container(
                         width: width,
-                        height: width * 0.33,
                         alignment: Alignment.center,
-                        margin: EdgeInsets.only(bottom: width * 0.01),
                         padding: EdgeInsets.symmetric(
                           horizontal: width * 0.045,
                           vertical: width * 0.01125,
@@ -206,18 +196,17 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ? Container()
                                 : Padding(
                                     padding:
-                                        EdgeInsets.only(left: width * 0.05),
+                                        EdgeInsets.only(left: width * 0.025),
                                     child: SizedBox(
-                                      width: width * 0.45,
+                                      width: width * 0.75,
                                       child: Text(
-                                        name!,
+                                        name ?? 'Name Not Available',
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         textAlign: TextAlign.start,
                                         style: TextStyle(
-                                          fontSize: width * 0.07,
-                                          fontWeight: FontWeight.w700,
-                                          color: primaryDark.withBlue(5),
+                                          fontSize: width * 0.06,
+                                          fontWeight: FontWeight.w500,
                                         ),
                                       ),
                                     ),
@@ -226,8 +215,8 @@ class _ProfilePageState extends State<ProfilePage> {
                               onPressed: () {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
-                                    builder: ((context) =>
-                                        const UserDetailsPage()),
+                                    builder: (context) =>
+                                        const UserDetailsPage(),
                                   ),
                                 );
                               },
@@ -239,6 +228,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           ],
                         ),
                       ),
+                      SizedBox(height: width * 0.01),
                       const Divider(),
 
                       // FOLLOWED
@@ -247,7 +237,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         onPressed: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: ((context) => const FollowedPage()),
+                              builder: (context) => const FollowedPage(),
                             ),
                           );
                         },
@@ -260,7 +250,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         onPressed: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: ((context) => const WishlistPage()),
+                              builder: (context) => const WishlistPage(),
                             ),
                           );
                         },
@@ -270,58 +260,53 @@ class _ProfilePageState extends State<ProfilePage> {
                       Divider(),
 
                       // RATE THIS APP
-                      hasReviewed
-                          ? Container()
-                          : Padding(
-                              padding: EdgeInsets.all(width * 0.0225),
-                              child: InkWell(
-                                onTap: () async {
-                                  await store
-                                      .collection('Users')
-                                      .doc(auth.currentUser!.uid)
-                                      .update({
-                                    'hasReviewed': true,
-                                  });
+                      InkWell(
+                        onTap: () async {
+                          // await store
+                          //     .collection('Users')
+                          //     .doc(auth.currentUser!.uid)
+                          //     .update({
+                          //   'hasReviewed': true,
+                          // });
 
-                                  const url =
-                                      'https://play.google.com/store/apps/details?id=com.localsearchuser.package';
-                                  if (await canLaunchUrl(Uri.parse(url))) {
-                                    await launchUrl(Uri.parse(url));
-                                  } else {
-                                    return mySnackBar(
-                                      'Some error occured, Try Again Later',
-                                      context,
-                                    );
-                                  }
-                                },
-                                customBorder: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Padding(
-                                  padding: EdgeInsets.all(width * 0.0225),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        'Rate This App',
-                                        style: TextStyle(
-                                          fontSize: width * 0.0425,
-                                          color: primaryDark,
-                                        ),
-                                      ),
-                                      Icon(
-                                        Icons.star,
-                                        size: width * 0.075,
-                                        color: Colors.yellow,
-                                      ),
-                                    ],
-                                  ),
+                          const url =
+                              'https://play.google.com/store/apps/details?id=com.localsearchuser.package';
+                          if (await canLaunchUrl(Uri.parse(url))) {
+                            await launchUrl(Uri.parse(url));
+                          } else {
+                            return mySnackBar(
+                              'Some error occured, Try Again Later',
+                              context,
+                            );
+                          }
+                        },
+                        customBorder: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.all(width * 0.045),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Rate This App',
+                                style: TextStyle(
+                                  fontSize: width * 0.0425,
+                                  color: primaryDark,
                                 ),
                               ),
-                            ),
+                              Icon(
+                                Icons.star,
+                                size: width * 0.075,
+                                color: Colors.yellow,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(height: 12),
 
                       // CALL HELPLINE
                       InkWell(
@@ -333,25 +318,32 @@ class _ProfilePageState extends State<ProfilePage> {
 
                           final helplineData = helplineSnap.data()!;
 
-                          final int helplineNo = helplineData['helpline1'];
+                          final int? helplineNo = helplineData['helpline1'];
 
-                          final Uri url = Uri(
-                            scheme: 'tel',
-                            path: helplineNo.toString(),
-                          );
-                          if (await canLaunchUrl(url)) {
-                            await launchUrl(url);
-                          } else {
-                            if (mounted) {
-                              mySnackBar('Some error occured', context);
+                          if (helplineNo != null) {
+                            final Uri url = Uri(
+                              scheme: 'tel',
+                              path: helplineNo.toString(),
+                            );
+                            if (await canLaunchUrl(url)) {
+                              await launchUrl(url);
+                            } else {
+                              if (mounted) {
+                                mySnackBar('Some error occured', context);
+                              }
                             }
+                          } else {
+                            return mySnackBar(
+                              'No Helpline currently available',
+                              context,
+                            );
                           }
                         },
                         customBorder: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Padding(
-                          padding: EdgeInsets.all(width * 0.0225),
+                          padding: EdgeInsets.all(width * 0.045),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.center,

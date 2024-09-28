@@ -2,12 +2,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:localsearch/page/main/main_page.dart';
 import 'package:localsearch/widgets/button.dart';
-import 'package:localsearch/widgets/head_text.dart';
 import 'package:localsearch/widgets/snack_bar.dart';
 import 'package:localsearch/widgets/text_form_field.dart';
 
-class LoginEmailAfterForgetPassword extends StatefulWidget {
-  const LoginEmailAfterForgetPassword({
+class SignInEmailAfterForgetPassword extends StatefulWidget {
+  const SignInEmailAfterForgetPassword({
     super.key,
     required this.email,
   });
@@ -15,12 +14,12 @@ class LoginEmailAfterForgetPassword extends StatefulWidget {
   final String email;
 
   @override
-  State<LoginEmailAfterForgetPassword> createState() =>
-      _LoginEmailAfterForgetPasswordState();
+  State<SignInEmailAfterForgetPassword> createState() =>
+      _SignInEmailAfterForgetPasswordState();
 }
 
-class _LoginEmailAfterForgetPasswordState
-    extends State<LoginEmailAfterForgetPassword> {
+class _SignInEmailAfterForgetPasswordState
+    extends State<SignInEmailAfterForgetPassword> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   bool isEmailLogging = false;
@@ -42,7 +41,7 @@ class _LoginEmailAfterForgetPasswordState
         if (mounted) {
           Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(
-              builder: ((context) => const MainPage()),
+              builder: (context) => const MainPage(),
             ),
             (route) => false,
           );
@@ -69,6 +68,9 @@ class _LoginEmailAfterForgetPasswordState
     final width = MediaQuery.of(context).size.width;
 
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Sign In With Email'),
+      ),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.all(
@@ -80,11 +82,6 @@ class _LoginEmailAfterForgetPasswordState
             return SingleChildScrollView(
               child: Column(
                 children: [
-                  SizedBox(height: width * 0.35),
-                  const HeadText(
-                    text: 'LOGIN WITH EMAIL',
-                  ),
-                  SizedBox(height: width * 0.3),
                   MyTextFormField(
                     hintText: 'Email',
                     controller: emailController,

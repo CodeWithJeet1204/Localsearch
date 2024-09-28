@@ -1,6 +1,5 @@
 import 'package:localsearch/firebase_options.dart';
-import 'package:localsearch/page/auth/login_page.dart';
-import 'package:localsearch/page/auth/register_method_page.dart';
+import 'package:localsearch/page/auth/sign_in_page.dart';
 import 'package:localsearch/page/main/get_location_page.dart';
 import 'package:localsearch/page/main/main_page.dart';
 import 'package:localsearch/providers/location_provider.dart';
@@ -103,9 +102,6 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      routes: {
-        '/register': ((context) => const RegisterMethodPage()),
-      },
       debugShowCheckedModeBanner: false,
       home: Stack(
         children: [
@@ -125,7 +121,7 @@ class MyApp extends StatelessWidget {
               }
 
               return const GetLocationPage(
-                nextPage: LoginPage(),
+                nextPage: SignInPage(),
               );
             },
           ),

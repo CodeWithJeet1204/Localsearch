@@ -94,14 +94,6 @@
           }
         },
         {
-          "client_id": "851488762803-ti82ua39ilonb2ibpqo0idjv9ilp6091.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.find_easy",
-            "certificate_hash": "9bbb3186b2189ef16d8f272bdab59362c395cbb4"
-          }
-        },
-        {
           "client_id": "851488762803-820pd8np863ivnf4deb2snd7dckv3qq9.apps.googleusercontent.com",
           "client_type": 3
         }

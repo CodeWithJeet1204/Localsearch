@@ -1,9 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
-import 'package:localsearch/page/auth/login_page.dart';
 import 'package:localsearch/page/auth/register_details_page.dart';
-import 'package:localsearch/page/auth/set_email_page.dart';
-import 'package:localsearch/page/auth/verify/email_verify.dart';
+import 'package:localsearch/page/auth/sign_in_page.dart';
 import 'package:localsearch/page/main/under_development_page.dart';
 import 'package:localsearch/page/main/vendor/home/posts/posts_page.dart';
 import 'package:localsearch/page/main/vendor/home/products/product_home_page.dart';
@@ -57,7 +55,7 @@ class _MainPageState extends State<MainPage> {
           if (mounted) {
             Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(
-                builder: ((context) => const LoginPage()),
+                builder: (context) => const SignInPage(),
               ),
               (route) => false,
             );
@@ -76,7 +74,7 @@ class _MainPageState extends State<MainPage> {
                 emailPhoneGoogleChosen: 0,
               );
             });
-          } else if (auth.currentUser!.email == null) {
+          } /* else if (auth.currentUser!.email == null) {
             setState(() {
               detailsPage = SetEmailPage();
             });
@@ -86,7 +84,8 @@ class _MainPageState extends State<MainPage> {
             setState(() {
               detailsPage = EmailVerifyPage();
             });
-          } else {
+          }*/
+          else {
             setState(() {
               detailsPage = null;
             });
