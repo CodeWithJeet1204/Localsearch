@@ -53,7 +53,7 @@ class _SignInPageState extends State<SignInPage> {
             .collection('Business')
             .doc('Owners')
             .collection('Users')
-            .where('Email', isEqualTo: emailController.text)
+            .where('Email', isEqualTo: emailController.text.trim())
             .where('Registration', isEqualTo: 'email')
             .get();
 
@@ -71,14 +71,14 @@ class _SignInPageState extends State<SignInPage> {
 
         final userExistsSnap = await store
             .collection('Users')
-            .where('Email', isEqualTo: emailController.text)
+            .where('Email', isEqualTo: emailController.text.trim())
             .where('Registration', isEqualTo: 'email')
             .get();
 
         if (userExistsSnap.docs.isNotEmpty) {
           if (mounted) {
             await auth.signInWithEmailAndPassword(
-              email: emailController.text,
+              email: emailController.text.trim(),
               password: passwordController.text,
             );
 

@@ -252,7 +252,7 @@ class _ProductQuickViewState extends State<ProductQuickView> {
                   //         Padding(
                   //           padding: const EdgeInsets.symmetric(vertical: 6),
                   //           child: Text(
-                  //             'Rs. $price',
+                  //             'Rs. ${price.round()}',
                   //             style: TextStyle(
                   //               fontSize: width * 0.045,
                   //               fontWeight: FontWeight.w500,

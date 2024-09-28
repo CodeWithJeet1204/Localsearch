@@ -117,12 +117,20 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
   // GET DATA
   Future<void> getDiscounts(LocationProvider locationProvider) async {
     Map<String, Map<String, dynamic>> myDiscounts = {};
-    final discountSnap = await store
-        .collection('Business')
-        .doc('Data')
-        .collection('Discounts')
-        .limit(isGridView ? noOfGridView : noOfListView)
-        .get();
+    final discountSnap = locationProvider.cityName != 'Your Location'
+        ? await store
+            .collection('Business')
+            .doc('Data')
+            .collection('Discounts')
+            .where('City', isEqualTo: locationProvider.cityName)
+            .limit(isGridView ? noOfGridView : noOfListView)
+            .get()
+        : await store
+            .collection('Business')
+            .doc('Data')
+            .collection('Discounts')
+            .limit(isGridView ? noOfGridView : noOfListView)
+            .get();
 
     double? yourLatitude;
     double? yourLongitude;
@@ -163,28 +171,31 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
         yourLatitude = locationProvider.cityLatitude;
         yourLongitude = locationProvider.cityLongitude;
 
-        await Future.forEach(discountSnap.docs, (discount) async {
-          final discountData = discount.data();
-          final discountId = discount.id;
-          final Timestamp endDateTime = discountData['discountEndDateTime'];
-          final vendorLatitude = discountData['Latitude'];
-          final vendorLongitude = discountData['Longitude'];
-          double? distance;
+        await Future.forEach(
+          discountSnap.docs,
+          (discount) async {
+            final discountData = discount.data();
+            final discountId = discount.id;
+            final Timestamp endDateTime = discountData['discountEndDateTime'];
+            final vendorLatitude = discountData['Latitude'];
+            final vendorLongitude = discountData['Longitude'];
+            double? distance;
 
-          if (yourLatitude != null && yourLongitude != null) {
-            distance = await getDrivingDistance(
-                yourLatitude, yourLongitude, vendorLatitude, vendorLongitude);
-          }
+            if (yourLatitude != null && yourLongitude != null) {
+              distance = await getDrivingDistance(
+                  yourLatitude, yourLongitude, vendorLatitude, vendorLongitude);
+            }
 
-          if (distance != null) {
-            if (distance * 0.925 < 5) {
-              if (endDateTime.toDate().isAfter(DateTime.now())) {
-                discountData.addAll({'distance': distance});
-                myDiscounts[discountId] = discountData;
+            if (distance != null) {
+              if (distance * 0.925 < 5) {
+                if (endDateTime.toDate().isAfter(DateTime.now())) {
+                  discountData.addAll({'distance': distance});
+                  myDiscounts[discountId] = discountData;
+                }
               }
             }
-          }
-        });
+          },
+        );
 
         if (mounted) {
           List<MapEntry<String, Map<String, dynamic>>> sortedDiscounts =
@@ -212,12 +223,9 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
           final discountData = discount.data();
           final discountId = discount.id;
           final Timestamp endDateTime = discountData['discountEndDateTime'];
-          final cityName = discountData['City'];
 
-          if (cityName == locationProvider.cityName) {
-            if (endDateTime.toDate().isAfter(DateTime.now())) {
-              myDiscounts[discountId] = discountData;
-            }
+          if (endDateTime.toDate().isAfter(DateTime.now())) {
+            myDiscounts[discountId] = discountData;
           }
         });
 
@@ -668,13 +676,14 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
                                                                     0.01,
                                                               ),
                                                               child: Text(
+                                                                discountData[
+                                                                        'isPercent']
+                                                                    ? '${(discountData['discountAmount'] as double).round()}% off'
+                                                                    : 'Rs. ${(discountData['discountAmount'] as double).round()} off',
+                                                                maxLines: 1,
                                                                 overflow:
                                                                     TextOverflow
                                                                         .ellipsis,
-                                                                discountData[
-                                                                        'isPercent']
-                                                                    ? '${discountData['discountAmount']}% off'
-                                                                    : 'Rs. ${discountData['discountAmount']} off',
                                                                 style:
                                                                     TextStyle(
                                                                   color: const Color
@@ -897,13 +906,14 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
                                                                     0.01,
                                                               ),
                                                               child: Text(
+                                                                discountData[
+                                                                        'isPercent']
+                                                                    ? '${(discountData['discountAmount'] as double).round()}% off'
+                                                                    : 'Rs. ${(discountData['discountAmount'] as double).round()} off',
+                                                                maxLines: 1,
                                                                 overflow:
                                                                     TextOverflow
                                                                         .ellipsis,
-                                                                discountData[
-                                                                        'isPercent']
-                                                                    ? '${discountData['discountAmount']}% off'
-                                                                    : 'Rs. ${discountData['discountAmount']} off',
                                                                 style:
                                                                     TextStyle(
                                                                   color: const Color

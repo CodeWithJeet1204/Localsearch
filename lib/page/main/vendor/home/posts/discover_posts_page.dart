@@ -469,7 +469,7 @@ class _DiscoverPostsPageState extends State<DiscoverPostsPage>
                                             child: SizedBox(
                                               width: width * 0.75,
                                               child: Text(
-                                                'Rs. $price',
+                                                'Rs. ${price.round()}',
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
                                                 textAlign: TextAlign.start,

@@ -521,7 +521,7 @@ class _WishlistPageState extends State<WishlistPage> {
                                                 overflow: TextOverflow.ellipsis,
                                               ),
                                               subtitle: Text(
-                                                'Rs. $price',
+                                                'Rs. ${price.round()}',
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
                                               ),

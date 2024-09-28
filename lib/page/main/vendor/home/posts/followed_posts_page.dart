@@ -506,7 +506,7 @@ class _FollowedPostsPageState extends State<FollowedPostsPage>
                                                 child: SizedBox(
                                                   width: width * 0.75,
                                                   child: Text(
-                                                    'Rs. $price',
+                                                    'Rs. ${price.round()}',
                                                     maxLines: 1,
                                                     overflow:
                                                         TextOverflow.ellipsis,

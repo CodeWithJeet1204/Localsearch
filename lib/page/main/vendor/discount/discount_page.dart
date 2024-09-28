@@ -313,8 +313,8 @@ class _DiscountPageState extends State<DiscountPage> {
                                 ),
                                 Text(
                                   discountData['isPercent']
-                                      ? '${discountData['discountAmount'].toString()} %'
-                                      : 'Rs. ${discountData['discountAmount'].toString()}',
+                                      ? '${(discountData['discountAmount'] as double).round().toString()} %'
+                                      : 'Rs. ${(discountData['discountAmount'] as double).round().toString()}',
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
@@ -647,11 +647,11 @@ class _DiscountPageState extends State<DiscountPage> {
                                                                         ),
                                                                         child:
                                                                             Text(
-                                                                          'Rs. ${productData['productPrice']}',
-                                                                          overflow:
-                                                                              TextOverflow.ellipsis,
+                                                                          'Rs. ${(productData['productPrice'] as double).round()}',
                                                                           maxLines:
                                                                               1,
+                                                                          overflow:
+                                                                              TextOverflow.ellipsis,
                                                                           style:
                                                                               TextStyle(
                                                                             fontSize:
@@ -771,7 +771,8 @@ class _DiscountPageState extends State<DiscountPage> {
                                                                 ),
                                                               ),
                                                               subtitle: Text(
-                                                                'Rs. ${productData['productPrice']}',
+                                                                'Rs. ${(productData['productPrice'] as double).round()}',
+                                                                maxLines: 1,
                                                                 overflow:
                                                                     TextOverflow
                                                                         .ellipsis,

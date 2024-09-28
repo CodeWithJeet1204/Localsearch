@@ -632,7 +632,7 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
                                           Text(
                                             price == ''
                                                 ? 'Rs. --'
-                                                : 'Rs. $price',
+                                                : 'Rs. ${price.round()}',
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                             style: const TextStyle(

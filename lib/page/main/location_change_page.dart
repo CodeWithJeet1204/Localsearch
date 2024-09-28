@@ -285,7 +285,7 @@ class _LocationChangePageState extends State<LocationChangePage> {
                                     MaterialPageRoute(
                                       builder: (context) => widget.page,
                                     ),
-                                    (route) => false,
+                                    (route) => route.isFirst,
                                   );
                                 }
                               },
@@ -412,7 +412,7 @@ class _LocationChangePageState extends State<LocationChangePage> {
                                                 builder: (context) =>
                                                     widget.page,
                                               ),
-                                              (route) => false,
+                                              (route) => route.isFirst,
                                             );
                                           },
                                           child: Container(

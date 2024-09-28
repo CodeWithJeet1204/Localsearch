@@ -1456,7 +1456,7 @@ class _ProductPageState extends State<ProductPage> {
                                               ),
                                             ),
                                             TextSpan(
-                                              text: 'Rs. $price',
+                                              text: 'Rs. ${price.round()}',
                                               style: TextStyle(
                                                 fontSize: 20,
                                                 color: isAvailable == 0
@@ -1508,7 +1508,7 @@ class _ProductPageState extends State<ProductPage> {
                                   child: Text(
                                     widget.productData['productPrice'] == ''
                                         ? 'N/A'
-                                        : 'Rs. ${widget.productData['productPrice']}',
+                                        : 'Rs. ${(widget.productData['productPrice'] as double).round()}',
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                       color: primaryDark,
@@ -2283,7 +2283,7 @@ class _ProductPageState extends State<ProductPage> {
                                                             ),
                                                           ),
                                                           Text(
-                                                            'Rs. $price',
+                                                            'Rs. ${price.round()}',
                                                             maxLines: 1,
                                                             overflow:
                                                                 TextOverflow
@@ -2462,7 +2462,7 @@ class _ProductPageState extends State<ProductPage> {
                                                               ),
                                                             ),
                                                             Text(
-                                                              'Rs. $price',
+                                                              'Rs. ${price.round()}',
                                                               overflow:
                                                                   TextOverflow
                                                                       .ellipsis,

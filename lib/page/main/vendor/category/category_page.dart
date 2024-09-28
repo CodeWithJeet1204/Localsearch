@@ -412,7 +412,7 @@ class _CategoryPageState extends State<CategoryPage> {
                                                                   child: Text(
                                                                     price == ''
                                                                         ? 'Rs. --'
-                                                                        : 'Rs. $price',
+                                                                        : 'Rs. ${price.round()}',
                                                                     maxLines: 1,
                                                                     overflow:
                                                                         TextOverflow

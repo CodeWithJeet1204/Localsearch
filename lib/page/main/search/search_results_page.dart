@@ -1426,7 +1426,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                                           'productPrice'] ==
                                                       ''
                                                   ? 'N/A'
-                                                  : 'Rs. ${rangeProducts[currentProduct]!['productPrice']}';
+                                                  : 'Rs. ${(rangeProducts[currentProduct]!['productPrice'] as double).round()}';
                                               final isWishListed =
                                                   snapshot.data ?? false;
 

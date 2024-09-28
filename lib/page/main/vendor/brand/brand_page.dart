@@ -401,7 +401,7 @@ class _BrandPageState extends State<BrandPage> {
                                                                   child: Text(
                                                                     price == ''
                                                                         ? 'Rs. --'
-                                                                        : 'Rs. $price',
+                                                                        : 'Rs. ${price.round()}',
                                                                     maxLines: 1,
                                                                     overflow:
                                                                         TextOverflow

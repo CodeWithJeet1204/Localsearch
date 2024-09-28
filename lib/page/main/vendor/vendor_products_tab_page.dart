@@ -474,7 +474,7 @@ class _VendorProductsTabPageState extends State<VendorProductsTabPage> {
                                                     child: Text(
                                                       price == ''
                                                           ? 'Rs. --'
-                                                          : 'Rs. $price',
+                                                          : 'Rs. ${price.round()}',
                                                       style: TextStyle(
                                                         fontSize: widget.width *
                                                             0.0475,
