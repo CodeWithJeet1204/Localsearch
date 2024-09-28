@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:localsearch/providers/location_provider.dart';
@@ -20,6 +21,7 @@ class LocationChangePage extends StatefulWidget {
 }
 
 class _LocationChangePageState extends State<LocationChangePage> {
+  final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
   final searchController = TextEditingController();
   Map<String, Map<String, dynamic>> currentCities = {};
@@ -82,9 +84,9 @@ class _LocationChangePageState extends State<LocationChangePage> {
 
     for (var city in citySnap.docs) {
       final cityData = city.data();
-      final cityId = cityData['cityId'];
+      final cityName = cityData['cityName'];
 
-      tempCities[cityId] = cityData;
+      tempCities[cityName] = cityData;
     }
 
     setState(() {
@@ -258,9 +260,16 @@ class _LocationChangePageState extends State<LocationChangePage> {
                                 });
                                 await getLocation().then((value) async {
                                   if (value != null) {
+                                    await store
+                                        .collection('Users')
+                                        .doc(auth.currentUser!.uid)
+                                        .update({
+                                      'location': 'Your Location',
+                                      'locationLatitude': value.latitude,
+                                      'locationLongitude': value.longitude,
+                                    });
                                     locationProvider.changeCity({
                                       'Your Location': {
-                                        'cityId': 'Your Location',
                                         'cityName': 'Your Location',
                                         'cityLatitude': value.latitude,
                                         'cityLongitude': value.longitude,
@@ -272,12 +281,11 @@ class _LocationChangePageState extends State<LocationChangePage> {
                                   isGettingLocation = false;
                                 });
                                 if (context.mounted) {
-                                  Navigator.of(context).pop();
-                                  Navigator.of(context).pop();
-                                  Navigator.of(context).push(
+                                  Navigator.of(context).pushAndRemoveUntil(
                                     MaterialPageRoute(
                                       builder: (context) => widget.page,
                                     ),
+                                    (route) => false,
                                   );
                                 }
                               },
@@ -361,12 +369,6 @@ class _LocationChangePageState extends State<LocationChangePage> {
                                     ? currentCities.length + 1
                                     : currentCities.length,
                                 itemBuilder: (context, index) {
-                                  final currentCityId =
-                                      currentCities.values.toList()[isLoadMore
-                                          ? index == 0
-                                              ? 0
-                                              : index - 1
-                                          : index]['cityId'];
                                   final currentCityName =
                                       currentCities.values.toList()[isLoadMore
                                           ? index == 0
@@ -384,10 +386,19 @@ class _LocationChangePageState extends State<LocationChangePage> {
 
                                   return index <= currentCities.length
                                       ? GestureDetector(
-                                          onTap: () {
+                                          onTap: () async {
+                                            await store
+                                                .collection('Users')
+                                                .doc(auth.currentUser!.uid)
+                                                .update({
+                                              'location': currentCityName,
+                                              'locationLatitude':
+                                                  currentCityLatitude,
+                                              'locationLongitude':
+                                                  currentCityLongitude,
+                                            });
                                             locationProvider.changeCity({
-                                              currentCityId: {
-                                                'cityId': currentCityId,
+                                              currentCityName: {
                                                 'cityName': currentCityName,
                                                 'cityLatitude':
                                                     currentCityLatitude,
@@ -395,13 +406,13 @@ class _LocationChangePageState extends State<LocationChangePage> {
                                                     currentCityLongitude,
                                               },
                                             });
-                                            Navigator.of(context).pop();
-                                            Navigator.of(context).pop();
-                                            Navigator.of(context).push(
+                                            Navigator.of(context)
+                                                .pushAndRemoveUntil(
                                               MaterialPageRoute(
                                                 builder: (context) =>
                                                     widget.page,
                                               ),
+                                              (route) => false,
                                             );
                                           },
                                           child: Container(

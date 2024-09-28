@@ -1,12 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:localsearch/page/auth/register_details_page.dart';
 import 'package:localsearch/page/main/main_page.dart';
+import 'package:localsearch/providers/location_provider.dart';
 import 'package:localsearch/utils/colors.dart';
 import 'package:localsearch/widgets/button.dart';
 import 'package:localsearch/widgets/snack_bar.dart';
 import 'package:localsearch/widgets/text_form_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class NumberVerifyPage extends StatefulWidget {
   const NumberVerifyPage({
@@ -38,7 +40,7 @@ class _NumberVerifyPageState extends State<NumberVerifyPage> {
   }
 
   // VERIFY OTP
-  Future<void> verifyOtp() async {
+  Future<void> verifyOtp(LocationProvider locationProvider) async {
     if (otpController.text.length == 6) {
       final credential = PhoneAuthProvider.credential(
         verificationId: widget.verificationId,
@@ -68,6 +70,9 @@ class _NumberVerifyPageState extends State<NumberVerifyPage> {
                 'likedProducts': [],
                 'recentSearches': [],
                 'recentProducts': [],
+                'location': 'Your Location',
+                'locationLatitude': locationProvider.cityLatitude,
+                'locationLongitude': locationProvider.cityLongitude,
                 // 'followedOrganizers': [],
                 // 'wishlistEvents': [],
                 // 'fcmToken': '',
@@ -117,6 +122,7 @@ class _NumberVerifyPageState extends State<NumberVerifyPage> {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
+    final locationProvider = Provider.of<LocationProvider>(context);
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -125,7 +131,6 @@ class _NumberVerifyPageState extends State<NumberVerifyPage> {
           child: Column(
             children: [
               Text(
-                overflow: TextOverflow.ellipsis,
                 'An OTP has been sent to your Phone Number\nPls enter the OTP below',
                 textAlign: TextAlign.center,
                 style: TextStyle(
@@ -159,7 +164,7 @@ class _NumberVerifyPageState extends State<NumberVerifyPage> {
                   : MyButton(
                       text: 'VERIFY',
                       onTap: () async {
-                        await verifyOtp();
+                        await verifyOtp(locationProvider);
                       },
                       isLoading: isOTPVerifying,
                       horizontalPadding: width * 0.066,

@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:localsearch/providers/location_provider.dart';
 import 'package:localsearch/utils/colors.dart';
 import 'package:localsearch/widgets/snack_bar.dart';
@@ -20,20 +22,24 @@ class GetLocationPage extends StatefulWidget {
 
 class _GetLocationPageState extends State<GetLocationPage>
     with SingleTickerProviderStateMixin {
+  final auth = FirebaseAuth.instance;
+  final store = FirebaseFirestore.instance;
+  String? location;
+  double? locationLatitude;
+  double? locationLongitude;
   late AnimationController animationController;
   late Animation<double> _animation;
 
   // INIT STATE
   @override
   void initState() {
+    getLocationData();
     super.initState();
     animationController = AnimationController(
-      duration: const Duration(milliseconds: 750),
+      duration: const Duration(milliseconds: 500),
       vsync: this,
     )..repeat(reverse: true);
     _animation = Tween<double>(begin: 0, end: 0.1).animate(animationController);
-
-    monitorLocationService();
   }
 
   // DISPOSE
@@ -41,6 +47,30 @@ class _GetLocationPageState extends State<GetLocationPage>
   void dispose() {
     animationController.dispose();
     super.dispose();
+  }
+
+  // GET LOCATION DATA
+  Future<void> getLocationData() async {
+    if (auth.currentUser != null) {
+      final userSnap =
+          await store.collection('Users').doc(auth.currentUser!.uid).get();
+
+      final myLocation = userSnap['location'];
+      final myLocationLatitude = userSnap['locationLatitude'];
+      final myLocationLongitude = userSnap['locationLongitude'];
+
+      setState(() {
+        location = myLocation;
+        locationLatitude = myLocationLatitude;
+        locationLongitude = myLocationLongitude;
+      });
+    } else {
+      setState(() {
+        location = 'Your Location';
+      });
+    }
+
+    await monitorLocationService();
   }
 
   // MONITOR LOCATION SERVICE
@@ -56,14 +86,12 @@ class _GetLocationPageState extends State<GetLocationPage>
         }
       } else {
         if (mounted) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            setLocation(context.read<LocationProvider>());
+          WidgetsBinding.instance.addPostFrameCallback((_) async {
+            await setLocation(context.read<LocationProvider>());
           });
         }
         break;
       }
-
-      await Future.delayed(Duration(seconds: 1));
     }
   }
 
@@ -123,21 +151,30 @@ class _GetLocationPageState extends State<GetLocationPage>
 
   // SET LOCATION
   Future<void> setLocation(LocationProvider locationProvider) async {
-    await getLocation().then((coordinates) {
-      if (coordinates != null) {
-        final latitude = coordinates.latitude;
-        final longitude = coordinates.longitude;
+    if (location == null || location == 'Your Location') {
+      await getLocation().then((coordinates) {
+        if (coordinates != null) {
+          final latitude = coordinates.latitude;
+          final longitude = coordinates.longitude;
 
-        locationProvider.changeCity({
-          'Your Location': {
-            'cityId': 'Your Location',
-            'cityName': 'Your Location',
-            'cityLatitude': latitude,
-            'cityLongitude': longitude,
-          },
-        });
-      }
-    });
+          locationProvider.changeCity({
+            'Your Location': {
+              'cityName': 'Your Location',
+              'cityLatitude': latitude,
+              'cityLongitude': longitude,
+            },
+          });
+        }
+      });
+    } else {
+      locationProvider.changeCity({
+        'Your Location': {
+          'cityName': location,
+          'cityLatitude': locationLatitude,
+          'cityLongitude': locationLongitude,
+        },
+      });
+    }
     if (mounted) {
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(

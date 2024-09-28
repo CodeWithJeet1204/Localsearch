@@ -3,6 +3,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:localsearch/page/auth/register_details_page.dart';
 import 'package:localsearch/page/auth/verify/number_verify.dart';
 import 'package:localsearch/page/main/main_page.dart';
+import 'package:localsearch/providers/location_provider.dart';
 import 'package:localsearch/utils/colors.dart';
 import 'package:localsearch/widgets/button.dart';
 import 'package:localsearch/widgets/collapse_container.dart';
@@ -10,6 +11,7 @@ import 'package:localsearch/widgets/snack_bar.dart';
 import 'package:localsearch/widgets/text_form_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -40,7 +42,7 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   // SIGN WITH EMAIL
-  Future<void> signInWithEmail() async {
+  Future<void> signInWithEmail(LocationProvider locationProvider) async {
     if (signInEmailFormKey.currentState!.validate()) {
       try {
         setState(() {
@@ -99,18 +101,18 @@ class _SignInPageState extends State<SignInPage> {
         }
 
         await auth.createUserWithEmailAndPassword(
-          email: emailController.text,
-          password: passwordController.text,
+          email: emailController.text.trim(),
+          password: passwordController.text.trim(),
         );
 
         await auth.signInWithEmailAndPassword(
-          email: emailController.text,
-          password: passwordController.text,
+          email: emailController.text.trim(),
+          password: passwordController.text.trim(),
         );
 
         if (auth.currentUser != null) {
           await store.collection('Users').doc(auth.currentUser!.uid).set({
-            'Email': emailController.text,
+            'Email': emailController.text.trim(),
             'Registration': 'email',
             'Name': null,
             'Phone Number': null,
@@ -120,7 +122,10 @@ class _SignInPageState extends State<SignInPage> {
             'likedProducts': [],
             'recentSearches': [],
             'recentProducts': [],
-            'hasReviewedIndex': 0,
+            // 'hasReviewedIndex': 0,
+            'location': 'Your Location',
+            'locationLatitude': locationProvider.cityLatitude,
+            'locationLongitude': locationProvider.cityLongitude,
             // 'followedOrganizers': [],
             // 'wishlistEvents': [],
             // 'fcmToken': '',
@@ -332,7 +337,7 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   // SIGN IN WITH GOOGLE
-  Future<void> signInWithGoogle() async {
+  Future<void> signInWithGoogle(LocationProvider locationProvider) async {
     try {
       setState(() {
         isGoogleSigningIn = true;
@@ -409,6 +414,9 @@ class _SignInPageState extends State<SignInPage> {
           'likedProducts': [],
           'recentSearches': [],
           'recentProducts': [],
+          'location': 'Your Location',
+          'locationLatitude': locationProvider.cityLatitude,
+          'locationLongitude': locationProvider.cityLongitude,
           // 'followedOrganizers': [],
           // 'wishlistEvents': [],
           // 'fcmToken': '',
@@ -456,6 +464,7 @@ class _SignInPageState extends State<SignInPage> {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
+    final locationProvider = Provider.of<LocationProvider>(context);
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -500,7 +509,7 @@ class _SignInPageState extends State<SignInPage> {
                       MyButton(
                         text: 'SIGN IN',
                         onTap: () async {
-                          await signInWithEmail();
+                          await signInWithEmail(locationProvider);
                         },
                         horizontalPadding: 0,
                         isLoading: isEmailSigningIn,
@@ -515,7 +524,7 @@ class _SignInPageState extends State<SignInPage> {
             // GOOGLE
             GestureDetector(
               onTap: () async {
-                await signInWithGoogle();
+                await signInWithGoogle(locationProvider);
               },
               child: Container(
                 width: width,

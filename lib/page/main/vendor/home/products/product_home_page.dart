@@ -1,7 +1,7 @@
 // ignore_for_file: avoid_function_literals_in_foreach_calls, unused_local_variable
 import 'dart:async';
 import 'dart:convert';
-import 'package:localsearch/page/main/vendor/post_page_view.dart';
+import 'package:localsearch/page/main/vendor/status_page_view.dart';
 import 'package:localsearch/page/main/vendor/profile/wishlist_page.dart';
 import 'package:localsearch/widgets/text_button.dart';
 import 'package:auto_size_text/auto_size_text.dart';
@@ -1018,7 +1018,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                             Navigator.of(context).push(
                                               MaterialPageRoute(
                                                 builder: (context) =>
-                                                    PostPageView(
+                                                    StatusPageView(
                                                   currentIndex: index,
                                                   posts: status,
                                                 ),

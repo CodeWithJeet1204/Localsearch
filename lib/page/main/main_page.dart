@@ -47,6 +47,16 @@ class _MainPageState extends State<MainPage> {
       if (userUnderDevelopment) {
         detailsPage = UnderDevelopmentPage();
       } else {
+        if (auth.currentUser == null) {
+          await auth.signOut();
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: (context) => const SignInPage(),
+            ),
+            (route) => false,
+          );
+          mySnackBar('Some error occured', context);
+        }
         final userSnap =
             await store.collection('Users').doc(auth.currentUser!.uid).get();
 

@@ -10,7 +10,7 @@ class MyTextFormField extends StatefulWidget {
     required this.autoFillHints,
     this.verticalPadding = 0,
     this.isPassword = false,
-    this.keyboardType = TextInputType.text,
+    this.keyboardType = TextInputType.name,
     this.autoFocus = true,
   });
 

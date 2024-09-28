@@ -195,7 +195,7 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                             borderRadius: 12,
                             horizontalPadding: 0,
                             verticalPadding: 12,
-                            autoFillHints: const [AutofillHints.email],
+                            autoFillHints: const [],
                           ),
 
                           // EMAIL

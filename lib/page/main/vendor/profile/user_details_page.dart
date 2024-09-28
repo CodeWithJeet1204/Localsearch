@@ -260,7 +260,8 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                       children: [
                                         Padding(
                                           padding: EdgeInsets.only(
-                                              left: width * 0.05),
+                                            left: width * 0.05,
+                                          ),
                                           child: SizedBox(
                                             width: width * 0.725,
                                             child: AutoSizeText(
