@@ -39,10 +39,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
   String? name;
   Map<String, dynamic>? shopTypesData;
   String? recentShop;
-  List<String> recentShopProducts = [];
-  List<String> recentShopProductsImages = [];
-  List<String> recentShopProductsNames = [];
-  List<Map<String, dynamic>> recentShopProductsData = [];
+  Map<String, Map<String, dynamic>> recentShopProducts = {};
   Map<String, dynamic> allWishlist = {};
   Map<String, dynamic> currentWishlist = {};
   Map<String, dynamic> allFollowedShops = {};
@@ -54,7 +51,6 @@ class _ProductHomePageState extends State<ProductHomePage> {
   String? featuredCategory1;
   String? featuredCategory2;
   String? featuredCategory3;
-  bool getRecentData = false;
   bool getWishlistData = false;
   bool getFollowedData = false;
   bool isStatusData = false;
@@ -253,7 +249,11 @@ class _ProductHomePageState extends State<ProductHomePage> {
 
     // GET RECENT SHOP
     Future<void> getRecentShop() async {
+      print('user data: $userData');
       final myRecentShop = userData['recentShop'];
+      Map<String, Map<String, dynamic>> myRecentShopProducts = {};
+
+      print('recentShop: $myRecentShop');
 
       if (myRecentShop != '') {
         try {
@@ -264,36 +264,30 @@ class _ProductHomePageState extends State<ProductHomePage> {
               .where('vendorId', isEqualTo: myRecentShop)
               .get();
 
-          List<Map<String, dynamic>> productsWithViews = [];
+          print('getting');
 
-          for (var productDoc in productSnap.docs) {
-            final productData = productDoc.data();
-            final productViewsTimestamp = productData['productViewsTimestamp'];
-            final productViews = productViewsTimestamp.length;
+          for (var product in productSnap.docs) {
+            final productData = product.data();
+            final productId = product.id;
 
-            if (!recentShopProducts.contains(productDoc.id)) {
-              productsWithViews.add({
-                'id': productDoc.id,
-                'views': productViews,
-              });
-            }
+            myRecentShopProducts[productId] = productData;
           }
 
-          productsWithViews.sort(
-            (a, b) => b['views'].compareTo(
-              a['views'],
-            ),
-          );
+          var sortedEntries = myRecentShopProducts.entries.toList();
 
-          recentShopProducts.clear();
-          recentShopProducts.addAll(
-            productsWithViews.map(
-              (product) => product['id'],
-            ),
-          );
+          sortedEntries.sort((a, b) {
+            List<dynamic> aViews = a.value['productViewsTimestamp'];
+            List<dynamic> bViews = b.value['productViewsTimestamp'];
+            return bViews.length.compareTo(aViews.length);
+          });
+
+          myRecentShopProducts =
+              Map<String, Map<String, dynamic>>.fromEntries(sortedEntries);
+          print('added All');
           if (mounted) {
             setState(() {
               recentShop = myRecentShop;
+              recentShopProducts = myRecentShopProducts;
             });
           }
         } catch (e) {
@@ -595,31 +589,13 @@ class _ProductHomePageState extends State<ProductHomePage> {
     }
 
     if (mounted) {
-      await getName().then((value) async {
-        await getStatus().then((value) async {
-          await getShopTypes().then((value) async {
-            await getRecentShop().then((value) async {
-              await getWishlist().then((value) async {
-                await getFollowedShops().then((value) async {
-                  await getFeatured().then((value) async {
-                    // final reviewProvider = Provider.of<ReviewProvider>(
-                    //   context,
-                    //   listen: false,
-                    // );
-                    // final hasReviewed = reviewProvider.hasAsked;
-
-                    // if (!hasReviewed) {
-                    //   if (!fromRefreshIndicator) {
-                    //     await getHasReviewed();
-                    //   }
-                    // }
-                  });
-                });
-              });
-            });
-          });
-        });
-      });
+      await getName();
+      await getStatus();
+      await getShopTypes();
+      await getRecentShop();
+      await getWishlist();
+      await getFollowedShops();
+      await getFeatured();
     }
   }
 
@@ -1493,172 +1469,116 @@ class _ProductHomePageState extends State<ProductHomePage> {
 
                       // posts.length < 2 ? Container() : Divider(),
 
-                      recentShop == null
-                          ? Container()
-                          : !getRecentData
-                              ? Container()
-                              : const Divider(),
+                      recentShopProducts.isEmpty ? Container() : Divider(),
 
                       // CONTINUE SHOPPING
-                      recentShop == null
+                      recentShopProducts.isEmpty
                           ? Container()
-                          : !getRecentData
-                              ? /*Padding(
-                                  padding: EdgeInsets.all(width * 0.0225),
-                                  child: SkeletonContainer(
-                                    width: width * 0.6,
-                                    height: 32,
-                                  ),
-                                )*/
-                              Container()
-                              : AnimatedOpacity(
-                                  opacity: 1.0,
-                                  duration: Duration(milliseconds: 250),
-                                  child: Padding(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: width * 0.025,
-                                      vertical: width * 0.025,
-                                    ),
-                                    child: Text(
-                                      'Continue Shopping',
-                                      style: TextStyle(
-                                        color: primaryDark,
-                                        fontSize: width * 0.06,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
+                          : AnimatedOpacity(
+                              opacity: 1.0,
+                              duration: Duration(milliseconds: 250),
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: width * 0.025,
+                                  vertical: width * 0.025,
+                                ),
+                                child: Text(
+                                  'Continue Shopping',
+                                  style: TextStyle(
+                                    color: primaryDark,
+                                    fontSize: width * 0.06,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
+                              ),
+                            ),
 
                       // CONTINUE SHOPPING PRODUCTS
-                      recentShop == null
+                      recentShopProducts.isEmpty
                           ? Container()
-                          : !getRecentData
-                              ? /*SizedBox(
-                                  width: width,
-                                  height: width * 0.425,
-                                  child: ListView.builder(
-                                    shrinkWrap: true,
-                                    physics: const ClampingScrollPhysics(),
-                                    scrollDirection: Axis.horizontal,
-                                    itemCount: 4,
-                                    itemBuilder: ((context, index) {
-                                      return Container(
-                                        width: width * 0.28,
-                                        height: width * 0.4,
-                                        decoration: BoxDecoration(
-                                          color: lightGrey,
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                        ),
-                                        margin: EdgeInsets.all(width * 0.0225),
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceAround,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            SkeletonContainer(
-                                              width: width * 0.25,
-                                              height: width * 0.275,
-                                            ),
-                                            SkeletonContainer(
-                                              width: width * 0.225,
-                                              height: width * 0.033,
-                                            ),
-                                          ],
+                          : AnimatedContainer(
+                              width: width,
+                              height: width * 0.45,
+                              duration: Duration(milliseconds: 250),
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                physics: const ClampingScrollPhysics(),
+                                scrollDirection: Axis.horizontal,
+                                itemCount: recentShopProducts.length > 4
+                                    ? 4
+                                    : recentShopProducts.length,
+                                itemBuilder: ((context, index) {
+                                  final String name = recentShopProducts.values
+                                      .toList()[index]['productName'];
+                                  final String imageUrl =
+                                      recentShopProducts.values.toList()[index]
+                                          ['images'][0];
+
+                                  return GestureDetector(
+                                    onTap: () {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (context) => ProductPage(
+                                            productData: recentShopProducts
+                                                .values
+                                                .toList()[index],
+                                          ),
                                         ),
                                       );
-                                    }),
-                                  ),
-                                )*/
-                              Container()
-                              : AnimatedContainer(
-                                  width: width,
-                                  height: width * 0.45,
-                                  duration: Duration(milliseconds: 250),
-                                  child: ListView.builder(
-                                    shrinkWrap: true,
-                                    physics: const ClampingScrollPhysics(),
-                                    scrollDirection: Axis.horizontal,
-                                    itemCount:
-                                        recentShopProductsImages.length > 4
-                                            ? 4
-                                            : recentShopProductsImages.length,
-                                    itemBuilder: ((context, index) {
-                                      final String name =
-                                          recentShopProductsNames[index];
-                                      final String imageUrl =
-                                          recentShopProductsImages[index];
-
-                                      return GestureDetector(
-                                        onTap: () {
-                                          Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                              builder: ((context) =>
-                                                  ProductPage(
-                                                    productData:
-                                                        recentShopProductsData[
-                                                            index],
-                                                  )),
-                                            ),
-                                          );
-                                        },
-                                        child: Container(
-                                          width: width * 0.3,
-                                          height: width * 0.2,
-                                          decoration: BoxDecoration(
-                                            color: white,
-                                            border: Border.all(
-                                              width: 0.25,
-                                            ),
+                                    },
+                                    child: Container(
+                                      width: width * 0.3,
+                                      height: width * 0.2,
+                                      decoration: BoxDecoration(
+                                        color: white,
+                                        border: Border.all(
+                                          width: 0.25,
+                                        ),
+                                        borderRadius: BorderRadius.circular(2),
+                                      ),
+                                      padding: EdgeInsets.all(
+                                        width * 0.00625,
+                                      ),
+                                      margin: EdgeInsets.all(
+                                        width * 0.0125,
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          ClipRRect(
                                             borderRadius:
                                                 BorderRadius.circular(2),
+                                            child: Image.network(
+                                              imageUrl,
+                                              fit: BoxFit.cover,
+                                              width: width * 0.3,
+                                              height: width * 0.3,
+                                            ),
                                           ),
-                                          padding: EdgeInsets.all(
-                                            width * 0.00625,
-                                          ),
-                                          margin: EdgeInsets.all(
-                                            width * 0.0125,
-                                          ),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(2),
-                                                child: Image.network(
-                                                  imageUrl,
-                                                  fit: BoxFit.cover,
-                                                  width: width * 0.3,
-                                                  height: width * 0.3,
-                                                ),
+                                          Padding(
+                                            padding: EdgeInsets.only(
+                                              top: width * 0.00625,
+                                              left: width * 0.0125,
+                                            ),
+                                            child: Text(
+                                              name,
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                              style: TextStyle(
+                                                fontSize: width * 0.04125,
                                               ),
-                                              Padding(
-                                                padding: EdgeInsets.only(
-                                                  top: width * 0.00625,
-                                                  left: width * 0.0125,
-                                                ),
-                                                child: Text(
-                                                  name,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  maxLines: 1,
-                                                  style: TextStyle(
-                                                    fontSize: width * 0.04125,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
+                                            ),
                                           ),
-                                        ),
-                                      );
-                                    }),
-                                  ),
-                                ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                }),
+                              ),
+                            ),
 
                       currentWishlist.isEmpty ? Container() : Divider(),
 

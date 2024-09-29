@@ -255,15 +255,15 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
 
     List<MapEntry<String, int>> relevanceScores = [];
     allShops.forEach((key, value) {
-      if (value['name']
-          .toString()
-          .toLowerCase()
-          .startsWith(widget.search.toLowerCase())) {
-        int relevance =
-            calculateRelevance(value['name'], widget.search.toLowerCase());
+      int relevance = calculateRelevanceScoreShops(
+        value['name'],
+        widget.search.toLowerCase(),
+      );
+      if (relevance != 0) {
         relevanceScores.add(MapEntry(key, relevance));
       }
     });
+
     relevanceScores.sort((a, b) {
       int relevanceComparison = b.value.compareTo(a.value);
       if (relevanceComparison != 0) {
@@ -271,6 +271,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
       }
       return a.key.compareTo(b.key);
     });
+
     for (var entry in relevanceScores) {
       searchedShops[entry.key] = allShops[entry.key]!;
       rangeShops[entry.key] = allShops[entry.key]!;
@@ -280,16 +281,55 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
     });
   }
 
-  // CALCULATE RELEVANCE (SHOPS)
-  int calculateRelevance(String shopName, String searchKeyword) {
-    int count = 0;
-    for (int i = 0; i <= shopName.length - searchKeyword.length; i++) {
-      if (shopName.substring(i, i + searchKeyword.length).toLowerCase() ==
-          searchKeyword) {
-        count++;
+  // CALCULATE RELEVANCE SCORE SHOPS
+  int calculateRelevanceScoreShops(String shopName, String searchKeyword) {
+    int score = 0;
+    String shopNameLower = shopName.toLowerCase();
+    String searchKeywordLower = searchKeyword.toLowerCase();
+
+    List<String> shopWords = shopNameLower.split(' ');
+    List<String> searchWords = searchKeywordLower.split(' ');
+
+    for (String word in shopWords) {
+      if (searchWords.contains(word)) {
+        score += 10;
       }
     }
-    return count;
+
+    for (String word in shopWords) {
+      for (String searchWord in searchWords) {
+        if (word.startsWith(searchWord)) {
+          score += 5;
+        } else if (word.contains(searchWord)) {
+          score += 3;
+        }
+      }
+    }
+
+    if (shopNameLower.startsWith(searchKeywordLower)) {
+      score += 7;
+    }
+
+    if (shopNameLower.contains(' $searchKeywordLower ') ||
+        shopNameLower == searchKeywordLower) {
+      score += 8;
+    }
+
+    List<String> shopNameLetters = shopNameLower.split('');
+    List<String> searchKeywordLetters = searchKeywordLower.split('');
+
+    int matchCount = 0;
+    for (String letter in searchKeywordLetters) {
+      if (shopNameLetters.contains(letter)) {
+        matchCount++;
+      }
+    }
+
+    if (matchCount >= 3) {
+      score += 5;
+    }
+
+    return score;
   }
 
   // GET PRODUCTS
@@ -353,6 +393,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
         final productPrice = productData['productPrice'];
         final String productId = productData['productId'];
         final String categoryName = productData['categoryName'];
+        final String brandName = productData['brandName'];
         final Map<String, dynamic> ratings = productData['ratings'];
         final Timestamp datetime = productData['datetime'];
         final List views = productData['productViewsTimestamp'];
@@ -361,12 +402,21 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
         double distance = 0;
 
         final productNameLower = productName.toLowerCase();
-        final searchLower = widget.search.toLowerCase();
+        final searchNameLower = widget.search.toLowerCase();
 
-        if (productNameLower.contains(searchLower) ||
-            tags.any(
-                (tag) => tag.toString().toLowerCase().contains(searchLower)) ||
-            categoryName.toString().toLowerCase().contains(searchLower)) {
+        final productWords = productNameLower.split(' ');
+        final searchWords = searchNameLower.toLowerCase().split(' ');
+
+        // TODO: PROVIDER FOR SAVING SHOPS OR PRODUCT WHAT USER WANTS TO SEE
+        // TODO: PRODUCT LINK ICON IN SHORTS
+
+        if (productWords.any((productWord) => searchWords
+                .any((searchWord) => productWord.contains(searchWord))) ||
+            tags.any((tag) =>
+                searchWords.any((searchWord) => tag.contains(searchWord))) ||
+            searchWords
+                .any((searchWord) => categoryName.contains(searchWord)) ||
+            searchWords.any((searchWord) => brandName.contains(searchWord))) {
           if (yourLatitude != null && yourLongitude != null) {
             distance = await getDrivingDistance(
                   yourLatitude!,
@@ -378,11 +428,12 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
           }
 
           if (distance * 0.925 < 5) {
-            int relevanceScore = calculateRelevanceScore(
+            int relevanceScore = calculateRelevanceScoreProducts(
               productNameLower,
-              searchLower,
+              searchNameLower,
+              categoryName,
+              brandName,
               tags,
-              searchLower,
             );
 
             Map<String, dynamic> productInfo = {
@@ -431,28 +482,38 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
 
       for (var productSnap in productsSnap.docs) {
         final productData = productSnap.data();
+        final String productId = productData['productId'].toString();
         final String productName = productData['productName'].toString();
-        final List tags = productData['Tags'];
         final String imageUrl = productData['images'][0].toString();
         final String productPrice = productData['productPrice'].toString();
-        final String productId = productData['productId'].toString();
+        final String categoryName = productData['categoryName'];
+        final String brandName = productData['brandName'];
+        final List tags = productData['Tags'];
         final Map<String, dynamic> ratings = productData['ratings'];
         final Timestamp datetime = productData['datetime'];
         final int views = (productData['productViewsTimestamp'] as List).length;
         final cityName = productData['City'];
 
         final productNameLower = productName.toLowerCase();
-        final searchLower = widget.search.toLowerCase();
+        final searchNameLower = widget.search.toLowerCase();
+
+        final productWords = productNameLower.split(' ');
+        final searchWords = searchNameLower.toLowerCase().split(' ');
 
         if (cityName == locationProvider.cityName) {
-          if (productNameLower.contains(searchLower) ||
+          if (productWords.any((productWord) => searchWords
+                  .any((searchWord) => productWord.contains(searchWord))) ||
               tags.any((tag) =>
-                  tag.toString().toLowerCase().contains(searchLower))) {
-            int relevanceScore = calculateRelevanceScore(
+                  searchWords.any((searchWord) => tag.contains(searchWord))) ||
+              searchWords
+                  .any((searchWord) => categoryName.contains(searchWord)) ||
+              searchWords.any((searchWord) => brandName.contains(searchWord))) {
+            int relevanceScore = calculateRelevanceScoreProducts(
               productNameLower,
-              searchLower,
+              searchNameLower,
+              categoryName,
+              brandName,
               tags,
-              searchLower,
             );
 
             searchedProducts[productName] = {
@@ -490,22 +551,69 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
     });
   }
 
-  // CALCULATE RELEVANCE (PRODUCTS)
-  int calculateRelevanceScore(
-      String productName, String searchKeyword, List tags, String searchLower) {
+  // CALCULATE RELEVANCE SCORE PRODUCTS
+  int calculateRelevanceScoreProducts(
+    String productName,
+    String searchKeyword,
+    String categoryName,
+    String brandName,
+    List tags,
+  ) {
     int score = 0;
+    String productNameLower = productName.toLowerCase();
+    String searchKeywordLower = searchKeyword.toLowerCase();
 
-    for (int i = 0; i < productName.length; i++) {
-      if (i < searchKeyword.length && productName[i] == searchKeyword[i]) {
-        score += (productName.length - i) * 3;
-      } else {
-        break;
+    final productWords = productNameLower.split(' ');
+    final searchWords = searchKeywordLower.split(' ');
+
+    for (String word in productWords) {
+      if (searchWords.contains(word)) {
+        score += 10;
+      }
+    }
+
+    for (String word in productWords) {
+      for (String searchWord in searchWords) {
+        if (word.startsWith(searchWord)) {
+          score += 5;
+        } else if (word.contains(searchWord)) {
+          score += 2;
+        }
       }
     }
 
     for (var tag in tags) {
-      if (tag.toString().toLowerCase().contains(searchLower)) {
-        score += 1;
+      String tagLower = tag.toString().toLowerCase();
+      for (String searchWord in searchWords) {
+        if (tagLower == searchWord) {
+          score += 8;
+        } else if (tagLower.contains(searchWord)) {
+          score += 3;
+        }
+      }
+    }
+
+    if (brandName != '0') {
+      int commonBrandLetters = brandName
+          .toLowerCase()
+          .split('')
+          .where((letter) => searchKeywordLower.contains(letter))
+          .length;
+      score += commonBrandLetters >= 3 ? commonBrandLetters * 2 : 0;
+      if (searchKeywordLower == brandName.toLowerCase()) {
+        score += 10;
+      }
+    }
+
+    if (categoryName != '0') {
+      int commonCategoryLetters = categoryName
+          .toLowerCase()
+          .split('')
+          .where((letter) => searchKeywordLower.contains(letter))
+          .length;
+      score += commonCategoryLetters >= 3 ? commonCategoryLetters * 2 : 0;
+      if (searchKeywordLower == categoryName.toLowerCase()) {
+        score += 10;
       }
     }
 

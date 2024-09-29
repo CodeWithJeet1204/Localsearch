@@ -48,16 +48,12 @@ class _AllShopTypesPageState extends State<AllShopTypesPage> {
   Future<void> getOrder() async {
     // GET COLOR
     Color getColor(String colorString) {
-      print('ColorString: $colorString');
-      var hexColor = colorString.replaceAll("#", "");
-      print('hexColor: $hexColor');
+      var hexColor = colorString.replaceAll('#', '');
       if (hexColor.length == 6) {
-        print('error1');
-        hexColor = "FF" + hexColor;
+        hexColor = 'FF' + hexColor;
       }
       if (hexColor.length == 8) {
-        print('done');
-        return Color(int.parse("0x$hexColor"));
+        return Color(int.parse('0x$hexColor'));
       }
       return Color(0xFF000000);
     }

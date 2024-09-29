@@ -31,8 +31,6 @@ class _VendorShortsTabTileState extends State<VendorShortsTabTile> {
   // INIT STATE
   @override
   void initState() {
-    print('widget.data: ${widget.data}');
-
     if (widget.data['productId'] != null) {
       getIfWishlist();
     }
@@ -248,7 +246,7 @@ class _VendorShortsTabTileState extends State<VendorShortsTabTile> {
                                           color: Colors.red,
                                         ),
                                         color: Colors.red,
-                                        tooltip: 'WISHLIST',
+                                        tooltip: 'Wishlist',
                                       ),
                                     ),
                               Row(
@@ -330,7 +328,7 @@ class _VendorShortsTabTileState extends State<VendorShortsTabTile> {
                                 color: Colors.red,
                               ),
                               color: Colors.red,
-                              tooltip: 'WISHLIST',
+                              tooltip: 'Wishlist',
                             ),
                           ),
                     Row(

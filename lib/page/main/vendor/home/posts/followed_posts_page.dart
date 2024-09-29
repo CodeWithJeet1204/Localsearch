@@ -24,7 +24,6 @@ class _FollowedPostsPageState extends State<FollowedPostsPage>
   final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
   Map<String, dynamic> products = {};
-  Map<String, dynamic> vendors = {};
   bool isData = false;
   int noOf = 4;
   int? total;
@@ -55,7 +54,7 @@ class _FollowedPostsPageState extends State<FollowedPostsPage>
     if (total != null && noOf < total!) {
       if (scrollController.position.pixels ==
           scrollController.position.maxScrollExtent) {
-        noOf = noOf + 1;
+        noOf = noOf + 4;
         await getPosts();
       }
     }
@@ -79,8 +78,8 @@ class _FollowedPostsPageState extends State<FollowedPostsPage>
 
   // GET POSTS
   Future<void> getPosts() async {
-    List myVendorIds = [];
     Map<String, dynamic> myProducts = {};
+    Map<String, Map<String, dynamic>> myVendors = {};
     final userSnap =
         await store.collection('Users').doc(auth.currentUser!.uid).get();
 
@@ -110,6 +109,19 @@ class _FollowedPostsPageState extends State<FollowedPostsPage>
         final Timestamp datetime = productData['datetime'];
 
         if (vendorId == followedShop) {
+          if (!myVendors.keys.toList().contains(vendorId)) {
+            final vendorSnap = await store
+                .collection('Business')
+                .doc('Owners')
+                .collection('Shops')
+                .doc(vendorId)
+                .get();
+
+            final vendorData = vendorSnap.data()!;
+
+            myVendors[vendorId] = vendorData;
+          }
+
           myProducts[productId] = [
             name,
             imageUrl,
@@ -117,12 +129,9 @@ class _FollowedPostsPageState extends State<FollowedPostsPage>
             vendorId,
             datetime,
             wishlistsTimestamp.containsKey(auth.currentUser!.uid),
+            myVendors[vendorId]!['Name'],
+            myVendors[vendorId]!['Image'],
           ];
-
-          if (!myVendorIds.contains(vendorId)) {
-            await getVendorInfo(vendorId);
-            myVendorIds.add(vendorId);
-          }
         }
       }
     }
@@ -131,28 +140,6 @@ class _FollowedPostsPageState extends State<FollowedPostsPage>
       products = myProducts;
       isData = true;
     });
-  }
-
-  // GET VENDOR INFO
-  Future<void> getVendorInfo(String vendorId) async {
-    final vendorSnap = await store
-        .collection('Business')
-        .doc('Owners')
-        .collection('Shops')
-        .doc(vendorId)
-        .get();
-
-    final vendorData = vendorSnap.data();
-
-    if (vendorData != null) {
-      final id = vendorSnap.id;
-      final name = vendorData['Name'];
-      final imageUrl = vendorData['Image'];
-
-      setState(() {
-        vendors[id] = [name, imageUrl];
-      });
-    }
   }
 
   // WISHLIST PRODUCT
@@ -243,18 +230,14 @@ class _FollowedPostsPageState extends State<FollowedPostsPage>
                   backgroundColor: const Color.fromARGB(255, 243, 253, 255),
                   semanticsLabel: 'Refresh',
                   child: products.isEmpty
-                      ? ListView(
-                          children: [
-                            SizedBox(
-                              height: 80,
-                              child: const Center(
-                                child: Text(
-                                  'Follow Shops to see Posts',
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
+                      ? SizedBox(
+                          height: 80,
+                          child: const Center(
+                            child: Text(
+                              'Follow Shops to see Posts',
+                              textAlign: TextAlign.center,
                             ),
-                          ],
+                          ),
                         )
                       : Padding(
                           padding: EdgeInsets.symmetric(
@@ -284,9 +267,9 @@ class _FollowedPostsPageState extends State<FollowedPostsPage>
                               bool isWishListed = isWishlist;
 
                               final String vendorName =
-                                  vendors.isEmpty ? '' : vendors[vendorId][0];
+                                  products.values.toList()[index][6];
                               final String vendorImageUrl =
-                                  vendors.isEmpty ? '' : vendors[vendorId][1];
+                                  products.values.toList()[index][7];
 
                               return GestureDetector(
                                 onTap: () async {
@@ -332,75 +315,67 @@ class _FollowedPostsPageState extends State<FollowedPostsPage>
                                     children: [
                                       const SizedBox(height: 4),
                                       // VENDOR INFO
-                                      vendors.isEmpty
-                                          ? Container()
-                                          : Padding(
-                                              padding: EdgeInsets.symmetric(
-                                                horizontal: width * 0.0125,
-                                              ),
+                                      Padding(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: width * 0.0125,
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            GestureDetector(
+                                              onTap: () {
+                                                Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                    builder: ((context) =>
+                                                        VendorPage(
+                                                          vendorId: vendorId,
+                                                        )),
+                                                  ),
+                                                );
+                                              },
                                               child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.center,
                                                 children: [
-                                                  GestureDetector(
-                                                    onTap: () {
-                                                      Navigator.of(context)
-                                                          .push(
-                                                        MaterialPageRoute(
-                                                          builder: ((context) =>
-                                                              VendorPage(
-                                                                vendorId:
-                                                                    vendorId,
-                                                              )),
-                                                        ),
-                                                      );
-                                                    },
-                                                    child: Row(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .center,
-                                                      children: [
-                                                        CircleAvatar(
-                                                          radius: width * 0.04,
-                                                          backgroundColor:
-                                                              primary2,
-                                                          backgroundImage:
-                                                              NetworkImage(
-                                                            vendorImageUrl,
-                                                          ),
-                                                        ),
-                                                        SizedBox(
-                                                          width: width * 0.0125,
-                                                        ),
-                                                        Text(
-                                                          vendorName,
-                                                          maxLines: 1,
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                          style:
-                                                              const TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.w500,
-                                                          ),
-                                                        ),
-                                                      ],
+                                                  CircleAvatar(
+                                                    radius: width * 0.04,
+                                                    backgroundColor: primary2,
+                                                    backgroundImage:
+                                                        NetworkImage(
+                                                      vendorImageUrl,
                                                     ),
                                                   ),
-
-                                                  // SHARE
-                                                  IconButton(
-                                                    onPressed: () {},
-                                                    icon: const Icon(
-                                                      FeatherIcons.share2,
+                                                  SizedBox(
+                                                    width: width * 0.0125,
+                                                  ),
+                                                  Text(
+                                                    vendorName,
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w500,
                                                     ),
-                                                    tooltip: 'Share Post',
                                                   ),
                                                 ],
                                               ),
                                             ),
+
+                                            // SHARE
+                                            IconButton(
+                                              onPressed: () {},
+                                              icon: const Icon(
+                                                FeatherIcons.share2,
+                                              ),
+                                              tooltip: 'Share Post',
+                                            ),
+                                          ],
+                                        ),
+                                      ),
 
                                       // IMAGES
                                       Stack(
@@ -542,7 +517,7 @@ class _FollowedPostsPageState extends State<FollowedPostsPage>
                                                 color: Colors.red,
                                               ),
                                               color: Colors.red,
-                                              tooltip: 'WISHLIST',
+                                              tooltip: 'Wishlist',
                                             ),
                                           ),
                                         ],

@@ -42,7 +42,6 @@ class _ShortsTileState extends State<ShortsTile> {
         ),
       ),
     );
-    print('widget.data: ${widget.data}');
     if (widget.data['productId'] != null) {
       getIfWishlist();
     }
@@ -266,7 +265,7 @@ class _ShortsTileState extends State<ShortsTile> {
                                         color: Colors.red,
                                       ),
                                       color: Colors.red,
-                                      tooltip: 'WISHLIST',
+                                      tooltip: 'Wishlist',
                                     ),
                                   ),
                             Row(
@@ -437,7 +436,7 @@ class _ShortsTileState extends State<ShortsTile> {
                                 color: Colors.red,
                               ),
                               color: Colors.red,
-                              tooltip: 'WISHLIST',
+                              tooltip: 'Wishlist',
                             ),
                           ),
                     Row(

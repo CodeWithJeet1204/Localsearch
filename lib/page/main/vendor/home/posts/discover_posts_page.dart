@@ -22,7 +22,6 @@ class _DiscoverPostsPageState extends State<DiscoverPostsPage>
   final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
   Map<String, dynamic> products = {};
-  Map<String, dynamic> vendors = {};
   bool isData = false;
   int noOf = 4;
   int? total;
@@ -53,7 +52,7 @@ class _DiscoverPostsPageState extends State<DiscoverPostsPage>
     if (total != null && noOf < total!) {
       if (scrollController.position.pixels ==
           scrollController.position.maxScrollExtent) {
-        noOf = noOf + 1;
+        noOf = noOf + 4;
         await getPosts();
       }
     }
@@ -77,8 +76,8 @@ class _DiscoverPostsPageState extends State<DiscoverPostsPage>
 
   // GET POSTS
   Future<void> getPosts() async {
-    List myVendorIds = [];
     Map<String, dynamic> myProducts = {};
+    Map<String, Map<String, dynamic>> myVendors = {};
     final productsSnap = await store
         .collection('Business')
         .doc('Data')
@@ -99,6 +98,19 @@ class _DiscoverPostsPageState extends State<DiscoverPostsPage>
       final String vendorId = productData['vendorId'];
       final Timestamp datetime = productData['datetime'];
 
+      if (!myVendors.keys.toList().contains(vendorId)) {
+        final vendorSnap = await store
+            .collection('Business')
+            .doc('Owners')
+            .collection('Shops')
+            .doc(vendorId)
+            .get();
+
+        final vendorData = vendorSnap.data()!;
+
+        myVendors[vendorId] = vendorData;
+      }
+
       myProducts[productId] = [
         name,
         imageUrl,
@@ -106,40 +118,15 @@ class _DiscoverPostsPageState extends State<DiscoverPostsPage>
         vendorId,
         datetime,
         wishlistsTimestamp.containsKey(auth.currentUser!.uid),
+        myVendors[vendorId]!['Name'],
+        myVendors[vendorId]!['Image'],
       ];
-
-      if (!myVendorIds.contains(vendorId)) {
-        await getVendorInfo(vendorId);
-        myVendorIds.add(vendorId);
-      }
     }
 
     setState(() {
       products = myProducts;
       isData = true;
     });
-  }
-
-  // GET VENDOR INFO
-  Future<void> getVendorInfo(String vendorId) async {
-    final vendorSnap = await store
-        .collection('Business')
-        .doc('Owners')
-        .collection('Shops')
-        .doc(vendorId)
-        .get();
-
-    final vendorData = vendorSnap.data();
-
-    if (vendorData != null) {
-      final id = vendorSnap.id;
-      final name = vendorData['Name'];
-      final imageUrl = vendorData['Image'];
-
-      setState(() {
-        vendors[id] = [name, imageUrl];
-      });
-    }
   }
 
   // WISHLIST PRODUCT
@@ -238,7 +225,8 @@ class _DiscoverPostsPageState extends State<DiscoverPostsPage>
                         primary: false,
                         shrinkWrap: true,
                         physics: const ClampingScrollPhysics(),
-                        itemCount: products.length,
+                        itemCount:
+                            noOf > products.length ? products.length : noOf,
                         itemBuilder: ((context, index) {
                           final String id = products.keys.toList()[index];
 
@@ -254,10 +242,9 @@ class _DiscoverPostsPageState extends State<DiscoverPostsPage>
 
                           bool isWishListed = isWishlist;
 
-                          final String vendorName =
-                              vendors.isEmpty ? '' : vendors[vendorId][0];
-                          final String vendorImageUrl =
-                              vendors.isEmpty ? '' : vendors[vendorId][1];
+                          final vendorName = products.values.toList()[index][6];
+                          final vendorImageUrl =
+                              products.values.toList()[index][7];
 
                           return GestureDetector(
                             onTap: () async {
@@ -302,69 +289,68 @@ class _DiscoverPostsPageState extends State<DiscoverPostsPage>
                                 children: [
                                   const SizedBox(height: 4),
                                   // VENDOR INFO
-                                  vendors.isEmpty
-                                      ? Container()
-                                      : Padding(
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: width * 0.0125,
-                                          ),
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: width * 0.0125,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        GestureDetector(
+                                          onTap: () {
+                                            Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    VendorPage(
+                                                  vendorId: vendorId,
+                                                ),
+                                              ),
+                                            );
+                                          },
                                           child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.center,
                                             children: [
-                                              GestureDetector(
-                                                onTap: () {
-                                                  Navigator.of(context).push(
-                                                    MaterialPageRoute(
-                                                      builder: ((context) =>
-                                                          VendorPage(
-                                                            vendorId: vendorId,
-                                                          )),
-                                                    ),
-                                                  );
-                                                },
-                                                child: Row(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.center,
-                                                  children: [
-                                                    CircleAvatar(
-                                                      radius: width * 0.04,
-                                                      backgroundColor: primary2,
-                                                      backgroundImage:
-                                                          NetworkImage(
-                                                        vendorImageUrl,
-                                                      ),
-                                                    ),
-                                                    SizedBox(
-                                                      width: width * 0.0125,
-                                                    ),
-                                                    Text(
-                                                      vendorName,
-                                                      maxLines: 1,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      style: const TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                      ),
-                                                    ),
-                                                  ],
+                                              CircleAvatar(
+                                                radius: width * 0.04,
+                                                backgroundColor: primary2,
+                                                backgroundImage: NetworkImage(
+                                                  vendorImageUrl,
                                                 ),
                                               ),
-
-                                              // SHARE
-                                              IconButton(
-                                                onPressed: () {},
-                                                icon: const Icon(
-                                                  FeatherIcons.share2,
+                                              SizedBox(
+                                                width: width * 0.0125,
+                                              ),
+                                              SizedBox(
+                                                width: width * 0.7125,
+                                                child: Text(
+                                                  vendorName,
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: const TextStyle(
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
                                                 ),
-                                                tooltip: 'Share Post',
                                               ),
                                             ],
                                           ),
                                         ),
+
+                                        // SHARE
+                                        IconButton(
+                                          onPressed: () {},
+                                          icon: const Icon(
+                                            FeatherIcons.share2,
+                                          ),
+                                          tooltip: 'Share Post',
+                                        ),
+                                      ],
+                                    ),
+                                  ),
 
                                   // IMAGES
                                   Stack(
@@ -503,7 +489,7 @@ class _DiscoverPostsPageState extends State<DiscoverPostsPage>
                                             color: Colors.red,
                                           ),
                                           color: Colors.red,
-                                          tooltip: 'WISHLIST',
+                                          tooltip: 'Wishlist',
                                         ),
                                       ),
                                     ],

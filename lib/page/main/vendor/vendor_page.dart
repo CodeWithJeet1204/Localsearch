@@ -83,8 +83,8 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
     getShorts();
     sortProducts(EventSorting.recentlyAdded);
     super.initState();
-    scrollController.addListener(scrollListener);
     setRecentAndUpdate();
+    scrollController.addListener(scrollListener);
   }
 
   // DID CHANGE DEPENDENCIES
@@ -1082,7 +1082,7 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                         : Expanded(
                                             child: GestureDetector(
                                               onTap: () async {
-                                                if (ownerData!['allowChat']) {
+                                                if (ownerData!['allowChats']) {
                                                   final String phoneNumber =
                                                       ownerData![
                                                           'Phone Number'];
@@ -1410,7 +1410,7 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                       flex: 1,
                                       child: GestureDetector(
                                         onTap: () async {
-                                          if (ownerData!['allowCall']) {
+                                          if (ownerData!['allowCalls']) {
                                             await callVendor();
                                           } else {
                                             return mySnackBar(

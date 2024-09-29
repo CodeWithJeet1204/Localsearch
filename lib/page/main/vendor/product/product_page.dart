@@ -68,11 +68,11 @@ class _ProductPageState extends State<ProductPage> {
   Map<String, dynamic> discountData = {};
   int noOfOtherVendorProducts = 8;
   int? totalOtherVendorProducts;
-  bool isLoadMoreOtherVendorProducts = false;
+  // bool isLoadMoreOtherVendorProducts = false;
   final scrollControllerOtherVendorProducts = ScrollController();
   int noOfSimilarProducts = 8;
   int? totalSimilarProducts;
-  bool isLoadMoreSimilarProducts = false;
+  // bool isLoadMoreSimilarProducts = false;
   final scrollControllerSimilarProducts = ScrollController();
 
   // INIT STATE
@@ -99,7 +99,7 @@ class _ProductPageState extends State<ProductPage> {
     getSimilarProducts(
       search: widget.search,
     );
-    getProductsFromVendor();
+    getOtherVendorProducts();
     super.initState();
     addProductView();
   }
@@ -118,14 +118,14 @@ class _ProductPageState extends State<ProductPage> {
         noOfOtherVendorProducts < totalOtherVendorProducts!) {
       if (scrollControllerOtherVendorProducts.position.pixels ==
           scrollControllerOtherVendorProducts.position.maxScrollExtent) {
-        setState(() {
-          isLoadMoreOtherVendorProducts = true;
-        });
+        // setState(() {
+        //   isLoadMoreOtherVendorProducts = true;
+        // });
         noOfOtherVendorProducts = noOfOtherVendorProducts + 4;
-        await getProductsFromVendor();
-        setState(() {
-          isLoadMoreOtherVendorProducts = false;
-        });
+        await getOtherVendorProducts();
+        // setState(() {
+        //   isLoadMoreOtherVendorProducts = false;
+        // });
       }
     }
   }
@@ -138,7 +138,6 @@ class _ProductPageState extends State<ProductPage> {
         .collection('Products')
         .where('vendorId', isEqualTo: widget.productData['vendorId'])
         .where('productName', isNotEqualTo: widget.productData['productName'])
-        .limit(noOfOtherVendorProducts)
         .get();
 
     final totalLength = totalSnap.docs.length;
@@ -154,14 +153,14 @@ class _ProductPageState extends State<ProductPage> {
         noOfSimilarProducts < totalSimilarProducts!) {
       if (scrollControllerSimilarProducts.position.pixels ==
           scrollControllerSimilarProducts.position.maxScrollExtent) {
-        setState(() {
-          isLoadMoreSimilarProducts = true;
-        });
+        // setState(() {
+        //   isLoadMoreSimilarProducts = true;
+        // });
         noOfSimilarProducts = noOfSimilarProducts + 4;
         await getSimilarProducts();
-        setState(() {
-          isLoadMoreSimilarProducts = false;
-        });
+        // setState(() {
+        //   isLoadMoreSimilarProducts = false;
+        // });
       }
     }
   }
@@ -522,8 +521,10 @@ class _ProductPageState extends State<ProductPage> {
     }
   }
 
-  // GET PRODUCTS FROM VENDOR
-  Future<void> getProductsFromVendor() async {
+  // GET OTHER VENDOR PRODUCTS
+  Future<void> getOtherVendorProducts() async {
+    otherVendorProductsDatas.clear();
+
     final productsSnap = await store
         .collection('Business')
         .doc('Data')
@@ -553,7 +554,7 @@ class _ProductPageState extends State<ProductPage> {
         .collection('Products')
         .get();
 
-    final productDocs = productsSnap.docs;
+    final productDocs = productsSnap.docs.toList();
 
     if (search != null) {
       final searchedProductsSnap = await store
@@ -565,12 +566,16 @@ class _ProductPageState extends State<ProductPage> {
 
       searchedProductDocs = searchedProductsSnap.docs;
       searchedProductDocs.shuffle();
-
-      productDocs.addAll(searchedProductDocs);
+      for (var doc in searchedProductDocs) {
+        if (!productDocs.contains(doc)) {
+          productDocs.add(doc);
+        }
+      }
     }
 
     final List<QueryDocumentSnapshot<Map<String, dynamic>>>
         filteredProductDocs = [];
+    Set<String> addedProductNames = {};
 
     for (var productData in productDocs) {
       if (productData['productName'] == widget.productData['productName']) {
@@ -586,13 +591,15 @@ class _ProductPageState extends State<ProductPage> {
           similarProductName.contains('$word ') ||
           similarProductName.contains(' $word'));
 
-      if (productNameMatch) {
+      if (productNameMatch && !addedProductNames.contains(similarProductName)) {
         filteredProductDocs.add(productData);
+        addedProductNames.add(similarProductName);
       }
     }
 
     filteredProductDocs.shuffle();
 
+    similarProductsDatas.clear();
     for (var productData in filteredProductDocs) {
       final Map<String, dynamic> productDatas = productData.data();
       similarProductsDatas.add(productDatas);
@@ -810,16 +817,9 @@ class _ProductPageState extends State<ProductPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Padding(
-                      padding: EdgeInsets.only(
-                        left: width * 0.025,
-                        right: width * 0.025,
-                        top: width * 0.0166,
-                      ),
-                      child: const Text(
-                        'Your previous Review',
-                        textAlign: TextAlign.left,
-                      ),
+                    const Text(
+                      'Your Previous Review',
+                      textAlign: TextAlign.center,
                     ),
                     // RATING STARS
                     Padding(
@@ -859,8 +859,10 @@ class _ProductPageState extends State<ProductPage> {
                             },
                           ),
                           Text(
-                            userRating.toStringAsFixed(0) != '0'
-                                ? userRating.toStringAsFixed(0)
+                            userRating.toStringAsFixed(1) != '0'
+                                ? userRating.toStringAsFixed(1).endsWith('0')
+                                    ? userRating.toStringAsFixed(0)
+                                    : userRating.toStringAsFixed(1)
                                 : '---',
                             style: TextStyle(
                               fontSize: width * 0.05,
@@ -891,15 +893,18 @@ class _ProductPageState extends State<ProductPage> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Padding(
-                                padding: const EdgeInsets.only(
-                                  left: 10,
-                                  right: 10,
+                                padding: EdgeInsets.only(
+                                  left: width * 0.025,
+                                  right: width * 0.025,
                                   top: 10,
                                   bottom: 20,
                                 ),
-                                child: Text(
-                                  previousReview!.trim(),
-                                  maxLines: 10,
+                                child: SizedBox(
+                                  width: width * 0.7125,
+                                  child: Text(
+                                    previousReview!.trim(),
+                                    maxLines: 10,
+                                  ),
                                 ),
                               ),
 
@@ -912,6 +917,7 @@ class _ProductPageState extends State<ProductPage> {
                                   FeatherIcons.trash,
                                   color: Colors.red,
                                 ),
+                                color: Colors.red,
                                 tooltip: 'DELETE',
                               ),
                             ],
@@ -1122,7 +1128,7 @@ class _ProductPageState extends State<ProductPage> {
     final bool giftWrapAvailable = data['giftWrapAvailable'];
     final bool gstInvoiceAvailable = data['gstInvoiceAvailable'];
     final bool refundAvailable = data['refundAvailable'];
-    final int? refundRange = data['refundRange'];
+    final refundRange = data['refundRange'];
 
     return Scaffold(
       body: SafeArea(
@@ -1133,7 +1139,6 @@ class _ProductPageState extends State<ProductPage> {
           child: LayoutBuilder(
             builder: ((context, constraints) {
               double width = constraints.maxWidth;
-              double height = constraints.maxHeight;
 
               return SingleChildScrollView(
                 child: Padding(
@@ -1770,74 +1775,81 @@ class _ProductPageState extends State<ProductPage> {
                                 ),
                               ),
                               const SizedBox(height: 20),
-                              GestureDetector(
-                                onTap: () {
-                                  if (vendorType == null) {
-                                    return mySnackBar(
-                                      'Some error occured',
-                                      context,
-                                    );
-                                  } else {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: ((context) =>
-                                            CategoryProductsPage(
-                                              categoryName: categoryName,
-                                            )),
-                                      ),
-                                    );
-                                  }
-                                },
-                                child: SizedBox(
-                                  width: width,
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      categoryImageUrl == null
-                                          ? Container()
-                                          : CircleAvatar(
-                                              backgroundImage: NetworkImage(
-                                                categoryImageUrl!,
+                              categoryName == '0'
+                                  ? Container()
+                                  : GestureDetector(
+                                      onTap: () {
+                                        if (vendorType == null) {
+                                          return mySnackBar(
+                                            'Some error occured',
+                                            context,
+                                          );
+                                        } else {
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  CategoryProductsPage(
+                                                categoryName: categoryName,
                                               ),
-                                              backgroundColor: lightGrey,
-                                              radius: width * 0.06125,
                                             ),
-                                      SizedBox(
-                                        width: width * 0.8,
-                                        child: Column(
+                                          );
+                                        }
+                                      },
+                                      child: SizedBox(
+                                        width: width,
+                                        child: Row(
                                           mainAxisAlignment:
-                                              MainAxisAlignment.center,
+                                              MainAxisAlignment.spaceBetween,
                                           crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                              CrossAxisAlignment.center,
                                           children: [
-                                            const Text(
-                                              overflow: TextOverflow.ellipsis,
-                                              'Category',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.w500,
-                                                color: primaryDark2,
-                                              ),
-                                            ),
-                                            AutoSizeText(
-                                              categoryName,
-                                              overflow: TextOverflow.ellipsis,
-                                              maxLines: 1,
-                                              style: TextStyle(
-                                                fontSize: width * 0.05833,
-                                                color: primaryDark,
-                                                fontWeight: FontWeight.w500,
+                                            categoryImageUrl == null
+                                                ? Container()
+                                                : CircleAvatar(
+                                                    backgroundImage:
+                                                        NetworkImage(
+                                                      categoryImageUrl!,
+                                                    ),
+                                                    backgroundColor: lightGrey,
+                                                    radius: width * 0.06125,
+                                                  ),
+                                            SizedBox(
+                                              width: width * 0.8,
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  const Text(
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    'Category',
+                                                    style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      color: primaryDark2,
+                                                    ),
+                                                  ),
+                                                  AutoSizeText(
+                                                    categoryName,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    maxLines: 1,
+                                                    style: TextStyle(
+                                                      fontSize: width * 0.05833,
+                                                      color: primaryDark,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
                                           ],
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                ),
-                              ),
+                                    ),
                             ],
                           ),
                         ),
@@ -1853,19 +1865,19 @@ class _ProductPageState extends State<ProductPage> {
                           ? Container()
                           : Center(
                               child: Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: width * 0.05,
-                                  vertical: width * 0.025,
-                                ),
-                                margin: EdgeInsets.symmetric(
-                                  horizontal: width * 0.0125,
-                                  vertical: width * 0.025,
-                                ),
+                                width: width * 0.95,
                                 decoration: BoxDecoration(
                                   border: Border.all(
                                     width: 0.25,
                                   ),
                                   borderRadius: BorderRadius.circular(12),
+                                ),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: width * 0.05,
+                                  vertical: width * 0.025,
+                                ),
+                                margin: EdgeInsets.symmetric(
+                                  vertical: width * 0.025,
                                 ),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1997,19 +2009,19 @@ class _ProductPageState extends State<ProductPage> {
                       // SERVICES
                       Center(
                         child: Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: width * 0.05,
-                            vertical: width * 0.025,
-                          ),
-                          margin: EdgeInsets.symmetric(
-                            horizontal: width * 0.0125,
-                            vertical: width * 0.025,
-                          ),
+                          width: width * 0.95,
                           decoration: BoxDecoration(
                             border: Border.all(
                               width: 0.25,
                             ),
                             borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: width * 0.05,
+                            vertical: width * 0.025,
+                          ),
+                          margin: EdgeInsets.symmetric(
+                            vertical: width * 0.025,
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -2045,7 +2057,7 @@ class _ProductPageState extends State<ProductPage> {
                                         Text(
                                           deliveryAvailable &&
                                                   deliveryRange != null
-                                              ? 'Yes, within ${deliveryRange.toStringAsFixed(1).endsWith('0') ? deliveryRange.toString() : deliveryRange.toStringAsFixed(1)} km'
+                                              ? 'Yes, within ${deliveryRange.toStringAsFixed(1).endsWith('0') ? deliveryRange.round() : deliveryRange.toStringAsFixed(1)} km'
                                               : 'No',
                                         ),
                                       ),
@@ -2061,7 +2073,7 @@ class _ProductPageState extends State<ProductPage> {
                                           refundAvailable &&
                                                   refundRange != null &&
                                                   refundRange > 0
-                                              ? 'Yes, within ${refundRange.toString()} days'
+                                              ? 'Yes, within ${refundRange.toStringAsFixed(1).endsWith('0') ? refundRange.round() : refundRange.toStringAsFixed(1)} days'
                                               : refundAvailable &&
                                                       refundRange == null
                                                   ? 'Yes'
@@ -2188,126 +2200,127 @@ class _ProductPageState extends State<ProductPage> {
                                       shrinkWrap: true,
                                       scrollDirection: Axis.horizontal,
                                       physics: const ClampingScrollPhysics(),
-                                      itemCount: isLoadMoreOtherVendorProducts
+                                      itemCount: /*isLoadMoreOtherVendorProducts
                                           ? otherVendorProductsDatas.length + 1
-                                          : otherVendorProductsDatas.length,
+                                          : */
+                                          otherVendorProductsDatas.length,
                                       itemBuilder: ((context, index) {
                                         final data = otherVendorProductsDatas[
-                                            isLoadMoreOtherVendorProducts
+                                            /*isLoadMoreOtherVendorProducts
                                                 ? index - 1
-                                                : index];
+                                                : */
+                                            index];
                                         final String name =
                                             otherVendorProductsDatas[
-                                                isLoadMoreOtherVendorProducts
+                                                /*isLoadMoreOtherVendorProducts
                                                     ? index - 1
-                                                    : index]['productName'];
+                                                    : */
+                                                index]['productName'];
                                         final price = otherVendorProductsDatas[
-                                            isLoadMoreOtherVendorProducts
+                                            /*isLoadMoreOtherVendorProducts
                                                 ? index - 1
-                                                : index]['productPrice'];
+                                                : */
+                                            index]['productPrice'];
                                         final String image =
                                             otherVendorProductsDatas[
-                                                isLoadMoreOtherVendorProducts
+                                                /*isLoadMoreOtherVendorProducts
                                                     ? index - 1
-                                                    : index]['images'][0];
+                                                    : */
+                                                index]['images'][0];
 
-                                        return index <=
+                                        return /*index <=
                                                 otherVendorProductsDatas.length
-                                            ? GestureDetector(
-                                                onTap: () {
-                                                  Navigator.of(context).push(
-                                                    MaterialPageRoute(
-                                                      builder: ((context) =>
-                                                          ProductPage(
-                                                            productData: data,
-                                                          )),
-                                                    ),
-                                                  );
-                                                },
-                                                child: Container(
-                                                  width: width * 0.3,
-                                                  decoration: BoxDecoration(
-                                                    color: white,
-                                                    border: Border.all(
-                                                      width: 0.25,
-                                                    ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                      2,
-                                                    ),
-                                                  ),
-                                                  padding: EdgeInsets.all(
-                                                    width * 0.006125,
-                                                  ),
-                                                  margin: EdgeInsets.only(
-                                                    left: width * 0.0125,
-                                                    right: width * 0.0125,
-                                                    top: width * 0.01,
-                                                    bottom: width * 0.0125,
-                                                  ),
-                                                  child: Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.start,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      ClipRRect(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(2),
-                                                        child: Image.network(
-                                                          image,
-                                                          fit: BoxFit.cover,
-                                                          width: width * 0.3,
-                                                          height: width * 0.3,
-                                                        ),
-                                                      ),
-                                                      Column(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceAround,
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Text(
-                                                            name,
-                                                            maxLines: 1,
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .ellipsis,
-                                                            style: TextStyle(
-                                                              fontSize: width *
-                                                                  0.04125,
-                                                            ),
-                                                          ),
-                                                          Text(
-                                                            'Rs. ${price.round()}',
-                                                            maxLines: 1,
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .ellipsis,
-                                                            style: TextStyle(
-                                                              fontSize: width *
-                                                                  0.0425,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ],
+                                            ?*/
+                                            GestureDetector(
+                                          onTap: () {
+                                            Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                builder: ((context) =>
+                                                    ProductPage(
+                                                      productData: data,
+                                                    )),
+                                              ),
+                                            );
+                                          },
+                                          child: Container(
+                                            width: width * 0.3,
+                                            decoration: BoxDecoration(
+                                              color: white,
+                                              border: Border.all(
+                                                width: 0.25,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(
+                                                2,
+                                              ),
+                                            ),
+                                            padding: EdgeInsets.all(
+                                              width * 0.006125,
+                                            ),
+                                            margin: EdgeInsets.only(
+                                              left: width * 0.0125,
+                                              right: width * 0.0125,
+                                              top: width * 0.01,
+                                              bottom: width * 0.0125,
+                                            ),
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(2),
+                                                  child: Image.network(
+                                                    image,
+                                                    fit: BoxFit.cover,
+                                                    width: width * 0.3,
+                                                    height: width * 0.3,
                                                   ),
                                                 ),
-                                              )
-                                            : isLoadMoreOtherVendorProducts
-                                                ? SizedBox(
-                                                    height: 45,
-                                                    child: Center(
-                                                      child:
-                                                          CircularProgressIndicator(),
+                                                Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceAround,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      name,
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: TextStyle(
+                                                        fontSize:
+                                                            width * 0.04125,
+                                                      ),
                                                     ),
-                                                  )
-                                                : Container();
+                                                    Text(
+                                                      'Rs. ${price.round()}',
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: TextStyle(
+                                                        fontSize:
+                                                            width * 0.0425,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                        // : isLoadMoreOtherVendorProducts
+                                        //     ? SizedBox(
+                                        //         height: 45,
+                                        //         child: Center(
+                                        //           child:
+                                        //               CircularProgressIndicator(),
+                                        //         ),
+                                        //       )
+                                        //     : Container();
                                       }),
                                     ),
                                   ),
@@ -2354,68 +2367,92 @@ class _ProductPageState extends State<ProductPage> {
                                     child: ListView.builder(
                                       controller:
                                           scrollControllerSimilarProducts,
-                                      cacheExtent: height * 1.5,
+                                      cacheExtent: width * 3,
                                       addAutomaticKeepAlives: true,
                                       shrinkWrap: true,
                                       scrollDirection: Axis.horizontal,
                                       physics: const ClampingScrollPhysics(),
-                                      itemCount: isLoadMoreSimilarProducts
+                                      itemCount: /*isLoadMoreSimilarProducts
                                           ? similarProductsDatas.length + 1
-                                          : similarProductsDatas.length,
+                                          : */
+                                          similarProductsDatas.length,
                                       itemBuilder: ((context, index) {
                                         final data = similarProductsDatas[
-                                            isLoadMoreSimilarProducts
+                                            /*isLoadMoreSimilarProducts
                                                 ? index - 1
-                                                : index];
-                                        final String name =
-                                            similarProductsDatas[
-                                                isLoadMoreSimilarProducts
+                                                : */
+                                            index];
+                                        final String name = similarProductsDatas[
+                                            /*isLoadMoreSimilarProducts
                                                     ? index - 1
-                                                    : index]['productName'];
+                                                    : */
+                                            index]['productName'];
                                         final price = similarProductsDatas[
-                                            isLoadMoreSimilarProducts
+                                            /*isLoadMoreSimilarProducts
                                                 ? index - 1
-                                                : index]['productPrice'];
-                                        final String image =
-                                            similarProductsDatas[
-                                                isLoadMoreSimilarProducts
+                                                : */
+                                            index]['productPrice'];
+                                        final String image = similarProductsDatas[
+                                            /*isLoadMoreSimilarProducts
                                                     ? index - 1
-                                                    : index]['images'][0];
+                                                    : */
+                                            index]['images'][0];
 
-                                        return index <=
+                                        return /*index <=
                                                 similarProductsDatas.length
-                                            ? GestureDetector(
-                                                onTap: () {
-                                                  Navigator.of(context).push(
-                                                    MaterialPageRoute(
-                                                      builder: ((context) =>
-                                                          ProductPage(
-                                                            productData: data,
-                                                          )),
-                                                    ),
-                                                  );
-                                                },
-                                                child: Container(
-                                                  width: width * 0.3,
-                                                  height: width * 0.2,
-                                                  decoration: BoxDecoration(
-                                                    color: white,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                      2,
-                                                    ),
-                                                    border: Border.all(
-                                                      width: 0.25,
-                                                    ),
+                                            ?*/
+                                            GestureDetector(
+                                          onTap: () {
+                                            Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                builder: ((context) =>
+                                                    ProductPage(
+                                                      productData: data,
+                                                    )),
+                                              ),
+                                            );
+                                          },
+                                          child: Container(
+                                            width: width * 0.3,
+                                            height: width * 0.2,
+                                            decoration: BoxDecoration(
+                                              color: white,
+                                              borderRadius:
+                                                  BorderRadius.circular(
+                                                2,
+                                              ),
+                                              border: Border.all(
+                                                width: 0.25,
+                                              ),
+                                            ),
+                                            padding: EdgeInsets.all(
+                                              width * 0.00625,
+                                            ),
+                                            margin: EdgeInsets.only(
+                                              left: width * 0.0125,
+                                              right: width * 0.0125,
+                                              top: width * 0.01,
+                                              bottom: width * 0.015,
+                                            ),
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(2),
+                                                  child: Image.network(
+                                                    image,
+                                                    fit: BoxFit.cover,
+                                                    width: width * 0.3,
+                                                    height: width * 0.3,
                                                   ),
-                                                  padding: EdgeInsets.all(
-                                                    width * 0.00625,
-                                                  ),
-                                                  margin: EdgeInsets.only(
-                                                    left: width * 0.0125,
-                                                    right: width * 0.0125,
-                                                    top: width * 0.01,
-                                                    bottom: width * 0.015,
+                                                ),
+                                                Padding(
+                                                  padding: EdgeInsets.symmetric(
+                                                    horizontal: width * 0.00625,
                                                   ),
                                                   child: Column(
                                                     mainAxisAlignment:
@@ -2424,71 +2461,42 @@ class _ProductPageState extends State<ProductPage> {
                                                         CrossAxisAlignment
                                                             .start,
                                                     children: [
-                                                      ClipRRect(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(2),
-                                                        child: Image.network(
-                                                          image,
-                                                          fit: BoxFit.cover,
-                                                          width: width * 0.3,
-                                                          height: width * 0.3,
+                                                      Text(
+                                                        name,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        maxLines: 1,
+                                                        style: TextStyle(
+                                                          fontSize:
+                                                              width * 0.04125,
                                                         ),
                                                       ),
-                                                      Padding(
-                                                        padding: EdgeInsets
-                                                            .symmetric(
-                                                          horizontal:
-                                                              width * 0.00625,
-                                                        ),
-                                                        child: Column(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .start,
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            Text(
-                                                              name,
-                                                              overflow:
-                                                                  TextOverflow
-                                                                      .ellipsis,
-                                                              maxLines: 1,
-                                                              style: TextStyle(
-                                                                fontSize:
-                                                                    width *
-                                                                        0.04125,
-                                                              ),
-                                                            ),
-                                                            Text(
-                                                              'Rs. ${price.round()}',
-                                                              overflow:
-                                                                  TextOverflow
-                                                                      .ellipsis,
-                                                              maxLines: 1,
-                                                              style: TextStyle(
-                                                                fontSize:
-                                                                    width *
-                                                                        0.0425,
-                                                              ),
-                                                            ),
-                                                          ],
+                                                      Text(
+                                                        'Rs. ${price.round()}',
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        maxLines: 1,
+                                                        style: TextStyle(
+                                                          fontSize:
+                                                              width * 0.0425,
                                                         ),
                                                       ),
                                                     ],
                                                   ),
                                                 ),
-                                              )
-                                            : isLoadMoreSimilarProducts
-                                                ? SizedBox(
-                                                    height: 45,
-                                                    child: Center(
-                                                      child:
-                                                          CircularProgressIndicator(),
-                                                    ),
-                                                  )
-                                                : Container();
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                        // : isLoadMoreSimilarProducts
+                                        //     ? SizedBox(
+                                        //         height: 45,
+                                        //         child: Center(
+                                        //           child:
+                                        //               CircularProgressIndicator(),
+                                        //         ),
+                                        //       )
+                                        //     : Container();
                                       }),
                                     ),
                                   ),
@@ -2986,162 +2994,158 @@ class _AllDiscountsWidgetState extends State<AllDiscountsWidget> {
               }
               return false;
             },
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: width * 0.0125),
-                    child: SizedBox(
-                      width: width * 0.85,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const Text(
-                            'Other Discounts From This Shop',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w500,
-                            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: width * 0.0125),
+                  child: SizedBox(
+                    width: width * 0.85,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'Other Discounts From This Shop',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
                           ),
-                          Text(
-                            widget.allDiscount.length.toString(),
-                            style: TextStyle(
-                              fontSize: width * 0.045,
-                            ),
+                        ),
+                        Text(
+                          widget.allDiscount.length.toString(),
+                          style: TextStyle(
+                            fontSize: width * 0.045,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
-                  SizedBox(
-                    width: width,
-                    height: width * 0.5,
-                    child: ListView.builder(
-                      controller: scrollController,
-                      cacheExtent: width * 1.5,
-                      addAutomaticKeepAlives: true,
-                      shrinkWrap: true,
-                      scrollDirection: Axis.horizontal,
-                      physics: const ClampingScrollPhysics(),
-                      itemCount: noOf > widget.allDiscount.length
-                          ? widget.allDiscount.length
-                          : noOf,
-                      itemBuilder: ((context, index) {
-                        final discountId =
-                            widget.allDiscount.keys.toList()[index];
-                        final String? image =
-                            widget.allDiscount[discountId]!['discountImageUrl'];
+                ),
+                SizedBox(
+                  width: width,
+                  height: width * 0.5,
+                  child: ListView.builder(
+                    controller: scrollController,
+                    cacheExtent: width * 3,
+                    addAutomaticKeepAlives: true,
+                    shrinkWrap: true,
+                    scrollDirection: Axis.horizontal,
+                    physics: const ClampingScrollPhysics(),
+                    itemCount: noOf > widget.allDiscount.length
+                        ? widget.allDiscount.length
+                        : noOf,
+                    itemBuilder: ((context, index) {
+                      final discountId =
+                          widget.allDiscount.keys.toList()[index];
+                      final String? image =
+                          widget.allDiscount[discountId]!['discountImageUrl'];
 
-                        final name =
-                            widget.allDiscount[discountId]!['discountName'];
-                        final amount =
-                            widget.allDiscount[discountId]!['discountAmount'];
-                        final isPercent =
-                            widget.allDiscount[discountId]!['isPercent'];
-                        // final endData = currentDiscount['discountEndDateTime'];
+                      final name =
+                          widget.allDiscount[discountId]!['discountName'];
+                      final amount =
+                          widget.allDiscount[discountId]!['discountAmount'];
+                      final isPercent =
+                          widget.allDiscount[discountId]!['isPercent'];
+                      // final endData = currentDiscount['discountEndDateTime'];
 
-                        return Container(
-                          width: width * 0.3,
-                          decoration: BoxDecoration(
-                            color: white,
-                            border: Border.all(
-                              width: 0.25,
-                              color: black,
-                            ),
-                            borderRadius: BorderRadius.circular(2),
+                      return Container(
+                        width: width * 0.3,
+                        decoration: BoxDecoration(
+                          color: white,
+                          border: Border.all(
+                            width: 0.25,
+                            color: black,
                           ),
-                          padding: EdgeInsets.all(
-                            width * 0.006125,
-                          ),
-                          margin: EdgeInsets.symmetric(
-                            horizontal: width * 0.0125,
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // IMAGE
-                              image != null
-                                  ? ClipRRect(
-                                      borderRadius: BorderRadius.circular(2),
-                                      child: Image.network(
-                                        image,
-                                        fit: BoxFit.cover,
-                                        width: width * 0.3,
-                                        height: width * 0.3,
-                                      ),
-                                    )
-                                  : FutureBuilder(
-                                      future: getName(discountId, false),
-                                      builder: (context, snapshot) {
-                                        if (snapshot.hasData) {
-                                          return ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(2),
-                                            child: Image.network(
-                                              snapshot.data ??
-                                                  'https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/ProhibitionSign2.svg/800px-ProhibitionSign2.svg.png',
-                                              fit: BoxFit.cover,
-                                              width: width * 0.3,
-                                              height: width * 0.3,
-                                            ),
-                                          );
-                                        }
-
-                                        return const Center(
-                                          child: CircularProgressIndicator(),
-                                        );
-                                      }),
-
-                              // NAME
-                              Column(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  FutureBuilder(
-                                      future: getName(discountId, true),
-                                      builder: (context, snapshot) {
-                                        if (snapshot.hasData) {
-                                          return Text(
-                                            snapshot.data ?? name,
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(
-                                              fontSize: width * 0.0425,
-                                            ),
-                                          );
-                                        }
-
-                                        return const Center(
-                                          child: CircularProgressIndicator(),
-                                        );
-                                      }),
-                                  Text(
-                                    isPercent
-                                        ? '$amount % off'
-                                        : 'Save Rs. $amount',
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 1,
-                                    style: TextStyle(
-                                      color: Colors.red,
-                                      fontSize: width * 0.045,
-                                      fontWeight: FontWeight.w500,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                        padding: EdgeInsets.all(
+                          width * 0.006125,
+                        ),
+                        margin: EdgeInsets.symmetric(
+                          horizontal: width * 0.0125,
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // IMAGE
+                            image != null
+                                ? ClipRRect(
+                                    borderRadius: BorderRadius.circular(2),
+                                    child: Image.network(
+                                      image,
+                                      fit: BoxFit.cover,
+                                      width: width * 0.3,
+                                      height: width * 0.3,
                                     ),
+                                  )
+                                : FutureBuilder(
+                                    future: getName(discountId, false),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.hasData) {
+                                        return ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(2),
+                                          child: Image.network(
+                                            snapshot.data ??
+                                                'https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/ProhibitionSign2.svg/800px-ProhibitionSign2.svg.png',
+                                            fit: BoxFit.cover,
+                                            width: width * 0.3,
+                                            height: width * 0.3,
+                                          ),
+                                        );
+                                      }
+
+                                      return const Center(
+                                        child: CircularProgressIndicator(),
+                                      );
+                                    }),
+
+                            // NAME
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                FutureBuilder(
+                                    future: getName(discountId, true),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.hasData) {
+                                        return Text(
+                                          snapshot.data ?? name,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            fontSize: width * 0.0425,
+                                          ),
+                                        );
+                                      }
+
+                                      return const Center(
+                                        child: CircularProgressIndicator(),
+                                      );
+                                    }),
+                                Text(
+                                  isPercent
+                                      ? '$amount % off'
+                                      : 'Save Rs. $amount',
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontSize: width * 0.045,
+                                    fontWeight: FontWeight.w500,
                                   ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        );
-                      }),
-                    ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),

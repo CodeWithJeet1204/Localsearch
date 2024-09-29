@@ -451,7 +451,6 @@ class _SignInPageState extends State<SignInPage> {
       setState(() {
         isGoogleSigningIn = false;
       });
-      print('error: ${e.toString()}');
       if (mounted) {
         mySnackBar(
           'Error: ${e.toString()}',
@@ -544,7 +543,7 @@ class _SignInPageState extends State<SignInPage> {
                         color: primaryDark,
                       )
                     : Text(
-                        "Sign In With GOOGLE",
+                        'Sign In With GOOGLE',
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
