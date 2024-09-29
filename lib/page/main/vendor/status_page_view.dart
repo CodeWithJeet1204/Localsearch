@@ -7,11 +7,11 @@ class StatusPageView extends StatefulWidget {
   const StatusPageView({
     super.key,
     required this.currentIndex,
-    required this.posts,
+    required this.status,
   });
 
   final int currentIndex;
-  final Map<String, Map<String, dynamic>> posts;
+  final Map<String, Map<String, dynamic>> status;
 
   @override
   State<StatusPageView> createState() => _StatusPageViewState();
@@ -51,38 +51,38 @@ class _StatusPageViewState extends State<StatusPageView> {
   }
 
   // FLATTEN POSTS
-  List<Map<String, dynamic>> flattenPosts() {
-    List<Map<String, dynamic>> postsList = [];
+  List<Map<String, dynamic>> flattenStatus() {
+    List<Map<String, dynamic>> statusList = [];
 
-    widget.posts.forEach((vendorId, vendorData) {
+    widget.status.forEach((vendorId, vendorData) {
       String vendorName = vendorData['vendorName'] ?? '';
       String vendorImageUrl = vendorData['vendorImageUrl'] ?? '';
 
-      Map<String, dynamic> vendorPosts = vendorData['posts'] ?? {};
+      Map<String, dynamic> vendorStatus = vendorData['status'] ?? {};
 
-      vendorPosts.forEach((postId, post) {
-        if (post is Map<String, dynamic>) {
-          postsList.add({
+      vendorStatus.forEach((statusId, status) {
+        if (status is Map<String, dynamic>) {
+          statusList.add({
             'vendorId': vendorId,
             'vendorName': vendorName,
             'vendorImageUrl': vendorImageUrl,
-            'postId': postId,
-            'postText': post['postText'] ?? '',
-            'postImage': post['postImage'] ?? '',
-            'postViews': post['postViews'] ?? '',
-            'isViewed': post['isViewed'] ?? false,
+            'statusId': statusId,
+            'statusText': status['statusText'] ?? '',
+            'statusImage': status['statusImage'] ?? '',
+            'statusViews': status['statusViews'] ?? '',
+            'isViewed': status['isViewed'] ?? false,
           });
         }
       });
     });
 
-    return postsList;
+    return statusList;
   }
 
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    List<Map<String, dynamic>> flattenedPosts = flattenPosts();
+    List<Map<String, dynamic>> flattenedStatus = flattenStatus();
 
     return Scaffold(
       backgroundColor: black,
@@ -108,12 +108,12 @@ class _StatusPageViewState extends State<StatusPageView> {
       ),
       body: PageView.builder(
         controller: _pageController,
-        itemCount: flattenedPosts.length,
+        itemCount: flattenedStatus.length,
         itemBuilder: (context, index) {
-          final post = flattenedPosts[index];
-          final vendorId = post['vendorId'];
-          final postText = post['postText'];
-          final postImageUrl = post['postImage'];
+          final status = flattenedStatus[index];
+          final vendorId = status['vendorId'];
+          final statusText = status['statusText'];
+          final statusImageUrl = status['statusImage'];
 
           return Padding(
             padding: EdgeInsets.all(width * 0.006125),
@@ -140,13 +140,13 @@ class _StatusPageViewState extends State<StatusPageView> {
                         CircleAvatar(
                           radius: width * 0.05,
                           backgroundImage: NetworkImage(
-                            post['vendorImageUrl'],
+                            status['vendorImageUrl'],
                           ),
                           backgroundColor: Colors.black,
                         ),
                         SizedBox(width: width * 0.0125),
                         Text(
-                          post['vendorName'],
+                          status['vendorName'],
                           maxLines: 3,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
@@ -164,7 +164,7 @@ class _StatusPageViewState extends State<StatusPageView> {
                   children: [
                     Center(
                       child: Image.network(
-                        postImageUrl,
+                        statusImageUrl,
                         width: width,
                         height: width,
                         fit: BoxFit.cover,
@@ -198,7 +198,7 @@ class _StatusPageViewState extends State<StatusPageView> {
                                   padding: EdgeInsets.all(width * 0.025),
                                 ),
                               ),
-                        index == (flattenedPosts.length - 1)
+                        index == (flattenedStatus.length - 1)
                             ? Container()
                             : Container(
                                 decoration: BoxDecoration(
@@ -230,10 +230,10 @@ class _StatusPageViewState extends State<StatusPageView> {
                     padding: EdgeInsets.only(bottom: width * 0.025),
                     child: GestureDetector(
                       onTap: () async {
-                        await showTextDialog(postText, width);
+                        await showTextDialog(statusText, width);
                       },
                       child: Text(
-                        postText,
+                        statusText,
                         style: const TextStyle(
                           color: Colors.white,
                         ),

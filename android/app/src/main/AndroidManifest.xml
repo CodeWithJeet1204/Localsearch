@@ -8,7 +8,7 @@
 <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
 <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>
     <application
-        android:label="localsearch"
+        android:label="Localsearch"
         android:name="${applicationName}"
         android:enableOnBackInvokedCallback="true"
         android:icon="@mipmap/ic_launcher">

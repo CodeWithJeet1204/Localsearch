@@ -393,7 +393,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
         final productPrice = productData['productPrice'];
         final String productId = productData['productId'];
         final String categoryName = productData['categoryName'];
-        final String brandName = productData['brandName'];
+        final String brandName = productData['productBrand'];
         final Map<String, dynamic> ratings = productData['ratings'];
         final Timestamp datetime = productData['datetime'];
         final List views = productData['productViewsTimestamp'];
@@ -407,7 +407,6 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
         final productWords = productNameLower.split(' ');
         final searchWords = searchNameLower.toLowerCase().split(' ');
 
-        // TODO: PROVIDER FOR SAVING SHOPS OR PRODUCT WHAT USER WANTS TO SEE
         // TODO: PRODUCT LINK ICON IN SHORTS
 
         if (productWords.any((productWord) => searchWords
@@ -487,7 +486,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
         final String imageUrl = productData['images'][0].toString();
         final String productPrice = productData['productPrice'].toString();
         final String categoryName = productData['categoryName'];
-        final String brandName = productData['brandName'];
+        final String brandName = productData['productBrand'];
         final List tags = productData['Tags'];
         final Map<String, dynamic> ratings = productData['ratings'];
         final Timestamp datetime = productData['datetime'];

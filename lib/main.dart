@@ -34,6 +34,9 @@ void main() async {
         ChangeNotifierProvider(
           create: (_) => MainPageProvider(),
         ),
+        // ChangeNotifierProvider(
+        //   create: (_) => SearchResultsProvider(),
+        // ),
       ],
       child: const MyApp(),
     ),

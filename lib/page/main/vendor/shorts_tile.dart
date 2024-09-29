@@ -244,8 +244,9 @@ class _ShortsTileState extends State<ShortsTile> {
                             widget.data['productId'] == null
                                 ? Container()
                                 : Padding(
-                                    padding:
-                                        EdgeInsets.only(left: width * 0.05),
+                                    padding: EdgeInsets.only(
+                                      left: width * 0.05,
+                                    ),
                                     child: IconButton(
                                       onPressed: () async {
                                         isWishlistLocked
@@ -284,102 +285,182 @@ class _ShortsTileState extends State<ShortsTile> {
                                           CrossAxisAlignment.start,
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            FutureBuilder(
-                                              future: getVendorInfo(
-                                                widget.data['vendorId'],
-                                              ),
-                                              builder: (context, snapshot) {
-                                                if (snapshot.hasError) {
-                                                  return Container();
-                                                }
+                                        FutureBuilder(
+                                          future: getVendorInfo(
+                                            widget.data['vendorId'],
+                                          ),
+                                          builder: (context, snapshot) {
+                                            if (snapshot.hasError) {
+                                              return Container();
+                                            }
 
-                                                if (snapshot.hasData) {
-                                                  return GestureDetector(
-                                                    onTap: () {
-                                                      Navigator.of(context)
-                                                          .push(
-                                                        MaterialPageRoute(
-                                                          builder: ((context) =>
-                                                              VendorPage(
-                                                                vendorId: widget
-                                                                        .data[
-                                                                    'vendorId'],
-                                                              )),
-                                                        ),
-                                                      );
-                                                    },
-                                                    child: Padding(
-                                                      padding: EdgeInsets.all(
-                                                        width * 0.006125,
-                                                      ),
-                                                      child: Text(
-                                                        snapshot.data!,
-                                                        style: TextStyle(
-                                                          color: white,
-                                                          fontSize:
-                                                              width * 0.05,
-                                                          fontWeight:
-                                                              FontWeight.w500,
-                                                        ),
+                                            if (snapshot.hasData) {
+                                              return GestureDetector(
+                                                onTap: () {
+                                                  Navigator.of(context).push(
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          VendorPage(
+                                                        vendorId: widget
+                                                            .data['vendorId'],
                                                       ),
                                                     ),
                                                   );
-                                                }
-
-                                                return Container();
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                        GestureDetector(
-                                          onTap: widget.data['productId'] ==
-                                                  null
-                                              ? null
-                                              : () async {
-                                                  final productSnap =
-                                                      await store
-                                                          .collection(
-                                                              'Business')
-                                                          .doc('Data')
-                                                          .collection(
-                                                              'Products')
-                                                          .doc(widget.data[
-                                                              'productId'])
-                                                          .get();
-
-                                                  final productData =
-                                                      productSnap.data()!;
-                                                  if (context.mounted) {
-                                                    Navigator.of(context).push(
-                                                      MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            ProductPage(
-                                                          productData:
-                                                              productData,
-                                                        ),
-                                                      ),
-                                                    );
-                                                  }
                                                 },
-                                          child: Padding(
-                                            padding: EdgeInsets.all(
-                                              width * 0.006125,
-                                            ),
-                                            child: Text(
-                                              widget.data['productName'] ??
-                                                  widget.data['caption'] ??
-                                                  '<No Short Name>',
-                                              style: TextStyle(
-                                                color: white,
-                                                fontSize: width * 0.05,
-                                                fontWeight: FontWeight.w500,
+                                                child: Padding(
+                                                  padding: EdgeInsets.all(
+                                                    width * 0.006125,
+                                                  ),
+                                                  child: Text(
+                                                    snapshot.data!,
+                                                    style: TextStyle(
+                                                      color: white,
+                                                      fontSize: width * 0.05,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
+                                            }
+
+                                            return Container();
+                                          },
+                                        ),
+                                        Row(
+                                          children: [
+                                            widget.data['productId'] == null
+                                                ? Container()
+                                                : GestureDetector(
+                                                    onTap: () async {
+                                                      bool wasPlaying =
+                                                          isVideoPlaying;
+                                                      if (flickManager
+                                                          .flickVideoManager!
+                                                          .isPlaying) {
+                                                        flickManager
+                                                            .flickControlManager!
+                                                            .togglePlay();
+                                                        setState(() {
+                                                          isVideoPlaying =
+                                                              false;
+                                                        });
+                                                      }
+                                                      final productSnap =
+                                                          await store
+                                                              .collection(
+                                                                  'Business')
+                                                              .doc('Data')
+                                                              .collection(
+                                                                  'Products')
+                                                              .doc(widget.data[
+                                                                  'productId'])
+                                                              .get();
+
+                                                      final productData =
+                                                          productSnap.data()!;
+
+                                                      Navigator.of(context)
+                                                          .push(
+                                                        MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              ProductPage(
+                                                            productData:
+                                                                productData,
+                                                          ),
+                                                        ),
+                                                      )
+                                                          .then((value) {
+                                                        if (wasPlaying) {
+                                                          flickManager
+                                                              .flickControlManager!
+                                                              .togglePlay();
+                                                        }
+                                                        setState(() {
+                                                          isVideoPlaying = true;
+                                                        });
+                                                      });
+                                                    },
+                                                    child: Icon(
+                                                      Icons.link,
+                                                      color: white,
+                                                      size: width * 0.066,
+                                                    ),
+                                                  ),
+                                            GestureDetector(
+                                              onTap: widget.data['productId'] ==
+                                                      null
+                                                  ? null
+                                                  : () async {
+                                                      bool wasPlaying =
+                                                          isVideoPlaying;
+                                                      if (flickManager
+                                                          .flickVideoManager!
+                                                          .isPlaying) {
+                                                        flickManager
+                                                            .flickControlManager!
+                                                            .togglePlay();
+                                                        setState(() {
+                                                          isVideoPlaying =
+                                                              false;
+                                                        });
+                                                      }
+                                                      final productSnap =
+                                                          await store
+                                                              .collection(
+                                                                  'Business')
+                                                              .doc('Data')
+                                                              .collection(
+                                                                  'Products')
+                                                              .doc(widget.data[
+                                                                  'productId'])
+                                                              .get();
+
+                                                      final productData =
+                                                          productSnap.data()!;
+
+                                                      if (context.mounted) {
+                                                        Navigator.of(context)
+                                                            .push(
+                                                          MaterialPageRoute(
+                                                            builder:
+                                                                (context) =>
+                                                                    ProductPage(
+                                                              productData:
+                                                                  productData,
+                                                            ),
+                                                          ),
+                                                        )
+                                                            .then((value) {
+                                                          if (wasPlaying) {
+                                                            flickManager
+                                                                .flickControlManager!
+                                                                .togglePlay();
+                                                          }
+                                                          setState(() {
+                                                            isVideoPlaying =
+                                                                true;
+                                                          });
+                                                        });
+                                                      }
+                                                    },
+                                              child: Padding(
+                                                padding: EdgeInsets.all(
+                                                  width * 0.006125,
+                                                ),
+                                                child: Text(
+                                                  widget.data['productName'] ??
+                                                      widget.data['caption'] ??
+                                                      '<No Short Name>',
+                                                  style: TextStyle(
+                                                    color: white,
+                                                    fontSize: width * 0.05,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
                                               ),
                                             ),
-                                          ),
+                                          ],
                                         ),
                                       ],
                                     ),

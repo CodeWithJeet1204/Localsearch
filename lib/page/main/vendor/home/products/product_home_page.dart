@@ -119,35 +119,35 @@ class _ProductHomePageState extends State<ProductHomePage> {
 
       final List followedShops = userData['followedShops'];
 
-      final postSnap = await store
+      final statusSnap = await store
           .collection('Business')
           .doc('Data')
-          .collection('Posts')
+          .collection('Status')
           .get();
 
       await Future.forEach(
-        postSnap.docs,
-        (post) async {
+        statusSnap.docs,
+        (status) async {
           bool isViewed = false;
-          final String postId = post.id;
+          final String statusId = status.id;
 
-          final postData = post.data();
+          final statusData = status.data();
 
-          final String postText = postData['postText'];
-          final String vendorId = postData['postVendorId'];
-          final String postImage = postData['postImage'];
-          final String postViews =
-              (postData['postViews'] as List).length.toString();
+          final String statusText = statusData['statusText'];
+          final String vendorId = statusData['statusVendorId'];
+          final String statusImage = statusData['statusImage'];
+          final String statusViews =
+              (statusData['statusViews'] as List).length.toString();
 
-          if (postViews.contains(auth.currentUser!.uid)) {
+          if (statusViews.contains(auth.currentUser!.uid)) {
             isViewed = true;
           }
 
           if (myStatus.containsKey(vendorId)) {
-            myStatus[vendorId]!['posts']![postId] = {
-              'postText': postText,
-              'postImage': postImage,
-              'postViews': postViews,
+            myStatus[vendorId]!['status']![statusId] = {
+              'statusText': statusText,
+              'statusImage': statusImage,
+              'statusViews': statusViews,
               'isViewed': isViewed,
             };
           } else {
@@ -167,11 +167,11 @@ class _ProductHomePageState extends State<ProductHomePage> {
               'vendorName': vendorName,
               'vendorImageUrl': vendorImageUrl,
               'isFollowed': followedShops.contains(vendorId),
-              'posts': {
-                postId: {
-                  'postText': postText,
-                  'postImage': postImage,
-                  'postViews': postViews,
+              'status': {
+                statusId: {
+                  'statusText': statusText,
+                  'statusImage': statusImage,
+                  'statusViews': statusViews,
                   'isViewed': isViewed,
                 },
               },
@@ -194,19 +194,19 @@ class _ProductHomePageState extends State<ProductHomePage> {
           }
 
           // Sort by total views in descending order
-          final aTotalViews = a.value['posts'].values.fold<int>(
+          final aTotalViews = a.value['status'].values.fold<int>(
             0,
-            (int additionSum, dynamic post) {
-              final postMap = post as Map<String, dynamic>;
-              return additionSum + int.parse(postMap['postViews']);
+            (int additionSum, dynamic status) {
+              final statusMap = status as Map<String, dynamic>;
+              return additionSum + int.parse(statusMap['statusViews']);
             },
           );
 
-          final bTotalViews = b.value['posts'].values.fold<int>(
+          final bTotalViews = b.value['status'].values.fold<int>(
             0,
-            (int additionSum, dynamic post) {
-              final postMap = post as Map<String, dynamic>;
-              return additionSum + int.parse(postMap['postViews']);
+            (int additionSum, dynamic status) {
+              final statusMap = status as Map<String, dynamic>;
+              return additionSum + int.parse(statusMap['statusViews']);
             },
           );
 
@@ -975,15 +975,15 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                           status.values.toList()[index]
                                               ['vendorImageUrl'];
                                       final bool isViewed =
-                                          (status[vendorId]!['posts'] as Map<
+                                          (status[vendorId]!['status'] as Map<
                                                   String, Map<String, dynamic>>)
                                               .values
                                               .every(
-                                                (post) =>
-                                                    post['isViewed'] == true,
+                                                (status) =>
+                                                    status['isViewed'] == true,
                                               );
 
-                                      /*index != (posts.length - 1)
+                                      /*index != (status.length - 1)
                                       ?*/
                                       return Padding(
                                         padding: EdgeInsets.symmetric(
@@ -996,7 +996,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                                 builder: (context) =>
                                                     StatusPageView(
                                                   currentIndex: index,
-                                                  posts: status,
+                                                  status: status,
                                                 ),
                                               ),
                                             );
@@ -1467,7 +1467,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                               ),
                             ),
 
-                      // posts.length < 2 ? Container() : Divider(),
+                      // status.length < 2 ? Container() : Divider(),
 
                       recentShopProducts.isEmpty ? Container() : Divider(),
 

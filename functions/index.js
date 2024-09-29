@@ -51,14 +51,14 @@ const logger = require("firebase-functions/logger");
 //     }
 //   });
 
-// Function to delete documents from Posts collection every 23 hours 50 minutes
+// Function to delete documents from Status collection every 23 hours 50 minutes
 exports.scheduledFunction = functions.region('asia-southeast1').pubsub.schedule('every 5 minutes').onRun(async (context) => {
   const now = admin.firestore.Timestamp.now();
   const cutoff = new admin.firestore.Timestamp(now.seconds - (23 * 60 * 60 + 50 * 60), 0);
-  const postsRef = admin.firestore().collection('Business').doc('Data').collection('Posts');
+  const postsRef = admin.firestore().collection('Business').doc('Data').collection('Status');
   
   try {
-    const snapshot = await postsRef.where('postDateTime', '<=', cutoff).get();
+    const snapshot = await postsRef.where('statusDateTime', '<=', cutoff).get();
     if (snapshot.empty) {
       console.log('No documents to delete.');
       return null;
@@ -72,22 +72,24 @@ exports.scheduledFunction = functions.region('asia-southeast1').pubsub.schedule(
     snapshot.docs.forEach(doc => {
       batch.delete(doc.ref);
 
-      const postImage = doc.data().postImage;
-      if (postImage) {
-        const filePath = postImage.split('/o/')[1].split('?')[0].replace(/%2F/g, '/');
-        // Add file deletion promise
+      const statusImage = doc.data().statusImage;
+      if (statusImage) {
+        const filePath = statusImage.split('/o/')[1].split('?')[0].replace(/%2F/g, '/');
+
         fileDeletions.push(bucket.file(filePath).delete());
       }
     });
 
     await Promise.all(fileDeletions);
-    
+
     await batch.commit();
+
     console.log(`Successfully deleted ${snapshot.size} documents and associated files.`);
   } catch (error) {
     console.error("Error deleting documents or files:", error);
   }
 });
+
 
 // Sample helloWorld function (optional, uncomment if needed)
 // exports.helloWorld = onRequest((request, response) => {
