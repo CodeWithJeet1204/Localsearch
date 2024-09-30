@@ -102,8 +102,8 @@
 //           }
 
 //           await AuthMethods().signUpWithEmail(
-//             email: emailController.text.trim(),
-//             password: passwordController.text.trim(),
+//             email: emailController.text.toString().trim(),
+//             password: passwordController.text.toString().trim(),
 //             context: context,
 //           );
 
@@ -134,7 +134,7 @@
 //             // }
 
 //             await store.collection('Users').doc(auth.currentUser!.uid).set({
-//               'Email': emailController.text.trim(),
+//               'Email': emailController.text.toString().trim(),
 //               'Registration': 'email',
 //               'Name': null,
 //               'Phone Number': null,
@@ -287,7 +287,7 @@
 //                   builder: (context) => NumberVerifyPage(
 //                     verificationId: verificationId,
 //                     isLogging: false,
-//                     phoneNumber: phoneController.text.trim(),
+//                     phoneNumber: phoneController.text.toString().trim(),
 //                   ),
 //                 ),
 //               );
@@ -374,7 +374,7 @@
 //         }
 
 //         await store.collection('Users').doc(auth.currentUser!.uid).set({
-//           'Email': emailController.text.trim(),
+//           'Email': emailController.text.toString().trim(),
 //           'Registration': 'google',
 //           'Name': null,
 //           'Phone Number': null,

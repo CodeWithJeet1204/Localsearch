@@ -29,7 +29,7 @@ class _ImageShowState extends State<ImageShow> {
             shape: BoxShape.circle,
             image: DecorationImage(
               image: NetworkImage(
-                widget.imageUrl,
+                widget.imageUrl.toString().trim(),
               ),
               fit: BoxFit.cover,
             ),

@@ -107,7 +107,9 @@ class _VendorCataloguePageState extends State<VendorCataloguePage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            shopType,
+                            shopType.toString().trim(),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: width * 0.06,
                               fontWeight: FontWeight.w700,

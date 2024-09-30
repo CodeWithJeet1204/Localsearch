@@ -316,7 +316,8 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
                             if (!discountData['discountName']
                                 .toString()
                                 .toLowerCase()
-                                .contains(value.toLowerCase().trim())) {
+                                .contains(
+                                    value.toLowerCase().toString().trim())) {
                               keysToRemove.add(key);
                             }
                           });
@@ -612,10 +613,11 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
                                                                 child:
                                                                     const Center(
                                                                   child: Text(
+                                                                    'No Image',
+                                                                    maxLines: 1,
                                                                     overflow:
                                                                         TextOverflow
                                                                             .ellipsis,
-                                                                    'No Image',
                                                                     style:
                                                                         TextStyle(
                                                                       color:
@@ -649,7 +651,10 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
                                                           ),
                                                           child: Text(
                                                             discountData[
-                                                                'discountName'],
+                                                                    'discountName']
+                                                                .toString()
+                                                                .trim(),
+                                                            maxLines: 1,
                                                             overflow:
                                                                 TextOverflow
                                                                     .ellipsis,
@@ -702,10 +707,11 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
 
                                                             // TEXT DIVIDER
                                                             const Text(
+                                                              '  ●  ',
+                                                              maxLines: 1,
                                                               overflow:
                                                                   TextOverflow
                                                                       .ellipsis,
-                                                              '  ●  ',
                                                               style: TextStyle(
                                                                 fontWeight:
                                                                     FontWeight
@@ -724,9 +730,6 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
                                                                     0.01,
                                                               ),
                                                               child: Text(
-                                                                overflow:
-                                                                    TextOverflow
-                                                                        .ellipsis,
                                                                 (discountData['discountStartDateTime']
                                                                             as Timestamp)
                                                                         .toDate()
@@ -749,6 +752,10 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
                                                                                 24
                                                                             ? 'Expired ${DateTime.now().difference((discountData['discountEndDateTime'] as Timestamp).toDate()).inHours} Hours Ago'
                                                                             : 'Expired ${DateTime.now().difference((discountData['discountEndDateTime'] as Timestamp).toDate()).inDays} Days Ago',
+                                                                maxLines: 1,
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
                                                                 style:
                                                                     TextStyle(
                                                                   color: const Color
@@ -860,10 +867,11 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
                                                                 child:
                                                                     const Center(
                                                                   child: Text(
+                                                                    'No Image',
+                                                                    maxLines: 1,
                                                                     overflow:
                                                                         TextOverflow
                                                                             .ellipsis,
-                                                                    'No Image',
                                                                     style:
                                                                         TextStyle(
                                                                       color:
@@ -879,7 +887,9 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
                                                         // NAME
                                                         title: Text(
                                                           discountData[
-                                                              'discountName'],
+                                                                  'discountName']
+                                                              .toString()
+                                                              .trim(),
                                                           maxLines: 1,
                                                           overflow: TextOverflow
                                                               .ellipsis,
@@ -932,10 +942,11 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
 
                                                             // TEXT DIVIDER
                                                             const Text(
+                                                              '  ●  ',
+                                                              maxLines: 1,
                                                               overflow:
                                                                   TextOverflow
                                                                       .ellipsis,
-                                                              '  ●  ',
                                                               style: TextStyle(
                                                                 fontWeight:
                                                                     FontWeight
@@ -954,9 +965,6 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
                                                                     0.01,
                                                               ),
                                                               child: Text(
-                                                                overflow:
-                                                                    TextOverflow
-                                                                        .ellipsis,
                                                                 (discountData['discountStartDateTime']
                                                                             as Timestamp)
                                                                         .toDate()
@@ -979,6 +987,10 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
                                                                                 24
                                                                             ? 'Expired ${DateTime.now().difference((discountData['discountEndDateTime'] as Timestamp).toDate()).inHours} Hours Ago'
                                                                             : 'Expired ${DateTime.now().difference((discountData['discountEndDateTime'] as Timestamp).toDate()).inDays} Days Ago',
+                                                                maxLines: 1,
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
                                                                 style:
                                                                     TextStyle(
                                                                   color: const Color

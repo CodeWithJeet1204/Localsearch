@@ -40,7 +40,9 @@ class _StatusPageViewState extends State<StatusPageView> {
             padding: EdgeInsets.all(width * 0.033),
             child: SingleChildScrollView(
               child: Text(
-                text,
+                text.toString().trim(),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
               ),
             ),
@@ -140,14 +142,14 @@ class _StatusPageViewState extends State<StatusPageView> {
                         CircleAvatar(
                           radius: width * 0.05,
                           backgroundImage: NetworkImage(
-                            status['vendorImageUrl'],
+                            status['vendorImageUrl'].toString().trim(),
                           ),
                           backgroundColor: Colors.black,
                         ),
                         SizedBox(width: width * 0.0125),
                         Text(
-                          status['vendorName'],
-                          maxLines: 3,
+                          status['vendorName'].toString().trim(),
+                          maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             color: Colors.white,
@@ -164,7 +166,7 @@ class _StatusPageViewState extends State<StatusPageView> {
                   children: [
                     Center(
                       child: Image.network(
-                        statusImageUrl,
+                        statusImageUrl.toString().trim(),
                         width: width,
                         height: width,
                         fit: BoxFit.cover,
@@ -233,7 +235,9 @@ class _StatusPageViewState extends State<StatusPageView> {
                         await showTextDialog(statusText, width);
                       },
                       child: Text(
-                        statusText,
+                        statusText.toString().trim(),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           color: Colors.white,
                         ),

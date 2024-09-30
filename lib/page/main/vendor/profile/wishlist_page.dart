@@ -401,7 +401,9 @@ class _WishlistPageState extends State<WishlistPage> {
                                             ),
                                             child: ActionChip(
                                               label: Text(
-                                                category,
+                                                category.toString().trim(),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
                                                 style: TextStyle(
                                                   color: selectedCategory ==
                                                           category
@@ -516,7 +518,7 @@ class _WishlistPageState extends State<WishlistPage> {
                                                 ),
                                               ),
                                               title: Text(
-                                                name,
+                                                name.toString().trim(),
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
                                               ),

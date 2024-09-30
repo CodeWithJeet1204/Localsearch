@@ -128,7 +128,7 @@ class _AllCategoryPageState extends State<AllCategoryPage> {
                       child: SizedBox(),
                     ),
                     AutoSizeText(
-                      name,
+                      name.toString().trim(),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -143,7 +143,7 @@ class _AllCategoryPageState extends State<AllCategoryPage> {
                       borderRadius: BorderRadius.circular(2),
                       clipBehavior: Clip.antiAlias,
                       child: Image.network(
-                        imageUrl,
+                        imageUrl.toString().trim(),
                         width: width * 0.475,
                         height: width * 0.475,
                         fit: BoxFit.cover,

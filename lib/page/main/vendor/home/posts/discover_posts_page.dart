@@ -318,7 +318,9 @@ class _DiscoverPostsPageState extends State<DiscoverPostsPage>
                                                 radius: width * 0.04,
                                                 backgroundColor: primary2,
                                                 backgroundImage: NetworkImage(
-                                                  vendorImageUrl,
+                                                  vendorImageUrl
+                                                      .toString()
+                                                      .trim(),
                                                 ),
                                               ),
                                               SizedBox(
@@ -327,7 +329,7 @@ class _DiscoverPostsPageState extends State<DiscoverPostsPage>
                                               SizedBox(
                                                 width: width * 0.7125,
                                                 child: Text(
-                                                  vendorName,
+                                                  vendorName.toString().trim(),
                                                   maxLines: 1,
                                                   overflow:
                                                       TextOverflow.ellipsis,
@@ -371,7 +373,7 @@ class _DiscoverPostsPageState extends State<DiscoverPostsPage>
                                           items: imageUrl!
                                               .map(
                                                 (e) => Image.network(
-                                                  e,
+                                                  e.toString().trim(),
                                                   width: width,
                                                   height: width,
                                                   fit: BoxFit.cover,
@@ -439,7 +441,7 @@ class _DiscoverPostsPageState extends State<DiscoverPostsPage>
                                             child: SizedBox(
                                               width: width * 0.75,
                                               child: Text(
-                                                name,
+                                                name.toString().trim(),
                                                 maxLines: 2,
                                                 overflow: TextOverflow.ellipsis,
                                                 textAlign: TextAlign.start,

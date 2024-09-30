@@ -448,7 +448,9 @@ class _LocationChangePageState extends State<LocationChangePage> {
                                                       ? width * 0.875
                                                       : width * 0.75,
                                                   child: Text(
-                                                    currentCityName,
+                                                    currentCityName
+                                                        .toString()
+                                                        .trim(),
                                                     maxLines: 2,
                                                     overflow:
                                                         TextOverflow.ellipsis,

@@ -42,7 +42,7 @@ class MyButton extends StatelessWidget {
                 ),
               )
             : Text(
-                text,
+                text.toString().trim(),
                 style: const TextStyle(
                   color: white,
                   fontSize: 16,

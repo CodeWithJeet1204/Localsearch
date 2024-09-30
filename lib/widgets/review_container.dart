@@ -45,7 +45,7 @@ class _ReviewContainerState extends State<ReviewContainer> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                widget.name,
+                widget.name.toString().trim(),
                 style: TextStyle(
                   color: Colors.grey.shade600,
                   fontSize: width * 0.033,
@@ -62,7 +62,7 @@ class _ReviewContainerState extends State<ReviewContainer> {
           ),
           const SizedBox(height: 4),
           SeeMoreText(
-            widget.review,
+            widget.review.toString().trim(),
             textStyle: TextStyle(
               fontSize: width * 0.045,
             ),

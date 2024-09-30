@@ -19,7 +19,9 @@ class MyTextButton extends StatelessWidget {
     return TextButton(
       onPressed: onPressed,
       child: Text(
-        text,
+        text.toString().trim(),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
         style: TextStyle(
           fontSize: fontSize,
           color: textColor,

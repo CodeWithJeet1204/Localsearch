@@ -731,11 +731,14 @@ class _ProductPageState extends State<ProductPage> {
         Map<String, dynamic>.from(productData['ratings']);
 
     if (newReview != null) {
-      reviews[auth.currentUser!.uid] = [userRating, newReview.trim()];
+      reviews[auth.currentUser!.uid] = [
+        userRating,
+        newReview.toString().trim()
+      ];
     } else {
       reviews[auth.currentUser!.uid] = [
         userRating,
-        reviewController.text.trim()
+        reviewController.text.toString().trim()
       ];
     }
 
@@ -877,7 +880,7 @@ class _ProductPageState extends State<ProductPage> {
                     ),
 
                     // REVIEW
-                    previousReview!.trim().isEmpty
+                    previousReview!.toString().trim().isEmpty
                         ? Center(
                             child: // DELETE
                                 IconButton(
@@ -905,7 +908,7 @@ class _ProductPageState extends State<ProductPage> {
                                 child: SizedBox(
                                   width: width * 0.7125,
                                   child: Text(
-                                    previousReview!.trim(),
+                                    previousReview!.toString().trim(),
                                     maxLines: 10,
                                   ),
                                 ),
@@ -1210,7 +1213,7 @@ class _ProductPageState extends State<ProductPage> {
                           vertical: width * 0.00625,
                         ),
                         child: Text(
-                          name,
+                          name.toString().trim(),
                           style: TextStyle(
                             color: primaryDark,
                             fontSize: width * 0.045,
@@ -1264,7 +1267,7 @@ class _ProductPageState extends State<ProductPage> {
                                           child: Container(
                                             alignment: Alignment.center,
                                             child: Image.network(
-                                              e,
+                                              e.toString().trim(),
                                               width: width,
                                               height: width,
                                               fit: BoxFit.cover,
@@ -1689,7 +1692,7 @@ class _ProductPageState extends State<ProductPage> {
                                   ),
                                 ),
                                 child: SeeMoreText(
-                                  description,
+                                  description.toString().trim(),
                                   textStyle: const TextStyle(
                                     color: primaryDark,
                                   ),
@@ -1740,7 +1743,7 @@ class _ProductPageState extends State<ProductPage> {
                                         ? Container()
                                         : CircleAvatar(
                                             backgroundImage: NetworkImage(
-                                              brandImageUrl!,
+                                              brandImageUrl!.toString().trim(),
                                             ),
                                             radius: width * 0.06125,
                                             backgroundColor: lightGrey,
@@ -1754,17 +1757,18 @@ class _ProductPageState extends State<ProductPage> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           const Text(
-                                            overflow: TextOverflow.ellipsis,
                                             'Brand',
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
                                             style: TextStyle(
                                               fontWeight: FontWeight.w500,
                                               color: primaryDark2,
                                             ),
                                           ),
                                           AutoSizeText(
-                                            brand,
-                                            overflow: TextOverflow.ellipsis,
+                                            brand.toString().trim(),
                                             maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
                                             style: TextStyle(
                                               fontSize: width * 0.05833,
                                               fontWeight: FontWeight.w500,
@@ -1811,7 +1815,9 @@ class _ProductPageState extends State<ProductPage> {
                                                 : CircleAvatar(
                                                     backgroundImage:
                                                         NetworkImage(
-                                                      categoryImageUrl!,
+                                                      categoryImageUrl!
+                                                          .toString()
+                                                          .trim(),
                                                     ),
                                                     backgroundColor: lightGrey,
                                                     radius: width * 0.06125,
@@ -1825,9 +1831,10 @@ class _ProductPageState extends State<ProductPage> {
                                                     CrossAxisAlignment.start,
                                                 children: [
                                                   const Text(
+                                                    'Category',
+                                                    maxLines: 1,
                                                     overflow:
                                                         TextOverflow.ellipsis,
-                                                    'Category',
                                                     style: TextStyle(
                                                       fontWeight:
                                                           FontWeight.w500,
@@ -1835,10 +1842,12 @@ class _ProductPageState extends State<ProductPage> {
                                                     ),
                                                   ),
                                                   AutoSizeText(
-                                                    categoryName,
+                                                    categoryName
+                                                        .toString()
+                                                        .trim(),
+                                                    maxLines: 1,
                                                     overflow:
                                                         TextOverflow.ellipsis,
-                                                    maxLines: 1,
                                                     style: TextStyle(
                                                       fontSize: width * 0.05833,
                                                       color: primaryDark,
@@ -2274,12 +2283,14 @@ class _ProductPageState extends State<ProductPage> {
                                               children: [
                                                 ClipRRect(
                                                   borderRadius:
-                                                      BorderRadius.circular(2),
+                                                      BorderRadius.circular(
+                                                    2,
+                                                  ),
                                                   child: Image.network(
-                                                    image,
-                                                    fit: BoxFit.cover,
+                                                    image.toString().trim(),
                                                     width: width * 0.3,
                                                     height: width * 0.3,
+                                                    fit: BoxFit.cover,
                                                   ),
                                                 ),
                                                 Column(
@@ -2445,12 +2456,14 @@ class _ProductPageState extends State<ProductPage> {
                                               children: [
                                                 ClipRRect(
                                                   borderRadius:
-                                                      BorderRadius.circular(2),
+                                                      BorderRadius.circular(
+                                                    2,
+                                                  ),
                                                   child: Image.network(
-                                                    image,
-                                                    fit: BoxFit.cover,
+                                                    image.toString().trim(),
                                                     width: width * 0.3,
                                                     height: width * 0.3,
+                                                    fit: BoxFit.cover,
                                                   ),
                                                 ),
                                                 Padding(
@@ -2465,10 +2478,10 @@ class _ProductPageState extends State<ProductPage> {
                                                             .start,
                                                     children: [
                                                       Text(
-                                                        name,
+                                                        name.toString().trim(),
+                                                        maxLines: 1,
                                                         overflow: TextOverflow
                                                             .ellipsis,
-                                                        maxLines: 1,
                                                         style: TextStyle(
                                                           fontSize:
                                                               width * 0.04125,
@@ -2476,9 +2489,9 @@ class _ProductPageState extends State<ProductPage> {
                                                       ),
                                                       Text(
                                                         'Rs. ${price.round()}',
+                                                        maxLines: 1,
                                                         overflow: TextOverflow
                                                             .ellipsis,
-                                                        maxLines: 1,
                                                         style: TextStyle(
                                                           fontSize:
                                                               width * 0.0425,
@@ -2639,6 +2652,10 @@ class _ProductPageState extends State<ProductPage> {
                                                                           child:
                                                                               Text(
                                                                             'No Ratings yet',
+                                                                            maxLines:
+                                                                                1,
+                                                                            overflow:
+                                                                                TextOverflow.ellipsis,
                                                                             style:
                                                                                 TextStyle(
                                                                               fontSize: width * 0.05,
@@ -3016,7 +3033,10 @@ class _AllDiscountsWidgetState extends State<AllDiscountsWidget> {
                           ),
                         ),
                         Text(
-                          widget.allDiscount.length.toString(),
+                          widget.allDiscount.length
+                              .toString()
+                              .toString()
+                              .trim(),
                           style: TextStyle(
                             fontSize: width * 0.045,
                           ),
@@ -3075,12 +3095,14 @@ class _AllDiscountsWidgetState extends State<AllDiscountsWidget> {
                             // IMAGE
                             image != null
                                 ? ClipRRect(
-                                    borderRadius: BorderRadius.circular(2),
+                                    borderRadius: BorderRadius.circular(
+                                      2,
+                                    ),
                                     child: Image.network(
-                                      image,
-                                      fit: BoxFit.cover,
+                                      image.toString().trim(),
                                       width: width * 0.3,
                                       height: width * 0.3,
+                                      fit: BoxFit.cover,
                                     ),
                                   )
                                 : FutureBuilder(
@@ -3088,14 +3110,15 @@ class _AllDiscountsWidgetState extends State<AllDiscountsWidget> {
                                     builder: (context, snapshot) {
                                       if (snapshot.hasData) {
                                         return ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(2),
+                                          borderRadius: BorderRadius.circular(
+                                            2,
+                                          ),
                                           child: Image.network(
                                             snapshot.data ??
                                                 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/ProhibitionSign2.svg/800px-ProhibitionSign2.svg.png',
-                                            fit: BoxFit.cover,
                                             width: width * 0.3,
                                             height: width * 0.3,
+                                            fit: BoxFit.cover,
                                           ),
                                         );
                                       }
@@ -3115,7 +3138,8 @@ class _AllDiscountsWidgetState extends State<AllDiscountsWidget> {
                                     builder: (context, snapshot) {
                                       if (snapshot.hasData) {
                                         return Text(
-                                          snapshot.data ?? name,
+                                          snapshot.data ??
+                                              name.toString().trim(),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                           style: TextStyle(

@@ -107,8 +107,8 @@
 //           return;
 //         } else {
 //           await auth.signInWithEmailAndPassword(
-//             email: emailController.text.trim(),
-//             password: passwordController.text.trim(),
+//             email: emailController.text.toString().trim(),
+//             password: passwordController.text.toString().trim(),
 //           );
 
 //           if (auth.currentUser != null) {
@@ -239,7 +239,7 @@
 //                     builder: (context) => NumberVerifyPage(
 //                       verificationId: verificationId,
 //                       isLogging: true,
-//                       phoneNumber: phoneController.text.trim(),
+//                       phoneNumber: phoneController.text.toString().trim(),
 //                     ),
 //                   ),
 //                 );
@@ -698,7 +698,7 @@
 //                                                     .contains('+91 ')) {
 //                                                   await authMethods.phoneSignIn(
 //                                                     context,
-//                                                     phoneController.text.trim(),
+//                                                     phoneController.text.toString().trim(),
 //                                                   );
 //                                                 } else {
 //                                                   setState(() {
@@ -742,7 +742,7 @@
 //                                                               isLogging: true,
 //                                                               phoneNumber:
 //                                                                   phoneController
-//                                                                       .text.trim(),
+//                                                                       .text.toString().trim(),
 //                                                             ),
 //                                                           ),
 //                                                         );

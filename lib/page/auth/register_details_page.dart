@@ -116,7 +116,7 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
       try {
         if (auth.currentUser!.email == null) {
           await auth.currentUser!
-              .verifyBeforeUpdateEmail(emailController.text.trim());
+              .verifyBeforeUpdateEmail(emailController.text.toString().trim());
           await showDialog(
             context: context,
             builder: (context) => AlertDialog(
@@ -128,16 +128,16 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
           );
 
           await store.collection('Users').doc(auth.currentUser!.uid).update({
-            'Name': nameController.text.trim(),
-            'Email': emailController.text.trim(),
+            'Name': nameController.text.toString().trim(),
+            'Email': emailController.text.toString().trim(),
             'Gender': selectedGender,
             'Latitude': latitude,
             'Longitude': longitude,
           });
         } else {
           await store.collection('Users').doc(auth.currentUser!.uid).update({
-            'Name': nameController.text.trim(),
-            'Phone Number': '+91 ${phoneController.text.trim()}',
+            'Name': nameController.text.toString().trim(),
+            'Phone Number': '+91 ${phoneController.text.toString().trim()}',
             'Gender': selectedGender,
             'Latitude': latitude,
             'Longitude': longitude,
@@ -258,7 +258,9 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                                     child: CircularProgressIndicator(),
                                   )
                                 : Text(
-                                    address ?? 'Get Location',
+                                    address != null
+                                        ? address!.toString().trim()
+                                        : 'Get Location',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontSize: width * 0.045,
@@ -300,10 +302,16 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                               iconEnabledColor: primaryDark,
                               dropdownColor: primary2,
                               items: ['Male', 'Female']
-                                  .map((e) => DropdownMenuItem(
-                                        value: e,
-                                        child: Text(e),
-                                      ))
+                                  .map(
+                                    (e) => DropdownMenuItem(
+                                      value: e,
+                                      child: Text(
+                                        e.toString().trim(),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  )
                                   .toList(),
                               onChanged: (value) {
                                 setState(() {

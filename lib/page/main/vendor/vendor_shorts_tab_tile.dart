@@ -266,6 +266,8 @@ class _VendorShortsTabTileState extends State<VendorShortsTabTile> {
                                           widget.data['productName'] ??
                                               widget.data['caption'] ??
                                               '<No Shorts Name>',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
                                           style: TextStyle(
                                             color: white,
                                             fontSize: width * 0.05,

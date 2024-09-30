@@ -87,7 +87,7 @@ class _SpeechToTextState extends State<SpeechToText> {
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Text(
-                text,
+                text.toString().trim(),
                 maxLines: 5,
                 style: TextStyle(
                   color: primaryDark,

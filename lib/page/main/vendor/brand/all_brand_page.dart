@@ -163,14 +163,14 @@ class _AllBrandPageState extends State<AllBrandPage> {
                       borderRadius: BorderRadius.circular(12),
                       clipBehavior: Clip.antiAlias,
                       child: Image.network(
-                        imageUrl,
+                        imageUrl.toString().trim(),
                         width: width * 0.3,
                         height: width * 0.3,
                         fit: BoxFit.cover,
                       ),
                     ),
                     Text(
-                      name,
+                      name.toString().trim(),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(

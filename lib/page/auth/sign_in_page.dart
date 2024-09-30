@@ -53,7 +53,7 @@ class _SignInPageState extends State<SignInPage> {
             .collection('Business')
             .doc('Owners')
             .collection('Users')
-            .where('Email', isEqualTo: emailController.text.trim())
+            .where('Email', isEqualTo: emailController.text.toString().trim())
             .where('Registration', isEqualTo: 'email')
             .get();
 
@@ -71,15 +71,15 @@ class _SignInPageState extends State<SignInPage> {
 
         final userExistsSnap = await store
             .collection('Users')
-            .where('Email', isEqualTo: emailController.text.trim())
+            .where('Email', isEqualTo: emailController.text.toString().trim())
             .where('Registration', isEqualTo: 'email')
             .get();
 
         if (userExistsSnap.docs.isNotEmpty) {
           if (mounted) {
             await auth.signInWithEmailAndPassword(
-              email: emailController.text.trim(),
-              password: passwordController.text.trim(),
+              email: emailController.text.toString().trim(),
+              password: passwordController.text.toString().trim(),
             );
 
             setState(() {
@@ -101,18 +101,18 @@ class _SignInPageState extends State<SignInPage> {
         }
 
         await auth.createUserWithEmailAndPassword(
-          email: emailController.text.trim(),
-          password: passwordController.text.trim(),
+          email: emailController.text.toString().trim(),
+          password: passwordController.text.toString().trim(),
         );
 
         await auth.signInWithEmailAndPassword(
-          email: emailController.text.trim(),
-          password: passwordController.text.trim(),
+          email: emailController.text.toString().trim(),
+          password: passwordController.text.toString().trim(),
         );
 
         if (auth.currentUser != null) {
           await store.collection('Users').doc(auth.currentUser!.uid).set({
-            'Email': emailController.text.trim(),
+            'Email': emailController.text.toString().trim(),
             'Registration': 'email',
             'Name': null,
             'Phone Number': null,
@@ -178,7 +178,7 @@ class _SignInPageState extends State<SignInPage> {
             .doc('Owners')
             .collection('Users')
             .where('Phone Number',
-                isGreaterThanOrEqualTo: phoneController.text.trim())
+                isGreaterThanOrEqualTo: phoneController.text.toString().trim())
             .where('Registration', isEqualTo: 'phone number')
             .get();
 
@@ -197,16 +197,17 @@ class _SignInPageState extends State<SignInPage> {
         final userExistsSnap = await store
             .collection('Users')
             .where('Phone Number',
-                isGreaterThanOrEqualTo: phoneController.text.trim())
+                isGreaterThanOrEqualTo: phoneController.text.toString().trim())
             .where('Registration', isEqualTo: 'phone number')
             .get();
 
         if (userExistsSnap.docs.isNotEmpty) {
           if (mounted) {
             await auth.verifyPhoneNumber(
-              phoneNumber: phoneController.text.trim().contains('+91 ')
-                  ? phoneController.text
-                  : '+91 ${phoneController.text.trim()}',
+              phoneNumber:
+                  phoneController.text.toString().trim().contains('+91 ')
+                      ? phoneController.text
+                      : '+91 ${phoneController.text.toString().trim()}',
               verificationCompleted: (_) {
                 setState(() {
                   isPhoneSigningIn = false;
@@ -230,9 +231,12 @@ class _SignInPageState extends State<SignInPage> {
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(
                     builder: (context) => NumberVerifyPage(
-                      phoneNumber: phoneController.text.trim().contains('+91 ')
-                          ? phoneController.text.trim()
-                          : '+91 ${phoneController.text.trim()}',
+                      phoneNumber: phoneController.text
+                              .toString()
+                              .trim()
+                              .contains('+91 ')
+                          ? phoneController.text.toString().trim()
+                          : '+91 ${phoneController.text.toString().trim()}',
                       verificationId: verificationId,
                       isLogging: true,
                     ),
@@ -254,9 +258,9 @@ class _SignInPageState extends State<SignInPage> {
         }
 
         await auth.verifyPhoneNumber(
-          phoneNumber: phoneController.text.trim().contains('+91 ')
-              ? phoneController.text.trim()
-              : '+91 ${phoneController.text.trim()}',
+          phoneNumber: phoneController.text.toString().trim().contains('+91 ')
+              ? phoneController.text.toString().trim()
+              : '+91 ${phoneController.text.toString().trim()}',
           verificationCompleted: (_) {
             setState(() {
               isPhoneSigningIn = false;
@@ -280,9 +284,10 @@ class _SignInPageState extends State<SignInPage> {
             Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(
                 builder: (context) => NumberVerifyPage(
-                  phoneNumber: phoneController.text.trim().contains('+91 ')
-                      ? phoneController.text.trim()
-                      : '+91 ${phoneController.text.trim()}',
+                  phoneNumber:
+                      phoneController.text.toString().trim().contains('+91 ')
+                          ? phoneController.text.toString().trim()
+                          : '+91 ${phoneController.text.toString().trim()}',
                   verificationId: verificationId,
                   isLogging: false,
                 ),

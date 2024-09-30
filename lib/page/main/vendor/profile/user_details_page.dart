@@ -79,7 +79,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
         isSaving = true;
       });
       if (isChangingName && !isChangingNumber) {
-        if (nameController.text.trim().isEmpty) {
+        if (nameController.text.toString().trim().isEmpty) {
           mySnackBar('Name should be atleast 1 characters long', context);
           setState(() {
             isSaving = false;
@@ -87,7 +87,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
           return;
         } else {
           Map<String, dynamic> updatedUserName = {
-            'Name': nameController.text.trim(),
+            'Name': nameController.text.toString().trim(),
           };
           await FirebaseFirestore.instance
               .collection('Users')
@@ -100,7 +100,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
           isChangingNumber = false;
         });
       } else if (!isChangingName && isChangingNumber) {
-        if (numberController.text.trim().length != 10) {
+        if (numberController.text.toString().trim().length != 10) {
           mySnackBar('Number should be 10 characters long', context);
           setState(() {
             isSaving = false;
@@ -108,7 +108,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
           return;
         } else {
           Map<String, dynamic> updatedUserNumber = {
-            'Phone Number': numberController.text.trim(),
+            'Phone Number': numberController.text.toString().trim(),
           };
           await FirebaseFirestore.instance
               .collection('Users')
@@ -121,7 +121,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
           });
         }
       } else if (isChangingName && isChangingNumber) {
-        if (nameController.text.trim().isEmpty) {
+        if (nameController.text.toString().trim().isEmpty) {
           setState(() {
             isSaving = false;
           });
@@ -130,7 +130,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
             context,
           );
         }
-        if (numberController.text.trim().length != 10) {
+        if (numberController.text.toString().trim().length != 10) {
           setState(() {
             isSaving = false;
           });
@@ -141,7 +141,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
         } else {
           // NAME
           Map<String, dynamic> updatedUserName = {
-            'Name': nameController.text.trim(),
+            'Name': nameController.text.toString().trim(),
           };
           await FirebaseFirestore.instance
               .collection('Users')
@@ -150,7 +150,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
 
           // NUMBER
           Map<String, dynamic> updatedUserNumber = {
-            'Phone Number': numberController.text.trim(),
+            'Phone Number': numberController.text.toString().trim(),
           };
           await FirebaseFirestore.instance
               .collection('Users')
@@ -219,6 +219,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                       return const Center(
                         child: Text(
                           'Something went wrong',
+                          maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                       );
@@ -266,8 +267,8 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                             width: width * 0.725,
                                             child: AutoSizeText(
                                               userData['Name'] ?? 'Name N/A',
-                                              overflow: TextOverflow.ellipsis,
                                               maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
                                               style: TextStyle(
                                                 fontSize: width * 0.06,
                                               ),
@@ -332,9 +333,11 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                                               'Phone Number'] ==
                                                           ''
                                                   ? 'Phone Number N/A'
-                                                  : userData['Phone Number'],
-                                              overflow: TextOverflow.ellipsis,
+                                                  : userData['Phone Number']
+                                                      .toString()
+                                                      .trim(),
                                               maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
                                               style: TextStyle(
                                                 fontSize: width * 0.055,
                                               ),
@@ -437,6 +440,9 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                                     if (snapshot.hasError) {
                                                       return Text(
                                                         'Some error occured',
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
                                                         style: TextStyle(
                                                           fontSize:
                                                               width * 0.045,
@@ -455,7 +461,9 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                                                         'Longitude'] ==
                                                                     0
                                                             ? 'NONE'
-                                                            : snapshot.data!,
+                                                            : snapshot.data!
+                                                                .toString()
+                                                                .trim(),
                                                         style: TextStyle(
                                                           fontSize:
                                                               width * 0.045,

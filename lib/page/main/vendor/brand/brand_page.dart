@@ -259,13 +259,15 @@ class _BrandPageState extends State<BrandPage> {
                                     );
                                   },
                                   child: CircleAvatar(
-                                    backgroundImage: NetworkImage(imageUrl!),
+                                    backgroundImage: NetworkImage(
+                                      imageUrl!.toString().trim(),
+                                    ),
                                     radius: width * 0.1,
                                   ),
                                 ),
                                 SizedBox(width: width * 0.05),
                                 Text(
-                                  name!,
+                                  name!.toString().trim(),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
@@ -357,7 +359,9 @@ class _BrandPageState extends State<BrandPage> {
                                                               .start,
                                                       children: [
                                                         Image.network(
-                                                          imageUrl,
+                                                          imageUrl
+                                                              .toString()
+                                                              .trim(),
                                                           width: width * 0.5,
                                                           height: width * 0.5,
                                                           fit: BoxFit.cover,
@@ -382,7 +386,9 @@ class _BrandPageState extends State<BrandPage> {
                                                                   width: width *
                                                                       0.3125,
                                                                   child: Text(
-                                                                    name,
+                                                                    name
+                                                                        .toString()
+                                                                        .trim(),
                                                                     maxLines: 1,
                                                                     overflow:
                                                                         TextOverflow

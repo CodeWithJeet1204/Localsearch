@@ -231,7 +231,9 @@ class _DiscountPageState extends State<DiscountPage> {
                                               image: DecorationImage(
                                                 image: NetworkImage(
                                                   discountData[
-                                                      'discountImageUrl'],
+                                                          'discountImageUrl']
+                                                      .toString()
+                                                      .trim(),
                                                 ),
                                                 fit:
                                                     isFit ? null : BoxFit.cover,
@@ -272,7 +274,9 @@ class _DiscountPageState extends State<DiscountPage> {
                                   ),
                                 ),
                                 Text(
-                                  discountData['discountName'],
+                                  discountData['discountName']
+                                      .toString()
+                                      .trim(),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
@@ -622,8 +626,9 @@ class _DiscountPageState extends State<DiscountPage> {
                                                                         ),
                                                                         child:
                                                                             Text(
-                                                                          productData[
-                                                                              'productName'],
+                                                                          productData['productName']
+                                                                              .toString()
+                                                                              .trim(),
                                                                           maxLines:
                                                                               1,
                                                                           overflow:
@@ -756,7 +761,10 @@ class _DiscountPageState extends State<DiscountPage> {
                                                               ),
                                                               title: Text(
                                                                 productData[
-                                                                    'productName'],
+                                                                        'productName']
+                                                                    .toString()
+                                                                    .trim(),
+                                                                maxLines: 1,
                                                                 overflow:
                                                                     TextOverflow
                                                                         .ellipsis,
@@ -825,6 +833,7 @@ class _DiscountPageState extends State<DiscountPage> {
                                   ),
                                   title: Text(
                                     'Brands',
+                                    maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                       fontSize: width * 0.06,
@@ -975,7 +984,9 @@ class _DiscountPageState extends State<DiscountPage> {
                                                                       0.45,
                                                                   child: Text(
                                                                     brandData[
-                                                                        'brandName'],
+                                                                            'brandName']
+                                                                        .toString()
+                                                                        .trim(),
                                                                     maxLines: 1,
                                                                     overflow:
                                                                         TextOverflow
@@ -1058,7 +1069,9 @@ class _DiscountPageState extends State<DiscountPage> {
                                                               child:
                                                                   Image.network(
                                                                 brandData[
-                                                                    'imageUrl'],
+                                                                        'imageUrl']
+                                                                    .toString()
+                                                                    .trim(),
                                                                 width: width *
                                                                     0.15,
                                                                 height: width *
@@ -1069,7 +1082,10 @@ class _DiscountPageState extends State<DiscountPage> {
                                                             ),
                                                             title: Text(
                                                               brandData[
-                                                                  'brandName'],
+                                                                      'brandName']
+                                                                  .toString()
+                                                                  .trim(),
+                                                              maxLines: 1,
                                                               overflow:
                                                                   TextOverflow
                                                                       .ellipsis,
@@ -1120,6 +1136,7 @@ class _DiscountPageState extends State<DiscountPage> {
                                   ),
                                   title: Text(
                                     'Categories',
+                                    maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                       fontSize: width * 0.06,
@@ -1199,14 +1216,13 @@ class _DiscountPageState extends State<DiscountPage> {
                                                           Navigator.of(context)
                                                               .push(
                                                             MaterialPageRoute(
-                                                              builder:
-                                                                  ((context) =>
-                                                                      CategoryPage(
-                                                                        categoryName:
-                                                                            categoryName,
-                                                                        vendorId:
-                                                                            vendorId,
-                                                                      )),
+                                                              builder: (context) =>
+                                                                  CategoryPage(
+                                                                categoryName:
+                                                                    categoryName,
+                                                                vendorId:
+                                                                    vendorId,
+                                                              ),
                                                             ),
                                                           );
                                                         },
@@ -1290,7 +1306,7 @@ class _DiscountPageState extends State<DiscountPage> {
                                                                               width * 0.4,
                                                                           child:
                                                                               Text(
-                                                                            categoryName,
+                                                                            categoryName.toString().trim(),
                                                                             maxLines:
                                                                                 1,
                                                                             overflow:
@@ -1372,7 +1388,9 @@ class _DiscountPageState extends State<DiscountPage> {
                                                               ),
                                                               child:
                                                                   Image.network(
-                                                                categoryImageUrl,
+                                                                categoryImageUrl
+                                                                    .toString()
+                                                                    .trim(),
                                                                 width: width *
                                                                     0.1125,
                                                                 height: width *
@@ -1382,7 +1400,10 @@ class _DiscountPageState extends State<DiscountPage> {
                                                               ),
                                                             ),
                                                             title: Text(
-                                                              categoryName,
+                                                              categoryName
+                                                                  .toString()
+                                                                  .trim(),
+                                                              maxLines: 1,
                                                               overflow:
                                                                   TextOverflow
                                                                       .ellipsis,

@@ -35,7 +35,9 @@ class _NameContainerState extends State<NameContainer> {
           ),
           borderRadius: BorderRadius.circular(12),
           image: DecorationImage(
-            image: NetworkImage(widget.imageUrl),
+            image: NetworkImage(
+              widget.imageUrl.toString().trim(),
+            ),
             opacity: 0.33,
             fit: BoxFit.cover,
             filterQuality: FilterQuality.low,
@@ -47,7 +49,7 @@ class _NameContainerState extends State<NameContainer> {
         margin: EdgeInsets.all(widget.width * 0.0125),
         child: Center(
           child: Text(
-            widget.text.trim(),
+            widget.text.toString().trim(),
             textAlign: TextAlign.center,
             style: TextStyle(
               color: primaryDark,

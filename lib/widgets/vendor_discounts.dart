@@ -200,13 +200,15 @@ class _VendorDiscountsState extends State<VendorDiscounts> {
                             return Stack(
                               children: [
                                 ClipRRect(
-                                  borderRadius: BorderRadius.circular(2),
+                                  borderRadius: BorderRadius.circular(
+                                    2,
+                                  ),
                                   child: Image.network(
                                     snapshot.data ??
                                         'https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/ProhibitionSign2.svg/800px-ProhibitionSign2.svg.png',
-                                    fit: BoxFit.cover,
                                     width: width * 0.3,
                                     height: width * 0.3,
+                                    fit: BoxFit.cover,
                                   ),
                                 ),
                                 Container(
@@ -252,7 +254,8 @@ class _VendorDiscountsState extends State<VendorDiscounts> {
                                 horizontal: width * 0.00625,
                               ),
                               child: Text(
-                                snapshot.data ?? name,
+                                snapshot.data ?? name.toString().trim(),
+                                maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   fontSize: width * 0.04,

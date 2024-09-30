@@ -35,7 +35,7 @@ class _MySearchBarState extends State<MySearchBar> {
     );
 
     if (result != null && result is String) {
-      searchController.text = result.trim();
+      searchController.text = result.toString().trim();
     }
   }
 
@@ -43,13 +43,13 @@ class _MySearchBarState extends State<MySearchBar> {
   Future<void> search() async {
     await addRecentSearch();
 
-    if (searchController.text.trim().isNotEmpty) {
+    if (searchController.text.toString().trim().isNotEmpty) {
       if (mounted) {
         Navigator.of(context).pop();
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => SearchResultsPage(
-              search: searchController.text.trim(),
+              search: searchController.text.toString().trim(),
             ),
           ),
         );
@@ -66,12 +66,12 @@ class _MySearchBarState extends State<MySearchBar> {
 
     final recent = userData['recentSearches'] as List;
 
-    if (recent.contains(searchController.text.trim())) {
-      recent.remove(searchController.text.trim());
+    if (recent.contains(searchController.text.toString().trim())) {
+      recent.remove(searchController.text.toString().trim());
     }
 
-    if (searchController.text.trim().isNotEmpty) {
-      recent.insert(0, searchController.text.trim());
+    if (searchController.text.toString().trim().isNotEmpty) {
+      recent.insert(0, searchController.text.toString().trim());
     }
 
     await store.collection('Users').doc(auth.currentUser!.uid).update({

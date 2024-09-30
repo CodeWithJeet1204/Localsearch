@@ -903,7 +903,7 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                       child: CircleAvatar(
                                         radius: width * 0.1,
                                         backgroundImage: NetworkImage(
-                                          shopData!['Image'],
+                                          shopData!['Image'].toString().trim(),
                                         ),
                                       ),
                                     ),
@@ -917,7 +917,7 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                         children: [
                                           // NAME
                                           Text(
-                                            shopData!['Name'],
+                                            shopData!['Name'].toString().trim(),
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                             style: TextStyle(
@@ -942,7 +942,9 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                               );
                                             },
                                             child: Text(
-                                              getTypes(shopData!['Type']),
+                                              getTypes(shopData!['Type'])
+                                                  .toString()
+                                                  .trim(),
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
                                               textAlign: TextAlign.start,
@@ -1048,7 +1050,7 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                                     return SizedBox(
                                                       width: width * 0.66,
                                                       child: Text(
-                                                        text,
+                                                        text.toString().trim(),
                                                         maxLines: 3,
                                                         overflow: TextOverflow
                                                             .ellipsis,
@@ -1469,7 +1471,9 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                           horizontal: width * 0.025,
                                         ),
                                         child: Text(
-                                          shopData!['Address'],
+                                          shopData!['Address']
+                                              .toString()
+                                              .trim(),
                                         ),
                                       ),
 
@@ -1530,7 +1534,9 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                                     SizedBox(
                                                       width: width * 0.8,
                                                       child: Text(
-                                                        snapshot.data![0],
+                                                        snapshot.data![0]
+                                                            .toString()
+                                                            .trim(),
                                                       ),
                                                     ),
                                                     Text(
@@ -1610,8 +1616,9 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                 // MORE INFO
                                 ExpansionTile(
                                   title: Text(
-                                    overflow: TextOverflow.ellipsis,
                                     'More Info',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                       fontSize: width * 0.045,
                                     ),
@@ -1654,7 +1661,9 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                           SizedBox(
                                             width: width * 0.8,
                                             child: Text(
-                                              ownerData!['Name'],
+                                              ownerData!['Name']
+                                                  .toString()
+                                                  .trim(),
                                             ),
                                           ),
                                           Padding(
@@ -1692,7 +1701,9 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                               (shopData!['followersTimestamp']
                                                       as Map)
                                                   .length
-                                                  .toString(),
+                                                  .toString()
+                                                  .toString()
+                                                  .trim(),
                                               style: TextStyle(
                                                 color: primaryDark,
                                                 fontSize: width * 0.05,
@@ -1725,7 +1736,10 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                               right: width * 0.0575,
                                             ),
                                             child: Text(
-                                              products.length.toString(),
+                                              products.length
+                                                  .toString()
+                                                  .toString()
+                                                  .trim(),
                                               style: TextStyle(
                                                 color: primaryDark,
                                                 fontSize: width * 0.05,
@@ -1785,7 +1799,9 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                             child: Align(
                                               alignment: Alignment.centerLeft,
                                               child: SeeMoreText(
-                                                shopData!['Description'],
+                                                shopData!['Description']
+                                                    .toString()
+                                                    .trim(),
                                               ),
                                             ),
                                           ),
@@ -1931,10 +1947,15 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                                 ),
                                                 decoration: BoxDecoration(
                                                   borderRadius:
-                                                      BorderRadius.circular(4),
+                                                      BorderRadius.circular(
+                                                    4,
+                                                  ),
                                                   image: DecorationImage(
-                                                    image:
-                                                        NetworkImage(imageUrl),
+                                                    image: NetworkImage(
+                                                      imageUrl
+                                                          .toString()
+                                                          .trim(),
+                                                    ),
                                                     fit: BoxFit.cover,
                                                   ),
                                                 ),
@@ -2040,13 +2061,13 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                               CrossAxisAlignment.center,
                                           children: [
                                             Image.network(
-                                              imageUrl,
+                                              imageUrl.toString().trim(),
                                               width: width * 0.175,
                                               height: width * 0.175,
                                               fit: BoxFit.cover,
                                             ),
                                             Text(
-                                              name,
+                                              name.toString().trim(),
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
                                               style: TextStyle(

@@ -87,7 +87,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
   // SET SEARCH
   void setSearch() {
     setState(() {
-      searchController.text = widget.search.trim();
+      searchController.text = widget.search.toString().trim();
     });
   }
 
@@ -99,7 +99,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
     );
 
     if (result != null && result is String) {
-      searchController.text = result.trim();
+      searchController.text = result.toString().trim();
     }
   }
 
@@ -107,13 +107,13 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
   Future<void> search() async {
     await addRecentSearch();
 
-    if (searchController.text.trim().isNotEmpty) {
+    if (searchController.text.toString().trim().isNotEmpty) {
       if (mounted) {
         Navigator.of(context).pop();
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => SearchResultsPage(
-              search: searchController.text.trim(),
+              search: searchController.text.toString().trim(),
             ),
           ),
         );
@@ -130,12 +130,12 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
 
     final recent = userData['recentSearches'] as List;
 
-    if (recent.contains(searchController.text.trim())) {
-      recent.remove(searchController.text.trim());
+    if (recent.contains(searchController.text.toString().trim())) {
+      recent.remove(searchController.text.toString().trim());
     }
 
-    if (searchController.text.trim().isNotEmpty) {
-      recent.insert(0, searchController.text.trim());
+    if (searchController.text.toString().trim().isNotEmpty) {
+      recent.insert(0, searchController.text.toString().trim());
     }
 
     await store.collection('Users').doc(auth.currentUser!.uid).update({
@@ -1314,18 +1314,27 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                                   leading: CircleAvatar(
                                                     backgroundImage:
                                                         NetworkImage(
-                                                      shopData['imageUrl'],
+                                                      shopData['imageUrl']
+                                                          .toString()
+                                                          .trim(),
                                                     ),
                                                     radius: width * 0.0575,
                                                   ),
                                                   title: Text(
-                                                    shopData['name'],
+                                                    shopData['name']
+                                                        .toString()
+                                                        .trim(),
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
                                                     style: TextStyle(
                                                       fontSize: width * 0.06125,
                                                     ),
                                                   ),
                                                   subtitle: Text(
-                                                    shopData['address'],
+                                                    shopData['address']
+                                                        .toString()
+                                                        .trim(),
                                                     maxLines: 1,
                                                     overflow:
                                                         TextOverflow.ellipsis,
@@ -1384,11 +1393,18 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                                 'Price - Highest to Lowest',
                                                 'Price - Lowest to Highest'
                                               ]
-                                                  .map((e) =>
-                                                      DropdownMenuItem<String>(
-                                                        value: e,
-                                                        child: Text(e),
-                                                      ))
+                                                  .map(
+                                                    (e) => DropdownMenuItem<
+                                                        String>(
+                                                      value: e,
+                                                      child: Text(
+                                                        e.toString().trim(),
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                      ),
+                                                    ),
+                                                  )
                                                   .toList(),
                                               onChanged: (value) {
                                                 sortProducts(
@@ -1601,7 +1617,9 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                                           Center(
                                                             child:
                                                                 Image.network(
-                                                              image,
+                                                              image
+                                                                  .toString()
+                                                                  .trim(),
                                                               fit: BoxFit.cover,
                                                               width: MediaQuery.of(
                                                                           context)
@@ -1693,7 +1711,9 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                                                   width: width *
                                                                       0.3,
                                                                   child: Text(
-                                                                    currentProduct,
+                                                                    currentProduct
+                                                                        .toString()
+                                                                        .trim(),
                                                                     maxLines: 1,
                                                                     overflow:
                                                                         TextOverflow
@@ -1717,7 +1737,13 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                                                       0.0125,
                                                                 ),
                                                                 child: Text(
-                                                                  price,
+                                                                  price
+                                                                      .toString()
+                                                                      .trim(),
+                                                                  maxLines: 1,
+                                                                  overflow:
+                                                                      TextOverflow
+                                                                          .ellipsis,
                                                                   style:
                                                                       TextStyle(
                                                                     fontSize:

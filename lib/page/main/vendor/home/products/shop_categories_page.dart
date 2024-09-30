@@ -85,7 +85,9 @@ class _ShopCategoriesPageState extends State<ShopCategoriesPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.shopType),
+        title: Text(
+          widget.shopType.toString().trim(),
+        ),
         actions: [
           IconButton(
             onPressed: () async {
@@ -165,7 +167,7 @@ class _ShopCategoriesPageState extends State<ShopCategoriesPage> {
                             ),
                             padding: EdgeInsets.all(width * 0.0125),
                             child: AutoSizeText(
-                              name.toUpperCase(),
+                              name.toString().trim().toUpperCase(),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
@@ -181,7 +183,7 @@ class _ShopCategoriesPageState extends State<ShopCategoriesPage> {
                                 bottom: Radius.circular(8),
                               ),
                               child: Image.network(
-                                imageUrl,
+                                imageUrl.toString().trim(),
                                 fit: BoxFit.cover,
                                 filterQuality: FilterQuality.low,
                                 repeat: ImageRepeat.noRepeat,

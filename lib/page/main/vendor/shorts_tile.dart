@@ -312,7 +312,13 @@ class _ShortsTileState extends State<ShortsTile> {
                                                     width * 0.006125,
                                                   ),
                                                   child: Text(
-                                                    snapshot.data!,
+                                                    snapshot.data!
+                                                        .toString()
+                                                        .trim(),
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    textAlign: TextAlign.start,
                                                     style: TextStyle(
                                                       color: white,
                                                       fontSize: width * 0.05,
@@ -452,6 +458,9 @@ class _ShortsTileState extends State<ShortsTile> {
                                                   widget.data['productName'] ??
                                                       widget.data['caption'] ??
                                                       '<No Short Name>',
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                   style: TextStyle(
                                                     color: white,
                                                     fontSize: width * 0.05,

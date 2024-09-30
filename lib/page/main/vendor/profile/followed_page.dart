@@ -390,7 +390,10 @@ class _FollowedPageState extends State<FollowedPage>
                                               ),
                                               child: ActionChip(
                                                 label: Text(
-                                                  type,
+                                                  type.toString().trim(),
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                   style: TextStyle(
                                                     color:
                                                         selectedShopType == type
@@ -500,11 +503,12 @@ class _FollowedPageState extends State<FollowedPage>
                                                 ),
                                                 leading: CircleAvatar(
                                                   backgroundColor: primary2,
-                                                  backgroundImage:
-                                                      NetworkImage(imageUrl),
+                                                  backgroundImage: NetworkImage(
+                                                    imageUrl.toString().trim(),
+                                                  ),
                                                 ),
                                                 title: Text(
-                                                  name,
+                                                  name.toString().trim(),
                                                   maxLines: 1,
                                                   overflow:
                                                       TextOverflow.ellipsis,
@@ -523,7 +527,9 @@ class _FollowedPageState extends State<FollowedPage>
                                                       if (snapshot.hasData) {
                                                         return Text(
                                                           snapshot.data!
-                                                              .toString(),
+                                                              .toString()
+                                                              .toString()
+                                                              .trim(),
                                                           maxLines: 1,
                                                           overflow: TextOverflow
                                                               .ellipsis,

@@ -93,10 +93,9 @@ class _ProductHomePageState extends State<ProductHomePage> {
 
     // GET NAME
     Future<void> getName() async {
-      String myName = userData['Name'].trim();
+      String myName = userData['Name'].toString().trim();
       List<String> myNameList = myName.split(' ');
       String newCapitalName = '';
-      print('myNameList: $myNameList');
       for (var myName in myNameList) {
         newCapitalName =
             '$newCapitalName${myName.substring(0, 1).toUpperCase()}${myName.substring(1)} ';
@@ -589,16 +588,28 @@ class _ProductHomePageState extends State<ProductHomePage> {
       }
     }
 
-    // TODO: TRY BLOCKS IN EVERY INIT STATE
-
     if (mounted) {
-      await getName();
-      await getStatus();
-      await getShopTypes();
-      await getRecentShop();
-      await getWishlist();
-      await getFollowedShops();
-      await getFeatured();
+      try {
+        await getName();
+      } catch (e) {}
+      try {
+        await getStatus();
+      } catch (e) {}
+      try {
+        await getShopTypes();
+      } catch (e) {}
+      try {
+        await getRecentShop();
+      } catch (e) {}
+      try {
+        await getWishlist();
+      } catch (e) {}
+      try {
+        await getFollowedShops();
+      } catch (e) {}
+      try {
+        await getFeatured();
+      } catch (e) {}
     }
   }
 
@@ -804,7 +815,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                     ),
                   ),
                   TextSpan(
-                    text: name,
+                    text: name == null ? '' : name!.toString().trim(),
                     style: TextStyle(
                       fontSize: width * 0.06,
                       color: const Color.fromRGBO(52, 127, 255, 1),
@@ -1035,7 +1046,9 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                                         100,
                                                       ),
                                                       child: Image.network(
-                                                        vendorImageUrl,
+                                                        vendorImageUrl
+                                                            .toString()
+                                                            .trim(),
                                                         width: width * 0.2,
                                                         height: width * 0.2,
                                                         fit: BoxFit.cover,
@@ -1046,7 +1059,9 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                                 SizedBox(
                                                   width: width * 0.2,
                                                   child: AutoSizeText(
-                                                    vendorName,
+                                                    vendorName
+                                                        .toString()
+                                                        .trim(),
                                                     maxLines: 1,
                                                     overflow:
                                                         TextOverflow.ellipsis,
@@ -1294,14 +1309,16 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                                         12,
                                                       ),
                                                       child: Image.network(
-                                                        imageUrl,
-                                                        fit: BoxFit.cover,
+                                                        imageUrl
+                                                            .toString()
+                                                            .trim(),
                                                         width: width * 0.175,
                                                         height: width * 0.175,
+                                                        fit: BoxFit.cover,
                                                       ),
                                                     ),
                                                     Text(
-                                                      name,
+                                                      name.toString().trim(),
                                                       maxLines: 1,
                                                       overflow:
                                                           TextOverflow.ellipsis,
@@ -1390,17 +1407,21 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                                             12,
                                                           ),
                                                           child: Image.network(
-                                                            imageUrl,
+                                                            imageUrl
+                                                                .toString()
+                                                                .trim(),
                                                             height:
                                                                 width * 0.175,
                                                             fit: BoxFit.cover,
                                                           ),
                                                         ),
                                                         Text(
-                                                          name,
+                                                          name
+                                                              .toString()
+                                                              .trim(),
+                                                          maxLines: 1,
                                                           overflow: TextOverflow
                                                               .ellipsis,
-                                                          maxLines: 1,
                                                           style:
                                                               const TextStyle(
                                                             color: primaryDark,
@@ -1555,10 +1576,10 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                             borderRadius:
                                                 BorderRadius.circular(2),
                                             child: Image.network(
-                                              imageUrl,
-                                              fit: BoxFit.cover,
+                                              imageUrl.toString().trim(),
                                               width: width * 0.3,
                                               height: width * 0.3,
+                                              fit: BoxFit.cover,
                                             ),
                                           ),
                                           Padding(
@@ -1567,9 +1588,9 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                               left: width * 0.0125,
                                             ),
                                             child: Text(
-                                              name,
-                                              overflow: TextOverflow.ellipsis,
+                                              name.toString().trim(),
                                               maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
                                               style: TextStyle(
                                                 fontSize: width * 0.04125,
                                               ),
@@ -1739,10 +1760,10 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                                 borderRadius:
                                                     BorderRadius.circular(2),
                                                 child: Image.network(
-                                                  imageUrl,
-                                                  fit: BoxFit.cover,
+                                                  imageUrl.toString().trim(),
                                                   width: width * 0.3,
                                                   height: width * 0.3,
+                                                  fit: BoxFit.cover,
                                                 ),
                                               ),
                                               Padding(
@@ -1751,10 +1772,10 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                                   left: width * 0.0125,
                                                 ),
                                                 child: Text(
-                                                  name,
+                                                  name.toString().trim(),
+                                                  maxLines: 1,
                                                   overflow:
                                                       TextOverflow.ellipsis,
-                                                  maxLines: 1,
                                                   style: TextStyle(
                                                     fontSize: width * 0.04125,
                                                   ),
@@ -1902,10 +1923,10 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                                 borderRadius:
                                                     BorderRadius.circular(2),
                                                 child: Image.network(
-                                                  imageUrl,
-                                                  fit: BoxFit.cover,
+                                                  imageUrl.toString().trim(),
                                                   width: width * 0.3,
                                                   height: width * 0.3,
+                                                  fit: BoxFit.cover,
                                                 ),
                                               ),
                                               Padding(
@@ -1914,10 +1935,10 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                                   left: width * 0.0125,
                                                 ),
                                                 child: Text(
-                                                  name,
+                                                  name.toString().trim(),
+                                                  maxLines: 1,
                                                   overflow:
                                                       TextOverflow.ellipsis,
-                                                  maxLines: 1,
                                                   style: TextStyle(
                                                     fontSize: width * 0.04125,
                                                   ),
@@ -1944,7 +1965,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                 width * 0.0125,
                               ),
                               child: Text(
-                                featuredCategory1!,
+                                featuredCategory1!.toString().trim(),
                                 style: TextStyle(
                                   color: primaryDark,
                                   fontSize: width * 0.06,
@@ -2006,13 +2027,14 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(2),
+                                            borderRadius: BorderRadius.circular(
+                                              2,
+                                            ),
                                             child: Image.network(
-                                              imageUrl1,
-                                              fit: BoxFit.cover,
+                                              imageUrl1.toString().trim(),
                                               width: width * 0.3,
                                               height: width * 0.3,
+                                              fit: BoxFit.cover,
                                             ),
                                           ),
                                           Padding(
@@ -2021,9 +2043,9 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                               left: width * 0.0125,
                                             ),
                                             child: Text(
-                                              name1,
-                                              overflow: TextOverflow.ellipsis,
+                                              name1.toString().trim(),
                                               maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
                                               style: TextStyle(
                                                 fontSize: width * 0.04125,
                                               ),
@@ -2050,7 +2072,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                 width * 0.0125,
                               ),
                               child: Text(
-                                featuredCategory2!,
+                                featuredCategory2!.toString().trim(),
                                 style: TextStyle(
                                   color: primaryDark,
                                   fontSize: width * 0.06,
@@ -2112,13 +2134,14 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(2),
+                                            borderRadius: BorderRadius.circular(
+                                              2,
+                                            ),
                                             child: Image.network(
-                                              imageUrl2,
-                                              fit: BoxFit.cover,
+                                              imageUrl2.toString().trim(),
                                               width: width * 0.3,
                                               height: width * 0.3,
+                                              fit: BoxFit.cover,
                                             ),
                                           ),
                                           Padding(
@@ -2127,9 +2150,9 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                               left: width * 0.0125,
                                             ),
                                             child: Text(
-                                              name2,
-                                              overflow: TextOverflow.ellipsis,
+                                              name2.toString().trim(),
                                               maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
                                               style: TextStyle(
                                                 fontSize: width * 0.04125,
                                               ),
@@ -2156,7 +2179,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                 width * 0.0125,
                               ),
                               child: Text(
-                                featuredCategory3!,
+                                featuredCategory3!.toString().trim(),
                                 style: TextStyle(
                                   color: primaryDark,
                                   fontSize: width * 0.06,
@@ -2218,13 +2241,14 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(2),
+                                            borderRadius: BorderRadius.circular(
+                                              2,
+                                            ),
                                             child: Image.network(
-                                              imageUrl3,
-                                              fit: BoxFit.cover,
+                                              imageUrl3.toString().trim(),
                                               width: width * 0.3,
                                               height: width * 0.3,
+                                              fit: BoxFit.cover,
                                             ),
                                           ),
                                           Padding(
@@ -2233,9 +2257,9 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                               left: width * 0.0125,
                                             ),
                                             child: Text(
-                                              name3,
-                                              overflow: TextOverflow.ellipsis,
+                                              name3.toString().trim(),
                                               maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
                                               style: TextStyle(
                                                 fontSize: width * 0.04125,
                                               ),

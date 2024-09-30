@@ -34,7 +34,7 @@ class _SeeMoreTextState extends State<SeeMoreText> {
   // UPDATE MAX WORDS
   void _updateMaxWords() {
     _currentMaxWords += widget.maxWords;
-    if (_currentMaxWords >= widget.text.trim().split(' ').length) {
+    if (_currentMaxWords >= widget.text.toString().trim().split(' ').length) {
       _isExpanded = true;
       _currentMaxWords = widget.maxWords;
     }
@@ -42,7 +42,7 @@ class _SeeMoreTextState extends State<SeeMoreText> {
 
   @override
   Widget build(BuildContext context) {
-    String trimmedText = widget.text.trim();
+    String trimmedText = widget.text.toString().trim();
 
     List<String> words = trimmedText.split(' ');
     if (!_isExpanded && words.length > _currentMaxWords) {
@@ -53,7 +53,7 @@ class _SeeMoreTextState extends State<SeeMoreText> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          trimmedText,
+          trimmedText.toString().trim(),
           style: widget.textStyle ??
               TextStyle(
                 color: primaryDark,
@@ -83,7 +83,8 @@ class _SeeMoreTextState extends State<SeeMoreText> {
               ),
             ),
           ),
-        if (_isExpanded && widget.text.trim().length > widget.maxWords)
+        if (_isExpanded &&
+            widget.text.toString().trim().length > widget.maxWords)
           GestureDetector(
             onTap: () {
               setState(() {

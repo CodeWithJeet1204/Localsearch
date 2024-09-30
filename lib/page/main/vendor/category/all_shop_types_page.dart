@@ -268,7 +268,7 @@ class _AllShopTypesPageState extends State<AllShopTypesPage> {
                                     ),
                                     padding: EdgeInsets.all(width * 0.025),
                                     child: AutoSizeText(
-                                      name.toUpperCase(),
+                                      name.toString().trim().toUpperCase(),
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
                                       textAlign: TextAlign.center,
@@ -285,7 +285,7 @@ class _AllShopTypesPageState extends State<AllShopTypesPage> {
                                     bottom: Radius.circular(8),
                                   ),
                                   child: Image.network(
-                                    imageUrl,
+                                    imageUrl.toString().trim(),
                                     fit: BoxFit.cover,
                                     filterQuality: FilterQuality.high,
                                     repeat: ImageRepeat.noRepeat,

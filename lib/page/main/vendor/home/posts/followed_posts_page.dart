@@ -345,14 +345,18 @@ class _FollowedPostsPageState extends State<FollowedPostsPage>
                                                     backgroundColor: primary2,
                                                     backgroundImage:
                                                         NetworkImage(
-                                                      vendorImageUrl,
+                                                      vendorImageUrl
+                                                          .toString()
+                                                          .trim(),
                                                     ),
                                                   ),
                                                   SizedBox(
                                                     width: width * 0.0125,
                                                   ),
                                                   Text(
-                                                    vendorName,
+                                                    vendorName
+                                                        .toString()
+                                                        .trim(),
                                                     maxLines: 1,
                                                     overflow:
                                                         TextOverflow.ellipsis,
@@ -396,7 +400,7 @@ class _FollowedPostsPageState extends State<FollowedPostsPage>
                                               items: imageUrl!
                                                   .map(
                                                     (e) => Image.network(
-                                                      e,
+                                                      e.toString().trim(),
                                                       width: width,
                                                       height: width,
                                                       fit: BoxFit.cover,
@@ -464,7 +468,7 @@ class _FollowedPostsPageState extends State<FollowedPostsPage>
                                                 child: SizedBox(
                                                   width: width * 0.75,
                                                   child: Text(
-                                                    name,
+                                                    name.toString().trim(),
                                                     maxLines: 2,
                                                     overflow:
                                                         TextOverflow.ellipsis,

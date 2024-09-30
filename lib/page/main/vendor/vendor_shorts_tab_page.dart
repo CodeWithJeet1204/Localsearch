@@ -126,7 +126,7 @@ class _VendorShortsTabPageState extends State<VendorShortsTabPage> {
                           alignment: Alignment.center,
                           children: [
                             Image.network(
-                              shortsThumbnail,
+                              shortsThumbnail.toString().trim(),
                               fit: BoxFit.cover,
                             ),
                             Container(

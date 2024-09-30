@@ -265,13 +265,15 @@ class _CategoryPageState extends State<CategoryPage> {
                                     );
                                   },
                                   child: CircleAvatar(
-                                    backgroundImage: NetworkImage(imageUrl!),
+                                    backgroundImage: NetworkImage(
+                                      imageUrl!.toString().trim(),
+                                    ),
                                     radius: width * 0.1,
                                   ),
                                 ),
                                 SizedBox(width: width * 0.05),
                                 Text(
-                                  widget.categoryName,
+                                  widget.categoryName.toString().trim(),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
@@ -368,7 +370,9 @@ class _CategoryPageState extends State<CategoryPage> {
                                                               .start,
                                                       children: [
                                                         Image.network(
-                                                          imageUrl,
+                                                          imageUrl
+                                                              .toString()
+                                                              .trim(),
                                                           width: width * 0.5,
                                                           height: width * 0.5,
                                                           fit: BoxFit.cover,
@@ -393,7 +397,9 @@ class _CategoryPageState extends State<CategoryPage> {
                                                                   width: width *
                                                                       0.3125,
                                                                   child: Text(
-                                                                    name,
+                                                                    name
+                                                                        .toString()
+                                                                        .trim(),
                                                                     maxLines: 1,
                                                                     overflow:
                                                                         TextOverflow

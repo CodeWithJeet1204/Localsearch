@@ -234,10 +234,16 @@ class _VendorProductsTabPageState extends State<VendorProductsTabPage> {
                                 'Price - Highest to Lowest',
                                 'Price - Lowest to Highest'
                               ]
-                                  .map((e) => DropdownMenuItem<String>(
-                                        value: e,
-                                        child: Text(e),
-                                      ))
+                                  .map(
+                                    (e) => DropdownMenuItem<String>(
+                                      value: e,
+                                      child: Text(
+                                        e.toString().trim(),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  )
                                   .toList(),
                               onChanged: (value) {
                                 setState(() {
@@ -373,7 +379,7 @@ class _VendorProductsTabPageState extends State<VendorProductsTabPage> {
                                             children: [
                                               Center(
                                                 child: Image.network(
-                                                  imageUrl,
+                                                  imageUrl.toString().trim(),
                                                   fit: BoxFit.cover,
                                                   width: MediaQuery.of(context)
                                                           .size
@@ -450,7 +456,7 @@ class _VendorProductsTabPageState extends State<VendorProductsTabPage> {
                                                     child: SizedBox(
                                                       width: widget.width * 0.3,
                                                       child: Text(
-                                                        name,
+                                                        name.toString().trim(),
                                                         maxLines: 1,
                                                         overflow: TextOverflow
                                                             .ellipsis,

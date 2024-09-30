@@ -26,14 +26,14 @@ class _SignInEmailAfterForgetPasswordState
 
   // LOGIN WITH EMAIL
   Future<void> loginWithEmail() async {
-    if (passwordController.text.trim().length > 6) {
+    if (passwordController.text.toString().trim().length > 6) {
       try {
         setState(() {
           isEmailLogging = true;
         });
         await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: emailController.text.trim(),
-          password: passwordController.text.trim(),
+          email: emailController.text.toString().trim(),
+          password: passwordController.text.toString().trim(),
         );
         if (mounted) {
           mySnackBar('Signed In', context);

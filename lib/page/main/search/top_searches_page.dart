@@ -117,62 +117,85 @@ class _TopSearchPageState extends State<TopSearchPage> {
                     ),
                     padding: EdgeInsets.only(
                       left: width * 0.04,
-                      right: width * 0.05,
+                      right: width * 0.04,
                       top: width * 0.03,
                       bottom: width * 0.03,
                     ),
                     margin: EdgeInsets.symmetric(
-                      horizontal: width * 0.0125,
+                      horizontal: width * 0.006125,
                       vertical: width * 0.0125,
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Row(
-                          children: [
-                            Text(
-                              '${(index + 1).toString()}.   ',
-                              style: TextStyle(
-                                fontSize: width * 0.055,
-                              ),
-                            ),
-                            Text(
-                              name,
-                              style: TextStyle(
-                                fontSize: width * 0.06,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.only(
-                                right: width * 0.0225,
-                              ),
-                              child: Text(
-                                number.toString(),
-                                style: TextStyle(
-                                  fontSize: width * 0.055,
+                        SizedBox(
+                          width: width * 0.6125,
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: width * 0.1125,
+                                child: Text(
+                                  '${(index + 1).toString()}.   ',
+                                  style: TextStyle(
+                                    fontSize: width * 0.055,
+                                  ),
                                 ),
                               ),
-                            ),
-                            IconButton(
-                              onPressed: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: ((context) => SearchResultsPage(
-                                          search: name,
-                                        )),
+                              SizedBox(
+                                width: width * 0.5,
+                                child: Text(
+                                  name.toString().trim(),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.start,
+                                  style: TextStyle(
+                                    fontSize: width * 0.06,
                                   ),
-                                );
-                              },
-                              icon: const Icon(FeatherIcons.search),
-                              tooltip: 'Search \'$name\'',
-                            ),
-                          ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          width: width * 0.275,
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: width * 0.2,
+                                child: Padding(
+                                  padding: EdgeInsets.only(
+                                    right: width * 0.0225,
+                                  ),
+                                  child: Text(
+                                    number.toString().toString().trim(),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: width * 0.055,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                width: width * 0.075,
+                                child: IconButton(
+                                  onPressed: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) => SearchResultsPage(
+                                          search: name.toString().trim(),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  icon: const Icon(FeatherIcons.search),
+                                  tooltip: 'Search \'$name\'',
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),

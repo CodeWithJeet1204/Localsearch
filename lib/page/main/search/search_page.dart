@@ -42,7 +42,7 @@ class _SearchPageState extends State<SearchPage> {
     await addRecentSearch();
 
     if (search != null && search.isNotEmpty) {
-      searchController.text = search.trim();
+      searchController.text = search.toString().trim();
       if (mounted) {
         Navigator.of(context).push(
           MaterialPageRoute(
@@ -51,12 +51,12 @@ class _SearchPageState extends State<SearchPage> {
         );
       }
     } else {
-      if (searchController.text.trim().isNotEmpty) {
+      if (searchController.text.toString().trim().isNotEmpty) {
         if (mounted) {
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) => SearchResultsPage(
-                search: searchController.text.trim(),
+                search: searchController.text.toString().trim(),
               ),
             ),
           );
@@ -94,12 +94,12 @@ class _SearchPageState extends State<SearchPage> {
 
     final recent = userData['recentSearches'] as List;
 
-    if (recent.contains(searchController.text.trim())) {
-      recent.remove(searchController.text.trim());
+    if (recent.contains(searchController.text.toString().trim())) {
+      recent.remove(searchController.text.toString().trim());
     }
 
-    if (searchController.text.trim().isNotEmpty) {
-      recent.insert(0, searchController.text.trim());
+    if (searchController.text.toString().trim().isNotEmpty) {
+      recent.insert(0, searchController.text.toString().trim());
     }
 
     await store.collection('Users').doc(auth.currentUser!.uid).update({
@@ -343,7 +343,7 @@ class _SearchPageState extends State<SearchPage> {
                                               CrossAxisAlignment.center,
                                           children: [
                                             Text(
-                                              name,
+                                              name.toString().trim(),
                                               style: TextStyle(
                                                 fontSize: width * 0.05,
                                               ),
@@ -451,13 +451,13 @@ class _SearchPageState extends State<SearchPage> {
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
-                                          name,
+                                          name.toString().trim(),
                                           style: TextStyle(
                                             fontSize: width * 0.05,
                                           ),
                                         ),
                                         Text(
-                                          number,
+                                          number.toString().trim(),
                                           style: TextStyle(
                                             fontSize: width * 0.05,
                                             fontWeight: FontWeight.w500,
@@ -546,19 +546,20 @@ class _SearchPageState extends State<SearchPage> {
                                           CrossAxisAlignment.center,
                                       children: [
                                         ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(2),
+                                          borderRadius: BorderRadius.circular(
+                                            2,
+                                          ),
                                           child: Image.network(
-                                            image,
+                                            image.toString().trim(),
                                             fit: BoxFit.cover,
                                             width: width * 0.3,
                                             height: width * 0.3,
                                           ),
                                         ),
                                         Text(
-                                          name,
-                                          overflow: TextOverflow.ellipsis,
+                                          name.toString().trim(),
                                           maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
                                           style: TextStyle(
                                             fontSize: width * 0.04125,
                                           ),

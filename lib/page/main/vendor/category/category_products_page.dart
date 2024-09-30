@@ -264,7 +264,9 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.categoryName),
+        title: Text(
+          widget.categoryName.toString().trim(),
+        ),
         actions: [
           IconButton(
             onPressed: () async {
@@ -318,7 +320,8 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
                             if (!productData[0]
                                 .toString()
                                 .toLowerCase()
-                                .contains(value.toLowerCase().trim())) {
+                                .contains(
+                                    value.toLowerCase().toString().trim())) {
                               keysToRemove.add(key);
                             }
                           });
@@ -580,7 +583,7 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
                                                       BorderRadius.circular(2),
                                                   clipBehavior: Clip.antiAlias,
                                                   child: Image.network(
-                                                    imageUrl,
+                                                    imageUrl.toString().trim(),
                                                     fit: BoxFit.cover,
                                                     width:
                                                         MediaQuery.of(context)
@@ -624,7 +627,7 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
                                           ),
                                           const SizedBox(height: 8),
                                           Text(
-                                            name,
+                                            name.toString().trim(),
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                           ),
