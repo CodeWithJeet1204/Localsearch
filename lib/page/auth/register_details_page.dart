@@ -115,7 +115,8 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
 
       try {
         if (auth.currentUser!.email == null) {
-          await auth.currentUser!.verifyBeforeUpdateEmail(emailController.text);
+          await auth.currentUser!
+              .verifyBeforeUpdateEmail(emailController.text.trim());
           await showDialog(
             context: context,
             builder: (context) => AlertDialog(
@@ -127,16 +128,16 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
           );
 
           await store.collection('Users').doc(auth.currentUser!.uid).update({
-            'Name': nameController.text,
-            'Email': emailController.text,
+            'Name': nameController.text.trim(),
+            'Email': emailController.text.trim(),
             'Gender': selectedGender,
             'Latitude': latitude,
             'Longitude': longitude,
           });
         } else {
           await store.collection('Users').doc(auth.currentUser!.uid).update({
-            'Name': nameController.text,
-            'Phone Number': '+91${phoneController.text}',
+            'Name': nameController.text.trim(),
+            'Phone Number': '+91 ${phoneController.text.trim()}',
             'Gender': selectedGender,
             'Latitude': latitude,
             'Longitude': longitude,
@@ -197,37 +198,13 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
 
                       // EMAIL
                       widget.emailPhoneGoogleChosen == 2
-                          ? TextFormField(
-                              autofillHints: const [AutofillHints.email],
-                              autofocus: false,
+                          ? MyTextFormField(
+                              hintText: 'Email',
                               controller: emailController,
-                              onTapOutside: (event) =>
-                                  FocusScope.of(context).unfocus(),
                               keyboardType: TextInputType.emailAddress,
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(
-                                    color: Colors.cyan.shade700,
-                                  ),
-                                ),
-                                hintText: 'Email',
-                              ),
-                              validator: (value) {
-                                if (value != null) {
-                                  if (value.isNotEmpty) {
-                                    if (value.contains('@') &&
-                                        value.contains('.co')) {
-                                      return null;
-                                    } else {
-                                      return 'Enter valid Email';
-                                    }
-                                  } else {
-                                    return 'Pls enter Email';
-                                  }
-                                }
-                                return null;
-                              },
+                              borderRadius: 12,
+                              horizontalPadding: 0,
+                              autoFillHints: const [AutofillHints.email],
                             )
 
                           // PHONE NUMBER
@@ -237,7 +214,9 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                               borderRadius: 12,
                               horizontalPadding: 0,
                               verticalPadding: 12,
-                              autoFillHints: const [],
+                              autoFillHints: const [
+                                AutofillHints.telephoneNumber
+                              ],
                               keyboardType: TextInputType.number,
                             ),
 

@@ -107,8 +107,8 @@
 //           return;
 //         } else {
 //           await auth.signInWithEmailAndPassword(
-//             email: emailController.text.toString(),
-//             password: passwordController.text.toString(),
+//             email: emailController.text.trim(),
+//             password: passwordController.text.trim(),
 //           );
 
 //           if (auth.currentUser != null) {
@@ -239,7 +239,7 @@
 //                     builder: (context) => NumberVerifyPage(
 //                       verificationId: verificationId,
 //                       isLogging: true,
-//                       phoneNumber: phoneController.text,
+//                       phoneNumber: phoneController.text.trim(),
 //                     ),
 //                   ),
 //                 );
@@ -698,7 +698,7 @@
 //                                                     .contains('+91 ')) {
 //                                                   await authMethods.phoneSignIn(
 //                                                     context,
-//                                                     phoneController.text,
+//                                                     phoneController.text.trim(),
 //                                                   );
 //                                                 } else {
 //                                                   setState(() {
@@ -742,7 +742,7 @@
 //                                                               isLogging: true,
 //                                                               phoneNumber:
 //                                                                   phoneController
-//                                                                       .text,
+//                                                                       .text.trim(),
 //                                                             ),
 //                                                           ),
 //                                                         );

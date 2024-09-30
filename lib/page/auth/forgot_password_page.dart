@@ -69,7 +69,7 @@
 //                       if (myEmails.contains(emailController.text)) {
 //                         try {
 //                           await auth.sendPasswordResetEmail(
-//                             email: emailController.text,
+//                             email: emailController.text.trim(),
 //                           );
 //                           setState(() {
 //                             isForget = false;
@@ -118,7 +118,7 @@
 //                             MaterialPageRoute(
 //                               builder: (context) =>
 //                                   SignInEmailAfterForgetPassword(
-//                                 email: emailController.text,
+//                                 email: emailController.text.trim(),
 //                               ),
 //                             ),
 //                           );

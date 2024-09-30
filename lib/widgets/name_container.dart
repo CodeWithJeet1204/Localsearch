@@ -47,7 +47,7 @@ class _NameContainerState extends State<NameContainer> {
         margin: EdgeInsets.all(widget.width * 0.0125),
         child: Center(
           child: Text(
-            widget.text,
+            widget.text.trim(),
             textAlign: TextAlign.center,
             style: TextStyle(
               color: primaryDark,

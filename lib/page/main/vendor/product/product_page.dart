@@ -733,7 +733,10 @@ class _ProductPageState extends State<ProductPage> {
     if (newReview != null) {
       reviews[auth.currentUser!.uid] = [userRating, newReview.trim()];
     } else {
-      reviews[auth.currentUser!.uid] = [userRating, reviewController.text];
+      reviews[auth.currentUser!.uid] = [
+        userRating,
+        reviewController.text.trim()
+      ];
     }
 
     await store

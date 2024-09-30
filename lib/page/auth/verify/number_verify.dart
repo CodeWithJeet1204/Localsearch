@@ -41,10 +41,10 @@ class _NumberVerifyPageState extends State<NumberVerifyPage> {
 
   // VERIFY OTP
   Future<void> verifyOtp(LocationProvider locationProvider) async {
-    if (otpController.text.length == 6) {
+    if (otpController.text.trim().length == 6) {
       final credential = PhoneAuthProvider.credential(
         verificationId: widget.verificationId,
-        smsCode: otpController.text,
+        smsCode: otpController.text.trim(),
       );
       try {
         setState(() {
@@ -54,13 +54,13 @@ class _NumberVerifyPageState extends State<NumberVerifyPage> {
         await auth.signInWithCredential(credential);
         if (auth.currentUser != null) {
           await auth.currentUser!.linkWithPhoneNumber(
-            widget.phoneNumber,
+            widget.phoneNumber.trim(),
           );
 
           if (auth.currentUser != null) {
             if (!widget.isLogging) {
               await store.collection('Users').doc(auth.currentUser!.uid).set({
-                'Phone Number': widget.phoneNumber,
+                'Phone Number': widget.phoneNumber.trim(),
                 'Registration': 'phone number',
                 'Email': null,
                 'Name': null,

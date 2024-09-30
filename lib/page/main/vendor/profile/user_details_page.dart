@@ -79,7 +79,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
         isSaving = true;
       });
       if (isChangingName && !isChangingNumber) {
-        if (nameController.text.isEmpty) {
+        if (nameController.text.trim().isEmpty) {
           mySnackBar('Name should be atleast 1 characters long', context);
           setState(() {
             isSaving = false;
@@ -87,7 +87,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
           return;
         } else {
           Map<String, dynamic> updatedUserName = {
-            'Name': nameController.text.toString(),
+            'Name': nameController.text.trim(),
           };
           await FirebaseFirestore.instance
               .collection('Users')
@@ -100,7 +100,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
           isChangingNumber = false;
         });
       } else if (!isChangingName && isChangingNumber) {
-        if (numberController.text.length != 10) {
+        if (numberController.text.trim().length != 10) {
           mySnackBar('Number should be 10 characters long', context);
           setState(() {
             isSaving = false;
@@ -108,7 +108,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
           return;
         } else {
           Map<String, dynamic> updatedUserNumber = {
-            'Phone Number': numberController.text.toString(),
+            'Phone Number': numberController.text.trim(),
           };
           await FirebaseFirestore.instance
               .collection('Users')
@@ -121,7 +121,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
           });
         }
       } else if (isChangingName && isChangingNumber) {
-        if (nameController.text.isEmpty) {
+        if (nameController.text.trim().isEmpty) {
           setState(() {
             isSaving = false;
           });
@@ -130,7 +130,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
             context,
           );
         }
-        if (numberController.text.length != 10) {
+        if (numberController.text.trim().length != 10) {
           setState(() {
             isSaving = false;
           });
@@ -141,7 +141,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
         } else {
           // NAME
           Map<String, dynamic> updatedUserName = {
-            'Name': nameController.text.toString(),
+            'Name': nameController.text.trim(),
           };
           await FirebaseFirestore.instance
               .collection('Users')
@@ -150,7 +150,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
 
           // NUMBER
           Map<String, dynamic> updatedUserNumber = {
-            'Phone Number': numberController.text.toString(),
+            'Phone Number': numberController.text.trim(),
           };
           await FirebaseFirestore.instance
               .collection('Users')

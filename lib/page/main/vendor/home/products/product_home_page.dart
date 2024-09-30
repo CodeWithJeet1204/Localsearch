@@ -93,9 +93,10 @@ class _ProductHomePageState extends State<ProductHomePage> {
 
     // GET NAME
     Future<void> getName() async {
-      String myName = userData['Name'];
+      String myName = userData['Name'].trim();
       List<String> myNameList = myName.split(' ');
       String newCapitalName = '';
+      print('myNameList: $myNameList');
       for (var myName in myNameList) {
         newCapitalName =
             '$newCapitalName${myName.substring(0, 1).toUpperCase()}${myName.substring(1)} ';
@@ -587,6 +588,8 @@ class _ProductHomePageState extends State<ProductHomePage> {
         });
       }
     }
+
+    // TODO: TRY BLOCKS IN EVERY INIT STATE
 
     if (mounted) {
       await getName();

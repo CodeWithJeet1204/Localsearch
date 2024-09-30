@@ -87,7 +87,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
   // SET SEARCH
   void setSearch() {
     setState(() {
-      searchController.text = widget.search;
+      searchController.text = widget.search.trim();
     });
   }
 
@@ -99,7 +99,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
     );
 
     if (result != null && result is String) {
-      searchController.text = result;
+      searchController.text = result.trim();
     }
   }
 
@@ -107,13 +107,14 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
   Future<void> search() async {
     await addRecentSearch();
 
-    if (searchController.text.isNotEmpty) {
+    if (searchController.text.trim().isNotEmpty) {
       if (mounted) {
         Navigator.of(context).pop();
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: ((context) =>
-                SearchResultsPage(search: searchController.text)),
+            builder: (context) => SearchResultsPage(
+              search: searchController.text.trim(),
+            ),
           ),
         );
       }
@@ -129,12 +130,12 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
 
     final recent = userData['recentSearches'] as List;
 
-    if (recent.contains(searchController.text)) {
-      recent.remove(searchController.text);
+    if (recent.contains(searchController.text.trim())) {
+      recent.remove(searchController.text.trim());
     }
 
-    if (searchController.text.isNotEmpty) {
-      recent.insert(0, searchController.text);
+    if (searchController.text.trim().isNotEmpty) {
+      recent.insert(0, searchController.text.trim());
     }
 
     await store.collection('Users').doc(auth.currentUser!.uid).update({
@@ -406,8 +407,6 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
 
         final productWords = productNameLower.split(' ');
         final searchWords = searchNameLower.toLowerCase().split(' ');
-
-        // TODO: PRODUCT LINK ICON IN SHORTS
 
         if (productWords.any((productWord) => searchWords
                 .any((searchWord) => productWord.contains(searchWord))) ||
@@ -893,7 +892,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                           minLines: 1,
                                           maxLines: 1,
                                           controller: searchController,
-                                          keyboardType: TextInputType.text,
+                                          keyboardType: TextInputType.name,
                                           onTapOutside: (event) =>
                                               FocusScope.of(context).unfocus(),
                                           textInputAction:

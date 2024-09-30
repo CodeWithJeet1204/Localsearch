@@ -35,7 +35,7 @@ class _MySearchBarState extends State<MySearchBar> {
     );
 
     if (result != null && result is String) {
-      searchController.text = result;
+      searchController.text = result.trim();
     }
   }
 
@@ -43,13 +43,14 @@ class _MySearchBarState extends State<MySearchBar> {
   Future<void> search() async {
     await addRecentSearch();
 
-    if (searchController.text.isNotEmpty) {
+    if (searchController.text.trim().isNotEmpty) {
       if (mounted) {
         Navigator.of(context).pop();
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: ((context) =>
-                SearchResultsPage(search: searchController.text)),
+            builder: (context) => SearchResultsPage(
+              search: searchController.text.trim(),
+            ),
           ),
         );
       }
@@ -65,12 +66,12 @@ class _MySearchBarState extends State<MySearchBar> {
 
     final recent = userData['recentSearches'] as List;
 
-    if (recent.contains(searchController.text)) {
-      recent.remove(searchController.text);
+    if (recent.contains(searchController.text.trim())) {
+      recent.remove(searchController.text.trim());
     }
 
-    if (searchController.text.isNotEmpty) {
-      recent.insert(0, searchController.text);
+    if (searchController.text.trim().isNotEmpty) {
+      recent.insert(0, searchController.text.trim());
     }
 
     await store.collection('Users').doc(auth.currentUser!.uid).update({
@@ -138,7 +139,7 @@ class _MySearchBarState extends State<MySearchBar> {
                         minLines: 1,
                         maxLines: 1,
                         controller: searchController,
-                        keyboardType: TextInputType.text,
+                        keyboardType: TextInputType.name,
                         onTapOutside: (event) =>
                             FocusScope.of(context).unfocus(),
                         textInputAction: TextInputAction.search,

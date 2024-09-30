@@ -46,6 +46,7 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
                     autofocus: false,
                     controller: widget.controller,
                     keyboardType: widget.keyboardType,
+                    textCapitalization: TextCapitalization.words,
                     obscureText: isShowPassword,
                     onTapOutside: (event) => FocusScope.of(context).unfocus(),
                     decoration: InputDecoration(
@@ -89,6 +90,7 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
               autofocus: false,
               controller: widget.controller,
               keyboardType: widget.keyboardType,
+              textCapitalization: TextCapitalization.words,
               onTapOutside: (event) => FocusScope.of(context).unfocus(),
               decoration: InputDecoration(
                 border: OutlineInputBorder(

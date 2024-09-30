@@ -34,7 +34,7 @@ class _SeeMoreTextState extends State<SeeMoreText> {
   // UPDATE MAX WORDS
   void _updateMaxWords() {
     _currentMaxWords += widget.maxWords;
-    if (_currentMaxWords >= widget.text.split(' ').length) {
+    if (_currentMaxWords >= widget.text.trim().split(' ').length) {
       _isExpanded = true;
       _currentMaxWords = widget.maxWords;
     }
@@ -83,7 +83,7 @@ class _SeeMoreTextState extends State<SeeMoreText> {
               ),
             ),
           ),
-        if (_isExpanded && widget.text.length > widget.maxWords)
+        if (_isExpanded && widget.text.trim().length > widget.maxWords)
           GestureDetector(
             onTap: () {
               setState(() {
