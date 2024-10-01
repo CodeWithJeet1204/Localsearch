@@ -48,6 +48,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // TODO: REPLACE FUTURE.FOREACH WITH FUTURE.WAIT
     return MaterialApp(
       title: 'Localsearch',
       theme: ThemeData(

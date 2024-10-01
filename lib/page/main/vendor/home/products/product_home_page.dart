@@ -1,6 +1,8 @@
 // ignore_for_file: avoid_function_literals_in_foreach_calls, unused_local_variable
 import 'dart:async';
 import 'dart:convert';
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:localsearch/page/main/exhibition_page.dart';
 import 'package:localsearch/page/main/vendor/status_page_view.dart';
 import 'package:localsearch/page/main/vendor/profile/wishlist_page.dart';
 import 'package:localsearch/widgets/text_button.dart';
@@ -37,13 +39,15 @@ class _ProductHomePageState extends State<ProductHomePage> {
   final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
   String? name;
-  Map<String, dynamic>? shopTypesData;
   String? recentShop;
+  int exhibitionIndex = 0;
+  Map<String, dynamic>? shopTypesData;
   Map<String, Map<String, dynamic>> recentShopProducts = {};
   Map<String, dynamic> allWishlist = {};
   Map<String, dynamic> currentWishlist = {};
   Map<String, dynamic> allFollowedShops = {};
   Map<String, dynamic> currentFollowedShops = {};
+  Map<String, Map<String, dynamic>> exhibitions = {};
   Map<String, Map<String, dynamic>> status = {};
   Map<String, Map<String, dynamic>> featured1 = {};
   Map<String, Map<String, dynamic>> featured2 = {};
@@ -105,6 +109,28 @@ class _ProductHomePageState extends State<ProductHomePage> {
         setState(() {
           name = newCapitalName;
         });
+      }
+    }
+
+    // GET EXHIBITIONS
+    Future<void> getExhibitions() async {
+      print('city: ${userData['City']}');
+
+      final exhibitionSnap = await store
+          .collection('Exhibitions')
+          .where('City', isEqualTo: userData['City'])
+          .get();
+
+      for (var exhibition in exhibitionSnap.docs) {
+        final exhibitionData = exhibition.data();
+
+        final String exhibitionId = exhibition.id;
+        final Timestamp startDate = exhibitionData['startDate'];
+        final Timestamp endDate = exhibitionData['endDate'];
+
+        if (endDate.toDate().isAfter(DateTime.now())) {
+          exhibitions[exhibitionId] = exhibitionData;
+        }
       }
     }
 
@@ -593,6 +619,9 @@ class _ProductHomePageState extends State<ProductHomePage> {
         await getName();
       } catch (e) {}
       try {
+        await getExhibitions();
+      } catch (e) {}
+      try {
         await getStatus();
       } catch (e) {}
       try {
@@ -942,6 +971,92 @@ class _ProductHomePageState extends State<ProductHomePage> {
                           ),
                         ),
                       ),
+
+                      // EXHIBITION
+                      exhibitions.isEmpty
+                          ? Container()
+                          : Builder(
+                              builder: (context) {
+                                final exhibitionId =
+                                    exhibitions.keys.toList()[0];
+                                final exhibitionData =
+                                    exhibitions.values.toList()[0];
+                                final exhibitionName = exhibitionData['Name'];
+                                final exhibitionVenue = exhibitionData['Venue'];
+                                final List exhibitionImages =
+                                    exhibitionData['Images'].length >= 4
+                                        ? exhibitionData['Images'].sublist(0, 4)
+                                        : exhibitionData['Images'];
+
+                                return AspectRatio(
+                                  aspectRatio: 16 / 9,
+                                  child: Container(
+                                    margin: EdgeInsets.all(width * 0.006125),
+                                    child: CarouselSlider(
+                                      items: (exhibitionImages)
+                                          .map(
+                                            (image) => GestureDetector(
+                                              onTap: () {
+                                                Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        ExhibitionPage(
+                                                      exhibitionId:
+                                                          exhibitionId,
+                                                      exhibitionName:
+                                                          exhibitionName,
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                              child: Image.network(
+                                                image,
+                                                width: width,
+                                                height: width,
+                                                fit: BoxFit.cover,
+                                                loadingBuilder: (
+                                                  context,
+                                                  child,
+                                                  loadingProgress,
+                                                ) {
+                                                  if (loadingProgress == null) {
+                                                    return child;
+                                                  } else {
+                                                    return Container(
+                                                      width: width,
+                                                      height: width,
+                                                      child: Center(
+                                                        child:
+                                                            CircularProgressIndicator(),
+                                                      ),
+                                                    );
+                                                  }
+                                                },
+                                              ),
+                                            ),
+                                          )
+                                          .toList(),
+                                      options: CarouselOptions(
+                                        enableInfiniteScroll:
+                                            exhibitionImages.length > 1
+                                                ? true
+                                                : false,
+                                        viewportFraction: 1,
+                                        aspectRatio: 0.7875,
+                                        enlargeCenterPage: false,
+                                        onPageChanged: (index, reason) {
+                                          setState(() {
+                                            exhibitionIndex = index;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+
+                      exhibitions.isEmpty ? Container() : Divider(),
 
                       // STATUS
                       !isStatusData
