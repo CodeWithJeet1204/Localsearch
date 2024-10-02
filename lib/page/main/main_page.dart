@@ -47,44 +47,46 @@ class _MainPageState extends State<MainPage> {
       if (userUnderDevelopment) {
         detailsPage = UnderDevelopmentPage();
       } else {
-        if (auth.currentUser == null) {
-          await auth.signOut();
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(
-              builder: (context) => const SignInPage(),
-            ),
-            (route) => false,
-          );
-          mySnackBar('Some error occured', context);
-        }
-        final userSnap =
-            await store.collection('Users').doc(auth.currentUser!.uid).get();
+        // if (auth.currentUser == null) {
+        //   await auth.signOut();
+        //   Navigator.of(context).pushAndRemoveUntil(
+        //     MaterialPageRoute(
+        //       builder: (context) => const SignInPage(),
+        //     ),
+        //     (route) => false,
+        //   );
+        //   mySnackBar('Some error occured', context);
+        // }
 
-        if (!userSnap.exists) {
-          await auth.signOut();
-          if (mounted) {
-            Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(
-                builder: (context) => const SignInPage(),
-              ),
-              (route) => false,
-            );
-            mySnackBar(
-              'The account you created was for Business app, create / login with another account for this app',
-              context,
-            );
-          }
-          return;
-        } else {
-          final userData = userSnap.data()!;
+        if (auth.currentUser != null) {
+          final userSnap =
+              await store.collection('Users').doc(auth.currentUser!.uid).get();
 
-          if (userData['Name'] == null || userData['Email'] == null) {
-            setState(() {
-              detailsPage = const RegisterDetailsPage(
-                emailPhoneGoogleChosen: 0,
+          if (!userSnap.exists) {
+            await auth.signOut();
+            if (mounted) {
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(
+                  builder: (context) => const SignInPage(),
+                ),
+                (route) => false,
               );
-            });
-          } /* else if (auth.currentUser!.email == null) {
+              mySnackBar(
+                'The account you created was for Business app, create / login with another account for this app',
+                context,
+              );
+            }
+            return;
+          } else {
+            final userData = userSnap.data()!;
+
+            if (userData['Name'] == null || userData['Email'] == null) {
+              setState(() {
+                detailsPage = const RegisterDetailsPage(
+                  emailPhoneGoogleChosen: 0,
+                );
+              });
+            } /* else if (auth.currentUser!.email == null) {
             setState(() {
               detailsPage = SetEmailPage();
             });
@@ -95,11 +97,16 @@ class _MainPageState extends State<MainPage> {
               detailsPage = EmailVerifyPage();
             });
           }*/
-          else {
-            setState(() {
-              detailsPage = null;
-            });
+            else {
+              setState(() {
+                detailsPage = null;
+              });
+            }
           }
+        } else {
+          setState(() {
+            detailsPage = null;
+          });
         }
       }
     } catch (e) {

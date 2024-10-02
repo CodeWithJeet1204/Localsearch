@@ -14,6 +14,7 @@ import 'package:localsearch/widgets/ratings_bar.dart';
 import 'package:localsearch/widgets/review_container.dart';
 import 'package:localsearch/widgets/search_bar.dart';
 import 'package:localsearch/widgets/see_more_text.dart';
+import 'package:localsearch/widgets/sign_in_dialog.dart';
 import 'package:localsearch/widgets/snack_bar.dart';
 import 'package:localsearch/widgets/text_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -89,12 +90,20 @@ class _ProductPageState extends State<ProductPage> {
     getVendorInfo();
     getIfDiscount();
     getDiscountAmount();
-    getIfWishlist();
+    if (auth.currentUser != null) {
+      getIfWishlist();
+    }
     getIfLiked();
     getBrandImage();
     getAllDiscounts();
     getAverageRatings();
-    checkIfReviewed();
+    if (auth.currentUser != null) {
+      checkIfReviewed();
+    } else {
+      setState(() {
+        hasReviewedBefore = false;
+      });
+    }
     getAllReviews();
     getSimilarProducts(
       search: widget.search,
@@ -182,51 +191,58 @@ class _ProductPageState extends State<ProductPage> {
 
   // ADD PRODUCT VIEW
   Future<void> addProductView() async {
-    Timer(const Duration(seconds: 5), () async {
-      final productSnap = await store
-          .collection('Business')
-          .doc('Data')
-          .collection('Products')
-          .doc(widget.productData['productId'])
-          .get();
+    Timer(
+      const Duration(seconds: 5),
+      () async {
+        final productSnap = await store
+            .collection('Business')
+            .doc('Data')
+            .collection('Products')
+            .doc(widget.productData['productId'])
+            .get();
 
-      final productData = productSnap.data()!;
+        final productData = productSnap.data()!;
 
-      int views = productData['productViewsTimestamp'].length;
-      List viewsTimestamps = productData['productViewsTimestamp'];
-      views = views + 1;
-      viewsTimestamps.add(DateTime.now());
+        int views = productData['productViewsTimestamp'].length;
+        List viewsTimestamps = productData['productViewsTimestamp'];
+        views = views + 1;
+        viewsTimestamps.add(DateTime.now());
 
-      await store
-          .collection('Business')
-          .doc('Data')
-          .collection('Products')
-          .doc(widget.productData['productId'])
-          .update({
-        'productViewsTimestamp': viewsTimestamps,
-      });
+        await store
+            .collection('Business')
+            .doc('Data')
+            .collection('Products')
+            .doc(widget.productData['productId'])
+            .update({
+          'productViewsTimestamp': viewsTimestamps,
+        });
 
-      final userSnap =
-          await store.collection('Users').doc(auth.currentUser!.uid).get();
+        if (auth.currentUser != null) {
+          final userSnap =
+              await store.collection('Users').doc(auth.currentUser!.uid).get();
 
-      final userData = userSnap.data()!;
+          final userData = userSnap.data()!;
 
-      List recentProducts = userData['recentProducts'];
+          List recentProducts = userData['recentProducts'];
 
-      final productId = widget.productData['productId'];
+          final productId = widget.productData['productId'];
 
-      recentProducts.remove(productId);
+          if (recentProducts.contains(productId)) {
+            recentProducts.remove(productId);
+          }
 
-      recentProducts.insert(0, productId);
+          recentProducts.insert(0, productId);
 
-      if (recentProducts.length > 4) {
-        recentProducts.removeRange(4, recentProducts.length);
-      }
+          if (recentProducts.length > 4) {
+            recentProducts.removeRange(4, recentProducts.length);
+          }
 
-      await store.collection('Users').doc(auth.currentUser!.uid).update({
-        'recentProducts': recentProducts,
-      });
-    });
+          await store.collection('Users').doc(auth.currentUser!.uid).update({
+            'recentProducts': recentProducts,
+          });
+        }
+      },
+    );
   }
 
   // GET IF WISHLIST
@@ -437,8 +453,12 @@ class _ProductPageState extends State<ProductPage> {
     });
 
     setState(() {
-      if (productLikesTimestamp.keys.contains(auth.currentUser!.uid)) {
-        isLiked = true;
+      if (auth.currentUser != null) {
+        if (productLikesTimestamp.keys.contains(auth.currentUser!.uid)) {
+          isLiked = true;
+        } else {
+          isLiked = false;
+        }
       } else {
         isLiked = false;
       }
@@ -447,36 +467,37 @@ class _ProductPageState extends State<ProductPage> {
 
   // LIKE PRODUCT
   Future<void> likeProduct() async {
-    final productSnap = await store
-        .collection('Business')
-        .doc('Data')
-        .collection('Products')
-        .doc(widget.productData['productId'])
-        .get();
+    if (auth.currentUser != null) {
+      final productSnap = await store
+          .collection('Business')
+          .doc('Data')
+          .collection('Products')
+          .doc(widget.productData['productId'])
+          .get();
 
-    final productData = productSnap.data()!;
+      final productData = productSnap.data()!;
 
-    Map<String, dynamic> productLikesTimestamp =
-        productData['productLikesTimestamp'];
+      Map<String, dynamic> productLikesTimestamp =
+          productData['productLikesTimestamp'];
+      if (productLikesTimestamp.keys.contains(auth.currentUser!.uid)) {
+        productLikesTimestamp.remove(auth.currentUser!.uid);
+      } else {
+        productLikesTimestamp.addAll({
+          auth.currentUser!.uid: Timestamp.fromDate(DateTime.now()),
+        });
+      }
 
-    if (productLikesTimestamp.keys.contains(auth.currentUser!.uid)) {
-      productLikesTimestamp.remove(auth.currentUser!.uid);
-    } else {
-      productLikesTimestamp.addAll({
-        auth.currentUser!.uid: Timestamp.fromDate(DateTime.now()),
+      await store
+          .collection('Business')
+          .doc('Data')
+          .collection('Products')
+          .doc(widget.productData['productId'])
+          .update({
+        'productLikesTimestamp': productLikesTimestamp,
       });
+
+      await getIfLiked();
     }
-
-    await store
-        .collection('Business')
-        .doc('Data')
-        .collection('Products')
-        .doc(widget.productData['productId'])
-        .update({
-      'productLikesTimestamp': productLikesTimestamp,
-    });
-
-    await getIfLiked();
   }
 
   // GET BRAND IMAGE
@@ -666,13 +687,15 @@ class _ProductPageState extends State<ProductPage> {
 
     Map<String, dynamic> allUserReviews = {};
 
-    for (String uid in ratings.keys) {
-      final userDoc = await store.collection('Users').doc(uid).get();
-      final userData = userDoc.data()!;
-      final userName = userData['Name'];
-      final rating = ratings[uid][0];
-      final review = ratings[uid][1];
-      allUserReviews[userName] = [rating, review];
+    for (String id in ratings.keys) {
+      final userSnap = await store.collection('Users').doc(id).get();
+      if (userSnap.exists) {
+        final userData = userSnap.data()!;
+        final userName = userData['Name'];
+        final rating = ratings[id][0];
+        final review = ratings[id][1];
+        allUserReviews[userName] = [rating, review];
+      }
     }
 
     allUserReviews.removeWhere((key, value) => value[1].isEmpty);
@@ -885,7 +908,11 @@ class _ProductPageState extends State<ProductPage> {
                             child: // DELETE
                                 IconButton(
                               onPressed: () async {
-                                await deleteReview();
+                                if (auth.currentUser != null) {
+                                  await deleteReview();
+                                } else {
+                                  await showSignInDialog(context);
+                                }
                               },
                               icon: const Icon(
                                 FeatherIcons.trash,
@@ -992,10 +1019,14 @@ class _ProductPageState extends State<ProductPage> {
                                 color: darkGrey,
                               ),
                             ),
-                            onRatingUpdate: (currentRating) {
-                              setState(() {
-                                userRating = currentRating;
-                              });
+                            onRatingUpdate: (currentRating) async {
+                              if (auth.currentUser != null) {
+                                setState(() {
+                                  userRating = currentRating;
+                                });
+                              } else {
+                                await showSignInDialog(context);
+                              }
                             },
                           ),
                           Text(
@@ -1047,7 +1078,11 @@ class _ProductPageState extends State<ProductPage> {
                       onPressed: userRating == 0
                           ? () {}
                           : () async {
-                              await addReview();
+                              if (auth.currentUser != null) {
+                                await addReview();
+                              } else {
+                                await showSignInDialog(context);
+                              }
                             },
                       text: 'DONE',
                       textColor: primaryDark,
@@ -1532,7 +1567,11 @@ class _ProductPageState extends State<ProductPage> {
                           // WISHLIST
                           IconButton(
                             onPressed: () async {
-                              await wishlistProduct();
+                              if (auth.currentUser != null) {
+                                await wishlistProduct();
+                              } else {
+                                await showSignInDialog(context);
+                              }
                             },
                             icon: Icon(
                               isWishListed

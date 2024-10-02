@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:localsearch/page/main/vendor/product/product_page.dart';
 import 'package:localsearch/utils/colors.dart';
 import 'package:localsearch/widgets/image_show.dart';
+import 'package:localsearch/widgets/sign_in_dialog.dart';
 import 'package:localsearch/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -146,6 +147,20 @@ class _CategoryPageState extends State<CategoryPage> {
     return availableHeight;
   }
 
+  // GET IF WISHLIST
+  Stream<bool> getIfWishlist(String productId) {
+    return store
+        .collection('Users')
+        .doc(auth.currentUser!.uid)
+        .snapshots()
+        .map((userSnap) {
+      final userData = userSnap.data()!;
+      final userWishlist = userData['wishlists'] as List;
+
+      return userWishlist.contains(productId);
+    });
+  }
+
   // WISHLIST PRODUCT
   Future<void> wishlistProduct(String productId) async {
     final userSnap =
@@ -187,20 +202,6 @@ class _CategoryPageState extends State<CategoryPage> {
 
     await productDoc.update({
       'productWishlistTimestamp': wishlists,
-    });
-  }
-
-  // GET IF WISHLIST
-  Stream<bool> getIfWishlist(String productId) {
-    return store
-        .collection('Users')
-        .doc(auth.currentUser!.uid)
-        .snapshots()
-        .map((userSnap) {
-      final userData = userSnap.data()!;
-      final userWishlist = userData['wishlists'] as List;
-
-      return userWishlist.contains(productId);
     });
   }
 
@@ -334,139 +335,141 @@ class _CategoryPageState extends State<CategoryPage> {
                                                 : index][2];
 
                                         return StreamBuilder(
-                                            stream: getIfWishlist(id!),
+                                            stream: auth.currentUser != null
+                                                ? getIfWishlist(id!)
+                                                : null,
                                             builder: (context, snapshot) {
-                                              if (snapshot.hasData) {
-                                                return GestureDetector(
-                                                  onTap: () {
-                                                    Navigator.of(context).push(
-                                                      MaterialPageRoute(
-                                                        builder: ((context) =>
-                                                            ProductPage(
-                                                              productData: products!
-                                                                      .values
-                                                                      .toList()[
-                                                                  index][3],
-                                                            )),
+                                              final isWishlisted =
+                                                  snapshot.data ?? false;
+
+                                              return GestureDetector(
+                                                onTap: () {
+                                                  Navigator.of(context).push(
+                                                    MaterialPageRoute(
+                                                      builder: ((context) =>
+                                                          ProductPage(
+                                                            productData: products!
+                                                                    .values
+                                                                    .toList()[
+                                                                index][3],
+                                                          )),
+                                                    ),
+                                                  );
+                                                },
+                                                child: Container(
+                                                  padding: EdgeInsets.all(
+                                                    width * 0.00625,
+                                                  ),
+                                                  margin: EdgeInsets.all(
+                                                    width * 0.003125,
+                                                  ),
+                                                  decoration: BoxDecoration(
+                                                    border: Border.all(
+                                                      color: darkGrey,
+                                                      width: 0.25,
+                                                    ),
+                                                  ),
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Image.network(
+                                                        imageUrl
+                                                            .toString()
+                                                            .trim(),
+                                                        width: width * 0.5,
+                                                        height: width * 0.5,
+                                                        fit: BoxFit.cover,
                                                       ),
-                                                    );
-                                                  },
-                                                  child: Container(
-                                                    padding: EdgeInsets.all(
-                                                      width * 0.00625,
-                                                    ),
-                                                    margin: EdgeInsets.all(
-                                                      width * 0.003125,
-                                                    ),
-                                                    decoration: BoxDecoration(
-                                                      border: Border.all(
-                                                        color: darkGrey,
-                                                        width: 0.25,
-                                                      ),
-                                                    ),
-                                                    child: Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Image.network(
-                                                          imageUrl
-                                                              .toString()
-                                                              .trim(),
-                                                          width: width * 0.5,
-                                                          height: width * 0.5,
-                                                          fit: BoxFit.cover,
-                                                        ),
-                                                        Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .spaceBetween,
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .center,
-                                                          children: [
-                                                            Column(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .spaceAround,
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .start,
-                                                              children: [
-                                                                SizedBox(
-                                                                  width: width *
-                                                                      0.3125,
-                                                                  child: Text(
-                                                                    name
-                                                                        .toString()
-                                                                        .trim(),
-                                                                    maxLines: 1,
-                                                                    overflow:
-                                                                        TextOverflow
-                                                                            .ellipsis,
-                                                                    style:
-                                                                        TextStyle(
-                                                                      fontSize:
-                                                                          width *
-                                                                              0.0475,
-                                                                    ),
+                                                      Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceBetween,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Column(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceAround,
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              SizedBox(
+                                                                width: width *
+                                                                    0.3125,
+                                                                child: Text(
+                                                                  name
+                                                                      .toString()
+                                                                      .trim(),
+                                                                  maxLines: 1,
+                                                                  overflow:
+                                                                      TextOverflow
+                                                                          .ellipsis,
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontSize:
+                                                                        width *
+                                                                            0.0475,
                                                                   ),
                                                                 ),
-                                                                SizedBox(
-                                                                  width: width *
-                                                                      0.3125,
-                                                                  child: Text(
-                                                                    price == ''
-                                                                        ? 'Rs. --'
-                                                                        : 'Rs. ${price.round()}',
-                                                                    maxLines: 1,
-                                                                    overflow:
-                                                                        TextOverflow
-                                                                            .ellipsis,
-                                                                    style:
-                                                                        TextStyle(
-                                                                      fontSize:
-                                                                          width *
-                                                                              0.04125,
-                                                                    ),
+                                                              ),
+                                                              SizedBox(
+                                                                width: width *
+                                                                    0.3125,
+                                                                child: Text(
+                                                                  price == ''
+                                                                      ? 'Rs. --'
+                                                                      : 'Rs. ${price.round()}',
+                                                                  maxLines: 1,
+                                                                  overflow:
+                                                                      TextOverflow
+                                                                          .ellipsis,
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontSize:
+                                                                        width *
+                                                                            0.04125,
                                                                   ),
                                                                 ),
-                                                              ],
-                                                            ),
-                                                            IconButton(
-                                                              onPressed:
-                                                                  () async {
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          IconButton(
+                                                            onPressed:
+                                                                () async {
+                                                              if (auth.currentUser !=
+                                                                  null) {
                                                                 await wishlistProduct(
                                                                   id!,
                                                                 );
-                                                              },
-                                                              icon: Icon(
-                                                                snapshot.data!
-                                                                    ? Icons
-                                                                        .favorite
-                                                                    : Icons
-                                                                        .favorite_border,
-                                                                color:
-                                                                    Colors.red,
-                                                                size: width *
-                                                                    0.0775,
-                                                              ),
-                                                              splashColor:
-                                                                  Colors.red,
-                                                              tooltip:
-                                                                  'Wishlist',
+                                                              } else {
+                                                                await showSignInDialog(
+                                                                    context);
+                                                              }
+                                                            },
+                                                            icon: Icon(
+                                                              isWishlisted
+                                                                  ? Icons
+                                                                      .favorite
+                                                                  : Icons
+                                                                      .favorite_border,
+                                                              color: Colors.red,
+                                                              size: width *
+                                                                  0.0775,
                                                             ),
-                                                          ],
-                                                        ),
-                                                      ],
-                                                    ),
+                                                            splashColor:
+                                                                Colors.red,
+                                                            tooltip: 'Wishlist',
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ],
                                                   ),
-                                                );
-                                              }
-
-                                              return const Center(
-                                                child:
-                                                    CircularProgressIndicator(),
+                                                ),
                                               );
                                             });
                                       }),

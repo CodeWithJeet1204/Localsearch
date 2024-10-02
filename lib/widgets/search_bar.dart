@@ -41,7 +41,9 @@ class _MySearchBarState extends State<MySearchBar> {
 
   // SEARCH
   Future<void> search() async {
-    await addRecentSearch();
+    if (auth.currentUser != null) {
+      await addRecentSearch();
+    }
 
     if (searchController.text.toString().trim().isNotEmpty) {
       if (mounted) {

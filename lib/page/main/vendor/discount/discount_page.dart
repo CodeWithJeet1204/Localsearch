@@ -541,11 +541,11 @@ class _DiscountPageState extends State<DiscountPage> {
                                                               .push(
                                                             MaterialPageRoute(
                                                               builder:
-                                                                  ((context) =>
+                                                                  (context) =>
                                                                       ProductPage(
-                                                                        productData:
-                                                                            productData,
-                                                                      )),
+                                                                productData:
+                                                                    productData,
+                                                              ),
                                                             ),
                                                           );
                                                         },
@@ -613,56 +613,61 @@ class _DiscountPageState extends State<DiscountPage> {
                                                                         CrossAxisAlignment
                                                                             .start,
                                                                     children: [
-                                                                      Padding(
-                                                                        padding:
-                                                                            EdgeInsets.fromLTRB(
-                                                                          width *
-                                                                              0.0125,
-                                                                          width *
-                                                                              0.0125,
-                                                                          width *
-                                                                              0.0125,
-                                                                          0,
-                                                                        ),
+                                                                      SizedBox(
+                                                                        width: width *
+                                                                            0.4,
                                                                         child:
-                                                                            Text(
-                                                                          productData['productName']
-                                                                              .toString()
-                                                                              .trim(),
-                                                                          maxLines:
-                                                                              1,
-                                                                          overflow:
-                                                                              TextOverflow.ellipsis,
-                                                                          style:
-                                                                              TextStyle(
-                                                                            fontSize:
-                                                                                width * 0.05,
+                                                                            Padding(
+                                                                          padding:
+                                                                              EdgeInsets.fromLTRB(
+                                                                            width *
+                                                                                0.0125,
+                                                                            width *
+                                                                                0.0125,
+                                                                            width *
+                                                                                0.0125,
+                                                                            0,
+                                                                          ),
+                                                                          child:
+                                                                              Text(
+                                                                            productData['productName'].toString().trim(),
+                                                                            maxLines:
+                                                                                1,
+                                                                            overflow:
+                                                                                TextOverflow.ellipsis,
+                                                                            style:
+                                                                                TextStyle(
+                                                                              fontSize: width * 0.05,
+                                                                            ),
                                                                           ),
                                                                         ),
                                                                       ),
-                                                                      Padding(
-                                                                        padding:
-                                                                            EdgeInsets.fromLTRB(
-                                                                          width *
-                                                                              0.0125,
-                                                                          0,
-                                                                          width *
-                                                                              0.0125,
-                                                                          0,
-                                                                        ),
+                                                                      SizedBox(
+                                                                        width: width *
+                                                                            0.4,
                                                                         child:
-                                                                            Text(
-                                                                          'Rs. ${(productData['productPrice'] as double).round()}',
-                                                                          maxLines:
-                                                                              1,
-                                                                          overflow:
-                                                                              TextOverflow.ellipsis,
-                                                                          style:
-                                                                              TextStyle(
-                                                                            fontSize:
-                                                                                width * 0.04,
-                                                                            fontWeight:
-                                                                                FontWeight.w600,
+                                                                            Padding(
+                                                                          padding:
+                                                                              EdgeInsets.fromLTRB(
+                                                                            width *
+                                                                                0.0125,
+                                                                            0,
+                                                                            width *
+                                                                                0.0125,
+                                                                            0,
+                                                                          ),
+                                                                          child:
+                                                                              Text(
+                                                                            'Rs. ${(productData['productPrice'] as double).round()}',
+                                                                            maxLines:
+                                                                                1,
+                                                                            overflow:
+                                                                                TextOverflow.ellipsis,
+                                                                            style:
+                                                                                TextStyle(
+                                                                              fontSize: width * 0.04,
+                                                                              fontWeight: FontWeight.w600,
+                                                                            ),
                                                                           ),
                                                                         ),
                                                                       ),
@@ -702,11 +707,11 @@ class _DiscountPageState extends State<DiscountPage> {
                                                                 .push(
                                                               MaterialPageRoute(
                                                                 builder:
-                                                                    ((context) =>
+                                                                    (context) =>
                                                                         ProductPage(
-                                                                          productData:
-                                                                              productData,
-                                                                        )),
+                                                                  productData:
+                                                                      productData,
+                                                                ),
                                                               ),
                                                             );
                                                           },
@@ -1022,11 +1027,11 @@ class _DiscountPageState extends State<DiscountPage> {
                                                               .push(
                                                             MaterialPageRoute(
                                                               builder:
-                                                                  ((context) =>
+                                                                  (context) =>
                                                                       BrandPage(
-                                                                        brandId:
-                                                                            brandData['brandId'],
-                                                                      )),
+                                                                brandId: brandData[
+                                                                    'brandId'],
+                                                              ),
                                                             ),
                                                           );
                                                         },
@@ -1348,14 +1353,13 @@ class _DiscountPageState extends State<DiscountPage> {
                                                           Navigator.of(context)
                                                               .push(
                                                             MaterialPageRoute(
-                                                              builder:
-                                                                  ((context) =>
-                                                                      CategoryPage(
-                                                                        categoryName:
-                                                                            categoryName,
-                                                                        vendorId:
-                                                                            vendorId,
-                                                                      )),
+                                                              builder: (context) =>
+                                                                  CategoryPage(
+                                                                categoryName:
+                                                                    categoryName,
+                                                                vendorId:
+                                                                    vendorId,
+                                                              ),
                                                             ),
                                                           );
                                                         },

@@ -69,13 +69,15 @@ class _ProductAllReviewPageState extends State<ProductAllReviewPage> {
 
     Map<String, dynamic> allUserReviews = {};
 
-    for (String uid in ratings.keys) {
-      final userDoc = await store.collection('Users').doc(uid).get();
-      final userData = userDoc.data()!;
-      final userName = userData['Name'];
-      final rating = ratings[uid][0];
-      final review = ratings[uid][1];
-      allUserReviews[userName] = [rating, review];
+    for (String id in ratings.keys) {
+      final userSnap = await store.collection('Users').doc(id).get();
+      if (userSnap.exists) {
+        final userData = userSnap.data()!;
+        final userName = userData['Name'];
+        final rating = ratings[id][0];
+        final review = ratings[id][1];
+        allUserReviews[userName] = [rating, review];
+      }
     }
 
     allUserReviews.removeWhere((key, value) => value[1].isEmpty);

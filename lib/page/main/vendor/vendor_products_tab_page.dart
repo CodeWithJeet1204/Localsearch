@@ -2,6 +2,7 @@ import 'package:localsearch/page/main/vendor/product/product_page.dart';
 import 'package:localsearch/page/main/vendor/vendor_page.dart';
 import 'package:localsearch/utils/colors.dart';
 import 'package:localsearch/widgets/product_quick_view.dart';
+import 'package:localsearch/widgets/sign_in_dialog.dart';
 import 'package:localsearch/widgets/snack_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -325,9 +326,12 @@ class _VendorProductsTabPageState extends State<VendorProductsTabPage> {
                                     : index][6];
 
                             return StreamBuilder(
-                                stream: getIfWishlist(id),
+                                stream: auth.currentUser != null
+                                    ? getIfWishlist(id)
+                                    : null,
                                 builder: (context, snapshot) {
                                   final isWishListed = snapshot.data ?? false;
+
                                   return GestureDetector(
                                     onTap: () async {
                                       if (context.mounted) {
@@ -491,7 +495,13 @@ class _VendorProductsTabPageState extends State<VendorProductsTabPage> {
                                               ),
                                               IconButton(
                                                 onPressed: () async {
-                                                  await wishlistProduct(id);
+                                                  if (auth.currentUser !=
+                                                      null) {
+                                                    await wishlistProduct(id);
+                                                  } else {
+                                                    await showSignInDialog(
+                                                        context);
+                                                  }
                                                 },
                                                 icon: Icon(
                                                   isWishListed

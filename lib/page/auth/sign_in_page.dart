@@ -1,12 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:localsearch/page/auth/register_details_page.dart';
-import 'package:localsearch/page/auth/verify/number_verify.dart';
-import 'package:localsearch/page/main/main_page.dart';
 import 'package:localsearch/providers/location_provider.dart';
-import 'package:localsearch/utils/colors.dart';
 import 'package:localsearch/widgets/button.dart';
-import 'package:localsearch/widgets/collapse_container.dart';
 import 'package:localsearch/widgets/snack_bar.dart';
 import 'package:localsearch/widgets/text_form_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -86,12 +81,7 @@ class _SignInPageState extends State<SignInPage> {
               isEmailSigningIn = false;
             });
 
-            Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(
-                builder: (context) => MainPage(),
-              ),
-              (route) => false,
-            );
+            Navigator.of(context).pop();
             return mySnackBar(
               'Signed In',
               context,
@@ -166,306 +156,306 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   // SIGN IN WITH PHONE
-  Future<void> signInWithPhone() async {
-    if (signInNumberFormKey.currentState!.validate()) {
-      try {
-        setState(() {
-          isPhoneSigningIn = true;
-        });
+  // Future<void> signInWithPhone() async {
+  //   if (signInNumberFormKey.currentState!.validate()) {
+  //     try {
+  //       setState(() {
+  //         isPhoneSigningIn = true;
+  //       });
 
-        final vendorExistsSnap = await store
-            .collection('Business')
-            .doc('Owners')
-            .collection('Users')
-            .where('Phone Number',
-                isGreaterThanOrEqualTo: phoneController.text.toString().trim())
-            .where('Registration', isEqualTo: 'phone number')
-            .get();
+  //       final vendorExistsSnap = await store
+  //           .collection('Business')
+  //           .doc('Owners')
+  //           .collection('Users')
+  //           .where('Phone Number',
+  //               isGreaterThanOrEqualTo: phoneController.text.toString().trim())
+  //           .where('Registration', isEqualTo: 'phone number')
+  //           .get();
 
-        if (vendorExistsSnap.docs.isNotEmpty) {
-          if (mounted) {
-            setState(() {
-              isPhoneSigningIn = false;
-            });
-            return mySnackBar(
-              'This account was created in Business app, use a different Phone Number here',
-              context,
-            );
-          }
-        }
+  //       if (vendorExistsSnap.docs.isNotEmpty) {
+  //         if (mounted) {
+  //           setState(() {
+  //             isPhoneSigningIn = false;
+  //           });
+  //           return mySnackBar(
+  //             'This account was created in Business app, use a different Phone Number here',
+  //             context,
+  //           );
+  //         }
+  //       }
 
-        final userExistsSnap = await store
-            .collection('Users')
-            .where('Phone Number',
-                isGreaterThanOrEqualTo: phoneController.text.toString().trim())
-            .where('Registration', isEqualTo: 'phone number')
-            .get();
+  //       final userExistsSnap = await store
+  //           .collection('Users')
+  //           .where('Phone Number',
+  //               isGreaterThanOrEqualTo: phoneController.text.toString().trim())
+  //           .where('Registration', isEqualTo: 'phone number')
+  //           .get();
 
-        if (userExistsSnap.docs.isNotEmpty) {
-          if (mounted) {
-            await auth.verifyPhoneNumber(
-              phoneNumber:
-                  phoneController.text.toString().trim().contains('+91 ')
-                      ? phoneController.text
-                      : '+91 ${phoneController.text.toString().trim()}',
-              verificationCompleted: (_) {
-                setState(() {
-                  isPhoneSigningIn = false;
-                });
-              },
-              verificationFailed: (e) {
-                if (context.mounted) {
-                  setState(() {
-                    isPhoneSigningIn = false;
-                  });
-                  mySnackBar('Error: ${e.toString()}', context);
-                }
-              },
-              codeSent: (
-                String verificationId,
-                int? token,
-              ) {
-                setState(() {
-                  isPhoneSigningIn = false;
-                });
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                    builder: (context) => NumberVerifyPage(
-                      phoneNumber: phoneController.text
-                              .toString()
-                              .trim()
-                              .contains('+91 ')
-                          ? phoneController.text.toString().trim()
-                          : '+91 ${phoneController.text.toString().trim()}',
-                      verificationId: verificationId,
-                      isLogging: true,
-                    ),
-                  ),
-                  (route) => false,
-                );
-              },
-              codeAutoRetrievalTimeout: (e) {
-                if (context.mounted) {
-                  setState(() {
-                    isPhoneSigningIn = false;
-                  });
-                  mySnackBar(e.toString(), context);
-                }
-              },
-            );
-          }
-          return;
-        }
+  //       if (userExistsSnap.docs.isNotEmpty) {
+  //         if (mounted) {
+  //           await auth.verifyPhoneNumber(
+  //             phoneNumber:
+  //                 phoneController.text.toString().trim().contains('+91 ')
+  //                     ? phoneController.text
+  //                     : '+91 ${phoneController.text.toString().trim()}',
+  //             verificationCompleted: (_) {
+  //               setState(() {
+  //                 isPhoneSigningIn = false;
+  //               });
+  //             },
+  //             verificationFailed: (e) {
+  //               if (context.mounted) {
+  //                 setState(() {
+  //                   isPhoneSigningIn = false;
+  //                 });
+  //                 mySnackBar('Error: ${e.toString()}', context);
+  //               }
+  //             },
+  //             codeSent: (
+  //               String verificationId,
+  //               int? token,
+  //             ) {
+  //               setState(() {
+  //                 isPhoneSigningIn = false;
+  //               });
+  //               Navigator.of(context).pushAndRemoveUntil(
+  //                 MaterialPageRoute(
+  //                   builder: (context) => NumberVerifyPage(
+  //                     phoneNumber: phoneController.text
+  //                             .toString()
+  //                             .trim()
+  //                             .contains('+91 ')
+  //                         ? phoneController.text.toString().trim()
+  //                         : '+91 ${phoneController.text.toString().trim()}',
+  //                     verificationId: verificationId,
+  //                     isLogging: true,
+  //                   ),
+  //                 ),
+  //                 (route) => false,
+  //               );
+  //             },
+  //             codeAutoRetrievalTimeout: (e) {
+  //               if (context.mounted) {
+  //                 setState(() {
+  //                   isPhoneSigningIn = false;
+  //                 });
+  //                 mySnackBar(e.toString(), context);
+  //               }
+  //             },
+  //           );
+  //         }
+  //         return;
+  //       }
 
-        await auth.verifyPhoneNumber(
-          phoneNumber: phoneController.text.toString().trim().contains('+91 ')
-              ? phoneController.text.toString().trim()
-              : '+91 ${phoneController.text.toString().trim()}',
-          verificationCompleted: (_) {
-            setState(() {
-              isPhoneSigningIn = false;
-            });
-          },
-          verificationFailed: (e) {
-            if (context.mounted) {
-              setState(() {
-                isPhoneSigningIn = false;
-              });
-              mySnackBar('Error: ${e.toString()}', context);
-            }
-          },
-          codeSent: (
-            String verificationId,
-            int? token,
-          ) {
-            setState(() {
-              isPhoneSigningIn = false;
-            });
-            Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(
-                builder: (context) => NumberVerifyPage(
-                  phoneNumber:
-                      phoneController.text.toString().trim().contains('+91 ')
-                          ? phoneController.text.toString().trim()
-                          : '+91 ${phoneController.text.toString().trim()}',
-                  verificationId: verificationId,
-                  isLogging: false,
-                ),
-              ),
-              (route) => false,
-            );
-          },
-          codeAutoRetrievalTimeout: (e) {
-            if (context.mounted) {
-              setState(() {
-                isPhoneSigningIn = false;
-              });
-              mySnackBar('Error: ${e.toString()}', context);
-            }
-          },
-        );
+  //       await auth.verifyPhoneNumber(
+  //         phoneNumber: phoneController.text.toString().trim().contains('+91 ')
+  //             ? phoneController.text.toString().trim()
+  //             : '+91 ${phoneController.text.toString().trim()}',
+  //         verificationCompleted: (_) {
+  //           setState(() {
+  //             isPhoneSigningIn = false;
+  //           });
+  //         },
+  //         verificationFailed: (e) {
+  //           if (context.mounted) {
+  //             setState(() {
+  //               isPhoneSigningIn = false;
+  //             });
+  //             mySnackBar('Error: ${e.toString()}', context);
+  //           }
+  //         },
+  //         codeSent: (
+  //           String verificationId,
+  //           int? token,
+  //         ) {
+  //           setState(() {
+  //             isPhoneSigningIn = false;
+  //           });
+  //           Navigator.of(context).pushAndRemoveUntil(
+  //             MaterialPageRoute(
+  //               builder: (context) => NumberVerifyPage(
+  //                 phoneNumber:
+  //                     phoneController.text.toString().trim().contains('+91 ')
+  //                         ? phoneController.text.toString().trim()
+  //                         : '+91 ${phoneController.text.toString().trim()}',
+  //                 verificationId: verificationId,
+  //                 isLogging: false,
+  //               ),
+  //             ),
+  //             (route) => false,
+  //           );
+  //         },
+  //         codeAutoRetrievalTimeout: (e) {
+  //           if (context.mounted) {
+  //             setState(() {
+  //               isPhoneSigningIn = false;
+  //             });
+  //             mySnackBar('Error: ${e.toString()}', context);
+  //           }
+  //         },
+  //       );
 
-        // await store.collection('Users').doc(auth.currentUser!.uid).set({
-        //   'Phone Number': phoneController.text.contains('+91')
-        //       ? phoneController.text
-        //       : '+91 ${phoneController.text}',
-        //   'Registration': 'phone number',
-        //   'Email': null,
-        //   'Name': null,
-        //   'recentShop': '',
-        //   'followedShops': [],
-        //   'wishlists': [],
-        //   'likedProducts': [],
-        //   'recentSearches': [],
-        //   'recentProducts': [],
-        //   // 'followedOrganizers': [],
-        //   // 'wishlistEvents': [],
-        //   // 'fcmToken': '',
-        // });
-        // if (mounted) {
-        //   Navigator.of(context).pushAndRemoveUntil(
-        //     MaterialPageRoute(
-        //       builder: (context) => const RegisterDetailsPage(
-        //         emailPhoneGoogleChosen: 2,
-        //       ),
-        //     ),
-        //     (route) => false,
-        //   );
-        // }
-      } catch (e) {
-        setState(() {
-          isPhoneSigningIn = false;
-        });
-        if (mounted) {
-          mySnackBar(e.toString(), context);
-        }
-      }
-    }
-  }
+  //       // await store.collection('Users').doc(auth.currentUser!.uid).set({
+  //       //   'Phone Number': phoneController.text.contains('+91')
+  //       //       ? phoneController.text
+  //       //       : '+91 ${phoneController.text}',
+  //       //   'Registration': 'phone number',
+  //       //   'Email': null,
+  //       //   'Name': null,
+  //       //   'recentShop': '',
+  //       //   'followedShops': [],
+  //       //   'wishlists': [],
+  //       //   'likedProducts': [],
+  //       //   'recentSearches': [],
+  //       //   'recentProducts': [],
+  //       //   // 'followedOrganizers': [],
+  //       //   // 'wishlistEvents': [],
+  //       //   // 'fcmToken': '',
+  //       // });
+  //       // if (mounted) {
+  //       //   Navigator.of(context).pushAndRemoveUntil(
+  //       //     MaterialPageRoute(
+  //       //       builder: (context) => const RegisterDetailsPage(
+  //       //         emailPhoneGoogleChosen: 2,
+  //       //       ),
+  //       //     ),
+  //       //     (route) => false,
+  //       //   );
+  //       // }
+  //     } catch (e) {
+  //       setState(() {
+  //         isPhoneSigningIn = false;
+  //       });
+  //       if (mounted) {
+  //         mySnackBar(e.toString(), context);
+  //       }
+  //     }
+  //   }
+  // }
 
-  // SIGN IN WITH GOOGLE
-  Future<void> signInWithGoogle(LocationProvider locationProvider) async {
-    try {
-      setState(() {
-        isGoogleSigningIn = true;
-      });
+  // // SIGN IN WITH GOOGLE
+  // Future<void> signInWithGoogle(LocationProvider locationProvider) async {
+  //   try {
+  //     setState(() {
+  //       isGoogleSigningIn = true;
+  //     });
 
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser!.authentication;
+  //     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+  //     final GoogleSignInAuthentication googleAuth =
+  //         await googleUser!.authentication;
 
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
+  //     final credential = GoogleAuthProvider.credential(
+  //       accessToken: googleAuth.accessToken,
+  //       idToken: googleAuth.idToken,
+  //     );
 
-      final userCredential = await auth.signInWithCredential(credential);
+  //     final userCredential = await auth.signInWithCredential(credential);
 
-      if (auth.currentUser != null) {
-        final vendorExistsSnap = await store
-            .collection('Business')
-            .doc('Owners')
-            .collection('Users')
-            .where('Email', isEqualTo: auth.currentUser!.email)
-            .where('Registration', isEqualTo: 'google')
-            .get();
+  //     if (auth.currentUser != null) {
+  //       final vendorExistsSnap = await store
+  //           .collection('Business')
+  //           .doc('Owners')
+  //           .collection('Users')
+  //           .where('Email', isEqualTo: auth.currentUser!.email)
+  //           .where('Registration', isEqualTo: 'google')
+  //           .get();
 
-        if (vendorExistsSnap.docs.isNotEmpty) {
-          await auth.signOut();
-          if (mounted) {
-            setState(() {
-              isGoogleSigningIn = false;
-            });
-            return mySnackBar(
-              'This account was created in Business app, use a different Google Account here',
-              context,
-            );
-          }
-        }
+  //       if (vendorExistsSnap.docs.isNotEmpty) {
+  //         await auth.signOut();
+  //         if (mounted) {
+  //           setState(() {
+  //             isGoogleSigningIn = false;
+  //           });
+  //           return mySnackBar(
+  //             'This account was created in Business app, use a different Google Account here',
+  //             context,
+  //           );
+  //         }
+  //       }
 
-        final userExistsSnap = await store
-            .collection('Users')
-            .where('Email', isEqualTo: auth.currentUser!.email)
-            .where('Registration', isEqualTo: 'google')
-            .get();
+  //       final userExistsSnap = await store
+  //           .collection('Users')
+  //           .where('Email', isEqualTo: auth.currentUser!.email)
+  //           .where('Registration', isEqualTo: 'google')
+  //           .get();
 
-        if (userExistsSnap.docs.isNotEmpty &&
-            (userCredential.additionalUserInfo == null
-                ? true
-                : !userCredential.additionalUserInfo!.isNewUser)) {
-          if (mounted) {
-            setState(() {
-              isGoogleSigningIn = false;
-            });
-            Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(
-                builder: (context) => MainPage(),
-              ),
-              (route) => false,
-            );
-            return mySnackBar(
-              'Signed In',
-              context,
-            );
-          }
-        }
+  //       if (userExistsSnap.docs.isNotEmpty &&
+  //           (userCredential.additionalUserInfo == null
+  //               ? true
+  //               : !userCredential.additionalUserInfo!.isNewUser)) {
+  //         if (mounted) {
+  //           setState(() {
+  //             isGoogleSigningIn = false;
+  //           });
+  //           Navigator.of(context).pushAndRemoveUntil(
+  //             MaterialPageRoute(
+  //               builder: (context) => MainPage(),
+  //             ),
+  //             (route) => false,
+  //           );
+  //           return mySnackBar(
+  //             'Signed In',
+  //             context,
+  //           );
+  //         }
+  //       }
 
-        await store.collection('Users').doc(auth.currentUser!.uid).set({
-          'Email': auth.currentUser!.email,
-          'Registration': 'google',
-          'Name': null,
-          'Phone Number': null,
-          'recentShop': '',
-          'followedShops': [],
-          'wishlists': [],
-          'likedProducts': [],
-          'recentSearches': [],
-          'recentProducts': [],
-          'location': 'Your Location',
-          'locationLatitude': locationProvider.cityLatitude,
-          'locationLongitude': locationProvider.cityLongitude,
-          // 'followedOrganizers': [],
-          // 'wishlistEvents': [],
-          // 'fcmToken': '',
-        });
+  //       await store.collection('Users').doc(auth.currentUser!.uid).set({
+  //         'Email': auth.currentUser!.email,
+  //         'Registration': 'google',
+  //         'Name': null,
+  //         'Phone Number': null,
+  //         'recentShop': '',
+  //         'followedShops': [],
+  //         'wishlists': [],
+  //         'likedProducts': [],
+  //         'recentSearches': [],
+  //         'recentProducts': [],
+  //         'location': 'Your Location',
+  //         'locationLatitude': locationProvider.cityLatitude,
+  //         'locationLongitude': locationProvider.cityLongitude,
+  //         // 'followedOrganizers': [],
+  //         // 'wishlistEvents': [],
+  //         // 'fcmToken': '',
+  //       });
 
-        setState(() {
-          isGoogleSigningIn = false;
-        });
+  //       setState(() {
+  //         isGoogleSigningIn = false;
+  //       });
 
-        if (context.mounted) {
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(
-              builder: (context) => const RegisterDetailsPage(
-                emailPhoneGoogleChosen: 3,
-              ),
-            ),
-            (route) => false,
-          );
-        }
-      } else {
-        if (mounted) {
-          mySnackBar(
-            'Some error occured\nTry signing with Email / Phone Number',
-            context,
-          );
-        }
-      }
-      setState(() {
-        isGoogleSigningIn = false;
-      });
-    } catch (e) {
-      setState(() {
-        isGoogleSigningIn = false;
-      });
-      if (mounted) {
-        mySnackBar(
-          'Error: ${e.toString()}',
-          context,
-        );
-      }
-    }
-  }
+  //       if (context.mounted) {
+  //         Navigator.of(context).pushAndRemoveUntil(
+  //           MaterialPageRoute(
+  //             builder: (context) => const RegisterDetailsPage(
+  //               emailPhoneGoogleChosen: 3,
+  //             ),
+  //           ),
+  //           (route) => false,
+  //         );
+  //       }
+  //     } else {
+  //       if (mounted) {
+  //         mySnackBar(
+  //           'Some error occured\nTry signing with Email / Phone Number',
+  //           context,
+  //         );
+  //       }
+  //     }
+  //     setState(() {
+  //       isGoogleSigningIn = false;
+  //     });
+  //   } catch (e) {
+  //     setState(() {
+  //       isGoogleSigningIn = false;
+  //     });
+  //     if (mounted) {
+  //       mySnackBar(
+  //         'Error: ${e.toString()}',
+  //         context,
+  //       );
+  //     }
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -478,132 +468,165 @@ class _SignInPageState extends State<SignInPage> {
         title: Text('Sign In'),
       ),
       body: SafeArea(
-          child: SingleChildScrollView(
-        child: Column(
-          children: [
-            // EMAIL
-            MyCollapseContainer(
-              text: 'Email',
-              width: width,
-              children: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: width * 0.066,
-                  vertical: width * 0.0225,
+          child: Padding(
+        padding: EdgeInsets.all(width * 0.0225),
+        child: SingleChildScrollView(
+          child: Form(
+            key: signInEmailFormKey,
+            child: Column(
+              children: [
+                MyTextFormField(
+                  hintText: 'Email',
+                  controller: emailController,
+                  borderRadius: 16,
+                  horizontalPadding: 0,
+                  keyboardType: TextInputType.emailAddress,
+                  autoFillHints: const [AutofillHints.email],
                 ),
-                child: Form(
-                  key: signInEmailFormKey,
-                  child: Column(
-                    children: [
-                      MyTextFormField(
-                        hintText: 'Email',
-                        controller: emailController,
-                        borderRadius: 16,
-                        horizontalPadding: 0,
-                        keyboardType: TextInputType.emailAddress,
-                        autoFillHints: const [AutofillHints.email],
-                      ),
-                      const SizedBox(height: 8),
-                      MyTextFormField(
-                        hintText: 'Password',
-                        controller: passwordController,
-                        borderRadius: 16,
-                        horizontalPadding: 0,
-                        isPassword: true,
-                        autoFillHints: const [AutofillHints.newPassword],
-                      ),
-                      const SizedBox(height: 8),
-                      MyButton(
-                        text: 'SIGN IN',
-                        onTap: () async {
-                          await signInWithEmail(locationProvider);
-                        },
-                        horizontalPadding: 0,
-                        isLoading: isEmailSigningIn,
-                      ),
-                    ],
-                  ),
+                const SizedBox(height: 8),
+                MyTextFormField(
+                  hintText: 'Password',
+                  controller: passwordController,
+                  borderRadius: 16,
+                  horizontalPadding: 0,
+                  isPassword: true,
+                  autoFillHints: const [AutofillHints.newPassword],
                 ),
-              ),
-            ),
-            const SizedBox(height: 16),
+                const SizedBox(height: 8),
+                MyButton(
+                  text: 'SIGN IN',
+                  onTap: () async {
+                    await signInWithEmail(locationProvider);
+                  },
+                  horizontalPadding: 0,
+                  isLoading: isEmailSigningIn,
+                ),
 
-            // GOOGLE
-            GestureDetector(
-              onTap: () async {
-                await signInWithGoogle(locationProvider);
-              },
-              child: Container(
-                width: width,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: primary2.withOpacity(0.75),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: EdgeInsets.symmetric(
-                  vertical: width * 0.033,
-                ),
-                margin: EdgeInsets.symmetric(
-                  horizontal: width * 0.035,
-                ),
-                child: isGoogleSigningIn
-                    ? const CircularProgressIndicator(
-                        color: primaryDark,
-                      )
-                    : Text(
-                        'Sign In With GOOGLE',
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: primaryDark,
-                          fontSize: width * 0.045,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-              ),
-            ),
-            SizedBox(height: 16),
+                // EMAIL
+                // MyCollapseContainer(
+                //   text: 'Email',
+                //   width: width,
+                //   children: Padding(
+                //     padding: EdgeInsets.symmetric(
+                //       horizontal: width * 0.066,
+                //       vertical: width * 0.0225,
+                //     ),
+                //     child: Form(
+                //       key: signInEmailFormKey,
+                //       child: Column(
+                //         children: [
+                //           MyTextFormField(
+                //             hintText: 'Email',
+                //             controller: emailController,
+                //             borderRadius: 16,
+                //             horizontalPadding: 0,
+                //             keyboardType: TextInputType.emailAddress,
+                //             autoFillHints: const [AutofillHints.email],
+                //           ),
+                //           const SizedBox(height: 8),
+                //           MyTextFormField(
+                //             hintText: 'Password',
+                //             controller: passwordController,
+                //             borderRadius: 16,
+                //             horizontalPadding: 0,
+                //             isPassword: true,
+                //             autoFillHints: const [AutofillHints.newPassword],
+                //           ),
+                //           const SizedBox(height: 8),
+                //           MyButton(
+                //             text: 'SIGN IN',
+                //             onTap: () async {
+                //               await signInWithEmail(locationProvider);
+                //             },
+                //             horizontalPadding: 0,
+                //             isLoading: isEmailSigningIn,
+                //           ),
+                //         ],
+                //       ),
+                //     ),
+                //   ),
+                // ),
+                // const SizedBox(height: 16),
 
-            // PHONE NUMBER
-            MyCollapseContainer(
-              width: width,
-              text: 'Phone Number',
-              children: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: width * 0.066,
-                  vertical: width * 0.0225,
-                ),
-                child: Form(
-                  key: signInNumberFormKey,
-                  child: Column(
-                    children: [
-                      MyTextFormField(
-                        hintText: 'Phone Number',
-                        controller: phoneController,
-                        keyboardType: TextInputType.number,
-                        borderRadius: 12,
-                        horizontalPadding: 0,
-                        autoFillHints: [AutofillHints.telephoneNumber],
-                      ),
-                      const SizedBox(height: 8),
-                      Padding(
-                        padding: EdgeInsets.only(
-                          bottom: MediaQuery.of(context).viewInsets.bottom,
-                        ),
-                        child: MyButton(
-                          text: 'SIGN IN',
-                          onTap: () async {
-                            await signInWithPhone();
-                          },
-                          horizontalPadding: 0,
-                          isLoading: isPhoneSigningIn,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+                // GOOGLE
+                // GestureDetector(
+                //   onTap: () async {
+                //     await signInWithGoogle(locationProvider);
+                //   },
+                //   child: Container(
+                //     width: width,
+                //     alignment: Alignment.center,
+                //     decoration: BoxDecoration(
+                //       color: primary2.withOpacity(0.75),
+                //       borderRadius: BorderRadius.circular(12),
+                //     ),
+                //     padding: EdgeInsets.symmetric(
+                //       vertical: width * 0.033,
+                //     ),
+                //     margin: EdgeInsets.symmetric(
+                //       horizontal: width * 0.035,
+                //     ),
+                //     child: isGoogleSigningIn
+                //         ? const CircularProgressIndicator(
+                //             color: primaryDark,
+                //           )
+                //         : Text(
+                //             'Sign In With GOOGLE',
+                //             maxLines: 2,
+                //             overflow: TextOverflow.ellipsis,
+                //             style: TextStyle(
+                //               color: primaryDark,
+                //               fontSize: width * 0.045,
+                //               fontWeight: FontWeight.w600,
+                //             ),
+                //           ),
+                //   ),
+                // ),
+                // SizedBox(height: 16),
+
+                // // PHONE NUMBER
+                // MyCollapseContainer(
+                //   width: width,
+                //   text: 'Phone Number',
+                //   children: Padding(
+                //     padding: EdgeInsets.symmetric(
+                //       horizontal: width * 0.066,
+                //       vertical: width * 0.0225,
+                //     ),
+                //     child: Form(
+                //       key: signInNumberFormKey,
+                //       child: Column(
+                //         children: [
+                //           MyTextFormField(
+                //             hintText: 'Phone Number',
+                //             controller: phoneController,
+                //             keyboardType: TextInputType.number,
+                //             borderRadius: 12,
+                //             horizontalPadding: 0,
+                //             autoFillHints: [AutofillHints.telephoneNumber],
+                //           ),
+                //           const SizedBox(height: 8),
+                //           Padding(
+                //             padding: EdgeInsets.only(
+                //               bottom: MediaQuery.of(context).viewInsets.bottom,
+                //             ),
+                //             child: MyButton(
+                //               text: 'SIGN IN',
+                //               onTap: () async {
+                //                 await signInWithPhone();
+                //               },
+                //               horizontalPadding: 0,
+                //               isLoading: isPhoneSigningIn,
+                //             ),
+                //           ),
+                //         ],
+                //       ),
+                //     ),
+                //   ),
+                // ),
+              ],
             ),
-          ],
+          ),
         ),
       )
           // : Row(

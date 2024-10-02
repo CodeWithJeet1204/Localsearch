@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:localsearch/page/main/vendor/vendor_page.dart';
 import 'package:localsearch/utils/colors.dart';
+import 'package:localsearch/widgets/sign_in_dialog.dart';
 import 'package:localsearch/widgets/skeleton_container.dart';
 import 'package:localsearch/widgets/snack_bar.dart';
 import 'package:localsearch/widgets/text_button.dart';
@@ -39,7 +40,9 @@ class _FollowedPageState extends State<FollowedPage>
   @override
   void initState() {
     scrollController.addListener(scrollListener);
-    getShops();
+    if (auth.currentUser != null) {
+      getShops();
+    }
     // getOrganizers();
     super.initState();
     // tabController = TabController(
@@ -79,32 +82,35 @@ class _FollowedPageState extends State<FollowedPage>
     final userData = userSnap.data()!;
     final myFollowedShops = userData['followedShops'] as List;
 
-    await Future.forEach(myFollowedShops, (vendorId) async {
-      final vendorSnap = await store
-          .collection('Business')
-          .doc('Owners')
-          .collection('Shops')
-          .doc(vendorId)
-          .get();
+    await Future.forEach(
+      myFollowedShops,
+      (vendorId) async {
+        final vendorSnap = await store
+            .collection('Business')
+            .doc('Owners')
+            .collection('Shops')
+            .doc(vendorId)
+            .get();
 
-      if (vendorSnap.exists) {
-        final vendorData = vendorSnap.data()!;
-        final id = vendorId as String;
-        final name = vendorData['Name'] as String;
-        final imageUrl = vendorData['Image'] as String;
-        final latitude = vendorData['Latitude'] as double;
-        final longitude = vendorData['Longitude'] as double;
-        final type = vendorData['Type'] as List;
+        if (vendorSnap.exists) {
+          final vendorData = vendorSnap.data()!;
+          final id = vendorId as String;
+          final name = vendorData['Name'] as String;
+          final imageUrl = vendorData['Image'] as String;
+          final latitude = vendorData['Latitude'] as double;
+          final longitude = vendorData['Longitude'] as double;
+          final type = vendorData['Type'] as List;
 
-        vendors[id] = [name, imageUrl, latitude, longitude, type];
-      } else {
-        myFollowedShops.remove(vendorId);
+          vendors[id] = [name, imageUrl, latitude, longitude, type];
+        } else {
+          myFollowedShops.remove(vendorId);
 
-        await store.collection('Users').doc(auth.currentUser!.uid).update({
-          'followedShops': myFollowedShops,
-        });
-      }
-    });
+          await store.collection('Users').doc(auth.currentUser!.uid).update({
+            'followedShops': myFollowedShops,
+          });
+        }
+      },
+    );
 
     setState(() {
       shops = vendors;
@@ -303,268 +309,305 @@ class _FollowedPageState extends State<FollowedPage>
           physics: const NeverScrollableScrollPhysics(),
           children: [*/
             // SHOPS
-            !isShopsData
-                ? Column(
-                    children: [
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width,
-                        height: MediaQuery.of(context).size.width * 0.175,
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: 4,
-                          scrollDirection: Axis.horizontal,
-                          physics: const ClampingScrollPhysics(),
-                          itemBuilder: ((context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.all(8),
-                              child: SkeletonContainer(
-                                width: MediaQuery.of(context).size.width * 0.3,
-                                height: 40,
-                              ),
-                            );
-                          }),
-                        ),
+            auth.currentUser == null
+                ? Center(
+                    child: SizedBox(
+                      height: 160,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text('Sign In to Follow Shops'),
+                          MyTextButton(
+                            onPressed: () async {
+                              await showSignInDialog(context);
+                            },
+                            text: 'SIGN IN',
+                            textColor: primaryDark,
+                          ),
+                        ],
                       ),
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width,
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: 4,
-                          physics: const ClampingScrollPhysics(),
-                          itemBuilder: ((context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.all(8),
-                              child: SkeletonContainer(
-                                width: MediaQuery.of(context).size.width,
-                                height: 80,
-                              ),
-                            );
-                          }),
-                        ),
-                      ),
-                    ],
-                  )
-                : Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: MediaQuery.of(context).size.width * 0.00625,
                     ),
-                    child: LayoutBuilder(
-                      builder: ((context, constraints) {
-                        final width = constraints.maxWidth;
-                        final currentShops = selectedShopType == null
-                            ? shops
-                            : Map.fromEntries(
-                                shops.entries.where(
-                                  (entry) => (entry.value[4] as List)
-                                      .contains(selectedShopType),
-                                ),
-                              );
-
-                        return SingleChildScrollView(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // SHOP TYPE CHIPS
-                              shopTypes.length < 2
-                                  ? Container()
-                                  : Padding(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: width * 0.0125,
-                                        vertical: width * 0.00625,
-                                      ),
-                                      child: SizedBox(
-                                        width: width,
-                                        height: 40,
-                                        child: ListView.builder(
-                                          shrinkWrap: true,
-                                          scrollDirection: Axis.horizontal,
-                                          physics:
-                                              const ClampingScrollPhysics(),
-                                          itemCount: shopTypes.length,
-                                          itemBuilder: ((context, index) {
-                                            final type = shopTypes[index];
-
-                                            return Padding(
-                                              padding: EdgeInsets.symmetric(
-                                                horizontal: width * 0.01,
-                                              ),
-                                              child: ActionChip(
-                                                label: Text(
-                                                  type.toString().trim(),
-                                                  maxLines: 1,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: TextStyle(
-                                                    color:
-                                                        selectedShopType == type
-                                                            ? white
-                                                            : primaryDark,
-                                                  ),
-                                                ),
-                                                tooltip: 'See $type',
-                                                onPressed: () {
-                                                  setState(() {
-                                                    if (selectedShopType ==
-                                                        type) {
-                                                      selectedShopType = null;
-                                                    } else {
-                                                      selectedShopType = type;
-                                                    }
-                                                  });
-                                                },
-                                                backgroundColor:
-                                                    selectedShopType == type
-                                                        ? primaryDark
-                                                        : primary2,
-                                              ),
-                                            );
-                                          }),
-                                        ),
-                                      ),
+                  )
+                : !isShopsData
+                    ? Column(
+                        children: [
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.width * 0.175,
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: 4,
+                              scrollDirection: Axis.horizontal,
+                              physics: const ClampingScrollPhysics(),
+                              itemBuilder: ((context, index) {
+                                return Padding(
+                                  padding: const EdgeInsets.all(8),
+                                  child: SkeletonContainer(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.3,
+                                    height: 40,
+                                  ),
+                                );
+                              }),
+                            ),
+                          ),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width,
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: 4,
+                              physics: const ClampingScrollPhysics(),
+                              itemBuilder: ((context, index) {
+                                return Padding(
+                                  padding: const EdgeInsets.all(8),
+                                  child: SkeletonContainer(
+                                    width: MediaQuery.of(context).size.width,
+                                    height: 80,
+                                  ),
+                                );
+                              }),
+                            ),
+                          ),
+                        ],
+                      )
+                    : Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal:
+                              MediaQuery.of(context).size.width * 0.00625,
+                        ),
+                        child: LayoutBuilder(
+                          builder: ((context, constraints) {
+                            final width = constraints.maxWidth;
+                            final currentShops = selectedShopType == null
+                                ? shops
+                                : Map.fromEntries(
+                                    shops.entries.where(
+                                      (entry) => (entry.value[4] as List)
+                                          .contains(selectedShopType),
                                     ),
+                                  );
 
-                              currentShops.isEmpty
-                                  ? const SizedBox(
-                                      height: 80,
-                                      child: Center(
-                                        child: Text(
-                                          'No Shops',
+                            return SingleChildScrollView(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // SHOP TYPE CHIPS
+                                  shopTypes.length < 2
+                                      ? Container()
+                                      : Padding(
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: width * 0.0125,
+                                            vertical: width * 0.00625,
+                                          ),
+                                          child: SizedBox(
+                                            width: width,
+                                            height: 40,
+                                            child: ListView.builder(
+                                              shrinkWrap: true,
+                                              scrollDirection: Axis.horizontal,
+                                              physics:
+                                                  const ClampingScrollPhysics(),
+                                              itemCount: shopTypes.length,
+                                              itemBuilder: ((context, index) {
+                                                final type = shopTypes[index];
+
+                                                return Padding(
+                                                  padding: EdgeInsets.symmetric(
+                                                    horizontal: width * 0.01,
+                                                  ),
+                                                  child: ActionChip(
+                                                    label: Text(
+                                                      type.toString().trim(),
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: TextStyle(
+                                                        color:
+                                                            selectedShopType ==
+                                                                    type
+                                                                ? white
+                                                                : primaryDark,
+                                                      ),
+                                                    ),
+                                                    tooltip: 'See $type',
+                                                    onPressed: () {
+                                                      setState(() {
+                                                        if (selectedShopType ==
+                                                            type) {
+                                                          selectedShopType =
+                                                              null;
+                                                        } else {
+                                                          selectedShopType =
+                                                              type;
+                                                        }
+                                                      });
+                                                    },
+                                                    backgroundColor:
+                                                        selectedShopType == type
+                                                            ? primaryDark
+                                                            : primary2,
+                                                  ),
+                                                );
+                                              }),
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    )
-                                  : Padding(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: width * 0.0125,
-                                        vertical: width * 0.0125,
-                                      ),
-                                      child: SizedBox(
-                                        width: width,
-                                        child: ListView.builder(
-                                          shrinkWrap: true,
-                                          physics:
-                                              const ClampingScrollPhysics(),
-                                          itemCount: noOf > currentShops.length
-                                              ? currentShops.length
-                                              : noOf,
-                                          itemBuilder: ((context, index) {
-                                            final id =
-                                                currentShops.keys.toList()[
-                                                    isLoadMore
-                                                        ? index == 0
-                                                            ? 0
-                                                            : index - 1
-                                                        : index];
-                                            final name =
-                                                currentShops.values.toList()[
+
+                                  currentShops.isEmpty
+                                      ? const SizedBox(
+                                          height: 80,
+                                          child: Center(
+                                            child: Text(
+                                              'No Shops',
+                                            ),
+                                          ),
+                                        )
+                                      : Padding(
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: width * 0.0125,
+                                            vertical: width * 0.0125,
+                                          ),
+                                          child: SizedBox(
+                                            width: width,
+                                            child: ListView.builder(
+                                              shrinkWrap: true,
+                                              physics:
+                                                  const ClampingScrollPhysics(),
+                                              itemCount:
+                                                  noOf > currentShops.length
+                                                      ? currentShops.length
+                                                      : noOf,
+                                              itemBuilder: ((context, index) {
+                                                final id =
+                                                    currentShops.keys.toList()[
+                                                        isLoadMore
+                                                            ? index == 0
+                                                                ? 0
+                                                                : index - 1
+                                                            : index];
+                                                final name = currentShops.values
+                                                        .toList()[
                                                     isLoadMore
                                                         ? index - 1
                                                         : index][0];
-                                            final imageUrl =
-                                                currentShops.values.toList()[
+                                                final imageUrl = currentShops
+                                                        .values
+                                                        .toList()[
                                                     isLoadMore
                                                         ? index - 1
                                                         : index][1];
-                                            final latitude =
-                                                currentShops.values.toList()[
+                                                final latitude = currentShops
+                                                        .values
+                                                        .toList()[
                                                     isLoadMore
                                                         ? index - 1
                                                         : index][2];
-                                            final longitude =
-                                                currentShops.values.toList()[
+                                                final longitude = currentShops
+                                                        .values
+                                                        .toList()[
                                                     isLoadMore
                                                         ? index - 1
                                                         : index][3];
 
-                                            return GestureDetector(
-                                              onTap: () {
-                                                Navigator.of(context).push(
-                                                  MaterialPageRoute(
-                                                    builder: ((context) =>
-                                                        VendorPage(
-                                                          vendorId: id,
-                                                        )),
+                                                return GestureDetector(
+                                                  onTap: () {
+                                                    Navigator.of(context).push(
+                                                      MaterialPageRoute(
+                                                        builder: ((context) =>
+                                                            VendorPage(
+                                                              vendorId: id,
+                                                            )),
+                                                      ),
+                                                    );
+                                                  },
+                                                  child: ListTile(
+                                                    splashColor: white,
+                                                    visualDensity:
+                                                        VisualDensity.standard,
+                                                    tileColor: white,
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                        8,
+                                                      ),
+                                                      side: BorderSide(
+                                                        color: primaryDark
+                                                            .withOpacity(0.5),
+                                                      ),
+                                                    ),
+                                                    leading: CircleAvatar(
+                                                      backgroundColor: primary2,
+                                                      backgroundImage:
+                                                          NetworkImage(
+                                                        imageUrl
+                                                            .toString()
+                                                            .trim(),
+                                                      ),
+                                                    ),
+                                                    title: Text(
+                                                      name.toString().trim(),
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                    subtitle: FutureBuilder(
+                                                        future: getAddress(
+                                                          latitude,
+                                                          longitude,
+                                                        ),
+                                                        builder: (context,
+                                                            snapshot) {
+                                                          if (snapshot
+                                                              .hasError) {
+                                                            return Container();
+                                                          }
+
+                                                          if (snapshot
+                                                              .hasData) {
+                                                            return Text(
+                                                              snapshot.data!
+                                                                  .toString()
+                                                                  .toString()
+                                                                  .trim(),
+                                                              maxLines: 1,
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                            );
+                                                          }
+
+                                                          return Container();
+                                                        }),
+                                                    titleTextStyle: TextStyle(
+                                                      color: primaryDark,
+                                                      fontSize: width * 0.0475,
+                                                    ),
+                                                    subtitleTextStyle:
+                                                        TextStyle(
+                                                      color: primaryDark2,
+                                                      fontSize: width * 0.04,
+                                                    ),
+                                                    trailing: MyTextButton(
+                                                      onPressed: () async {
+                                                        await remove(id);
+                                                      },
+                                                      text: 'Unfollow',
+                                                      textColor: Colors.red,
+                                                    ),
                                                   ),
                                                 );
-                                              },
-                                              child: ListTile(
-                                                splashColor: white,
-                                                visualDensity:
-                                                    VisualDensity.standard,
-                                                tileColor: white,
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                    8,
-                                                  ),
-                                                  side: BorderSide(
-                                                    color: primaryDark
-                                                        .withOpacity(0.5),
-                                                  ),
-                                                ),
-                                                leading: CircleAvatar(
-                                                  backgroundColor: primary2,
-                                                  backgroundImage: NetworkImage(
-                                                    imageUrl.toString().trim(),
-                                                  ),
-                                                ),
-                                                title: Text(
-                                                  name.toString().trim(),
-                                                  maxLines: 1,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
-                                                subtitle: FutureBuilder(
-                                                    future: getAddress(
-                                                      latitude,
-                                                      longitude,
-                                                    ),
-                                                    builder:
-                                                        (context, snapshot) {
-                                                      if (snapshot.hasError) {
-                                                        return Container();
-                                                      }
-
-                                                      if (snapshot.hasData) {
-                                                        return Text(
-                                                          snapshot.data!
-                                                              .toString()
-                                                              .toString()
-                                                              .trim(),
-                                                          maxLines: 1,
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                        );
-                                                      }
-
-                                                      return Container();
-                                                    }),
-                                                titleTextStyle: TextStyle(
-                                                  color: primaryDark,
-                                                  fontSize: width * 0.0475,
-                                                ),
-                                                subtitleTextStyle: TextStyle(
-                                                  color: primaryDark2,
-                                                  fontSize: width * 0.04,
-                                                ),
-                                                trailing: MyTextButton(
-                                                  onPressed: () async {
-                                                    await remove(id);
-                                                  },
-                                                  text: 'Unfollow',
-                                                  textColor: Colors.red,
-                                                ),
-                                              ),
-                                            );
-                                          }),
+                                              }),
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    ),
-                            ],
-                          ),
-                        );
-                      }),
-                    ),
-                  ),
+                                ],
+                              ),
+                            );
+                          }),
+                        ),
+                      ),
 
         // ORGANIZERS
         // !isOrganizersData

@@ -85,10 +85,14 @@ class _ProductHomePageState extends State<ProductHomePage> {
 
   // GET DATA
   Future<void> getData(bool fromRefreshIndicator) async {
-    final userSnap =
-        await store.collection('Users').doc(auth.currentUser!.uid).get();
+    Map<String, dynamic> userData = {};
 
-    final userData = userSnap.data()!;
+    if (auth.currentUser != null) {
+      final userSnap =
+          await store.collection('Users').doc(auth.currentUser!.uid).get();
+
+      userData = userSnap.data()!;
+    }
 
     final locationProvider = Provider.of<LocationProvider>(
       context,
@@ -114,12 +118,12 @@ class _ProductHomePageState extends State<ProductHomePage> {
 
     // GET EXHIBITIONS
     Future<void> getExhibitions() async {
-      print('city: ${userData['City']}');
-
-      final exhibitionSnap = await store
-          .collection('Exhibitions')
-          .where('City', isEqualTo: userData['City'])
-          .get();
+      final exhibitionSnap = auth.currentUser == null
+          ? await store.collection('Exhibitions').get()
+          : await store
+              .collection('Exhibitions')
+              .where('City', isEqualTo: userData['City'])
+              .get();
 
       for (var exhibition in exhibitionSnap.docs) {
         final exhibitionData = exhibition.data();
@@ -137,13 +141,16 @@ class _ProductHomePageState extends State<ProductHomePage> {
     // GET STATUS
     Future<void> getStatus() async {
       Map<String, Map<String, dynamic>> myStatus = {};
+      List followedShops = [];
 
-      final userSnap =
-          await store.collection('Users').doc(auth.currentUser!.uid).get();
+      if (auth.currentUser != null) {
+        final userSnap =
+            await store.collection('Users').doc(auth.currentUser!.uid).get();
 
-      final userData = userSnap.data()!;
+        final userData = userSnap.data()!;
 
-      final List followedShops = userData['followedShops'];
+        followedShops = userData['followedShops'];
+      }
 
       final statusSnap = await store
           .collection('Business')
@@ -275,7 +282,6 @@ class _ProductHomePageState extends State<ProductHomePage> {
 
     // GET RECENT SHOP
     Future<void> getRecentShop() async {
-      print('user data: $userData');
       final myRecentShop = userData['recentShop'];
       Map<String, Map<String, dynamic>> myRecentShopProducts = {};
 
@@ -309,7 +315,6 @@ class _ProductHomePageState extends State<ProductHomePage> {
 
           myRecentShopProducts =
               Map<String, Map<String, dynamic>>.fromEntries(sortedEntries);
-          print('added All');
           if (mounted) {
             setState(() {
               recentShop = myRecentShop;
@@ -615,9 +620,11 @@ class _ProductHomePageState extends State<ProductHomePage> {
     }
 
     if (mounted) {
-      try {
-        await getName();
-      } catch (e) {}
+      if (auth.currentUser != null) {
+        try {
+          await getName();
+        } catch (e) {}
+      }
       try {
         await getExhibitions();
       } catch (e) {}
@@ -627,15 +634,17 @@ class _ProductHomePageState extends State<ProductHomePage> {
       try {
         await getShopTypes();
       } catch (e) {}
-      try {
-        await getRecentShop();
-      } catch (e) {}
-      try {
-        await getWishlist();
-      } catch (e) {}
-      try {
-        await getFollowedShops();
-      } catch (e) {}
+      if (auth.currentUser != null) {
+        try {
+          await getRecentShop();
+        } catch (e) {}
+        try {
+          await getWishlist();
+        } catch (e) {}
+        try {
+          await getFollowedShops();
+        } catch (e) {}
+      }
       try {
         await getFeatured();
       } catch (e) {}
@@ -832,28 +841,37 @@ class _ProductHomePageState extends State<ProductHomePage> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: 'Hi, ',
+            auth.currentUser == null
+                ? Text(
+                    'Hi',
                     style: TextStyle(
                       fontSize: width * 0.0575,
                       color: primaryDark,
                       fontWeight: FontWeight.w500,
                     ),
-                  ),
-                  TextSpan(
-                    text: name == null ? '' : name!.toString().trim(),
-                    style: TextStyle(
-                      fontSize: width * 0.06,
-                      color: const Color.fromRGBO(52, 127, 255, 1),
-                      fontWeight: FontWeight.w600,
+                  )
+                : RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'Hi, ',
+                          style: TextStyle(
+                            fontSize: width * 0.0575,
+                            color: primaryDark,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        TextSpan(
+                          text: name == null ? '' : name!.toString().trim(),
+                          style: TextStyle(
+                            fontSize: width * 0.06,
+                            color: const Color.fromRGBO(52, 127, 255, 1),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            ),
 
             // SELECT LOCATION
             GestureDetector(

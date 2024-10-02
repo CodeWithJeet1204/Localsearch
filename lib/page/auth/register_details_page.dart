@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:localsearch/providers/location_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:localsearch/page/main/main_page.dart';
 import 'package:localsearch/utils/colors.dart';
 import 'package:localsearch/widgets/button.dart';
 import 'package:localsearch/widgets/snack_bar.dart';
@@ -115,8 +114,9 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
 
       try {
         if (auth.currentUser!.email == null) {
-          await auth.currentUser!
-              .verifyBeforeUpdateEmail(emailController.text.toString().trim());
+          await auth.currentUser!.verifyBeforeUpdateEmail(
+            emailController.text.toString().trim(),
+          );
           await showDialog(
             context: context,
             builder: (context) => AlertDialog(
@@ -148,12 +148,14 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
           isSaving = false;
         });
         if (mounted) {
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(
-              builder: (context) => const MainPage(),
-            ),
-            (route) => false,
-          );
+          if (widget.emailPhoneGoogleChosen == 1) {
+            Navigator.of(context).pop();
+            Navigator.of(context).pop();
+          } else {
+            Navigator.of(context).pop();
+            Navigator.of(context).pop();
+            Navigator.of(context).pop();
+          }
         }
       } catch (e) {
         if (mounted) {
@@ -168,203 +170,207 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
     final width = MediaQuery.of(context).size.width;
     final locationProvider = Provider.of<LocationProvider>(context);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Your Details*'),
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: width * 0.045),
-          child: LayoutBuilder(
-            builder: ((context, constraints) {
-              final width = constraints.maxWidth;
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Your Details*'),
+        ),
+        body: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: width * 0.045),
+            child: LayoutBuilder(
+              builder: ((context, constraints) {
+                final width = constraints.maxWidth;
 
-              return SingleChildScrollView(
-                child: Form(
-                  key: registerDetailsKey,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // FORM
-                      MyTextFormField(
-                        hintText: 'Name',
-                        controller: nameController,
-                        borderRadius: 12,
-                        horizontalPadding: 0,
-                        verticalPadding: 12,
-                        autoFillHints: const [],
-                      ),
-
-                      // EMAIL
-                      widget.emailPhoneGoogleChosen == 2
-                          ? MyTextFormField(
-                              hintText: 'Email',
-                              controller: emailController,
-                              keyboardType: TextInputType.emailAddress,
-                              borderRadius: 12,
-                              horizontalPadding: 0,
-                              autoFillHints: const [AutofillHints.email],
-                            )
-
-                          // PHONE NUMBER
-                          : MyTextFormField(
-                              hintText: 'Phone Number',
-                              controller: phoneController,
-                              borderRadius: 12,
-                              horizontalPadding: 0,
-                              verticalPadding: 12,
-                              autoFillHints: const [
-                                AutofillHints.telephoneNumber
-                              ],
-                              keyboardType: TextInputType.number,
-                            ),
-
-                      const SizedBox(height: 8),
-
-                      // LOCATION
-                      GestureDetector(
-                        onTap: () async {
-                          setState(() {
-                            isGettingLocation = true;
-                          });
-
-                          final cityLatitude = locationProvider.cityLatitude;
-                          final cityLongitude = locationProvider.cityLongitude;
-
-                          setState(() {
-                            latitude = cityLatitude;
-                            longitude = cityLongitude;
-                          });
-
-                          if (latitude != null && longitude != null) {
-                            await getAddress(latitude!, longitude!);
-                          }
-                          setState(() {
-                            isGettingLocation = false;
-                          });
-                        },
-                        child: Align(
-                          alignment: Alignment.center,
-                          child: Container(
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: primary2,
-                              borderRadius: BorderRadius.circular(24),
-                            ),
-                            padding: EdgeInsets.all(width * 0.025),
-                            child: isGettingLocation
-                                ? const Center(
-                                    child: CircularProgressIndicator(),
-                                  )
-                                : Text(
-                                    address != null
-                                        ? address!.toString().trim()
-                                        : 'Get Location',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: width * 0.045,
-                                      color: primaryDark2,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                          ),
+                return SingleChildScrollView(
+                  child: Form(
+                    key: registerDetailsKey,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // FORM
+                        MyTextFormField(
+                          hintText: 'Name',
+                          controller: nameController,
+                          borderRadius: 12,
+                          horizontalPadding: 0,
+                          verticalPadding: 12,
+                          autoFillHints: const [],
                         ),
-                      ),
 
-                      const SizedBox(height: 8),
+                        // EMAIL
+                        widget.emailPhoneGoogleChosen == 2
+                            ? MyTextFormField(
+                                hintText: 'Email',
+                                controller: emailController,
+                                keyboardType: TextInputType.emailAddress,
+                                borderRadius: 12,
+                                horizontalPadding: 0,
+                                autoFillHints: const [AutofillHints.email],
+                              )
 
-                      // SELECT GENDER
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 2,
-                          ),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: primary2,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 4,
-                            ),
-                            child: DropdownButton(
-                              value: selectedGender,
-                              hint: const Text(
-                                'Select Gender',
-                                style: TextStyle(
-                                  color: primaryDark2,
-                                ),
+                            // PHONE NUMBER
+                            : MyTextFormField(
+                                hintText: 'Phone Number',
+                                controller: phoneController,
+                                borderRadius: 12,
+                                horizontalPadding: 0,
+                                verticalPadding: 12,
+                                autoFillHints: const [
+                                  AutofillHints.telephoneNumber
+                                ],
+                                keyboardType: TextInputType.number,
                               ),
-                              underline: const SizedBox(),
-                              iconEnabledColor: primaryDark,
-                              dropdownColor: primary2,
-                              items: ['Male', 'Female']
-                                  .map(
-                                    (e) => DropdownMenuItem(
-                                      value: e,
-                                      child: Text(
-                                        e.toString().trim(),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
+
+                        const SizedBox(height: 8),
+
+                        // LOCATION
+                        GestureDetector(
+                          onTap: () async {
+                            setState(() {
+                              isGettingLocation = true;
+                            });
+
+                            final cityLatitude = locationProvider.cityLatitude;
+                            final cityLongitude =
+                                locationProvider.cityLongitude;
+
+                            setState(() {
+                              latitude = cityLatitude;
+                              longitude = cityLongitude;
+                            });
+
+                            if (latitude != null && longitude != null) {
+                              await getAddress(latitude!, longitude!);
+                            }
+                            setState(() {
+                              isGettingLocation = false;
+                            });
+                          },
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: Container(
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: primary2,
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              padding: EdgeInsets.all(width * 0.025),
+                              child: isGettingLocation
+                                  ? const Center(
+                                      child: CircularProgressIndicator(),
+                                    )
+                                  : Text(
+                                      address != null
+                                          ? address!.toString().trim()
+                                          : 'Get Location',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: width * 0.045,
+                                        color: primaryDark2,
+                                        fontWeight: FontWeight.w500,
                                       ),
                                     ),
-                                  )
-                                  .toList(),
-                              onChanged: (value) {
-                                setState(() {
-                                  selectedGender = value;
-                                });
-                              },
                             ),
                           ),
                         ),
-                      ),
 
-                      // SAVE
-                      MyButton(
-                        text: 'SAVE',
-                        onTap: () async {
-                          await save();
-                        },
-                        isLoading: isSaving,
-                        horizontalPadding: 0,
-                        verticalPadding: 12,
-                      ),
+                        const SizedBox(height: 8),
 
-                      // INFO
-                      // Padding(
-                      //   padding: EdgeInsets.only(
-                      //     bottom: MediaQuery.of(context).viewInsets.bottom,
-                      //   ),
-                      //   child: Row(
-                      //     mainAxisAlignment: MainAxisAlignment.start,
-                      //     children: [
-                      //       IconButton(
-                      //         onPressed: () async {
-                      //           await showInfoDialog();
-                      //         },
-                      //         icon: const Icon(
-                      //           Icons.info_outline_rounded,
-                      //           size: 20,
-                      //         ),
-                      //       ),
-                      //       const Text(
-                      //         'Why we collect this info?',
-                      //         style: TextStyle(
-                      //           fontSize: 12,
-                      //         ),
-                      //       ),
-                      //     ],
-                      //   ),
-                      // ),
-                    ],
+                        // SELECT GENDER
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 2,
+                            ),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: primary2,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
+                              child: DropdownButton(
+                                value: selectedGender,
+                                hint: const Text(
+                                  'Select Gender',
+                                  style: TextStyle(
+                                    color: primaryDark2,
+                                  ),
+                                ),
+                                underline: const SizedBox(),
+                                iconEnabledColor: primaryDark,
+                                dropdownColor: primary2,
+                                items: ['Male', 'Female']
+                                    .map(
+                                      (e) => DropdownMenuItem(
+                                        value: e,
+                                        child: Text(
+                                          e.toString().trim(),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    )
+                                    .toList(),
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedGender = value;
+                                  });
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        // SAVE
+                        MyButton(
+                          text: 'SAVE',
+                          onTap: () async {
+                            await save();
+                          },
+                          isLoading: isSaving,
+                          horizontalPadding: 0,
+                          verticalPadding: 12,
+                        ),
+
+                        // INFO
+                        // Padding(
+                        //   padding: EdgeInsets.only(
+                        //     bottom: MediaQuery.of(context).viewInsets.bottom,
+                        //   ),
+                        //   child: Row(
+                        //     mainAxisAlignment: MainAxisAlignment.start,
+                        //     children: [
+                        //       IconButton(
+                        //         onPressed: () async {
+                        //           await showInfoDialog();
+                        //         },
+                        //         icon: const Icon(
+                        //           Icons.info_outline_rounded,
+                        //           size: 20,
+                        //         ),
+                        //       ),
+                        //       const Text(
+                        //         'Why we collect this info?',
+                        //         style: TextStyle(
+                        //           fontSize: 12,
+                        //         ),
+                        //       ),
+                        //     ],
+                        //   ),
+                        // ),
+                      ],
+                    ),
                   ),
-                ),
-              );
-            }),
+                );
+              }),
+            ),
           ),
         ),
       ),

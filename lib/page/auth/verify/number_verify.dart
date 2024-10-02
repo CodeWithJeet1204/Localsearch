@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:localsearch/page/auth/register_details_page.dart';
-import 'package:localsearch/page/main/main_page.dart';
 import 'package:localsearch/providers/location_provider.dart';
 import 'package:localsearch/utils/colors.dart';
 import 'package:localsearch/widgets/button.dart';
@@ -85,13 +84,15 @@ class _NumberVerifyPageState extends State<NumberVerifyPage> {
           });
 
           if (mounted) {
+            if (widget.isLogging) {
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+            }
             Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(
-                builder: (context) => widget.isLogging
-                    ? const MainPage()
-                    : const RegisterDetailsPage(
-                        emailPhoneGoogleChosen: 2,
-                      ),
+                builder: (context) => const RegisterDetailsPage(
+                  emailPhoneGoogleChosen: 2,
+                ),
               ),
               (route) => false,
             );

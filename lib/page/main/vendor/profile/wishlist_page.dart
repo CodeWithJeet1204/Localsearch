@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:localsearch/page/main/vendor/product/product_page.dart';
 import 'package:localsearch/utils/colors.dart';
+import 'package:localsearch/widgets/sign_in_dialog.dart';
 import 'package:localsearch/widgets/skeleton_container.dart';
 import 'package:localsearch/widgets/text_button.dart';
 import 'package:localsearch/widgets/video_tutorial.dart';
@@ -33,7 +34,9 @@ class _WishlistPageState extends State<WishlistPage> {
   @override
   void initState() {
     scrollController.addListener(scrollListener);
-    getWishlists();
+    if (auth.currentUser != null) {
+      getWishlists();
+    }
     // getEventWishlist();
     super.initState();
     // tabController = TabController(
@@ -331,231 +334,302 @@ class _WishlistPageState extends State<WishlistPage> {
           physics: const NeverScrollableScrollPhysics(),
           children: [*/
 
-            Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: MediaQuery.of(context).size.width * 0.0125,
-              ),
-              child: LayoutBuilder(
-                builder: ((context, constraints) {
-                  final width = constraints.maxWidth;
-                  final currentWishlists = selectedCategory == null
-                      ? wishlistProducts
-                      : Map.fromEntries(
-                          wishlistProducts.entries.where(
-                            (entry) => entry.value[3] == selectedCategory,
+            auth.currentUser == null
+                ? Center(
+                    child: SizedBox(
+                      height: 160,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text('Sign In to Wishlist Products'),
+                          MyTextButton(
+                            onPressed: () async {
+                              await showSignInDialog(context);
+                            },
+                            text: 'SIGN IN',
+                            textColor: primaryDark,
                           ),
-                        );
-
-                  return SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // CATEGORY CHIPS
-                        !isData
-                            ? SizedBox(
-                                width: MediaQuery.of(context).size.width,
-                                height:
-                                    MediaQuery.of(context).size.width * 0.175,
-                                child: ListView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: 4,
-                                  scrollDirection: Axis.horizontal,
-                                  physics: const ClampingScrollPhysics(),
-                                  itemBuilder: ((context, index) {
-                                    return Padding(
-                                      padding: const EdgeInsets.all(8),
-                                      child: SkeletonContainer(
-                                        width:
-                                            (MediaQuery.of(context).size.width *
-                                                    0.3)
-                                                .toDouble(),
-                                        height: 40,
-                                      ),
-                                    );
-                                  }),
-                                ),
-                              )
-                            : categories.length < 2
-                                ? Container()
-                                : Padding(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: width * 0.0125,
-                                      vertical: width * 0.00625,
+                        ],
+                      ),
+                    ),
+                  )
+                : Column(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal:
+                              MediaQuery.of(context).size.width * 0.0125,
+                        ),
+                        child: LayoutBuilder(
+                          builder: ((context, constraints) {
+                            final width = constraints.maxWidth;
+                            final currentWishlists = selectedCategory == null
+                                ? wishlistProducts
+                                : Map.fromEntries(
+                                    wishlistProducts.entries.where(
+                                      (entry) =>
+                                          entry.value[3] == selectedCategory,
                                     ),
-                                    child: SizedBox(
-                                      width: width,
-                                      height: 40,
-                                      child: ListView.builder(
-                                        shrinkWrap: true,
-                                        scrollDirection: Axis.horizontal,
-                                        physics: const ClampingScrollPhysics(),
-                                        itemCount: categories.length,
-                                        itemBuilder: ((context, index) {
-                                          final category = categories[index];
+                                  );
 
-                                          return Padding(
-                                            padding: EdgeInsets.symmetric(
-                                              horizontal: width * 0.01,
-                                            ),
-                                            child: ActionChip(
-                                              label: Text(
-                                                category.toString().trim(),
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: TextStyle(
-                                                  color: selectedCategory ==
-                                                          category
-                                                      ? white
-                                                      : primaryDark,
-                                                ),
-                                              ),
-                                              tooltip: 'See $category',
-                                              onPressed: () {
-                                                setState(() {
-                                                  if (selectedCategory ==
-                                                      category) {
-                                                    selectedCategory = null;
-                                                  } else {
-                                                    selectedCategory = category;
-                                                  }
-                                                });
-                                              },
-                                              backgroundColor:
-                                                  selectedCategory == category
-                                                      ? primaryDark
-                                                      : primary2,
-                                            ),
-                                          );
-                                        }),
-                                      ),
-                                    ),
-                                  ),
-
-                        !isData
-                            ? SizedBox(
-                                width: MediaQuery.of(context).size.width,
-                                child: ListView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: 4,
-                                  physics: const ClampingScrollPhysics(),
-                                  itemBuilder: ((context, index) {
-                                    return Padding(
-                                      padding: const EdgeInsets.all(8),
-                                      child: SkeletonContainer(
-                                        width:
-                                            MediaQuery.of(context).size.width,
-                                        height: 80,
-                                      ),
-                                    );
-                                  }),
-                                ),
-                              )
-                            : currentWishlists.isEmpty
-                                ? const SizedBox(
-                                    height: 80,
-                                    child: Center(
-                                      child: Text(
-                                        'No Products',
-                                      ),
-                                    ),
-                                  )
-                                : SizedBox(
-                                    width: width,
-                                    child: ListView.builder(
-                                      shrinkWrap: true,
-                                      physics: const ClampingScrollPhysics(),
-                                      itemCount: noOf > currentWishlists.length
-                                          ? currentWishlists.length
-                                          : noOf,
-                                      itemBuilder: ((context, index) {
-                                        final id = currentWishlists.keys
-                                            .toList()[index];
-                                        final name = currentWishlists.values
-                                            .toList()[index][0];
-                                        final imageUrl = currentWishlists.values
-                                            .toList()[index][1];
-                                        final price = currentWishlists.values
-                                            .toList()[index][2];
-                                        final data = currentWishlists.values
-                                            .toList()[index][4];
-
-                                        return Padding(
-                                          padding: EdgeInsets.symmetric(
-                                            vertical: width * 0.0125,
-                                          ),
-                                          child: GestureDetector(
-                                            onTap: () {
-                                              Navigator.of(context).push(
-                                                MaterialPageRoute(
-                                                  builder: ((context) =>
-                                                      ProductPage(
-                                                        productData: data,
-                                                      )),
+                            return SingleChildScrollView(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // CATEGORY CHIPS
+                                  !isData
+                                      ? SizedBox(
+                                          width:
+                                              MediaQuery.of(context).size.width,
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.175,
+                                          child: ListView.builder(
+                                            shrinkWrap: true,
+                                            itemCount: 4,
+                                            scrollDirection: Axis.horizontal,
+                                            physics:
+                                                const ClampingScrollPhysics(),
+                                            itemBuilder: ((context, index) {
+                                              return Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8),
+                                                child: SkeletonContainer(
+                                                  width: (MediaQuery.of(context)
+                                                              .size
+                                                              .width *
+                                                          0.3)
+                                                      .toDouble(),
+                                                  height: 40,
                                                 ),
                                               );
-                                            },
-                                            child: ListTile(
-                                              splashColor: white,
-                                              visualDensity:
-                                                  VisualDensity.comfortable,
-                                              tileColor: white,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(
-                                                  8,
+                                            }),
+                                          ),
+                                        )
+                                      : categories.length < 2
+                                          ? Container()
+                                          : Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: width * 0.0125,
+                                                vertical: width * 0.00625,
+                                              ),
+                                              child: SizedBox(
+                                                width: width,
+                                                height: 40,
+                                                child: ListView.builder(
+                                                  shrinkWrap: true,
+                                                  scrollDirection:
+                                                      Axis.horizontal,
+                                                  physics:
+                                                      const ClampingScrollPhysics(),
+                                                  itemCount: categories.length,
+                                                  itemBuilder:
+                                                      ((context, index) {
+                                                    final category =
+                                                        categories[index];
+
+                                                    return Padding(
+                                                      padding:
+                                                          EdgeInsets.symmetric(
+                                                        horizontal:
+                                                            width * 0.01,
+                                                      ),
+                                                      child: ActionChip(
+                                                        label: Text(
+                                                          category
+                                                              .toString()
+                                                              .trim(),
+                                                          maxLines: 1,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                          style: TextStyle(
+                                                            color:
+                                                                selectedCategory ==
+                                                                        category
+                                                                    ? white
+                                                                    : primaryDark,
+                                                          ),
+                                                        ),
+                                                        tooltip:
+                                                            'See $category',
+                                                        onPressed: () {
+                                                          setState(() {
+                                                            if (selectedCategory ==
+                                                                category) {
+                                                              selectedCategory =
+                                                                  null;
+                                                            } else {
+                                                              selectedCategory =
+                                                                  category;
+                                                            }
+                                                          });
+                                                        },
+                                                        backgroundColor:
+                                                            selectedCategory ==
+                                                                    category
+                                                                ? primaryDark
+                                                                : primary2,
+                                                      ),
+                                                    );
+                                                  }),
                                                 ),
-                                                side: BorderSide(
-                                                  color: primaryDark
-                                                      .withOpacity(0.5),
-                                                ),
-                                              ),
-                                              leading: CircleAvatar(
-                                                backgroundColor: primary2,
-                                                backgroundImage: NetworkImage(
-                                                  imageUrl,
-                                                ),
-                                              ),
-                                              title: Text(
-                                                name.toString().trim(),
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                              subtitle: Text(
-                                                'Rs. ${price.round()}',
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                              titleTextStyle: TextStyle(
-                                                color: primaryDark,
-                                                fontSize: width * 0.0475,
-                                              ),
-                                              subtitleTextStyle: TextStyle(
-                                                color: primaryDark2,
-                                                fontSize: width * 0.04,
-                                              ),
-                                              trailing: MyTextButton(
-                                                onPressed: () async {
-                                                  await remove(id);
-                                                },
-                                                text: 'Remove',
-                                                textColor: Colors.red,
                                               ),
                                             ),
+
+                                  !isData
+                                      ? SizedBox(
+                                          width:
+                                              MediaQuery.of(context).size.width,
+                                          child: ListView.builder(
+                                            shrinkWrap: true,
+                                            itemCount: 4,
+                                            physics:
+                                                const ClampingScrollPhysics(),
+                                            itemBuilder: ((context, index) {
+                                              return Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8),
+                                                child: SkeletonContainer(
+                                                  width: MediaQuery.of(context)
+                                                      .size
+                                                      .width,
+                                                  height: 80,
+                                                ),
+                                              );
+                                            }),
                                           ),
-                                        );
-                                      }),
-                                    ),
-                                  ),
-                      ],
-                    ),
-                  );
-                }),
-              ),
-            ),
-          ],
-        ),
+                                        )
+                                      : currentWishlists.isEmpty
+                                          ? const SizedBox(
+                                              height: 80,
+                                              child: Center(
+                                                child: Text(
+                                                  'No Products',
+                                                ),
+                                              ),
+                                            )
+                                          : SizedBox(
+                                              width: width,
+                                              child: ListView.builder(
+                                                shrinkWrap: true,
+                                                physics:
+                                                    const ClampingScrollPhysics(),
+                                                itemCount: noOf >
+                                                        currentWishlists.length
+                                                    ? currentWishlists.length
+                                                    : noOf,
+                                                itemBuilder: ((context, index) {
+                                                  final id = currentWishlists
+                                                      .keys
+                                                      .toList()[index];
+                                                  final name = currentWishlists
+                                                      .values
+                                                      .toList()[index][0];
+                                                  final imageUrl =
+                                                      currentWishlists.values
+                                                          .toList()[index][1];
+                                                  final price = currentWishlists
+                                                      .values
+                                                      .toList()[index][2];
+                                                  final data = currentWishlists
+                                                      .values
+                                                      .toList()[index][4];
+
+                                                  return Padding(
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                      vertical: width * 0.0125,
+                                                    ),
+                                                    child: GestureDetector(
+                                                      onTap: () {
+                                                        Navigator.of(context)
+                                                            .push(
+                                                          MaterialPageRoute(
+                                                            builder:
+                                                                ((context) =>
+                                                                    ProductPage(
+                                                                      productData:
+                                                                          data,
+                                                                    )),
+                                                          ),
+                                                        );
+                                                      },
+                                                      child: ListTile(
+                                                        splashColor: white,
+                                                        visualDensity:
+                                                            VisualDensity
+                                                                .comfortable,
+                                                        tileColor: white,
+                                                        shape:
+                                                            RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                            8,
+                                                          ),
+                                                          side: BorderSide(
+                                                            color: primaryDark
+                                                                .withOpacity(
+                                                                    0.5),
+                                                          ),
+                                                        ),
+                                                        leading: CircleAvatar(
+                                                          backgroundColor:
+                                                              primary2,
+                                                          backgroundImage:
+                                                              NetworkImage(
+                                                            imageUrl,
+                                                          ),
+                                                        ),
+                                                        title: Text(
+                                                          name
+                                                              .toString()
+                                                              .trim(),
+                                                          maxLines: 1,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                        ),
+                                                        subtitle: Text(
+                                                          'Rs. ${price.round()}',
+                                                          maxLines: 1,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                        ),
+                                                        titleTextStyle:
+                                                            TextStyle(
+                                                          color: primaryDark,
+                                                          fontSize:
+                                                              width * 0.0475,
+                                                        ),
+                                                        subtitleTextStyle:
+                                                            TextStyle(
+                                                          color: primaryDark2,
+                                                          fontSize:
+                                                              width * 0.04,
+                                                        ),
+                                                        trailing: MyTextButton(
+                                                          onPressed: () async {
+                                                            await remove(id);
+                                                          },
+                                                          text: 'Remove',
+                                                          textColor: Colors.red,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  );
+                                                }),
+                                              ),
+                                            ),
+                                ],
+                              ),
+                            );
+                          }),
+                        ),
+                      ),
+                    ],
+                  ),
 
         // EVENTS
         // !getEventsData

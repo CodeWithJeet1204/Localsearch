@@ -7,6 +7,7 @@ import 'package:localsearch/page/main/vendor/vendor_page.dart';
 import 'package:localsearch/utils/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:localsearch/widgets/sign_in_dialog.dart';
 
 class DiscoverPostsPage extends StatefulWidget {
   const DiscoverPostsPage({super.key});
@@ -117,7 +118,9 @@ class _DiscoverPostsPageState extends State<DiscoverPostsPage>
         price,
         vendorId,
         datetime,
-        wishlistsTimestamp.containsKey(auth.currentUser!.uid),
+        auth.currentUser == null
+            ? false
+            : wishlistsTimestamp.containsKey(auth.currentUser!.uid),
         myVendors[vendorId]!['Name'],
         myVendors[vendorId]!['Image'],
       ];
@@ -474,13 +477,17 @@ class _DiscoverPostsPageState extends State<DiscoverPostsPage>
                                         ),
                                         child: IconButton(
                                           onPressed: () async {
-                                            setState(() {
-                                              products[id][5] = !isWishListed;
-                                            });
-                                            await wishlistProduct(
-                                              id,
-                                              !products[id][5],
-                                            );
+                                            if (auth.currentUser != null) {
+                                              setState(() {
+                                                products[id][5] = !isWishListed;
+                                              });
+                                              await wishlistProduct(
+                                                id,
+                                                !products[id][5],
+                                              );
+                                            } else {
+                                              await showSignInDialog(context);
+                                            }
                                           },
                                           icon: Icon(
                                             products[id][5]

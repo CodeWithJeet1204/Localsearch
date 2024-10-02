@@ -117,6 +117,8 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
   // GET DATA
   Future<void> getDiscounts(LocationProvider locationProvider) async {
     Map<String, Map<String, dynamic>> myDiscounts = {};
+    List followedShops = [];
+
     final discountSnap = locationProvider.cityName != 'Your Location'
         ? await store
             .collection('Business')
@@ -162,10 +164,12 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
     }
 
     try {
-      final userSnap =
-          await store.collection('Users').doc(auth.currentUser!.uid).get();
-      final userData = userSnap.data()!;
-      final followedShops = userData['followedShops'];
+      if (auth.currentUser != null) {
+        final userSnap =
+            await store.collection('Users').doc(auth.currentUser!.uid).get();
+        final userData = userSnap.data()!;
+        followedShops = userData['followedShops'];
+      }
 
       if (locationProvider.cityName == 'Your Location') {
         yourLatitude = locationProvider.cityLatitude;

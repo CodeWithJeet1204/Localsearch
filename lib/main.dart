@@ -1,13 +1,10 @@
 import 'package:localsearch/firebase_options.dart';
-import 'package:localsearch/page/auth/sign_in_page.dart';
 import 'package:localsearch/page/main/get_location_page.dart';
-import 'package:localsearch/page/main/main_page.dart';
 import 'package:localsearch/providers/location_provider.dart';
 import 'package:localsearch/providers/main_page_provider.dart';
 import 'package:localsearch/providers/register_details_provider.dart';
 import 'package:localsearch/providers/verification_provider.dart';
 import 'package:localsearch/utils/colors.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -107,32 +104,33 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
-      home: Stack(
-        children: [
-          StreamBuilder<User?>(
-            stream: FirebaseAuth.instance.authStateChanges(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: CircularProgressIndicator(
-                    color: primaryDark,
-                  ),
-                );
-              }
+      // home: Stack(
+      //   children: [
+      //     StreamBuilder<User?>(
+      //       stream: FirebaseAuth.instance.authStateChanges(),
+      //       builder: (context, snapshot) {
+      //         if (snapshot.connectionState == ConnectionState.waiting) {
+      //           return const Center(
+      //             child: CircularProgressIndicator(
+      //               color: primaryDark,
+      //             ),
+      //           );
+      //         }
 
-              if (snapshot.hasData) {
-                return const MainPageContent();
-              }
+      //         if (snapshot.hasData) {
+      //           return const MainPageContent();
+      //         }
 
-              return const GetLocationPage(
-                nextPage: SignInPage(),
-              );
-            },
-          ),
-          // const ConnectivityNotificationWidget(),
-        ],
-      ),
-      // home: SearchWithProductsPage(),
+      //         return const GetLocationPage(
+      //           nextPage: SignInPage(),
+      //         );
+      //       },
+      //     ),
+      //     // const ConnectivityNotificationWidget(),
+      //   ],
+      // ),
+      home: GetLocationPage(),
+      // home: SignInPage(),
     );
   }
 }
@@ -172,9 +170,7 @@ class MainPageContent extends StatelessWidget {
         //   });
         // }
 
-        return const GetLocationPage(
-          nextPage: MainPage(),
-        );
+        return const GetLocationPage();
       },
     );
   }

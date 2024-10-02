@@ -19,7 +19,7 @@ class _PostsPageState extends State<PostsPage> with TickerProviderStateMixin {
     final mainPageProvider = Provider.of<MainPageProvider>(context);
     final width = MediaQuery.of(context).size.width;
     final TabController tabController = TabController(
-      initialIndex: 1,
+      initialIndex: 0,
       length: 2,
       vsync: this,
       animationDuration: const Duration(milliseconds: 400),

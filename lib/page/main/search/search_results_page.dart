@@ -105,7 +105,9 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
 
   // SEARCH
   Future<void> search() async {
-    await addRecentSearch();
+    if (auth.currentUser != null) {
+      await addRecentSearch();
+    }
 
     if (searchController.text.toString().trim().isNotEmpty) {
       if (mounted) {
@@ -335,11 +337,14 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
 
   // GET PRODUCTS
   Future<void> getProducts(LocationProvider locationProvider) async {
-    final userSnap =
-        await store.collection('Users').doc(auth.currentUser!.uid).get();
+    List followedShops = [];
+    if (auth.currentUser != null) {
+      final userSnap =
+          await store.collection('Users').doc(auth.currentUser!.uid).get();
 
-    final userData = userSnap.data()!;
-    final followedShops = userData['followedShops'];
+      final userData = userSnap.data()!;
+      followedShops = userData['followedShops'];
+    }
 
     double? yourLatitude;
     double? yourLongitude;
@@ -1512,10 +1517,13 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                             : noOf,
                                         itemBuilder: ((context, index) {
                                           return StreamBuilder<bool>(
-                                            stream: getIfWishlist(
-                                              rangeProducts.values
-                                                  .toList()[index]['productId'],
-                                            ),
+                                            stream: auth.currentUser != null
+                                                ? getIfWishlist(
+                                                    rangeProducts.values
+                                                            .toList()[index]
+                                                        ['productId'],
+                                                  )
+                                                : null,
                                             builder: (context, snapshot) {
                                               if (snapshot.hasError) {
                                                 return const Center(
@@ -1757,9 +1765,14 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                                           IconButton(
                                                             onPressed:
                                                                 () async {
-                                                              await wishlistProduct(
-                                                                productId,
-                                                              );
+                                                              if (auth.currentUser !=
+                                                                  null) {
+                                                                await wishlistProduct(
+                                                                  productId,
+                                                                );
+                                                              } else {
+                                                                // TODO: SIGN IN DIALOG
+                                                              }
                                                             },
                                                             icon: Icon(
                                                               isWishListed

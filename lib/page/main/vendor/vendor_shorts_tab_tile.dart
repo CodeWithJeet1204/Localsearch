@@ -4,6 +4,7 @@ import 'package:localsearch/utils/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flick_video_player/flick_video_player.dart';
 import 'package:flutter/material.dart';
+import 'package:localsearch/widgets/sign_in_dialog.dart';
 import 'package:video_player/video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
@@ -32,7 +33,9 @@ class _VendorShortsTabTileState extends State<VendorShortsTabTile> {
   @override
   void initState() {
     if (widget.data['productId'] != null) {
-      getIfWishlist();
+      if (auth.currentUser != null) {
+        getIfWishlist();
+      }
     }
     flickManager = FlickManager(
       videoPlayerController: VideoPlayerController.networkUrl(
@@ -229,14 +232,19 @@ class _VendorShortsTabTileState extends State<VendorShortsTabTile> {
                                           EdgeInsets.only(left: width * 0.05),
                                       child: IconButton(
                                         onPressed: () async {
-                                          isWishlistLocked
-                                              ? null
-                                              : setState(() {
-                                                  isWishListed = !isWishListed;
-                                                });
-                                          isWishlistLocked
-                                              ? null
-                                              : await wishlistProduct();
+                                          if (auth.currentUser != null) {
+                                            isWishlistLocked
+                                                ? null
+                                                : setState(() {
+                                                    isWishListed =
+                                                        !isWishListed;
+                                                  });
+                                            isWishlistLocked
+                                                ? null
+                                                : await wishlistProduct();
+                                          } else {
+                                            await showSignInDialog(context);
+                                          }
                                         },
                                         icon: Icon(
                                           isWishListed

@@ -6,6 +6,7 @@ import 'package:localsearch/utils/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flick_video_player/flick_video_player.dart';
 import 'package:flutter/material.dart';
+import 'package:localsearch/widgets/sign_in_dialog.dart';
 import 'package:video_player/video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
@@ -30,6 +31,7 @@ class _ShortsTileState extends State<ShortsTile> {
   bool isWishListed = false;
   bool isWishlistLocked = false;
   bool isVideoPlaying = true;
+  bool showPlayIcon = false;
   bool isData = false;
 
   // INIT STATE
@@ -43,7 +45,9 @@ class _ShortsTileState extends State<ShortsTile> {
       ),
     );
     if (widget.data['productId'] != null) {
-      getIfWishlist();
+      if (auth.currentUser != null) {
+        getIfWishlist();
+      }
     }
     flickManager.flickVideoManager!.videoPlayerController?.addListener(() {
       if (flickManager
@@ -62,6 +66,13 @@ class _ShortsTileState extends State<ShortsTile> {
       isData = true;
     });
     super.initState();
+    Future.delayed(const Duration(seconds: 1), () {
+      if (mounted) {
+        setState(() {
+          showPlayIcon = true;
+        });
+      }
+    });
   }
 
   // DISPOSE
@@ -225,7 +236,8 @@ class _ShortsTileState extends State<ShortsTile> {
                           ? Container()
                           : Visibility(
                               visible:
-                                  !flickManager.flickVideoManager!.isPlaying,
+                                  !flickManager.flickVideoManager!.isPlaying &&
+                                      showPlayIcon,
                               child: IconButton(
                                 onPressed: pausePlayShort,
                                 icon: const Icon(
@@ -249,14 +261,18 @@ class _ShortsTileState extends State<ShortsTile> {
                                     ),
                                     child: IconButton(
                                       onPressed: () async {
-                                        isWishlistLocked
-                                            ? null
-                                            : setState(() {
-                                                isWishListed = !isWishListed;
-                                              });
-                                        isWishlistLocked
-                                            ? null
-                                            : await wishlistProduct();
+                                        if (auth.currentUser != null) {
+                                          isWishlistLocked
+                                              ? null
+                                              : setState(() {
+                                                  isWishListed = !isWishListed;
+                                                });
+                                          isWishlistLocked
+                                              ? null
+                                              : await wishlistProduct();
+                                        } else {
+                                          await showSignInDialog(context);
+                                        }
                                       },
                                       icon: Icon(
                                         isWishListed

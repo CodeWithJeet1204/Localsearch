@@ -260,14 +260,16 @@ class _LocationChangePageState extends State<LocationChangePage> {
                                 });
                                 await getLocation().then((value) async {
                                   if (value != null) {
-                                    await store
-                                        .collection('Users')
-                                        .doc(auth.currentUser!.uid)
-                                        .update({
-                                      'location': 'Your Location',
-                                      'locationLatitude': value.latitude,
-                                      'locationLongitude': value.longitude,
-                                    });
+                                    if (auth.currentUser != null) {
+                                      await store
+                                          .collection('Users')
+                                          .doc(auth.currentUser!.uid)
+                                          .update({
+                                        'location': 'Your Location',
+                                        'locationLatitude': value.latitude,
+                                        'locationLongitude': value.longitude,
+                                      });
+                                    }
                                     locationProvider.changeCity({
                                       'Your Location': {
                                         'cityName': 'Your Location',
@@ -387,16 +389,18 @@ class _LocationChangePageState extends State<LocationChangePage> {
                                   return index <= currentCities.length
                                       ? GestureDetector(
                                           onTap: () async {
-                                            await store
-                                                .collection('Users')
-                                                .doc(auth.currentUser!.uid)
-                                                .update({
-                                              'location': currentCityName,
-                                              'locationLatitude':
-                                                  currentCityLatitude,
-                                              'locationLongitude':
-                                                  currentCityLongitude,
-                                            });
+                                            if (auth.currentUser != null) {
+                                              await store
+                                                  .collection('Users')
+                                                  .doc(auth.currentUser!.uid)
+                                                  .update({
+                                                'location': currentCityName,
+                                                'locationLatitude':
+                                                    currentCityLatitude,
+                                                'locationLongitude':
+                                                    currentCityLongitude,
+                                              });
+                                            }
                                             locationProvider.changeCity({
                                               currentCityName: {
                                                 'cityName': currentCityName,

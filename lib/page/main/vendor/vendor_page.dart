@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:localsearch/page/main/vendor/vendor_products_tab_page.dart';
 import 'package:localsearch/page/main/vendor/vendor_shorts_tab_page.dart';
 import 'package:localsearch/providers/location_provider.dart';
+import 'package:localsearch/widgets/sign_in_dialog.dart';
 import 'package:localsearch/widgets/vendor_discounts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
@@ -75,7 +76,9 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
     getTotal();
     scrollController.addListener(scrollListener);
     getVendorInfo();
-    getIfFollowing();
+    if (auth.currentUser != null) {
+      getIfFollowing();
+    }
     getBrands();
     getDiscounts();
     getProducts();
@@ -110,9 +113,11 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
 
   // SET RECENT AND UPDATE
   Future<void> setRecentAndUpdate() async {
-    await store.collection('Users').doc(auth.currentUser!.uid).update({
-      'recentShop': widget.vendorId,
-    });
+    if (auth.currentUser != null) {
+      await store.collection('Users').doc(auth.currentUser!.uid).update({
+        'recentShop': widget.vendorId,
+      });
+    }
 
     final vendorSnap = await store
         .collection('Business')
@@ -1370,8 +1375,12 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                       flex: 3,
                                       child: GestureDetector(
                                         onTap: () async {
-                                          await followShop();
-                                          await getIfFollowing();
+                                          if (auth.currentUser != null) {
+                                            await followShop();
+                                            await getIfFollowing();
+                                          } else {
+                                            await showSignInDialog(context);
+                                          }
                                         },
                                         child: Container(
                                           width: width * 0.6875,

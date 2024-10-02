@@ -1,13 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
-import 'package:localsearch/page/auth/sign_in_page.dart';
 import 'package:localsearch/page/main/vendor/profile/followed_page.dart';
 import 'package:localsearch/page/main/vendor/profile/user_details_page.dart';
 import 'package:localsearch/page/main/vendor/profile/wishlist_page.dart';
 import 'package:localsearch/providers/main_page_provider.dart';
 import 'package:localsearch/utils/colors.dart';
+import 'package:localsearch/widgets/sign_in_dialog.dart';
 import 'package:localsearch/widgets/small_text_container.dart';
 import 'package:localsearch/widgets/snack_bar.dart';
+import 'package:localsearch/widgets/text_button.dart';
 import 'package:localsearch/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +30,9 @@ class _ProfilePageState extends State<ProfilePage> {
   // INIT STATE
   @override
   void initState() {
-    getUserData();
+    if (auth.currentUser != null) {
+      getUserData();
+    }
     super.initState();
   }
 
@@ -62,7 +65,9 @@ class _ProfilePageState extends State<ProfilePage> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                }
               },
               child: const Text(
                 maxLines: 1,
@@ -79,12 +84,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 try {
                   await auth.signOut();
                   if (context.mounted) {
-                    Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(
-                        builder: (context) => const SignInPage(),
-                      ),
-                      (route) => false,
-                    );
+                    Navigator.of(context).pop();
                   }
                 } catch (e) {
                   mySnackBar(e.toString(), context);
@@ -134,13 +134,15 @@ class _ProfilePageState extends State<ProfilePage> {
         appBar: AppBar(
           title: const Text('Profile'),
           actions: [
-            IconButton(
-              onPressed: () async {
-                await signOut();
-              },
-              icon: const Icon(Icons.logout),
-              tooltip: 'LOG OUT',
-            ),
+            auth.currentUser == null
+                ? Container()
+                : IconButton(
+                    onPressed: () async {
+                      await signOut();
+                    },
+                    icon: const Icon(Icons.logout),
+                    tooltip: 'LOG OUT',
+                  ),
             IconButton(
               onPressed: () async {
                 await showYouTubePlayerDialog(
@@ -175,10 +177,6 @@ class _ProfilePageState extends State<ProfilePage> {
                       Container(
                         width: width,
                         alignment: Alignment.center,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: width * 0.045,
-                          vertical: width * 0.01125,
-                        ),
                         decoration: BoxDecoration(
                           color: primary2.withOpacity(0.5),
                           border: Border.all(
@@ -187,46 +185,61 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            // NAME
-                            name == null
-                                ? Container()
-                                : Padding(
-                                    padding:
-                                        EdgeInsets.only(left: width * 0.025),
-                                    child: SizedBox(
-                                      width: width * 0.75,
-                                      child: Text(
-                                        name ?? 'Name Not Available',
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        textAlign: TextAlign.start,
-                                        style: TextStyle(
-                                          fontSize: width * 0.06,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                            IconButton(
-                              onPressed: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const UserDetailsPage(),
-                                  ),
-                                );
-                              },
-                              icon: const Icon(
-                                FeatherIcons.settings,
-                              ),
-                              tooltip: 'Your Info',
-                            ),
-                          ],
+                        padding: EdgeInsets.symmetric(
+                          horizontal: width * 0.045,
+                          vertical: width * 0.01125,
                         ),
+                        child: auth.currentUser == null
+                            ? Center(
+                                child: MyTextButton(
+                                  onPressed: () async {
+                                    await showSignInDialog(context);
+                                  },
+                                  text: 'SIGN IN',
+                                  textColor: primaryDark,
+                                ),
+                              )
+                            : Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  // NAME
+                                  name == null
+                                      ? Container()
+                                      : Padding(
+                                          padding: EdgeInsets.only(
+                                              left: width * 0.025),
+                                          child: SizedBox(
+                                            width: width * 0.75,
+                                            child: Text(
+                                              name ?? 'Name Not Available',
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              textAlign: TextAlign.start,
+                                              style: TextStyle(
+                                                fontSize: width * 0.06,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                  IconButton(
+                                    onPressed: () {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const UserDetailsPage(),
+                                        ),
+                                      );
+                                    },
+                                    icon: const Icon(
+                                      FeatherIcons.settings,
+                                    ),
+                                    tooltip: 'Your Info',
+                                  ),
+                                ],
+                              ),
                       ),
                       SizedBox(height: width * 0.01),
                       const Divider(),

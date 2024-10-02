@@ -94,6 +94,7 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
   // GET PRODUCTS
   Future<void> getProducts(LocationProvider locationProvider) async {
     Map<String, dynamic> myProducts = {};
+    List followedShops = [];
 
     final productsSnap = await store
         .collection('Business')
@@ -103,11 +104,13 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
         .limit(noOf)
         .get();
 
-    final userSnap =
-        await store.collection('Users').doc(auth.currentUser!.uid).get();
+    if (auth.currentUser != null) {
+      final userSnap =
+          await store.collection('Users').doc(auth.currentUser!.uid).get();
 
-    final userData = userSnap.data()!;
-    final followedShops = userData['followedShops'];
+      final userData = userSnap.data()!;
+      followedShops = userData['followedShops'];
+    }
 
     double? yourLatitude = locationProvider.cityLatitude;
     double? yourLongitude = locationProvider.cityLongitude;

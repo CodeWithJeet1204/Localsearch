@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:localsearch/page/main/main_page.dart';
 import 'package:localsearch/providers/location_provider.dart';
 import 'package:localsearch/utils/colors.dart';
 import 'package:localsearch/widgets/snack_bar.dart';
@@ -11,10 +12,10 @@ import 'package:provider/provider.dart';
 class GetLocationPage extends StatefulWidget {
   const GetLocationPage({
     super.key,
-    required this.nextPage,
+    // required this.nextPage,
   });
 
-  final Widget nextPage;
+  // final Widget nextPage;
 
   @override
   State<GetLocationPage> createState() => _GetLocationPageState();
@@ -55,9 +56,11 @@ class _GetLocationPageState extends State<GetLocationPage>
       final userSnap =
           await store.collection('Users').doc(auth.currentUser!.uid).get();
 
-      final myLocation = userSnap['location'];
-      final myLocationLatitude = userSnap['locationLatitude'];
-      final myLocationLongitude = userSnap['locationLongitude'];
+      final userData = userSnap.data()!;
+
+      final String? myLocation = userData['location'] ?? null;
+      final double? myLocationLatitude = userData['locationLatitude'] ?? null;
+      final double? myLocationLongitude = userData['locationLongitude'] ?? null;
 
       setState(() {
         location = myLocation;
@@ -178,7 +181,8 @@ class _GetLocationPageState extends State<GetLocationPage>
     if (mounted) {
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
-          builder: (context) => widget.nextPage,
+          // builder: (context) => widget.nextPage,
+          builder: (context) => MainPage(),
         ),
         (route) => false,
       );

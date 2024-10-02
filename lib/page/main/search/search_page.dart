@@ -30,16 +30,20 @@ class _SearchPageState extends State<SearchPage> {
   // INIT STATE
   @override
   void initState() {
-    getRecentSearch();
+    if (auth.currentUser != null) {
+      getRecentSearch();
+      getRecentProducts();
+    }
     getTopSearches();
-    getRecentProducts();
     getAllProducts();
     super.initState();
   }
 
   // SEARCH
   Future<void> search({String? search}) async {
-    await addRecentSearch();
+    if (auth.currentUser != null) {
+      await addRecentSearch();
+    }
 
     if (search != null && search.isNotEmpty) {
       searchController.text = search.toString().trim();
@@ -222,6 +226,7 @@ class _SearchPageState extends State<SearchPage> {
   Future<void> getRecentProducts() async {
     final userDoc =
         await store.collection('Users').doc(auth.currentUser!.uid).get();
+
     final List? recentProductIds = userDoc['recentProducts'];
 
     if (recentProductIds == null || recentProductIds.isEmpty) {
@@ -298,72 +303,78 @@ class _SearchPageState extends State<SearchPage> {
                           ),
 
                     // RECENT SEARCHES LIST
-                    recentSearches == null
-                        ? Container()
-                        : recentSearches!.isEmpty
+                    auth.currentUser != null
+                        ? recentSearches == null
                             ? Container()
-                            : SizedBox(
-                                width: width,
-                                child: ListView.builder(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: recentSearches!.length > 5
-                                      ? 5
-                                      : recentSearches!.length,
-                                  itemBuilder: ((context, index) {
-                                    final String name = recentSearches![index];
+                            : recentSearches!.isEmpty
+                                ? Container()
+                                : SizedBox(
+                                    width: width,
+                                    child: ListView.builder(
+                                      shrinkWrap: true,
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      itemCount: recentSearches!.length > 5
+                                          ? 5
+                                          : recentSearches!.length,
+                                      itemBuilder: ((context, index) {
+                                        final String name =
+                                            recentSearches![index];
 
-                                    return GestureDetector(
-                                      onTap: () async {
-                                        await search(search: name);
-                                      },
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          color: white,
-                                          border: Border.all(
-                                            width: 0.5,
-                                            color:
-                                                primaryDark.withOpacity(0.25),
-                                          ),
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                        ),
-                                        padding: EdgeInsets.only(
-                                          left: width * 0.033,
-                                          right: width * 0.015,
-                                        ),
-                                        margin: EdgeInsets.symmetric(
-                                          horizontal: width * 0.0125,
-                                          vertical: width * 0.0125,
-                                        ),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              name.toString().trim(),
-                                              style: TextStyle(
-                                                fontSize: width * 0.05,
+                                        return GestureDetector(
+                                          onTap: () async {
+                                            await search(search: name);
+                                          },
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              color: white,
+                                              border: Border.all(
+                                                width: 0.5,
+                                                color: primaryDark
+                                                    .withOpacity(0.25),
                                               ),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
                                             ),
-                                            IconButton(
-                                              onPressed: () async {
-                                                await removeRecentSearch(
-                                                  index,
-                                                );
-                                              },
-                                              icon: const Icon(FeatherIcons.x),
-                                              tooltip: 'Remove',
+                                            padding: EdgeInsets.only(
+                                              left: width * 0.033,
+                                              right: width * 0.015,
                                             ),
-                                          ],
-                                        ),
-                                      ),
-                                    );
-                                  }),
-                                ),
-                              ),
+                                            margin: EdgeInsets.symmetric(
+                                              horizontal: width * 0.0125,
+                                              vertical: width * 0.0125,
+                                            ),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                Text(
+                                                  name.toString().trim(),
+                                                  style: TextStyle(
+                                                    fontSize: width * 0.05,
+                                                  ),
+                                                ),
+                                                IconButton(
+                                                  onPressed: () async {
+                                                    await removeRecentSearch(
+                                                      index,
+                                                    );
+                                                  },
+                                                  icon: const Icon(
+                                                      FeatherIcons.x),
+                                                  tooltip: 'Remove',
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                      }),
+                                    ),
+                                  )
+                        : Container(),
 
                     recentSearches != null && recentSearches!.isEmpty
                         ? Container()
