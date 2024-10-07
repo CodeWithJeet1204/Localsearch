@@ -168,7 +168,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
 
           final String statusText = statusData['statusText'];
           final String vendorId = statusData['statusVendorId'];
-          final String statusImage = statusData['statusImage'];
+          final List statusImage = statusData['statusImage'];
           final String statusViews =
               (statusData['statusViews'] as List).length.toString();
 

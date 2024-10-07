@@ -22,7 +22,7 @@ class ImageView extends StatefulWidget {
 }
 
 class _ImageViewState extends State<ImageView> {
-  final controller = CarouselSliderController();
+  final carouselController = CarouselSliderController();
   late FlickManager flickManager;
   int currentIndex = 0;
 
@@ -90,7 +90,7 @@ class _ImageViewState extends State<ImageView> {
             return Column(
               children: [
                 CarouselSlider(
-                  carouselController: controller,
+                  carouselController: carouselController,
                   items: widget.imagesUrl
                       .map((e) => e == widget.shortsURL
                           ? AspectRatio(
@@ -131,7 +131,7 @@ class _ImageViewState extends State<ImageView> {
                         //   duration: Duration(milliseconds: 100),
                         //   curve: Curves.bounceInOut,
                         // );
-                        controller.animateToPage(index);
+                        carouselController.animateToPage(index);
                       });
                     },
                   ),
@@ -159,7 +159,7 @@ class _ImageViewState extends State<ImageView> {
                                 //   duration: Duration(milliseconds: 100),
                                 //   curve: Curves.bounceInOut,
                                 // );
-                                controller.animateToPage(index);
+                                carouselController.animateToPage(index);
                               });
                             },
                             child: Container(

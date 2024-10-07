@@ -8,6 +8,7 @@ import 'package:localsearch/page/main/vendor/vendor_page.dart';
 import 'package:localsearch/providers/location_provider.dart';
 import 'package:localsearch/utils/colors.dart';
 import 'package:localsearch/widgets/product_quick_view.dart';
+import 'package:localsearch/widgets/sign_in_dialog.dart';
 import 'package:localsearch/widgets/skeleton_container.dart';
 import 'package:localsearch/widgets/snack_bar.dart';
 import 'package:localsearch/widgets/speech_to_text.dart';
@@ -1771,7 +1772,8 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                                                   productId,
                                                                 );
                                                               } else {
-                                                                // TODO: SIGN IN DIALOG
+                                                                await showSignInDialog(
+                                                                    context);
                                                               }
                                                             },
                                                             icon: Icon(

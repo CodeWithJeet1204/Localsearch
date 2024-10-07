@@ -1,3 +1,4 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:localsearch/page/main/vendor/vendor_page.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,7 @@ class StatusPageView extends StatefulWidget {
 
 class _StatusPageViewState extends State<StatusPageView> {
   final PageController _pageController = PageController();
+  final carouselController = CarouselSliderController();
   late int index;
   int currentImageIndex = 0;
 
@@ -115,7 +117,7 @@ class _StatusPageViewState extends State<StatusPageView> {
           final status = flattenedStatus[index];
           final vendorId = status['vendorId'];
           final statusText = status['statusText'];
-          final statusImageUrl = status['statusImage'];
+          final List statusImageUrl = status['statusImage'];
 
           return Padding(
             padding: EdgeInsets.all(width * 0.006125),
@@ -165,12 +167,29 @@ class _StatusPageViewState extends State<StatusPageView> {
                   alignment: Alignment.centerRight,
                   children: [
                     Center(
-                      child: Image.network(
-                        statusImageUrl.toString().trim(),
-                        width: width,
-                        height: width,
-                        fit: BoxFit.cover,
-                        filterQuality: FilterQuality.low,
+                      child: CarouselSlider(
+                        carouselController: carouselController,
+                        items: statusImageUrl
+                            .map(
+                              (e) => Image.network(
+                                e,
+                                width: width,
+                                height: width,
+                                fit: BoxFit.contain,
+                                filterQuality: FilterQuality.low,
+                              ),
+                            )
+                            .toList(),
+                        options: CarouselOptions(
+                          enableInfiniteScroll: false,
+                          aspectRatio: 1,
+                          enlargeCenterPage: true,
+                          onPageChanged: (index, reason) {
+                            setState(() {
+                              carouselController.animateToPage(index);
+                            });
+                          },
+                        ),
                       ),
                     ),
                     Row(
