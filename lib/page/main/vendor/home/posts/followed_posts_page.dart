@@ -25,7 +25,7 @@ class _FollowedPostsPageState extends State<FollowedPostsPage>
         AutomaticKeepAliveClientMixin<FollowedPostsPage> {
   final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
-  Map<String, dynamic> products = {};
+  Map<String, dynamic> postsAndProducts = {};
   bool isData = false;
   int noOf = 4;
   int? total;
@@ -36,7 +36,7 @@ class _FollowedPostsPageState extends State<FollowedPostsPage>
   void initState() {
     getTotal();
     scrollController.addListener(scrollListener);
-    getPosts();
+    getPostsAndProducts();
     super.initState();
   }
 
@@ -57,30 +57,50 @@ class _FollowedPostsPageState extends State<FollowedPostsPage>
       if (scrollController.position.pixels ==
           scrollController.position.maxScrollExtent) {
         noOf = noOf + 4;
-        await getPosts();
+        await getPostsAndProducts();
       }
     }
   }
 
   // GET TOTAL
   Future<void> getTotal() async {
-    final totalSnap = await store
-        .collection('Business')
-        .doc('Data')
-        .collection('Products')
-        .where('isPost', isEqualTo: true)
-        .get();
+    List followedShops = [];
 
-    final totalLength = totalSnap.docs.length;
+    if (auth.currentUser != null) {
+      final userSnap =
+          await store.collection('Users').doc(auth.currentUser!.uid).get();
 
-    setState(() {
-      total = totalLength;
-    });
+      final userData = userSnap.data()!;
+      followedShops = userData['followedShops'];
+    }
+
+    if (followedShops.isNotEmpty) {
+      final productsSnap = await store
+          .collection('Business')
+          .doc('Data')
+          .collection('Products')
+          .where('vendorId', whereIn: followedShops)
+          .where('isPost', isEqualTo: true)
+          .get();
+
+      final postsSnap = await store
+          .collection('Business')
+          .doc('Data')
+          .collection('Posts')
+          .where('postVendorId', whereIn: followedShops)
+          .get();
+
+      final totalLength = productsSnap.docs.length + postsSnap.docs.length;
+
+      setState(() {
+        total = totalLength;
+      });
+    }
   }
 
-  // GET POSTS
-  Future<void> getPosts() async {
-    Map<String, dynamic> myProducts = {};
+  // GET POSTS AND PRODUCTS
+  Future<void> getPostsAndProducts() async {
+    Map<String, dynamic> myPostsAndProducts = {};
     Map<String, Map<String, dynamic>> myVendors = {};
     List followedShops = [];
 
@@ -97,8 +117,9 @@ class _FollowedPostsPageState extends State<FollowedPostsPage>
         .collection('Business')
         .doc('Data')
         .collection('Products')
-        .orderBy('datetime', descending: true)
+        .where('vendorId', whereIn: followedShops)
         .where('isPost', isEqualTo: true)
+        .orderBy('datetime', descending: true)
         .limit(noOf)
         .get();
 
@@ -110,42 +131,96 @@ class _FollowedPostsPageState extends State<FollowedPostsPage>
       final price = productData['productPrice'];
       final Map<String, dynamic> wishlistsTimestamp =
           productData['productWishlistTimestamp'];
-      for (var followedShop in followedShops) {
-        final String vendorId = productData['vendorId'];
-        final Timestamp datetime = productData['datetime'];
+      final String vendorId = productData['vendorId'];
+      final Timestamp datetime = productData['datetime'];
 
-        if (vendorId == followedShop) {
-          if (!myVendors.keys.toList().contains(vendorId)) {
-            final vendorSnap = await store
-                .collection('Business')
-                .doc('Owners')
-                .collection('Shops')
-                .doc(vendorId)
-                .get();
+      if (!myVendors.keys.toList().contains(vendorId)) {
+        final vendorSnap = await store
+            .collection('Business')
+            .doc('Owners')
+            .collection('Shops')
+            .doc(vendorId)
+            .get();
 
-            final vendorData = vendorSnap.data()!;
+        final vendorData = vendorSnap.data()!;
 
-            myVendors[vendorId] = vendorData;
-          }
-
-          myProducts[productId] = [
-            name,
-            imageUrl,
-            price,
-            vendorId,
-            datetime,
-            auth.currentUser == null
-                ? false
-                : wishlistsTimestamp.containsKey(auth.currentUser!.uid),
-            myVendors[vendorId]!['Name'],
-            myVendors[vendorId]!['Image'],
-          ];
-        }
+        myVendors[vendorId] = vendorData;
       }
+
+      myPostsAndProducts[productId] = [
+        name,
+        imageUrl,
+        price,
+        vendorId,
+        datetime,
+        auth.currentUser == null
+            ? false
+            : wishlistsTimestamp.containsKey(auth.currentUser!.uid),
+        myVendors[vendorId]!['Name'],
+        myVendors[vendorId]!['Image'],
+        'product',
+      ];
     }
 
+    final postsSnap = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Post')
+        .where('postVendorId', whereIn: followedShops)
+        .orderBy('postDateTime', descending: true)
+        .limit(noOf)
+        .get();
+
+    for (final postSnap in postsSnap.docs) {
+      final postData = postSnap.data();
+      final String id = postData['postId'];
+      final String text = postData['postText'];
+      final price = postData['postPrice'];
+      print('text: $text');
+      final List? imageUrl = postData['postImage'];
+      final String vendorId = postData['postVendorId'];
+      final Timestamp datetime = postData['postDateTime'];
+      // final int views = postData['postViews'];
+
+      if (!myVendors.keys.toList().contains(vendorId)) {
+        final vendorSnap = await store
+            .collection('Business')
+            .doc('Owners')
+            .collection('Shops')
+            .doc(vendorId)
+            .get();
+
+        final vendorData = vendorSnap.data()!;
+        myVendors[vendorId] = vendorData;
+      }
+
+      myPostsAndProducts[id] = [
+        text,
+        imageUrl,
+        price,
+        vendorId,
+        datetime,
+        false,
+        myVendors[vendorId]!['Name'],
+        myVendors[vendorId]!['Image'],
+        'post',
+        // views,
+      ];
+    }
+
+    final sortedProductsAndPosts = Map.fromEntries(
+      myPostsAndProducts.entries.toList()
+        ..sort((a, b) {
+          DateTime dateA = (a.value[4] as Timestamp).toDate();
+          DateTime dateB = (b.value[4] as Timestamp).toDate();
+          return dateB.compareTo(dateA);
+        }),
+    );
+
+    myPostsAndProducts = sortedProductsAndPosts;
+
     setState(() {
-      products = myProducts;
+      postsAndProducts = myPostsAndProducts;
       isData = true;
     });
   }
@@ -232,7 +307,7 @@ class _FollowedPostsPageState extends State<FollowedPostsPage>
                     setState(() {
                       noOf = 2;
                     });
-                    await getPosts();
+                    await getPostsAndProducts();
                   },
                   color: primaryDark,
                   backgroundColor: const Color.fromARGB(255, 243, 253, 255),
@@ -262,7 +337,7 @@ class _FollowedPostsPageState extends State<FollowedPostsPage>
                             ),
                           ),
                         )
-                      : products.isEmpty
+                      : postsAndProducts.isEmpty
                           ? SizedBox(
                               height: 80,
                               child: const Center(
@@ -283,65 +358,66 @@ class _FollowedPostsPageState extends State<FollowedPostsPage>
                                 primary: false,
                                 shrinkWrap: true,
                                 physics: const ClampingScrollPhysics(),
-                                itemCount: products.length,
+                                itemCount: postsAndProducts.length,
                                 itemBuilder: ((context, index) {
                                   final String id =
-                                      products.keys.toList()[index];
+                                      postsAndProducts.keys.toList()[index];
 
-                                  final String name =
-                                      products.values.toList()[index][0];
-                                  final List? imageUrl =
-                                      products.values.toList()[index][1];
-                                  final price =
-                                      products.values.toList()[index][2];
+                                  final String name = postsAndProducts.values
+                                      .toList()[index][0];
+                                  final List? imageUrl = postsAndProducts.values
+                                      .toList()[index][1];
+                                  final price = postsAndProducts.values
+                                      .toList()[index][2];
                                   final String vendorId =
-                                      products.values.toList()[index][3];
+                                      postsAndProducts.values.toList()[index]
+                                          [3];
                                   final bool isWishlist =
-                                      products.values.toList()[index][5];
+                                      postsAndProducts.values.toList()[index]
+                                          [5];
+                                  final isProduct = postsAndProducts.values
+                                          .toList()[index][8] ==
+                                      'product';
 
                                   bool isWishListed = isWishlist;
 
                                   final String vendorName =
-                                      products.values.toList()[index][6];
+                                      postsAndProducts.values.toList()[index]
+                                          [6];
                                   final String vendorImageUrl =
-                                      products.values.toList()[index][7];
+                                      postsAndProducts.values.toList()[index]
+                                          [7];
 
                                   return GestureDetector(
-                                    onTap: () async {
-                                      final productSnap = await store
-                                          .collection('Business')
-                                          .doc('Data')
-                                          .collection('Products')
-                                          .doc(id)
-                                          .get();
+                                    onTap: isProduct
+                                        ? () async {
+                                            final productSnap = await store
+                                                .collection('Business')
+                                                .doc('Data')
+                                                .collection('Products')
+                                                .doc(id)
+                                                .get();
 
-                                      final productData = productSnap.data()!;
-                                      if (context.mounted) {
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: (context) => ProductPage(
-                                              productData: productData,
-                                            ),
-                                          ),
-                                        );
-                                      }
-                                    },
+                                            final productData =
+                                                productSnap.data()!;
+
+                                            Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ProductPage(
+                                                  productData: productData,
+                                                ),
+                                              ),
+                                            );
+                                          }
+                                        : null,
                                     child: Container(
                                       width: width,
                                       decoration: const BoxDecoration(
                                         border: Border(
-                                          left: BorderSide(
-                                            width: 0.06125,
-                                            color: black,
-                                          ),
-                                          right: BorderSide(
-                                            width: 0.06125,
-                                            color: black,
-                                          ),
-                                          top: BorderSide(
-                                            width: 0.06125,
-                                            color: black,
-                                          ),
+                                          left: BorderSide(width: 0.06125),
+                                          right: BorderSide(width: 0.06125),
+                                          top: BorderSide(width: 0.06125),
                                         ),
                                       ),
                                       child: Column(
@@ -349,7 +425,6 @@ class _FollowedPostsPageState extends State<FollowedPostsPage>
                                             CrossAxisAlignment.start,
                                         children: [
                                           const SizedBox(height: 4),
-                                          // VENDOR INFO
                                           Padding(
                                             padding: EdgeInsets.symmetric(
                                               horizontal: width * 0.0125,
@@ -365,11 +440,10 @@ class _FollowedPostsPageState extends State<FollowedPostsPage>
                                                   onTap: () {
                                                     Navigator.of(context).push(
                                                       MaterialPageRoute(
-                                                        builder: ((context) =>
+                                                        builder: (context) =>
                                                             VendorPage(
-                                                              vendorId:
-                                                                  vendorId,
-                                                            )),
+                                                          vendorId: vendorId,
+                                                        ),
                                                       ),
                                                     );
                                                   },
@@ -419,74 +493,36 @@ class _FollowedPostsPageState extends State<FollowedPostsPage>
                                               ],
                                             ),
                                           ),
-
-                                          // IMAGES
-                                          Stack(
-                                            alignment: Alignment.bottomCenter,
-                                            children: [
-                                              Container(
-                                                width: width,
-                                                height: width,
-                                                decoration: const BoxDecoration(
-                                                  color: Color.fromRGBO(
-                                                    237,
-                                                    237,
-                                                    237,
-                                                    1,
-                                                  ),
-                                                ),
-                                                child: CarouselSlider(
-                                                  items: imageUrl!
-                                                      .map(
-                                                        (e) => Image.network(
-                                                          e.toString().trim(),
-                                                          width: width,
-                                                          height: width,
-                                                          fit: BoxFit.cover,
-                                                        ),
-                                                      )
-                                                      .toList(),
-                                                  options: CarouselOptions(
-                                                    enableInfiniteScroll: false,
-                                                    viewportFraction: 1,
-                                                    aspectRatio: 0.7875,
-                                                    enlargeCenterPage: false,
-                                                  ),
-                                                ),
+                                          Container(
+                                            width: width,
+                                            height: width,
+                                            decoration: const BoxDecoration(
+                                              color: Color.fromRGBO(
+                                                237,
+                                                237,
+                                                237,
+                                                1,
                                               ),
-
-                                              // DOTS
-                                              // isTextPost
-                                              //     ? Container()
-                                              //     : Padding(
-                                              //         padding: const EdgeInsets.only(
-                                              //           bottom: 8,
-                                              //         ),
-                                              //         child: Row(
-                                              //           mainAxisAlignment:
-                                              //               MainAxisAlignment.center,
-                                              //           crossAxisAlignment:
-                                              //               CrossAxisAlignment.center,
-                                              //           children: (imageUrl).map((e) {
-                                              //             int index = imageUrl.indexOf(e);
-
-                                              //             return Container(
-                                              //               width: 8,
-                                              //               height: 8,
-                                              //               margin: const EdgeInsets.all(4),
-                                              //               decoration: BoxDecoration(
-                                              //                 shape: BoxShape.circle,
-                                              //                 color: currentIndex == index
-                                              //                     ? primaryDark
-                                              //                     : primary2,
-                                              //               ),
-                                              //             );
-                                              //           }).toList(),
-                                              //         ),
-                                              //       ),
-                                            ],
+                                            ),
+                                            child: CarouselSlider(
+                                              items: imageUrl!
+                                                  .map(
+                                                    (e) => Image.network(
+                                                      e.toString().trim(),
+                                                      width: width,
+                                                      height: width,
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                                  )
+                                                  .toList(),
+                                              options: CarouselOptions(
+                                                enableInfiniteScroll: false,
+                                                viewportFraction: 1,
+                                                aspectRatio: 0.7875,
+                                                enlargeCenterPage: false,
+                                              ),
+                                            ),
                                           ),
-
                                           Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
@@ -505,16 +541,35 @@ class _FollowedPostsPageState extends State<FollowedPostsPage>
                                                     padding: EdgeInsets.all(
                                                       width * 0.0125,
                                                     ),
-                                                    child: SizedBox(
-                                                      width: width * 0.75,
-                                                      child: Text(
-                                                        name.toString().trim(),
-                                                        maxLines: 2,
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                        textAlign:
-                                                            TextAlign.start,
-                                                      ),
+                                                    child: Row(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        isProduct
+                                                            ? Icon(
+                                                                Icons.link,
+                                                                color:
+                                                                    primaryDark,
+                                                                size: width *
+                                                                    0.066,
+                                                              )
+                                                            : Container(),
+                                                        SizedBox(
+                                                          width: width * 0.725,
+                                                          child: Text(
+                                                            name
+                                                                .toString()
+                                                                .trim(),
+                                                            maxLines: 2,
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                            textAlign:
+                                                                TextAlign.start,
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
                                                   ),
 
@@ -526,7 +581,7 @@ class _FollowedPostsPageState extends State<FollowedPostsPage>
                                                     child: SizedBox(
                                                       width: width * 0.75,
                                                       child: Text(
-                                                        'Rs. ${price.round()}',
+                                                        'Rs. ${price.runtimeType == int ? price : price.round()}',
                                                         maxLines: 1,
                                                         overflow: TextOverflow
                                                             .ellipsis,
@@ -539,42 +594,48 @@ class _FollowedPostsPageState extends State<FollowedPostsPage>
                                               ),
 
                                               // WISHLIST
-                                              Padding(
-                                                padding: EdgeInsets.only(
-                                                  right: width * 0.0125,
-                                                ),
-                                                child: IconButton(
-                                                  onPressed: () async {
-                                                    if (auth.currentUser !=
-                                                        null) {
-                                                      setState(() {
-                                                        products[id][5] =
-                                                            !isWishListed;
-                                                      });
-                                                      await wishlistProduct(
-                                                        id,
-                                                        !products[id][5],
-                                                      );
-                                                    } else {
-                                                      await showSignInDialog(
-                                                          context);
-                                                    }
-                                                  },
-                                                  icon: Icon(
-                                                    products[id][5]
-                                                        ? Icons.favorite_rounded
-                                                        : Icons
-                                                            .favorite_outline_rounded,
-                                                    size: width * 0.095,
-                                                    color: Colors.red,
-                                                  ),
-                                                  color: Colors.red,
-                                                  tooltip: 'Wishlist',
-                                                ),
-                                              ),
+                                              isProduct
+                                                  ? Padding(
+                                                      padding: EdgeInsets.only(
+                                                        right: width * 0.0125,
+                                                      ),
+                                                      child: IconButton(
+                                                        onPressed: () async {
+                                                          if (auth.currentUser !=
+                                                              null) {
+                                                            setState(() {
+                                                              postsAndProducts[
+                                                                      id][5] =
+                                                                  !isWishListed;
+                                                            });
+                                                            await wishlistProduct(
+                                                              id,
+                                                              !postsAndProducts[
+                                                                  id][5],
+                                                            );
+                                                          } else {
+                                                            await showSignInDialog(
+                                                              context,
+                                                            );
+                                                          }
+                                                        },
+                                                        icon: Icon(
+                                                          postsAndProducts[id]
+                                                                  [5]
+                                                              ? Icons
+                                                                  .favorite_rounded
+                                                              : Icons
+                                                                  .favorite_outline_rounded,
+                                                          size: width * 0.095,
+                                                          color: Colors.red,
+                                                        ),
+                                                        color: Colors.red,
+                                                        tooltip: 'Wishlist',
+                                                      ),
+                                                    )
+                                                  : Container(),
                                             ],
                                           ),
-
                                           const SizedBox(height: 4),
                                         ],
                                       ),

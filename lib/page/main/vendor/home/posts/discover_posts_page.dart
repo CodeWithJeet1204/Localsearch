@@ -22,7 +22,7 @@ class _DiscoverPostsPageState extends State<DiscoverPostsPage>
         AutomaticKeepAliveClientMixin<DiscoverPostsPage> {
   final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
-  Map<String, dynamic> products = {};
+  Map<String, dynamic> productsAndPosts = {};
   bool isData = false;
   int noOf = 4;
   int? total;
@@ -33,7 +33,7 @@ class _DiscoverPostsPageState extends State<DiscoverPostsPage>
   void initState() {
     getTotal();
     scrollController.addListener(scrollListener);
-    getPosts();
+    getPostsAndProducts();
     super.initState();
   }
 
@@ -54,31 +54,38 @@ class _DiscoverPostsPageState extends State<DiscoverPostsPage>
       if (scrollController.position.pixels ==
           scrollController.position.maxScrollExtent) {
         noOf = noOf + 4;
-        await getPosts();
+        await getPostsAndProducts();
       }
     }
   }
 
   // GET TOTAL
   Future<void> getTotal() async {
-    final totalSnap = await store
+    final productsSnap = await store
         .collection('Business')
         .doc('Data')
         .collection('Products')
         .where('isPost', isEqualTo: true)
         .get();
 
-    final totalLength = totalSnap.docs.length;
+    final postsSnap = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Posts')
+        .get();
+
+    final totalLength = productsSnap.docs.length + postsSnap.docs.length;
 
     setState(() {
       total = totalLength;
     });
   }
 
-  // GET POSTS
-  Future<void> getPosts() async {
-    Map<String, dynamic> myProducts = {};
+  // GET PRODUCTS AND POSTS
+  Future<void> getPostsAndProducts() async {
+    Map<String, dynamic> myProductsAndPosts = {};
     Map<String, Map<String, dynamic>> myVendors = {};
+
     final productsSnap = await store
         .collection('Business')
         .doc('Data')
@@ -98,6 +105,7 @@ class _DiscoverPostsPageState extends State<DiscoverPostsPage>
           productData['productWishlistTimestamp'];
       final String vendorId = productData['vendorId'];
       final Timestamp datetime = productData['datetime'];
+      // final int views = productData['viewsTimestamp'].length;
 
       if (!myVendors.keys.toList().contains(vendorId)) {
         final vendorSnap = await store
@@ -108,11 +116,10 @@ class _DiscoverPostsPageState extends State<DiscoverPostsPage>
             .get();
 
         final vendorData = vendorSnap.data()!;
-
         myVendors[vendorId] = vendorData;
       }
 
-      myProducts[productId] = [
+      myProductsAndPosts[productId] = [
         name,
         imageUrl,
         price,
@@ -123,11 +130,69 @@ class _DiscoverPostsPageState extends State<DiscoverPostsPage>
             : wishlistsTimestamp.containsKey(auth.currentUser!.uid),
         myVendors[vendorId]!['Name'],
         myVendors[vendorId]!['Image'],
+        'product',
+        // views,
       ];
     }
 
+    final postsSnap = await store
+        .collection('Business')
+        .doc('Data')
+        .collection('Post')
+        .orderBy('postDateTime', descending: true)
+        .limit(noOf)
+        .get();
+
+    for (final postSnap in postsSnap.docs) {
+      final postData = postSnap.data();
+      final String id = postData['postId'];
+      final String text = postData['postText'];
+      final price = postData['postPrice'];
+      print('text: $text');
+      final List? imageUrl = postData['postImage'];
+      final String vendorId = postData['postVendorId'];
+      final Timestamp datetime = postData['postDateTime'];
+      // final int views = postData['postViews'];
+
+      if (!myVendors.keys.toList().contains(vendorId)) {
+        final vendorSnap = await store
+            .collection('Business')
+            .doc('Owners')
+            .collection('Shops')
+            .doc(vendorId)
+            .get();
+
+        final vendorData = vendorSnap.data()!;
+        myVendors[vendorId] = vendorData;
+      }
+
+      myProductsAndPosts[id] = [
+        text,
+        imageUrl,
+        price,
+        vendorId,
+        datetime,
+        false,
+        myVendors[vendorId]!['Name'],
+        myVendors[vendorId]!['Image'],
+        'post',
+        // views,
+      ];
+    }
+
+    final sortedProductsAndPosts = Map.fromEntries(
+      myProductsAndPosts.entries.toList()
+        ..sort((a, b) {
+          DateTime dateA = (a.value[4] as Timestamp).toDate();
+          DateTime dateB = (b.value[4] as Timestamp).toDate();
+          return dateB.compareTo(dateA);
+        }),
+    );
+
+    myProductsAndPosts = sortedProductsAndPosts;
+
     setState(() {
-      products = myProducts;
+      productsAndPosts = myProductsAndPosts;
       isData = true;
     });
   }
@@ -201,7 +266,7 @@ class _DiscoverPostsPageState extends State<DiscoverPostsPage>
                 }),
               ),
             )
-          : products.isEmpty
+          : productsAndPosts.isEmpty
               ? const Center(
                   child: Text('No Posts Available'),
                 )
@@ -212,7 +277,7 @@ class _DiscoverPostsPageState extends State<DiscoverPostsPage>
                       setState(() {
                         noOf = 2;
                       });
-                      await getPosts();
+                      await getPostsAndProducts();
                     },
                     color: primaryDark,
                     backgroundColor: const Color.fromARGB(255, 243, 253, 255),
@@ -228,70 +293,68 @@ class _DiscoverPostsPageState extends State<DiscoverPostsPage>
                         primary: false,
                         shrinkWrap: true,
                         physics: const ClampingScrollPhysics(),
-                        itemCount:
-                            noOf > products.length ? products.length : noOf,
+                        itemCount: noOf > productsAndPosts.length
+                            ? productsAndPosts.length
+                            : noOf,
                         itemBuilder: ((context, index) {
-                          final String id = products.keys.toList()[index];
+                          final String productId =
+                              productsAndPosts.keys.toList()[index];
 
                           final String name =
-                              products.values.toList()[index][0];
+                              productsAndPosts.values.toList()[index][0];
                           final List? imageUrl =
-                              products.values.toList()[index][1];
-                          final price = products.values.toList()[index][2];
+                              productsAndPosts.values.toList()[index][1];
+                          final price =
+                              productsAndPosts.values.toList()[index][2];
                           final String vendorId =
-                              products.values.toList()[index][3];
+                              productsAndPosts.values.toList()[index][3];
                           final bool isWishlist =
-                              products.values.toList()[index][5];
+                              productsAndPosts.values.toList()[index][5];
+                          final isProduct =
+                              productsAndPosts.values.toList()[index][8] ==
+                                  'product';
 
-                          bool isWishListed = isWishlist;
-
-                          final vendorName = products.values.toList()[index][6];
+                          final vendorName =
+                              productsAndPosts.values.toList()[index][6];
                           final vendorImageUrl =
-                              products.values.toList()[index][7];
+                              productsAndPosts.values.toList()[index][7];
+
+                          bool isWishlisted = isWishlist;
 
                           return GestureDetector(
-                            onTap: () async {
-                              final productSnap = await store
-                                  .collection('Business')
-                                  .doc('Data')
-                                  .collection('Products')
-                                  .doc(id)
-                                  .get();
+                            onTap: isProduct
+                                ? () async {
+                                    final productSnap = await store
+                                        .collection('Business')
+                                        .doc('Data')
+                                        .collection('Products')
+                                        .doc(productId)
+                                        .get();
 
-                              final productData = productSnap.data()!;
-                              if (context.mounted) {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) => ProductPage(
-                                      productData: productData,
-                                    ),
-                                  ),
-                                );
-                              }
-                            },
+                                    final productData = productSnap.data()!;
+
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) => ProductPage(
+                                          productData: productData,
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                : null,
                             child: Container(
                               width: width,
                               decoration: const BoxDecoration(
                                 border: Border(
-                                  left: BorderSide(
-                                    width: 0.06125,
-                                    color: black,
-                                  ),
-                                  right: BorderSide(
-                                    width: 0.06125,
-                                    color: black,
-                                  ),
-                                  top: BorderSide(
-                                    width: 0.06125,
-                                    color: black,
-                                  ),
+                                  left: BorderSide(width: 0.06125),
+                                  right: BorderSide(width: 0.06125),
+                                  top: BorderSide(width: 0.06125),
                                 ),
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   const SizedBox(height: 4),
-                                  // VENDOR INFO
                                   Padding(
                                     padding: EdgeInsets.symmetric(
                                       horizontal: width * 0.0125,
@@ -326,9 +389,7 @@ class _DiscoverPostsPageState extends State<DiscoverPostsPage>
                                                       .trim(),
                                                 ),
                                               ),
-                                              SizedBox(
-                                                width: width * 0.0125,
-                                              ),
+                                              SizedBox(width: width * 0.0125),
                                               SizedBox(
                                                 width: width * 0.7125,
                                                 child: Text(
@@ -344,86 +405,40 @@ class _DiscoverPostsPageState extends State<DiscoverPostsPage>
                                             ],
                                           ),
                                         ),
-
                                         // SHARE
                                         IconButton(
                                           onPressed: () {},
-                                          icon: const Icon(
-                                            FeatherIcons.share2,
-                                          ),
+                                          icon: const Icon(FeatherIcons.share2),
                                           tooltip: 'Share Post',
                                         ),
                                       ],
                                     ),
                                   ),
-
-                                  // IMAGES
-                                  Stack(
-                                    alignment: Alignment.bottomCenter,
-                                    children: [
-                                      Container(
-                                        width: width,
-                                        height: width,
-                                        decoration: const BoxDecoration(
-                                          color: Color.fromRGBO(
-                                            237,
-                                            237,
-                                            237,
-                                            1,
-                                          ),
-                                        ),
-                                        child: CarouselSlider(
-                                          items: imageUrl!
-                                              .map(
-                                                (e) => Image.network(
-                                                  e.toString().trim(),
-                                                  width: width,
-                                                  height: width,
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              )
-                                              .toList(),
-                                          options: CarouselOptions(
-                                            enableInfiniteScroll: false,
-                                            viewportFraction: 1,
-                                            aspectRatio: 0.7875,
-                                            enlargeCenterPage: false,
-                                          ),
-                                        ),
+                                  Container(
+                                    width: width,
+                                    height: width,
+                                    decoration: const BoxDecoration(
+                                      color: Color.fromRGBO(237, 237, 237, 1),
+                                    ),
+                                    child: CarouselSlider(
+                                      items: imageUrl!
+                                          .map(
+                                            (e) => Image.network(
+                                              e.toString().trim(),
+                                              width: width,
+                                              height: width,
+                                              fit: BoxFit.cover,
+                                            ),
+                                          )
+                                          .toList(),
+                                      options: CarouselOptions(
+                                        enableInfiniteScroll: false,
+                                        viewportFraction: 1,
+                                        aspectRatio: 0.7875,
+                                        enlargeCenterPage: false,
                                       ),
-
-                                      // DOTS
-                                      // isTextPost
-                                      //     ? Container()
-                                      //     : Padding(
-                                      //         padding: const EdgeInsets.only(
-                                      //           bottom: 8,
-                                      //         ),
-                                      //         child: Row(
-                                      //           mainAxisAlignment:
-                                      //               MainAxisAlignment.center,
-                                      //           crossAxisAlignment:
-                                      //               CrossAxisAlignment.center,
-                                      //           children: (imageUrl).map((e) {
-                                      //             int index = imageUrl.indexOf(e);
-
-                                      //             return Container(
-                                      //               width: 8,
-                                      //               height: 8,
-                                      //               margin: const EdgeInsets.all(4),
-                                      //               decoration: BoxDecoration(
-                                      //                 shape: BoxShape.circle,
-                                      //                 color: currentIndex == index
-                                      //                     ? primaryDark
-                                      //                     : primary2,
-                                      //               ),
-                                      //             );
-                                      //           }).toList(),
-                                      //         ),
-                                      //       ),
-                                    ],
+                                    ),
                                   ),
-
                                   Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
@@ -441,26 +456,38 @@ class _DiscoverPostsPageState extends State<DiscoverPostsPage>
                                             padding: EdgeInsets.all(
                                               width * 0.0125,
                                             ),
-                                            child: SizedBox(
-                                              width: width * 0.75,
-                                              child: Text(
-                                                name.toString().trim(),
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
-                                                textAlign: TextAlign.start,
-                                              ),
+                                            child: Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                isProduct
+                                                    ? Icon(
+                                                        Icons.link,
+                                                        color: primaryDark,
+                                                        size: width * 0.066,
+                                                      )
+                                                    : Container(),
+                                                SizedBox(
+                                                  width: width * 0.725,
+                                                  child: Text(
+                                                    name.toString().trim(),
+                                                    maxLines: 2,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    textAlign: TextAlign.start,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
-
                                           // PRICE
                                           Padding(
-                                            padding: EdgeInsets.all(
-                                              width * 0.0125,
-                                            ),
+                                            padding:
+                                                EdgeInsets.all(width * 0.0125),
                                             child: SizedBox(
                                               width: width * 0.75,
                                               child: Text(
-                                                'Rs. ${price.round()}',
+                                                'Rs. ${price.runtimeType == int ? price : price.round()}',
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
                                                 textAlign: TextAlign.start,
@@ -469,42 +496,46 @@ class _DiscoverPostsPageState extends State<DiscoverPostsPage>
                                           ),
                                         ],
                                       ),
-
                                       // WISHLIST
-                                      Padding(
-                                        padding: EdgeInsets.only(
-                                          right: width * 0.0125,
-                                        ),
-                                        child: IconButton(
-                                          onPressed: () async {
-                                            if (auth.currentUser != null) {
-                                              setState(() {
-                                                products[id][5] = !isWishListed;
-                                              });
-                                              await wishlistProduct(
-                                                id,
-                                                !products[id][5],
-                                              );
-                                            } else {
-                                              await showSignInDialog(context);
-                                            }
-                                          },
-                                          icon: Icon(
-                                            products[id][5]
-                                                ? Icons.favorite_rounded
-                                                : Icons
-                                                    .favorite_outline_rounded,
-                                            size: width * 0.095,
-                                            color: Colors.red,
-                                          ),
-                                          color: Colors.red,
-                                          tooltip: 'Wishlist',
-                                        ),
-                                      ),
+                                      isProduct
+                                          ? Padding(
+                                              padding: EdgeInsets.only(
+                                                right: width * 0.0125,
+                                              ),
+                                              child: IconButton(
+                                                onPressed: () async {
+                                                  if (auth.currentUser !=
+                                                      null) {
+                                                    setState(() {
+                                                      productsAndPosts[
+                                                              productId][5] =
+                                                          !isWishlisted;
+                                                    });
+                                                    await wishlistProduct(
+                                                      productId,
+                                                      !isWishlisted,
+                                                    );
+                                                  } else {
+                                                    await showSignInDialog(
+                                                      context,
+                                                    );
+                                                  }
+                                                },
+                                                icon: Icon(
+                                                  isWishlisted
+                                                      ? Icons.favorite_rounded
+                                                      : Icons
+                                                          .favorite_outline_rounded,
+                                                  size: width * 0.095,
+                                                  color: Colors.red,
+                                                ),
+                                                color: Colors.red,
+                                                tooltip: 'Wishlist',
+                                              ),
+                                            )
+                                          : Container(),
                                     ],
-                                  ),
-
-                                  const SizedBox(height: 4),
+                                  )
                                 ],
                               ),
                             ),
