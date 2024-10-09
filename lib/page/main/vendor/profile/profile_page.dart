@@ -377,6 +377,71 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                         ),
                       ),
+
+                      Divider(),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          GestureDetector(
+                            onTap: () async {
+                              const url =
+                                  'https://localsearch-terms-iwaa6zo.gamma.site';
+                              if (await canLaunchUrl(Uri.parse(url))) {
+                                await launchUrl(Uri.parse(url));
+                              } else {
+                                mySnackBar(
+                                  'Some error occurred, Try Again Later',
+                                  context,
+                                );
+                              }
+                            },
+                            child: Text(
+                              'Terms & Conditions',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontStyle: FontStyle.italic,
+                                color: Colors.blue.shade200,
+                                fontSize: width * 0.03,
+                                fontWeight: FontWeight.w300,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            '  ⬤  ',
+                            style: TextStyle(
+                              color: Colors.blue.shade200,
+                              fontSize: width * 0.02,
+                              fontWeight: FontWeight.w300,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () async {
+                              const url =
+                                  'https://localsearch-privacy-zapvot1.gamma.site';
+                              if (await canLaunchUrl(Uri.parse(url))) {
+                                await launchUrl(Uri.parse(url));
+                              } else {
+                                mySnackBar(
+                                  'Some error occurred, Try Again Later',
+                                  context,
+                                );
+                              }
+                            },
+                            child: Text(
+                              'Privacy Policy',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontStyle: FontStyle.italic,
+                                color: Colors.blue.shade200,
+                                fontSize: width * 0.03,
+                                fontWeight: FontWeight.w300,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 );
