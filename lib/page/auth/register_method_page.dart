@@ -431,7 +431,7 @@
 
 //   @override
 //   Widget build(BuildContext context) {
-//     final width = MediaQuery.of(context).size.width;
+//     final width = MediaQuery.sizeOf(context).width;
 
 //     return Scaffold(
 //       resizeToAvoidBottomInset: false,
@@ -453,7 +453,7 @@
 //               children: [
 //                 // EMAIL
 //                 MyCollapseContainer(
-//                   width: MediaQuery.of(context).size.width,
+//                   width: MediaQuery.sizeOf(context).width,
 //                   text: 'Email',
 //                   children: Padding(
 //                     padding: EdgeInsets.all(width * 0.0225),
@@ -467,7 +467,7 @@
 //                             controller: emailController,
 //                             borderRadius: 16,
 //                             horizontalPadding:
-//                                 MediaQuery.of(context).size.width * 0.066,
+//                                 MediaQuery.sizeOf(context).width * 0.066,
 //                             keyboardType: TextInputType.emailAddress,
 //                             autoFillHints: const [AutofillHints.email],
 //                           ),
@@ -479,7 +479,7 @@
 //                             controller: passwordController,
 //                             borderRadius: 16,
 //                             horizontalPadding:
-//                                 MediaQuery.of(context).size.width * 0.066,
+//                                 MediaQuery.sizeOf(context).width * 0.066,
 //                             isPassword: true,
 //                             autoFillHints: const [AutofillHints.newPassword],
 //                           ),
@@ -488,7 +488,7 @@
 //                             controller: confirmPasswordController,
 //                             borderRadius: 16,
 //                             horizontalPadding:
-//                                 MediaQuery.of(context).size.width * 0.066,
+//                                 MediaQuery.sizeOf(context).width * 0.066,
 //                             verticalPadding: 8,
 //                             isPassword: true,
 //                             autoFillHints: const [AutofillHints.newPassword],
@@ -511,7 +511,7 @@
 
 //                 // PHONE NUMBER
 //                 MyCollapseContainer(
-//                   width: MediaQuery.of(context).size.width,
+//                   width: MediaQuery.sizeOf(context).width,
 //                   text: 'Phone Number',
 //                   children: Padding(
 //                     padding: EdgeInsets.all(width * 0.0225),
@@ -562,7 +562,7 @@
 //                               await registerWithPhone();
 //                             },
 //                             horizontalPadding:
-//                                 MediaQuery.of(context).size.width * 0.066,
+//                                 MediaQuery.sizeOf(context).width * 0.066,
 //                             isLoading: isPhoneRegistering,
 //                           ),
 //                         ],
@@ -581,13 +581,13 @@
 //                   },
 //                   child: Container(
 //                     margin: EdgeInsets.fromLTRB(
-//                       MediaQuery.of(context).size.width * 0.035,
+//                       MediaQuery.sizeOf(context).width * 0.035,
 //                       0,
-//                       MediaQuery.of(context).size.width * 0.035,
+//                       MediaQuery.sizeOf(context).width * 0.035,
 //                       MediaQuery.of(context).viewInsets.bottom,
 //                     ),
 //                     padding: EdgeInsets.symmetric(
-//                       vertical: MediaQuery.of(context).size.width * 0.033,
+//                       vertical: MediaQuery.sizeOf(context).width * 0.033,
 //                     ),
 //                     alignment: Alignment.center,
 //                     width: double.infinity,
@@ -606,7 +606,7 @@
 //                               color: buttonColor,
 //                               fontWeight: FontWeight.w600,
 //                               fontSize:
-//                                   MediaQuery.of(context).size.width * 0.045,
+//                                   MediaQuery.sizeOf(context).width * 0.045,
 //                             ),
 //                           ),
 //                   ),
@@ -657,7 +657,7 @@
 //           //           children: [
 //           //             // EMAIL
 //           //             MyCollapseContainer(
-//           //               width: MediaQuery.of(context).size.width,
+//           //               width: MediaQuery.sizeOf(context).width,
 //           //               text: 'Email',
 //           //               children: Padding(
 //           //                 padding: EdgeInsets.symmetric(
@@ -729,7 +729,7 @@
 
 //           //             // PHONE NUMBER
 //           //             MyCollapseContainer(
-//           //               width: MediaQuery.of(context).size.width,
+//           //               width: MediaQuery.sizeOf(context).width,
 //           //               text: 'Phone Number',
 //           //               children: Padding(
 //           //                 padding: EdgeInsets.all(width * 0.0225),

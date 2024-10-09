@@ -122,7 +122,7 @@ class _NumberVerifyPageState extends State<NumberVerifyPage> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
+    final width = MediaQuery.sizeOf(context).width;
     final locationProvider = Provider.of<LocationProvider>(context);
 
     return Scaffold(

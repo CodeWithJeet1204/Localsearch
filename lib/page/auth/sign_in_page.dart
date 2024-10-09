@@ -459,7 +459,7 @@ class _SignInPageState extends State<SignInPage> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
+    final width = MediaQuery.sizeOf(context).width;
     final locationProvider = Provider.of<LocationProvider>(context);
 
     return Scaffold(

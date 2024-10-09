@@ -57,7 +57,7 @@ class _SeeMoreTextState extends State<SeeMoreText> {
           style: widget.textStyle ??
               TextStyle(
                 color: primaryDark,
-                fontSize: MediaQuery.of(context).size.width * 0.0425,
+                fontSize: MediaQuery.sizeOf(context).width * 0.0425,
               ),
         ),
         if (!_isExpanded && words.length > _currentMaxWords)

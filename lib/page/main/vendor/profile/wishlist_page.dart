@@ -278,7 +278,7 @@ class _WishlistPageState extends State<WishlistPage> {
         ],
         // bottom: PreferredSize(
         //   preferredSize: Size(
-        //     MediaQuery.of(context).size.width,
+        //     MediaQuery.sizeOf(context).width,
         //     50,
         //   ),
         //   child: TabBar(
@@ -292,10 +292,10 @@ class _WishlistPageState extends State<WishlistPage> {
         //     ),
         //     isScrollable: false,
         //     indicatorPadding: EdgeInsets.only(
-        //       bottom: MediaQuery.of(context).size.width * 0.02,
-        //       top: MediaQuery.of(context).size.width * 0.0175,
-        //       left: -MediaQuery.of(context).size.width * 0.045,
-        //       right: -MediaQuery.of(context).size.width * 0.045,
+        //       bottom: MediaQuery.sizeOf(context).width * 0.02,
+        //       top: MediaQuery.sizeOf(context).width * 0.0175,
+        //       left: -MediaQuery.sizeOf(context).width * 0.045,
+        //       right: -MediaQuery.sizeOf(context).width * 0.045,
         //     ),
         //     automaticIndicatorColorAdjustment: false,
         //     indicatorWeight: 2,
@@ -359,7 +359,7 @@ class _WishlistPageState extends State<WishlistPage> {
                       Padding(
                         padding: EdgeInsets.symmetric(
                           horizontal:
-                              MediaQuery.of(context).size.width * 0.0125,
+                              MediaQuery.sizeOf(context).width * 0.0125,
                         ),
                         child: LayoutBuilder(
                           builder: ((context, constraints) {
@@ -381,7 +381,7 @@ class _WishlistPageState extends State<WishlistPage> {
                                   !isData
                                       ? SizedBox(
                                           width:
-                                              MediaQuery.of(context).size.width,
+                                              MediaQuery.sizeOf(context).width,
                                           height: MediaQuery.of(context)
                                                   .size
                                                   .width *
@@ -481,7 +481,7 @@ class _WishlistPageState extends State<WishlistPage> {
                                   !isData
                                       ? SizedBox(
                                           width:
-                                              MediaQuery.of(context).size.width,
+                                              MediaQuery.sizeOf(context).width,
                                           child: ListView.builder(
                                             shrinkWrap: true,
                                             itemCount: 4,
@@ -636,8 +636,8 @@ class _WishlistPageState extends State<WishlistPage> {
         //     ? Column(
         //         children: [
         //           SizedBox(
-        //             width: MediaQuery.of(context).size.width,
-        //             height: MediaQuery.of(context).size.width * 0.175,
+        //             width: MediaQuery.sizeOf(context).width,
+        //             height: MediaQuery.sizeOf(context).width * 0.175,
         //             child: ListView.builder(
         //               shrinkWrap: true,
         //               itemCount: 4,
@@ -647,7 +647,7 @@ class _WishlistPageState extends State<WishlistPage> {
         //                 return Padding(
         //                   padding: const EdgeInsets.all(8),
         //                   child: SkeletonContainer(
-        //                     width: MediaQuery.of(context).size.width * 0.3,
+        //                     width: MediaQuery.sizeOf(context).width * 0.3,
         //                     height: 40,
         //                   ),
         //                 );
@@ -655,7 +655,7 @@ class _WishlistPageState extends State<WishlistPage> {
         //             ),
         //           ),
         //           SizedBox(
-        //             width: MediaQuery.of(context).size.width,
+        //             width: MediaQuery.sizeOf(context).width,
         //             child: ListView.builder(
         //               shrinkWrap: true,
         //               itemCount: 4,
@@ -664,7 +664,7 @@ class _WishlistPageState extends State<WishlistPage> {
         //                 return Padding(
         //                   padding: const EdgeInsets.all(8),
         //                   child: SkeletonContainer(
-        //                     width: MediaQuery.of(context).size.width,
+        //                     width: MediaQuery.sizeOf(context).width,
         //                     height: 80,
         //                   ),
         //                 );
@@ -675,7 +675,7 @@ class _WishlistPageState extends State<WishlistPage> {
         //       )
         //     : Padding(
         //         padding: EdgeInsets.symmetric(
-        //           horizontal: MediaQuery.of(context).size.width * 0.00625,
+        //           horizontal: MediaQuery.sizeOf(context).width * 0.00625,
         //         ),
         //         child: LayoutBuilder(
         //           builder: ((context, constraints) {

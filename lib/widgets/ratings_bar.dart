@@ -25,7 +25,7 @@ class RatingsBars extends StatelessWidget {
   }
 
   Widget _buildRatingBar(String rating, int count, int maxCount, context) {
-    final width = MediaQuery.of(context).size.width;
+    final width = MediaQuery.sizeOf(context).width;
     final double barWidth =
         (count.toDouble() / maxCount.toDouble()) * width * 0.25;
 

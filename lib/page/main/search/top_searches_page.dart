@@ -78,8 +78,8 @@ class _TopSearchPageState extends State<TopSearchPage> {
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: MediaQuery.of(context).size.width * 0.0225,
-            vertical: MediaQuery.of(context).size.width * 0.0125,
+            horizontal: MediaQuery.sizeOf(context).width * 0.0225,
+            vertical: MediaQuery.sizeOf(context).width * 0.0125,
           ),
           child: LayoutBuilder(
             builder: ((context, constraints) {

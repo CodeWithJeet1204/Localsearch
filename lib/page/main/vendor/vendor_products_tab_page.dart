@@ -371,7 +371,7 @@ class _VendorProductsTabPageState extends State<VendorProductsTabPage> {
                                         ),
                                       ),
                                       padding: EdgeInsets.all(
-                                        MediaQuery.of(context).size.width *
+                                        MediaQuery.sizeOf(context).width *
                                             0.0125,
                                       ),
                                       child: Column(

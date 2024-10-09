@@ -358,12 +358,12 @@
 
 //   @override
 //   Widget build(BuildContext context) {
-//     final width = MediaQuery.of(context).size.width;
+//     final width = MediaQuery.sizeOf(context).width;
 
 //     return Scaffold(
 //       resizeToAvoidBottomInset: false,
 //       body: SafeArea(
-//         child: MediaQuery.of(context).size.width < screenSize
+//         child: MediaQuery.sizeOf(context).width < screenSize
 //             ? SingleChildScrollView(
 //                 child: Column(
 //                   crossAxisAlignment: CrossAxisAlignment.center,

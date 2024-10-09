@@ -261,8 +261,8 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    final height = MediaQuery.of(context).size.width;
+    final width = MediaQuery.sizeOf(context).width;
+    final height = MediaQuery.sizeOf(context).width;
     final locationProvider = Provider.of<LocationProvider>(context);
 
     return Scaffold(
@@ -290,8 +290,8 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
           preferredSize: Size(width, height * 0.55),
           child: Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: MediaQuery.of(context).size.width * 0.0166,
-              vertical: MediaQuery.of(context).size.width * 0.0225,
+              horizontal: MediaQuery.sizeOf(context).width * 0.0166,
+              vertical: MediaQuery.sizeOf(context).width * 0.0225,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

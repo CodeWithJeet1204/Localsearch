@@ -821,7 +821,7 @@ class _ProductPageState extends State<ProductPage> {
 
   // ADD REVIEW WIDGET
   Widget addAReviewWidget() {
-    final width = MediaQuery.of(context).size.width;
+    final width = MediaQuery.sizeOf(context).width;
 
     return hasReviewedBefore == null
         ? Container()
@@ -1175,7 +1175,7 @@ class _ProductPageState extends State<ProductPage> {
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: MediaQuery.of(context).size.width * 0.00625,
+            horizontal: MediaQuery.sizeOf(context).width * 0.00625,
           ),
           child: LayoutBuilder(
             builder: ((context, constraints) {
@@ -1738,7 +1738,7 @@ class _ProductPageState extends State<ProductPage> {
                                   seeMoreStyle: TextStyle(
                                     color: Colors.blue,
                                     fontSize:
-                                        MediaQuery.of(context).size.width *
+                                        MediaQuery.sizeOf(context).width *
                                             0.0425,
                                   ),
                                 ),
@@ -3015,7 +3015,7 @@ class _AllDiscountsWidgetState extends State<AllDiscountsWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
+    final width = MediaQuery.sizeOf(context).width;
 
     return Padding(
       padding: EdgeInsets.symmetric(

@@ -85,7 +85,7 @@ class _StatusPageViewState extends State<StatusPageView> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
+    final width = MediaQuery.sizeOf(context).width;
     List<Map<String, dynamic>> flattenedStatus = flattenStatus();
 
     return Scaffold(

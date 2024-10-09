@@ -180,7 +180,7 @@ class _VendorShortsTabTileState extends State<VendorShortsTabTile> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
+    final width = MediaQuery.sizeOf(context).width;
 
     return isData
         ? VisibilityDetector(

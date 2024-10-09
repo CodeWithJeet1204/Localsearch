@@ -142,7 +142,7 @@
 //               textAlign: TextAlign.center,
 //               style: TextStyle(
 //                 color: primaryDark,
-//                 fontSize: MediaQuery.of(context).size.width * 0.05,
+//                 fontSize: MediaQuery.sizeOf(context).width * 0.05,
 //                 fontWeight: FontWeight.w600,
 //               ),
 //             ),
@@ -151,7 +151,7 @@
 //               textAlign: TextAlign.center,
 //               style: TextStyle(
 //                 color: primaryDark,
-//                 fontSize: MediaQuery.of(context).size.width * 0.045,
+//                 fontSize: MediaQuery.sizeOf(context).width * 0.045,
 //               ),
 //             ),
 //             const SizedBox(height: 20),
@@ -161,7 +161,7 @@
 //                 await checkEmailVerification(fromButton: true);
 //               },
 //               isLoading: checkingEmailVerified,
-//               horizontalPadding: MediaQuery.of(context).size.width * 0.066,
+//               horizontalPadding: MediaQuery.sizeOf(context).width * 0.066,
 //             ),
 //             const SizedBox(height: 20),
 //             Opacity(
@@ -182,7 +182,7 @@
 //                         );
 //                       },
 //                 isLoading: checkingEmailVerified,
-//                 horizontalPadding: MediaQuery.of(context).size.width * 0.066,
+//                 horizontalPadding: MediaQuery.sizeOf(context).width * 0.066,
 //               ),
 //             ),
 //           ],

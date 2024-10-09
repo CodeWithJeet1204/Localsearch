@@ -275,7 +275,7 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
+    final width = MediaQuery.sizeOf(context).width;
     final locationProvider = Provider.of<LocationProvider>(context);
 
     return Scaffold(
@@ -287,8 +287,8 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
           preferredSize: Size(width, width * 0.2),
           child: Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: MediaQuery.of(context).size.width * 0.0166,
-              vertical: MediaQuery.of(context).size.width * 0.0225,
+              horizontal: MediaQuery.sizeOf(context).width * 0.0166,
+              vertical: MediaQuery.sizeOf(context).width * 0.0225,
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

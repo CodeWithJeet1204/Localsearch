@@ -861,7 +861,7 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
           : SafeArea(
               child: Padding(
                 padding: EdgeInsets.symmetric(
-                  horizontal: MediaQuery.of(context).size.width * 0.00625,
+                  horizontal: MediaQuery.sizeOf(context).width * 0.00625,
                 ),
                 child: LayoutBuilder(builder: ((context, constraints) {
                   final width = constraints.maxWidth;
@@ -2108,10 +2108,10 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                             isScrollable: false,
                             indicatorPadding: EdgeInsets.only(
                               bottom:
-                                  MediaQuery.of(context).size.width * 0.0266,
-                              top: MediaQuery.of(context).size.width * 0.0225,
-                              left: -MediaQuery.of(context).size.width * 0.045,
-                              right: -MediaQuery.of(context).size.width * 0.045,
+                                  MediaQuery.sizeOf(context).width * 0.0266,
+                              top: MediaQuery.sizeOf(context).width * 0.0225,
+                              left: -MediaQuery.sizeOf(context).width * 0.045,
+                              right: -MediaQuery.sizeOf(context).width * 0.045,
                             ),
                             automaticIndicatorColorAdjustment: false,
                             indicatorWeight: 2,

@@ -21,7 +21,7 @@ class ReviewContainer extends StatefulWidget {
 class _ReviewContainerState extends State<ReviewContainer> {
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
+    final width = MediaQuery.sizeOf(context).width;
 
     return Container(
       width: width,

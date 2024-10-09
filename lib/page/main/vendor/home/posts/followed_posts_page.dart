@@ -276,7 +276,7 @@ class _FollowedPostsPageState extends State<FollowedPostsPage>
   Widget build(BuildContext context) {
     super.build(context);
     final mainPageProvider = Provider.of<MainPageProvider>(context);
-    final width = MediaQuery.of(context).size.width;
+    final width = MediaQuery.sizeOf(context).width;
     final height = MediaQuery.of(context).size.height;
 
     return PopScope(

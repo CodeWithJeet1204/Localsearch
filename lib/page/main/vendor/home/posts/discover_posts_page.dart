@@ -247,7 +247,7 @@ class _DiscoverPostsPageState extends State<DiscoverPostsPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final width = MediaQuery.of(context).size.width;
+    final width = MediaQuery.sizeOf(context).width;
     final height = MediaQuery.of(context).size.height;
 
     return Scaffold(

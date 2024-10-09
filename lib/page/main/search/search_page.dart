@@ -263,7 +263,7 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
+    double width = MediaQuery.sizeOf(context).width;
 
     return Scaffold(
       body: SafeArea(

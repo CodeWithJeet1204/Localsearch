@@ -163,7 +163,7 @@ class _LocationChangePageState extends State<LocationChangePage> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
+    final width = MediaQuery.sizeOf(context).width;
     final locationProvider = Provider.of<LocationProvider>(context);
     final cityName = locationProvider.cityName;
 

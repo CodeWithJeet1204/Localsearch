@@ -99,9 +99,9 @@
 //           ? SafeArea(
 //               child: Padding(
 //                 padding:
-//                     EdgeInsets.all(MediaQuery.of(context).size.width * 0.025),
+//                     EdgeInsets.all(MediaQuery.sizeOf(context).width * 0.025),
 //                 child: SizedBox(
-//                   width: MediaQuery.of(context).size.width,
+//                   width: MediaQuery.sizeOf(context).width,
 //                   child: GridView.custom(
 //                     shrinkWrap: true,
 //                     physics: const ClampingScrollPhysics(),
@@ -121,8 +121,8 @@
 //                     childrenDelegate: SliverChildBuilderDelegate(
 //                       (context, index) {
 //                         return SkeletonContainer(
-//                           width: MediaQuery.of(context).size.width,
-//                           height: MediaQuery.of(context).size.width,
+//                           width: MediaQuery.sizeOf(context).width,
+//                           height: MediaQuery.sizeOf(context).width,
 //                         );
 //                       },
 //                       childCount: 20,
@@ -134,7 +134,7 @@
 //           : SafeArea(
 //               child: Padding(
 //                 padding: EdgeInsets.symmetric(
-//                   horizontal: MediaQuery.of(context).size.width * 0.0225,
+//                   horizontal: MediaQuery.sizeOf(context).width * 0.0225,
 //                 ),
 //                 child: LayoutBuilder(builder: ((context, constraints) {
 //                   final width = constraints.maxWidth;
