@@ -1737,9 +1737,8 @@ class _ProductPageState extends State<ProductPage> {
                                   ),
                                   seeMoreStyle: TextStyle(
                                     color: Colors.blue,
-                                    fontSize:
-                                        MediaQuery.sizeOf(context).width *
-                                            0.0425,
+                                    fontSize: MediaQuery.sizeOf(context).width *
+                                        0.0425,
                                   ),
                                 ),
                               ),
@@ -2781,7 +2780,7 @@ class Properties extends StatelessWidget {
   final List propertyValue0;
   final String propertyName0;
   final int propertyNoOfAnswers0;
-  final width;
+  final double width;
   final List propertyValue1;
   final String propertyName1;
   final int propertyNoOfAnswers1;

@@ -80,12 +80,13 @@ class _SignInPageState extends State<SignInPage> {
             setState(() {
               isEmailSigningIn = false;
             });
-
-            Navigator.of(context).pop();
-            return mySnackBar(
-              'Signed In',
-              context,
-            );
+            if (mounted) {
+              Navigator.of(context).pop();
+              return mySnackBar(
+                'Signed In',
+                context,
+              );
+            }
           }
           return;
         }
@@ -135,10 +136,12 @@ class _SignInPageState extends State<SignInPage> {
           setState(() {
             isEmailSigningIn = false;
           });
-          return mySnackBar(
-            'Some error occured, try closing & opening the app',
-            context,
-          );
+          if (mounted) {
+            return mySnackBar(
+              'Some error occured, try closing & opening the app',
+              context,
+            );
+          }
         }
       } catch (e) {
         setState(() {

@@ -12,7 +12,7 @@ class MyCollapseContainer extends StatefulWidget {
 
   final String text;
   final Widget children;
-  final width;
+  final double width;
 
   @override
   State<MyCollapseContainer> createState() => _MyCollapseContainerState();

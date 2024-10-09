@@ -78,7 +78,9 @@ class _VendorCataloguePageState extends State<VendorCataloguePage> {
         isData = true;
       });
     } catch (e) {
-      mySnackBar('Error fetching data: $e', context);
+      if (mounted) {
+        mySnackBar('Error fetching data: $e', context);
+      }
     }
   }
 

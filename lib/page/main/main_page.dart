@@ -29,6 +29,7 @@ class _MainPageState extends State<MainPage> {
   Widget? detailsPage;
 
   // INIT STATE
+  @override
   void initState() {
     getData();
     super.initState();

@@ -58,9 +58,9 @@ class _GetLocationPageState extends State<GetLocationPage>
 
       final userData = userSnap.data()!;
 
-      final String? myLocation = userData['location'] ?? null;
-      final double? myLocationLatitude = userData['locationLatitude'] ?? null;
-      final double? myLocationLongitude = userData['locationLongitude'] ?? null;
+      final String? myLocation = userData['location'];
+      final double? myLocationLatitude = userData['locationLatitude'];
+      final double? myLocationLongitude = userData['locationLongitude'];
 
       setState(() {
         location = myLocation;
@@ -119,31 +119,33 @@ class _GetLocationPageState extends State<GetLocationPage>
       }
 
       if (permission == LocationPermission.deniedForever) {
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Location permissions are permanently denied. Enable them in Settings.',
-              style: const TextStyle(
-                color: Color.fromARGB(255, 240, 252, 255),
+        if (mounted) {
+          ScaffoldMessenger.of(context).clearSnackBars();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Location permissions are permanently denied. Enable them in Settings.',
+                style: const TextStyle(
+                  color: Color.fromARGB(255, 240, 252, 255),
+                ),
               ),
+              action: SnackBarAction(
+                label: 'Open Settings',
+                onPressed: () async {
+                  await Geolocator.openAppSettings();
+                },
+                textColor: primary2,
+              ),
+              elevation: 2,
+              backgroundColor: primaryDark,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              dismissDirection: DismissDirection.down,
+              behavior: SnackBarBehavior.floating,
             ),
-            action: SnackBarAction(
-              label: 'Open Settings',
-              onPressed: () async {
-                await Geolocator.openAppSettings();
-              },
-              textColor: primary2,
-            ),
-            elevation: 2,
-            backgroundColor: primaryDark,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            dismissDirection: DismissDirection.down,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+          );
+        }
         await Future.delayed(Duration(seconds: 1));
         continue;
       }

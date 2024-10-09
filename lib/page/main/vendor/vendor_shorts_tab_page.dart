@@ -9,7 +9,7 @@ class VendorShortsTabPage extends StatefulWidget {
     required this.shorts,
   });
 
-  final width;
+  final double width;
   final Map<String, Map<String, dynamic>> shorts;
 
   @override

@@ -194,7 +194,6 @@ class _BrandPageState extends State<BrandPage> {
         .map((userSnap) {
       final userData = userSnap.data()!;
       final userWishlist = userData['wishlists'] as List;
-      print(userWishlist.contains(productId));
 
       return userWishlist.contains(productId);
     });

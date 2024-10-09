@@ -13,7 +13,7 @@ class NameContainer extends StatefulWidget {
   final String text;
   final String imageUrl;
   final void Function()? onTap;
-  final width;
+  final double width;
 
   @override
   State<NameContainer> createState() => _NameContainerState();

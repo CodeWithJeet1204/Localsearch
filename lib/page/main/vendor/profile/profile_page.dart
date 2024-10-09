@@ -87,7 +87,9 @@ class _ProfilePageState extends State<ProfilePage> {
                     Navigator.of(context).pop();
                   }
                 } catch (e) {
-                  mySnackBar(e.toString(), context);
+                  if (context.mounted) {
+                    mySnackBar(e.toString(), context);
+                  }
                 }
               },
               child: const Text(
@@ -287,10 +289,12 @@ class _ProfilePageState extends State<ProfilePage> {
                           if (await canLaunchUrl(Uri.parse(url))) {
                             await launchUrl(Uri.parse(url));
                           } else {
-                            return mySnackBar(
-                              'Some error occured, Try Again Later',
-                              context,
-                            );
+                            if (context.mounted) {
+                              return mySnackBar(
+                                'Some error occured, Try Again Later',
+                                context,
+                              );
+                            }
                           }
                         },
                         customBorder: RoundedRectangleBorder(
@@ -341,15 +345,17 @@ class _ProfilePageState extends State<ProfilePage> {
                             if (await canLaunchUrl(url)) {
                               await launchUrl(url);
                             } else {
-                              if (mounted) {
+                              if (context.mounted) {
                                 mySnackBar('Some error occured', context);
                               }
                             }
                           } else {
-                            return mySnackBar(
-                              'No Helpline currently available',
-                              context,
-                            );
+                            if (context.mounted) {
+                              return mySnackBar(
+                                'No Helpline currently available',
+                                context,
+                              );
+                            }
                           }
                         },
                         customBorder: RoundedRectangleBorder(
@@ -391,10 +397,12 @@ class _ProfilePageState extends State<ProfilePage> {
                               if (await canLaunchUrl(Uri.parse(url))) {
                                 await launchUrl(Uri.parse(url));
                               } else {
-                                mySnackBar(
-                                  'Some error occurred, Try Again Later',
-                                  context,
-                                );
+                                if (context.mounted) {
+                                  mySnackBar(
+                                    'Some error occurred, Try Again Later',
+                                    context,
+                                  );
+                                }
                               }
                             },
                             child: Text(
@@ -423,10 +431,12 @@ class _ProfilePageState extends State<ProfilePage> {
                               if (await canLaunchUrl(Uri.parse(url))) {
                                 await launchUrl(Uri.parse(url));
                               } else {
-                                mySnackBar(
-                                  'Some error occurred, Try Again Later',
-                                  context,
-                                );
+                                if (context.mounted) {
+                                  mySnackBar(
+                                    'Some error occurred, Try Again Later',
+                                    context,
+                                  );
+                                }
                               }
                             },
                             child: Text(

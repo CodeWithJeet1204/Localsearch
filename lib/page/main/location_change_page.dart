@@ -410,14 +410,16 @@ class _LocationChangePageState extends State<LocationChangePage> {
                                                     currentCityLongitude,
                                               },
                                             });
-                                            Navigator.of(context)
-                                                .pushAndRemoveUntil(
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    widget.page,
-                                              ),
-                                              (route) => route.isFirst,
-                                            );
+                                            if (context.mounted) {
+                                              Navigator.of(context)
+                                                  .pushAndRemoveUntil(
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      widget.page,
+                                                ),
+                                                (route) => route.isFirst,
+                                              );
+                                            }
                                           },
                                           child: Container(
                                             width: width,

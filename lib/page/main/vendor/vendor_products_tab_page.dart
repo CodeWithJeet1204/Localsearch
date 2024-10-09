@@ -17,8 +17,8 @@ class VendorProductsTabPage extends StatefulWidget {
     required this.height,
   });
 
-  final width;
-  final height;
+  final double width;
+  final double height;
   final String? myProductSort;
   final Map<String, dynamic> myProducts;
 

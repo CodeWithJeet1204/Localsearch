@@ -381,27 +381,30 @@ class _ShortsTileState extends State<ShortsTile> {
 
                                                       final productData =
                                                           productSnap.data()!;
-
-                                                      Navigator.of(context)
-                                                          .push(
-                                                        MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              ProductPage(
-                                                            productData:
-                                                                productData,
+                                                      if (context.mounted) {
+                                                        Navigator.of(context)
+                                                            .push(
+                                                          MaterialPageRoute(
+                                                            builder:
+                                                                (context) =>
+                                                                    ProductPage(
+                                                              productData:
+                                                                  productData,
+                                                            ),
                                                           ),
-                                                        ),
-                                                      )
-                                                          .then((value) {
-                                                        if (wasPlaying) {
-                                                          flickManager
-                                                              .flickControlManager!
-                                                              .togglePlay();
-                                                        }
-                                                        setState(() {
-                                                          isVideoPlaying = true;
+                                                        )
+                                                            .then((value) {
+                                                          if (wasPlaying) {
+                                                            flickManager
+                                                                .flickControlManager!
+                                                                .togglePlay();
+                                                          }
+                                                          setState(() {
+                                                            isVideoPlaying =
+                                                                true;
+                                                          });
                                                         });
-                                                      });
+                                                      }
                                                     },
                                                     child: Icon(
                                                       Icons.link,

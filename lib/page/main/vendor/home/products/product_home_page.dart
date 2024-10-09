@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_function_literals_in_foreach_calls, unused_local_variable
+// ignore_for_file: avoid_function_literals_in_foreach_calls, unused_local_variable, empty_catches
 import 'dart:async';
 import 'dart:convert';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -95,6 +95,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
     }
 
     final locationProvider = Provider.of<LocationProvider>(
+      // ignore: use_build_context_synchronously
       context,
       listen: false,
     );
@@ -285,8 +286,6 @@ class _ProductHomePageState extends State<ProductHomePage> {
       final myRecentShop = userData['recentShop'];
       Map<String, Map<String, dynamic>> myRecentShopProducts = {};
 
-      print('recentShop: $myRecentShop');
-
       if (myRecentShop != '') {
         try {
           final productSnap = await store
@@ -295,8 +294,6 @@ class _ProductHomePageState extends State<ProductHomePage> {
               .collection('Products')
               .where('vendorId', isEqualTo: myRecentShop)
               .get();
-
-          print('getting');
 
           for (var product in productSnap.docs) {
             final productData = product.data();
@@ -1040,7 +1037,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                                   if (loadingProgress == null) {
                                                     return child;
                                                   } else {
-                                                    return Container(
+                                                    return SizedBox(
                                                       width: width,
                                                       height: width,
                                                       child: Center(

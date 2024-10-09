@@ -117,15 +117,17 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
           await auth.currentUser!.verifyBeforeUpdateEmail(
             emailController.text.toString().trim(),
           );
-          await showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: Text('Verify Email'),
-              content: Text(
-                'Open mail, and verify your email to set it as your email',
+          if (mounted) {
+            await showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: Text('Verify Email'),
+                content: Text(
+                  'Open mail, and verify your email to set it as your email',
+                ),
               ),
-            ),
-          );
+            );
+          }
 
           await store.collection('Users').doc(auth.currentUser!.uid).update({
             'Name': nameController.text.toString().trim(),

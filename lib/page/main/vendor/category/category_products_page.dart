@@ -220,17 +220,16 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
 
       final sortedProducts = followedProducts + nonFollowedProducts;
 
-      myProducts = Map.fromIterable(
-        sortedProducts,
-        key: (item) => item['id'],
-        value: (item) => [
-          item['name'],
-          item['price'],
-          item['imageUrl'],
-          item['ratings'],
-          item['myProductData'],
-        ],
-      );
+      myProducts = {
+        for (var item in sortedProducts)
+          item['id']: [
+            item['name'],
+            item['price'],
+            item['imageUrl'],
+            item['ratings'],
+            item['myProductData'],
+          ]
+      };
     } catch (e) {
       if (mounted) {
         mySnackBar('Failed to fetch your City: ${e.toString()}', context);

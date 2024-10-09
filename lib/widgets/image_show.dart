@@ -8,7 +8,7 @@ class ImageShow extends StatefulWidget {
   });
 
   final String imageUrl;
-  final width;
+  final double width;
 
   @override
   State<ImageShow> createState() => _ImageShowState();

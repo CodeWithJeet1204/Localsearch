@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class MainPageProvider with ChangeNotifier {
   int _index = 0;
   int get index => _index;
-  List<int> _loadedPages = [0];
+  final List<int> _loadedPages = [0];
   List<int> get loadedPages => _loadedPages;
 
   // CHANGE INDEX

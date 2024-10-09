@@ -466,15 +466,15 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
       nonFollowedProducts
           .sort((a, b) => b['views'].length.compareTo(a['views'].length));
 
-      followedProducts.forEach((product) {
+      for (var product in followedProducts) {
         searchedProducts[product['productName']] = product;
         rangeProducts[product['productName']] = product;
-      });
+      }
 
-      nonFollowedProducts.forEach((product) {
+      for (var product in nonFollowedProducts) {
         searchedProducts[product['productName']] = product;
         rangeProducts[product['productName']] = product;
-      });
+      }
     } else {
       final productsSnap = await store
           .collection('Business')

@@ -53,7 +53,9 @@ class _ExhibitionPageState extends State<ExhibitionPage> {
         data = exhibitionData;
       });
     } catch (e) {
-      mySnackBar('Some error occured', context);
+      if (mounted) {
+        mySnackBar('Some error occured', context);
+      }
     }
   }
 
@@ -160,7 +162,7 @@ class _ExhibitionPageState extends State<ExhibitionPage> {
                                         if (loadingProgress == null) {
                                           return child;
                                         } else {
-                                          return Container(
+                                          return SizedBox(
                                             width: width,
                                             height: width,
                                             child: Center(

@@ -148,7 +148,6 @@ class _DiscoverPostsPageState extends State<DiscoverPostsPage>
       final String id = postData['postId'];
       final String text = postData['postText'];
       final price = postData['postPrice'];
-      print('text: $text');
       final List? imageUrl = postData['postImage'];
       final String vendorId = postData['postVendorId'];
       final Timestamp datetime = postData['postDateTime'];
@@ -332,14 +331,15 @@ class _DiscoverPostsPageState extends State<DiscoverPostsPage>
                                         .get();
 
                                     final productData = productSnap.data()!;
-
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (context) => ProductPage(
-                                          productData: productData,
+                                    if (context.mounted) {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (context) => ProductPage(
+                                            productData: productData,
+                                          ),
                                         ),
-                                      ),
-                                    );
+                                      );
+                                    }
                                   }
                                 : null,
                             child: Container(

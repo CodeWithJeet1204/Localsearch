@@ -16,7 +16,7 @@ class InfoBox extends StatelessWidget {
   final dynamic content;
   final List<dynamic> propertyValue;
   final int noOfAnswers;
-  final width;
+  final double width;
   final int? maxLines;
 
   @override
