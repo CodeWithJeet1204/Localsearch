@@ -735,7 +735,7 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
         .where('vendorId', isEqualTo: widget.vendorId)
         .get();
 
-    await Future.forEach(shortsSnap.docs, (short) async {
+    await Future.wait(shortsSnap.docs.map((short) async {
       final shortsData = short.data();
 
       final shortsId = short.id;
@@ -757,7 +757,7 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
         'datetime': datetime,
         'vendorId': vendorId,
       };
-    });
+    }));
 
     myShorts = Map.fromEntries(
       myShorts.entries.toList()
@@ -2107,8 +2107,7 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                             ),
                             isScrollable: false,
                             indicatorPadding: EdgeInsets.only(
-                              bottom:
-                                  MediaQuery.sizeOf(context).width * 0.0266,
+                              bottom: MediaQuery.sizeOf(context).width * 0.0266,
                               top: MediaQuery.sizeOf(context).width * 0.0225,
                               left: -MediaQuery.sizeOf(context).width * 0.045,
                               right: -MediaQuery.sizeOf(context).width * 0.045,

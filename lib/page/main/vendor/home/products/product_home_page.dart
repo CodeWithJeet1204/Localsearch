@@ -159,12 +159,10 @@ class _ProductHomePageState extends State<ProductHomePage> {
           .collection('Status')
           .get();
 
-      await Future.forEach(
-        statusSnap.docs,
-        (status) async {
+      await Future.wait(
+        statusSnap.docs.map((status) async {
           bool isViewed = false;
           final String statusId = status.id;
-
           final statusData = status.data();
 
           final String statusText = statusData['statusText'];
@@ -193,7 +191,6 @@ class _ProductHomePageState extends State<ProductHomePage> {
                 .get();
 
             final vendorData = vendorSnap.data()!;
-
             final String vendorName = vendorData['Name'];
             final String vendorImageUrl = vendorData['Image'];
 
@@ -211,7 +208,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
               },
             };
           }
-        },
+        }),
       );
 
       final sortedEntries = myStatus.entries.toList()
@@ -335,9 +332,8 @@ class _ProductHomePageState extends State<ProductHomePage> {
       double? yourLatitude;
       double? yourLongitude;
 
-      await Future.forEach(
-        wishlists,
-        (productId) async {
+      await Future.wait(
+        wishlists.map((productId) async {
           final productSnap = await store
               .collection('Business')
               .doc('Data')
@@ -346,7 +342,6 @@ class _ProductHomePageState extends State<ProductHomePage> {
               .get();
 
           final productData = productSnap.data()!;
-
           final String productName = productData['productName'];
           final String imageUrl = productData['images'][0];
           final String vendorId = productData['vendorId'];
@@ -388,7 +383,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
             } catch (e) {
               if (mounted) {
                 mySnackBar(
-                  'Some error occured: ${e.toString()}',
+                  'Some error occurred: ${e.toString()}',
                   context,
                 );
               }
@@ -402,14 +397,14 @@ class _ProductHomePageState extends State<ProductHomePage> {
               ];
             }
           }
-
-          if (mounted) {
-            setState(() {
-              getWishlistData = true;
-            });
-          }
-        },
+        }),
       );
+
+      if (mounted) {
+        setState(() {
+          getWishlistData = true;
+        });
+      }
     }
 
     // GET FOLLOWED SHOPS
@@ -429,103 +424,108 @@ class _ProductHomePageState extends State<ProductHomePage> {
           });
         }
 
-        await Future.forEach(followedShop, (vendorId) async {
-          final vendorSnap = await store
-              .collection('Business')
-              .doc('Owners')
-              .collection('Shops')
-              .doc(vendorId)
-              .get();
+        await Future.wait(
+          followedShop.map((vendorId) async {
+            final vendorSnap = await store
+                .collection('Business')
+                .doc('Owners')
+                .collection('Shops')
+                .doc(vendorId)
+                .get();
 
-          final vendorData = vendorSnap.data()!;
-          final vendorLatitude = vendorData['Latitude'];
-          final vendorLongitude = vendorData['Longitude'];
+            final vendorData = vendorSnap.data()!;
+            final vendorLatitude = vendorData['Latitude'];
+            final vendorLongitude = vendorData['Longitude'];
 
-          try {
-            final dist = await getDrivingDistance(
-              yourLatitude!,
-              yourLongitude!,
-              vendorLatitude,
-              vendorLongitude,
-            );
+            try {
+              final dist = await getDrivingDistance(
+                yourLatitude!,
+                yourLongitude!,
+                vendorLatitude,
+                vendorLongitude,
+              );
 
-            if (dist != null) {
-              final String? name = vendorData['Name'];
-              final String? imageUrl = vendorData['Image'];
-              allFollowedShops[vendorId] = [name, imageUrl, dist];
-              if (dist < 5) {
-                currentFollowedShops[vendorId] = [name, imageUrl, dist];
+              if (dist != null) {
+                final String? name = vendorData['Name'];
+                final String? imageUrl = vendorData['Image'];
+                allFollowedShops[vendorId] = [name, imageUrl, dist];
+                if (dist < 5) {
+                  currentFollowedShops[vendorId] = [name, imageUrl, dist];
+                }
+              }
+            } catch (e) {
+              if (mounted) {
+                mySnackBar(
+                  'Some error occurred while finding distance',
+                  context,
+                );
               }
             }
-          } catch (e) {
-            if (mounted) {
-              mySnackBar(
-                'Some error occured while finding Distance',
-                context,
-              );
-            }
-          }
-        });
+          }),
+        );
       } else {
-        await Future.forEach(followedShop, (vendorId) async {
-          final vendorSnap = await store
-              .collection('Business')
-              .doc('Owners')
-              .collection('Shops')
-              .doc(vendorId)
-              .get();
+        await Future.wait(
+          followedShop.map((vendorId) async {
+            final vendorSnap = await store
+                .collection('Business')
+                .doc('Owners')
+                .collection('Shops')
+                .doc(vendorId)
+                .get();
 
-          final vendorData = vendorSnap.data()!;
-          final vendorLatitude = vendorData['Latitude'];
-          final vendorLongitude = vendorData['Longitude'];
+            final vendorData = vendorSnap.data()!;
+            final vendorLatitude = vendorData['Latitude'];
+            final vendorLongitude = vendorData['Longitude'];
 
-          try {
-            final url =
-                'https://maps.googleapis.com/maps/api/geocode/json?latlng=$vendorLatitude,$vendorLongitude&key=AIzaSyA-CD3MgDBzAsjmp_FlDbofynMMmW6fPsU';
+            try {
+              final url =
+                  'https://maps.googleapis.com/maps/api/geocode/json?latlng=$vendorLatitude,$vendorLongitude&key=AIzaSyA-CD3MgDBzAsjmp_FlDbofynMMmW6fPsU';
 
-            final response = await http.get(Uri.parse(url));
+              final response = await http.get(Uri.parse(url));
 
-            if (response.statusCode == 200) {
-              final data = json.decode(response.body);
-              String? name;
+              if (response.statusCode == 200) {
+                final data = json.decode(response.body);
+                String? cityName;
 
-              if (data['status'] == 'OK') {
-                for (var result in data['results']) {
-                  for (var component in result['address_components']) {
-                    if (component['types'].contains('locality')) {
-                      name = component['long_name'];
-                      break;
-                    } else if (component['types'].contains('sublocality')) {
-                      name = component['long_name'];
-                    } else if (component['types'].contains('neighborhood')) {
-                      name = component['long_name'];
-                    } else if (component['types'].contains('route')) {
-                      name = component['long_name'];
-                    } else if (component['types']
-                        .contains('administrative_area_level_3')) {
-                      name = component['long_name'];
+                if (data['status'] == 'OK') {
+                  for (var result in data['results']) {
+                    for (var component in result['address_components']) {
+                      if (component['types'].contains('locality')) {
+                        cityName = component['long_name'];
+                        break;
+                      } else if (component['types'].contains('sublocality') ||
+                          component['types'].contains('neighborhood') ||
+                          component['types'].contains('route') ||
+                          component['types']
+                              .contains('administrative_area_level_3')) {
+                        cityName = component['long_name'];
+                      }
                     }
+                    if (cityName != null) break;
                   }
-                  if (name != null) break;
-                }
 
-                if (name == locationProvider.cityName) {
-                  final String? name = vendorData['Name'];
-                  final String? imageUrl = vendorData['Image'];
-                  allFollowedShops[vendorId] = [name, imageUrl];
-                  currentFollowedShops[vendorId] = [name, imageUrl];
+                  if (cityName == locationProvider.cityName) {
+                    final String? name = vendorData['Name'];
+                    final String? imageUrl = vendorData['Image'];
+                    allFollowedShops[vendorId] = [name, imageUrl];
+                    currentFollowedShops[vendorId] = [name, imageUrl];
+                  }
+                }
+              } else {
+                if (mounted) {
+                  mySnackBar(
+                      'Error fetching location data: ${response.reasonPhrase}',
+                      context);
                 }
               }
+            } catch (e) {
+              if (mounted) {
+                mySnackBar(
+                    'Failed to fetch your City: ${e.toString()}', context);
+              }
             }
-          } catch (e) {
-            if (mounted) {
-              mySnackBar(
-                'Failed to fetch your City: ${e.toString()}',
-                context,
-              );
-            }
-          }
-        });
+          }),
+        );
       }
 
       if (mounted) {

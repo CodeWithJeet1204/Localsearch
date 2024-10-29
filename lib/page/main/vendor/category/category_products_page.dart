@@ -145,75 +145,77 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
       List<Map<String, dynamic>> followedProducts = [];
       List<Map<String, dynamic>> nonFollowedProducts = [];
 
-      await Future.forEach(productsSnap.docs, (productData) async {
-        final id = productData.id;
-        final name = productData['productName'];
-        final price = productData['productPrice'];
-        final imageUrl = productData['images'][0];
-        final ratings = productData['ratings'];
-        final myProductData = productData.data();
-        final vendorId = productData['vendorId'];
-        final productViewsTimestamp = productData['productViewsTimestamp'];
-        final productViews = productViewsTimestamp.length;
-        final vendorLatitude = productData['Latitude'];
-        final vendorLongitude = productData['Longitude'];
-        double? distance;
+      await Future.wait(
+        productsSnap.docs.map((productData) async {
+          final id = productData.id;
+          final name = productData['productName'];
+          final price = productData['productPrice'];
+          final imageUrl = productData['images'][0];
+          final ratings = productData['ratings'];
+          final myProductData = productData.data();
+          final vendorId = productData['vendorId'];
+          final productViewsTimestamp = productData['productViewsTimestamp'];
+          final productViews = productViewsTimestamp.length;
+          final vendorLatitude = productData['Latitude'];
+          final vendorLongitude = productData['Longitude'];
+          double? distance;
 
-        if (yourLatitude != null && yourLongitude != null) {
-          distance = await getDrivingDistance(
-            yourLatitude,
-            yourLongitude,
-            vendorLatitude,
-            vendorLongitude,
-          );
-        }
-
-        if (locationProvider.cityName == 'Your Location') {
-          if (distance != null && distance * 0.925 < 5) {
-            myProducts[id] = [
-              name,
-              price,
-              imageUrl,
-              ratings,
-              myProductData,
-              distance,
-            ];
+          if (yourLatitude != null && yourLongitude != null) {
+            distance = await getDrivingDistance(
+              yourLatitude,
+              yourLongitude,
+              vendorLatitude,
+              vendorLongitude,
+            );
           }
-        } else {
-          final city = productData['City'];
-          if (city == locationProvider.cityName) {
-            myProducts[id] = [
-              name,
-              price,
-              imageUrl,
-              ratings,
-              myProductData,
-            ];
-          }
-        }
 
-        if (followedShops.contains(vendorId)) {
-          followedProducts.add({
-            'id': id,
-            'name': name,
-            'price': price,
-            'imageUrl': imageUrl,
-            'ratings': ratings,
-            'myProductData': myProductData,
-            'views': productViews,
-          });
-        } else {
-          nonFollowedProducts.add({
-            'id': id,
-            'name': name,
-            'price': price,
-            'imageUrl': imageUrl,
-            'ratings': ratings,
-            'myProductData': myProductData,
-            'views': productViews,
-          });
-        }
-      });
+          if (locationProvider.cityName == 'Your Location') {
+            if (distance != null && distance * 0.925 < 5) {
+              myProducts[id] = [
+                name,
+                price,
+                imageUrl,
+                ratings,
+                myProductData,
+                distance,
+              ];
+            }
+          } else {
+            final city = productData['City'];
+            if (city == locationProvider.cityName) {
+              myProducts[id] = [
+                name,
+                price,
+                imageUrl,
+                ratings,
+                myProductData,
+              ];
+            }
+          }
+
+          if (followedShops.contains(vendorId)) {
+            followedProducts.add({
+              'id': id,
+              'name': name,
+              'price': price,
+              'imageUrl': imageUrl,
+              'ratings': ratings,
+              'myProductData': myProductData,
+              'views': productViews,
+            });
+          } else {
+            nonFollowedProducts.add({
+              'id': id,
+              'name': name,
+              'price': price,
+              'imageUrl': imageUrl,
+              'ratings': ratings,
+              'myProductData': myProductData,
+              'views': productViews,
+            });
+          }
+        }),
+      );
 
       followedProducts.sort((a, b) => b['views'].compareTo(a['views']));
       nonFollowedProducts.sort((a, b) => b['views'].compareTo(a['views']));

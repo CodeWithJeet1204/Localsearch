@@ -131,36 +131,38 @@ class _AllShopTypesPageState extends State<AllShopTypesPage> {
   Future<void> getTopColor() async {
     Map<String, Color> myColors = {};
 
-    for (var entry in widget.shopTypesData.entries) {
-      try {
-        final ByteData imageData =
-            await NetworkAssetBundle(Uri.parse(entry.value)).load('');
-        final Uint8List imageBytes = imageData.buffer.asUint8List();
-        final img.Image image = img.decodeImage(imageBytes)!;
-        double redSum = 0, greenSum = 0, blueSum = 0;
-        final int width = image.width;
-        for (int x = 0; x < width; x++) {
-          final color = image.getPixel(x, 0);
-          redSum += color.r;
-          greenSum += color.g;
-          blueSum += color.b;
+    await Future.wait(
+      widget.shopTypesData.entries.map((entry) async {
+        try {
+          final ByteData imageData =
+              await NetworkAssetBundle(Uri.parse(entry.value)).load('');
+          final Uint8List imageBytes = imageData.buffer.asUint8List();
+          final img.Image image = img.decodeImage(imageBytes)!;
+          double redSum = 0, greenSum = 0, blueSum = 0;
+          final int width = image.width;
+          for (int x = 0; x < width; x++) {
+            final color = image.getPixel(x, 0);
+            redSum += color.r;
+            greenSum += color.g;
+            blueSum += color.b;
+          }
+          final int pixelCount = width;
+          final Color averageColor = Color.fromRGBO(
+            redSum ~/ pixelCount,
+            greenSum ~/ pixelCount,
+            blueSum ~/ pixelCount,
+            1.0,
+          );
+          myColors.addAll({
+            entry.key: averageColor,
+          });
+        } catch (e) {
+          myColors.addAll({
+            entry.key: white,
+          });
         }
-        final int pixelCount = width;
-        final Color averageColor = Color.fromRGBO(
-          redSum ~/ pixelCount,
-          greenSum ~/ pixelCount,
-          blueSum ~/ pixelCount,
-          1.0,
-        );
-        myColors.addAll({
-          entry.key: averageColor,
-        });
-      } catch (e) {
-        myColors.addAll({
-          entry.key: white,
-        });
-      }
-    }
+      }),
+    );
 
     if (mounted) {
       setState(() {

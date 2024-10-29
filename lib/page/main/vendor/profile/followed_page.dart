@@ -82,9 +82,8 @@ class _FollowedPageState extends State<FollowedPage>
     final userData = userSnap.data()!;
     final myFollowedShops = userData['followedShops'] as List;
 
-    await Future.forEach(
-      myFollowedShops,
-      (vendorId) async {
+    await Future.wait(
+      myFollowedShops.map((vendorId) async {
         final vendorSnap = await store
             .collection('Business')
             .doc('Owners')
@@ -94,22 +93,21 @@ class _FollowedPageState extends State<FollowedPage>
 
         if (vendorSnap.exists) {
           final vendorData = vendorSnap.data()!;
-          final id = vendorId as String;
-          final name = vendorData['Name'] as String;
-          final imageUrl = vendorData['Image'] as String;
-          final latitude = vendorData['Latitude'] as double;
-          final longitude = vendorData['Longitude'] as double;
-          final type = vendorData['Type'] as List;
+          final String id = vendorId;
+          final String name = vendorData['Name'] as String;
+          final String imageUrl = vendorData['Image'] as String;
+          final double latitude = vendorData['Latitude'] as double;
+          final double longitude = vendorData['Longitude'] as double;
+          final List type = vendorData['Type'] as List;
 
           vendors[id] = [name, imageUrl, latitude, longitude, type];
         } else {
           myFollowedShops.remove(vendorId);
-
           await store.collection('Users').doc(auth.currentUser!.uid).update({
             'followedShops': myFollowedShops,
           });
         }
-      },
+      }),
     );
 
     setState(() {

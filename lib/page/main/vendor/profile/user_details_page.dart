@@ -7,10 +7,12 @@ import 'package:http/http.dart' as http;
 import 'package:localsearch/utils/colors.dart';
 import 'package:localsearch/widgets/button.dart';
 import 'package:localsearch/widgets/snack_bar.dart';
+import 'package:localsearch/widgets/text_button.dart';
 import 'package:localsearch/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class UserDetailsPage extends StatefulWidget {
   const UserDetailsPage({super.key});
@@ -21,6 +23,7 @@ class UserDetailsPage extends StatefulWidget {
 
 class _UserDetailsPageState extends State<UserDetailsPage> {
   final auth = FirebaseAuth.instance;
+  final store = FirebaseFirestore.instance;
   final nameController = TextEditingController();
   final numberController = TextEditingController();
   bool isChangingName = false;
@@ -89,7 +92,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
           Map<String, dynamic> updatedUserName = {
             'Name': nameController.text.toString().trim(),
           };
-          await FirebaseFirestore.instance
+          await store
               .collection('Users')
               .doc(FirebaseAuth.instance.currentUser!.uid)
               .update(updatedUserName);
@@ -110,7 +113,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
           Map<String, dynamic> updatedUserNumber = {
             'Phone Number': numberController.text.toString().trim(),
           };
-          await FirebaseFirestore.instance
+          await store
               .collection('Users')
               .doc(FirebaseAuth.instance.currentUser!.uid)
               .update(updatedUserNumber);
@@ -143,7 +146,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
           Map<String, dynamic> updatedUserName = {
             'Name': nameController.text.toString().trim(),
           };
-          await FirebaseFirestore.instance
+          await store
               .collection('Users')
               .doc(FirebaseAuth.instance.currentUser!.uid)
               .update(updatedUserName);
@@ -152,7 +155,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
           Map<String, dynamic> updatedUserNumber = {
             'Phone Number': numberController.text.toString().trim(),
           };
-          await FirebaseFirestore.instance
+          await store
               .collection('Users')
               .doc(FirebaseAuth.instance.currentUser!.uid)
               .update(updatedUserNumber);
@@ -177,7 +180,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
   Widget build(BuildContext context) {
     final locationProvider = Provider.of<LocationProvider>(context);
 
-    final userStream = FirebaseFirestore.instance
+    final userStream = store
         .collection('Users')
         .doc(FirebaseAuth.instance.currentUser!.uid)
         .snapshots();
@@ -210,7 +213,8 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
           padding: const EdgeInsets.all(16),
           child: LayoutBuilder(
             builder: ((context, constraints) {
-              double width = constraints.maxWidth;
+              final width = constraints.maxWidth;
+              final height = constraints.maxHeight;
 
               return StreamBuilder(
                   stream: userStream,
@@ -383,7 +387,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                             locationProvider.cityLongitude;
                                       });
 
-                                      await FirebaseFirestore.instance
+                                      await store
                                           .collection('Users')
                                           .doc(FirebaseAuth
                                               .instance.currentUser!.uid)
@@ -505,7 +509,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                                       .cityLongitude;
                                                 });
 
-                                                await FirebaseFirestore.instance
+                                                await store
                                                     .collection('Users')
                                                     .doc(FirebaseAuth.instance
                                                         .currentUser!.uid)
@@ -579,7 +583,11 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                     ? const Color.fromARGB(255, 148, 207, 255)
                                     : userData['Gender'] == 'Female'
                                         ? const Color.fromARGB(
-                                            255, 255, 200, 218)
+                                            255,
+                                            255,
+                                            200,
+                                            218,
+                                          )
                                         : primary2.withOpacity(0.9),
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -605,8 +613,100 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                             ),
                             const SizedBox(height: 18),
 
+                            // DELETE ACCOUNT
+                            Container(
+                              width: width,
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: EdgeInsets.symmetric(
+                                // horizontal: width * 0.006125,
+                                vertical: height * 0.0125,
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.only(
+                                      left: width * 0.033,
+                                    ),
+                                    child: SizedBox(
+                                      width: width * 0.725,
+                                      child: AutoSizeText(
+                                        'Delete Account',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontSize: width * 0.055,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.only(
+                                      right: width * 0.03,
+                                    ),
+                                    child: IconButton(
+                                      onPressed: () async {
+                                        await showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return AlertDialog(
+                                              title: Text('DELETE Account'),
+                                              content: Text(
+                                                'Are you sure you want to delete your account?',
+                                              ),
+                                              actions: [
+                                                MyTextButton(
+                                                  onPressed: () async {
+                                                    Navigator.of(context).pop();
+                                                    final Uri url = Uri.parse(
+                                                      'https://find-easy-1204.web.app/delete-account?uid=${auth.currentUser!.uid}',
+                                                    );
+
+                                                    if (await canLaunchUrl(
+                                                        url)) {
+                                                      await launchUrl(url);
+                                                    } else {
+                                                      throw 'Could not launch $url';
+                                                    }
+                                                  },
+                                                  text: 'Yes',
+                                                  textColor: Colors.red,
+                                                ),
+                                                MyTextButton(
+                                                  onPressed: () {
+                                                    Navigator.of(context).pop();
+                                                  },
+                                                  text: 'NO',
+                                                  textColor: Colors.green,
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+                                      },
+                                      icon: Icon(
+                                        FeatherIcons.trash2,
+                                        color: Colors.red.shade100,
+                                      ),
+                                      color: Colors.red.shade100,
+                                      tooltip: 'Delete',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            isChangingName || isChangingAddress
+                                ? const SizedBox(height: 14)
+                                : Container(),
+
                             // SAVE & CANCEL BUTTON
-                            isChangingName || isChangingNumber
+                            isChangingName ||
+                                    isChangingNumber ||
+                                    isChangingAddress
                                 ? Column(
                                     children: [
                                       // SAVE
@@ -620,7 +720,9 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                               width: double.infinity,
                                               decoration: BoxDecoration(
                                                 borderRadius:
-                                                    BorderRadius.circular(10),
+                                                    BorderRadius.circular(
+                                                  10,
+                                                ),
                                                 color: buttonColor,
                                               ),
                                               child: const Center(
@@ -644,6 +746,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                           setState(() {
                                             isChangingName = false;
                                             isChangingNumber = false;
+                                            isChangingAddress = false;
                                           });
                                         },
                                         isLoading: false,

@@ -84,21 +84,23 @@ class _DiscountPageState extends State<DiscountPage> {
   Future<void> getProducts(List myProductIds) async {
     Map<String, dynamic> myProducts = {};
 
-    for (var myProductId in myProductIds) {
-      final productsSnap = await store
-          .collection('Business')
-          .doc('Data')
-          .collection('Products')
-          .doc(myProductId)
-          .get();
+    await Future.wait(
+      myProductIds.map((myProductId) async {
+        final productsSnap = await store
+            .collection('Business')
+            .doc('Data')
+            .collection('Products')
+            .doc(myProductId)
+            .get();
 
-      final productData = productsSnap.data()!;
-      final productId = productData['productId'];
+        final productData = productsSnap.data()!;
+        final productId = productData['productId'];
 
-      myProducts.addAll({
-        productId: productData,
-      });
-    }
+        myProducts.addAll({
+          productId: productData,
+        });
+      }),
+    );
     setState(() {
       products = myProducts;
     });
@@ -108,21 +110,23 @@ class _DiscountPageState extends State<DiscountPage> {
   Future<void> getBrands(List myBrandIds) async {
     Map<String, dynamic> myBrands = {};
 
-    for (var myBrandId in myBrandIds) {
-      final brandsSnap = await store
-          .collection('Business')
-          .doc('Data')
-          .collection('Brands')
-          .doc(myBrandId)
-          .get();
+    await Future.wait(
+      myBrandIds.map((myBrandId) async {
+        final brandsSnap = await store
+            .collection('Business')
+            .doc('Data')
+            .collection('Brands')
+            .doc(myBrandId)
+            .get();
 
-      final brandData = brandsSnap.data()!;
-      final brandId = brandData['brandId'];
+        final brandData = brandsSnap.data()!;
+        final brandId = brandData['brandId'];
 
-      myBrands.addAll({
-        brandId: brandData,
-      });
-    }
+        myBrands.addAll({
+          brandId: brandData,
+        });
+      }),
+    );
 
     setState(() {
       brands = myBrands;

@@ -175,9 +175,8 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
         yourLatitude = locationProvider.cityLatitude;
         yourLongitude = locationProvider.cityLongitude;
 
-        await Future.forEach(
-          discountSnap.docs,
-          (discount) async {
+        await Future.wait(
+          discountSnap.docs.map((discount) async {
             final discountData = discount.data();
             final discountId = discount.id;
             final Timestamp endDateTime = discountData['discountEndDateTime'];
@@ -187,19 +186,22 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
 
             if (yourLatitude != null && yourLongitude != null) {
               distance = await getDrivingDistance(
-                  yourLatitude, yourLongitude, vendorLatitude, vendorLongitude);
+                yourLatitude,
+                yourLongitude,
+                vendorLatitude,
+                vendorLongitude,
+              );
             }
 
-            if (distance != null) {
-              if (distance * 0.925 < 5) {
-                if (endDateTime.toDate().isAfter(DateTime.now())) {
-                  discountData.addAll({'distance': distance});
-                  myDiscounts[discountId] = discountData;
-                }
+            if (distance != null && distance * 0.925 < 5) {
+              if (endDateTime.toDate().isAfter(DateTime.now())) {
+                discountData.addAll({'distance': distance});
+                myDiscounts[discountId] = discountData;
               }
             }
-          },
+          }),
         );
+
 
         if (mounted) {
           List<MapEntry<String, Map<String, dynamic>>> sortedDiscounts =
@@ -223,15 +225,18 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
           });
         }
       } else {
-        await Future.forEach(discountSnap.docs, (discount) async {
-          final discountData = discount.data();
-          final discountId = discount.id;
-          final Timestamp endDateTime = discountData['discountEndDateTime'];
+        await Future.wait(
+          discountSnap.docs.map((discount) async {
+            final discountData = discount.data();
+            final discountId = discount.id;
+            final Timestamp endDateTime = discountData['discountEndDateTime'];
 
-          if (endDateTime.toDate().isAfter(DateTime.now())) {
-            myDiscounts[discountId] = discountData;
-          }
-        });
+            if (endDateTime.toDate().isAfter(DateTime.now())) {
+              myDiscounts[discountId] = discountData;
+            }
+          }),
+        );
+
 
         List<MapEntry<String, Map<String, dynamic>>> sortedDiscounts =
             myDiscounts.entries.toList()

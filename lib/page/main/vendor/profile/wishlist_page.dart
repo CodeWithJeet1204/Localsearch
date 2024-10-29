@@ -85,9 +85,8 @@ class _WishlistPageState extends State<WishlistPage> {
 
     final myWishlists = userData['wishlists'] as List;
 
-    await Future.forEach(
-      myWishlists,
-      (productId) async {
+    await Future.wait(
+      myWishlists.map((productId) async {
         final productSnap = await store
             .collection('Business')
             .doc('Data')
@@ -97,12 +96,12 @@ class _WishlistPageState extends State<WishlistPage> {
 
         if (productSnap.exists) {
           final productData = productSnap.data()!;
-          final id = productId as String;
-          final name = productData['productName'];
-          final imageUrl = productData['images'][0];
-          final price = productData['productPrice'];
-          final productCategoryName = productData['categoryName'];
-          final vendorId = productData['vendorId'];
+          final String id = productId;
+          final String name = productData['productName'];
+          final String imageUrl = productData['images'][0];
+          final double price = productData['productPrice'];
+          final String productCategoryName = productData['categoryName'];
+          final String vendorId = productData['vendorId'];
 
           final vendorSnap = await store
               .collection('Business')
@@ -112,7 +111,6 @@ class _WishlistPageState extends State<WishlistPage> {
               .get();
 
           final vendorData = vendorSnap.data()!;
-
           final List shopTypes = vendorData['Type'];
 
           if (productCategoryName != '0') {
@@ -122,7 +120,6 @@ class _WishlistPageState extends State<WishlistPage> {
                 .get();
 
             final categoriesData = categoriesSnap.data()!;
-
             final householdCategories = categoriesData['householdCategoryData'];
 
             householdCategories.forEach((shopType, categoryData) {
@@ -155,12 +152,11 @@ class _WishlistPageState extends State<WishlistPage> {
           }
         } else {
           myWishlists.remove(productId);
-
           await store.collection('Users').doc(auth.currentUser!.uid).update({
             'wishlists': myWishlists,
           });
         }
-      },
+      }),
     );
 
     setState(() {
@@ -358,8 +354,7 @@ class _WishlistPageState extends State<WishlistPage> {
                     children: [
                       Padding(
                         padding: EdgeInsets.symmetric(
-                          horizontal:
-                              MediaQuery.sizeOf(context).width * 0.0125,
+                          horizontal: MediaQuery.sizeOf(context).width * 0.0125,
                         ),
                         child: LayoutBuilder(
                           builder: ((context, constraints) {

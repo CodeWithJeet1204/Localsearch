@@ -238,25 +238,26 @@ class _SearchPageState extends State<SearchPage> {
 
     Map<String, dynamic> product = {};
 
-    for (String productId in recentProductIds) {
-      if (productId.contains('//')) {
-        continue;
-      }
-      final productDoc = await store
-          .collection('Business')
-          .doc('Data')
-          .collection('Products')
-          .doc(productId)
-          .get();
+    await Future.wait(
+      recentProductIds
+          .where((productId) => !productId.contains('//'))
+          .map((productId) async {
+        final productDoc = await store
+            .collection('Business')
+            .doc('Data')
+            .collection('Products')
+            .doc(productId)
+            .get();
 
-      if (productDoc.exists) {
-        final productData = productDoc.data()!;
-        final productName = productDoc['productName'];
-        final imageUrl = productDoc['images'][0];
+        if (productDoc.exists) {
+          final productData = productDoc.data()!;
+          final productName = productData['productName'];
+          final imageUrl = productData['images'][0];
 
-        product[productId] = [productName, imageUrl, productData];
-      }
-    }
+          product[productId] = [productName, imageUrl, productData];
+        }
+      }),
+    );
 
     recentProducts = product;
   }

@@ -6,7 +6,6 @@
 <uses-permission android:name="android.permission.BLUETOOTH"/>
 <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
 <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
-<uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>
     <application
         android:label="Localsearch"
         android:name="${applicationName}"
