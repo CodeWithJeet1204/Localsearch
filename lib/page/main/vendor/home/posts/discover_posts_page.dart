@@ -487,7 +487,9 @@ class _DiscoverPostsPageState extends State<DiscoverPostsPage>
                                             child: SizedBox(
                                               width: width * 0.75,
                                               child: Text(
-                                                'Rs. ${price.runtimeType == int ? price : price.round()}',
+                                                price == ''
+                                                    ? 'Price: N/A'
+                                                    : 'Rs. ${price.runtimeType == int ? price : double.parse(price.toString()).round()}',
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
                                                 textAlign: TextAlign.start,

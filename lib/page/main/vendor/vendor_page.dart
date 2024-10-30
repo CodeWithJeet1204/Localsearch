@@ -495,13 +495,13 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
           break;
         case EventSorting.lowestPrice:
           products = Map.fromEntries(products.entries.toList()
-            ..sort((a, b) =>
-                double.parse(a.value[2]).compareTo(double.parse(b.value[2]))));
+            ..sort((a, b) => double.parse(a.value[2].toString())
+                .compareTo(double.parse(b.value[2].toString()))));
           break;
         case EventSorting.highestPrice:
           products = Map.fromEntries(products.entries.toList()
-            ..sort((a, b) =>
-                double.parse(b.value[2]).compareTo(double.parse(a.value[2]))));
+            ..sort((a, b) => double.parse(b.value[2].toString())
+                .compareTo(double.parse(a.value[2].toString()))));
           break;
       }
     });

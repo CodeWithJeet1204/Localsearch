@@ -285,7 +285,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           // });
 
                           const url =
-                              'https://play.google.com/store/apps/details?id=com.localsearchuser.package';
+                              'https://play.google.com/store/apps/details?id=com.infinitylab.localsearch';
                           if (await canLaunchUrl(Uri.parse(url))) {
                             await launchUrl(Uri.parse(url));
                           } else {

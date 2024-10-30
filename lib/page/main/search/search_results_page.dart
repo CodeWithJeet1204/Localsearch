@@ -718,13 +718,13 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
           break;
         case EventSorting.lowestPrice:
           searchedProducts = Map.fromEntries(searchedProducts.entries.toList()
-            ..sort((a, b) => double.parse(a.value['productPrice'])
-                .compareTo(double.parse(b.value['productPrice']))));
+            ..sort((a, b) => double.parse(a.value['productPrice'].toString())
+                .compareTo(double.parse(b.value['productPrice'].toString()))));
           break;
         case EventSorting.highestPrice:
           searchedProducts = Map.fromEntries(searchedProducts.entries.toList()
-            ..sort((a, b) => double.parse(b.value['productPrice'])
-                .compareTo(double.parse(a.value['productPrice']))));
+            ..sort((a, b) => double.parse(b.value['productPrice'].toString())
+                .compareTo(double.parse(a.value['productPrice'].toString()))));
           break;
       }
     });

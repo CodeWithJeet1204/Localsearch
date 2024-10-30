@@ -90,15 +90,15 @@ class _VendorProductsTabPageState extends State<VendorProductsTabPage> {
         break;
       case EventSorting.lowestPrice:
         sortedEntries.sort((a, b) {
-          final priceA = double.parse(a.value[2]);
-          final priceB = double.parse(b.value[2]);
+          final priceA = double.parse(a.value[2].toString());
+          final priceB = double.parse(b.value[2].toString());
           return priceA.compareTo(priceB);
         });
         break;
       case EventSorting.highestPrice:
         sortedEntries.sort((a, b) {
-          final priceA = double.parse(a.value[2]);
-          final priceB = double.parse(b.value[2]);
+          final priceA = double.parse(a.value[2].toString());
+          final priceB = double.parse(b.value[2].toString());
           return priceB.compareTo(priceA);
         });
         break;

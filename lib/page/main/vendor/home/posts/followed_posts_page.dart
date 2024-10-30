@@ -74,7 +74,7 @@ class _FollowedPostsPageState extends State<FollowedPostsPage>
       followedShops = userData['followedShops'];
     }
 
-    if (followedShops.isNotEmpty) {
+    if (followedShops.toList().isNotEmpty) {
       final productsSnap = await store
           .collection('Business')
           .doc('Data')
@@ -113,111 +113,113 @@ class _FollowedPostsPageState extends State<FollowedPostsPage>
       followedShops = userData['followedShops'];
     }
 
-    final productsSnap = await store
-        .collection('Business')
-        .doc('Data')
-        .collection('Products')
-        .where('vendorId', whereIn: followedShops)
-        .where('isPost', isEqualTo: true)
-        .orderBy('datetime', descending: true)
-        .limit(noOf)
-        .get();
+    if (followedShops.isNotEmpty) {
+      final productsSnap = await store
+          .collection('Business')
+          .doc('Data')
+          .collection('Products')
+          .where('vendorId', whereIn: followedShops)
+          .where('isPost', isEqualTo: true)
+          .orderBy('datetime', descending: true)
+          .limit(noOf)
+          .get();
 
-    await Future.wait(
-      productsSnap.docs.map((productSnap) async {
-        final productData = productSnap.data();
-        final String productId = productData['productId'];
-        final String name = productData['productName'];
-        final List? imageUrl = productData['images'];
-        final price = productData['productPrice'];
-        final Map<String, dynamic> wishlistsTimestamp =
-            productData['productWishlistTimestamp'];
-        final String vendorId = productData['vendorId'];
-        final Timestamp datetime = productData['datetime'];
+      await Future.wait(
+        productsSnap.docs.map((productSnap) async {
+          final productData = productSnap.data();
+          final String productId = productData['productId'];
+          final String name = productData['productName'];
+          final List? imageUrl = productData['images'];
+          final price = productData['productPrice'];
+          final Map<String, dynamic> wishlistsTimestamp =
+              productData['productWishlistTimestamp'];
+          final String vendorId = productData['vendorId'];
+          final Timestamp datetime = productData['datetime'];
 
-        if (!myVendors.containsKey(vendorId)) {
-          final vendorSnap = await store
-              .collection('Business')
-              .doc('Owners')
-              .collection('Shops')
-              .doc(vendorId)
-              .get();
+          if (!myVendors.containsKey(vendorId)) {
+            final vendorSnap = await store
+                .collection('Business')
+                .doc('Owners')
+                .collection('Shops')
+                .doc(vendorId)
+                .get();
 
-          final vendorData = vendorSnap.data()!;
-          myVendors[vendorId] = vendorData;
-        }
+            final vendorData = vendorSnap.data()!;
+            myVendors[vendorId] = vendorData;
+          }
 
-        myPostsAndProducts[productId] = [
-          name,
-          imageUrl,
-          price,
-          vendorId,
-          datetime,
-          auth.currentUser == null
-              ? false
-              : wishlistsTimestamp.containsKey(auth.currentUser!.uid),
-          myVendors[vendorId]!['Name'],
-          myVendors[vendorId]!['Image'],
-          'product',
-        ];
-      }),
-    );
-
-    final postsSnap = await store
-        .collection('Business')
-        .doc('Data')
-        .collection('Post')
-        .where('postVendorId', whereIn: followedShops)
-        .orderBy('postDateTime', descending: true)
-        .limit(noOf)
-        .get();
-
-    await Future.wait(
-      postsSnap.docs.map((postSnap) async {
-        final postData = postSnap.data();
-        final String id = postData['postId'];
-        final String text = postData['postText'];
-        final price = postData['postPrice'];
-        final List? imageUrl = postData['postImage'];
-        final String vendorId = postData['postVendorId'];
-        final Timestamp datetime = postData['postDateTime'];
-
-        if (!myVendors.containsKey(vendorId)) {
-          final vendorSnap = await store
-              .collection('Business')
-              .doc('Owners')
-              .collection('Shops')
-              .doc(vendorId)
-              .get();
-
-          final vendorData = vendorSnap.data()!;
-          myVendors[vendorId] = vendorData;
-        }
-
-        myPostsAndProducts[id] = [
-          text,
-          imageUrl,
-          price,
-          vendorId,
-          datetime,
-          false,
-          myVendors[vendorId]!['Name'],
-          myVendors[vendorId]!['Image'],
-          'post',
-        ];
-      }),
-    );
-
-    final sortedProductsAndPosts = Map.fromEntries(
-      myPostsAndProducts.entries.toList()
-        ..sort((a, b) {
-          DateTime dateA = (a.value[4] as Timestamp).toDate();
-          DateTime dateB = (b.value[4] as Timestamp).toDate();
-          return dateB.compareTo(dateA);
+          myPostsAndProducts[productId] = [
+            name,
+            imageUrl,
+            price,
+            vendorId,
+            datetime,
+            auth.currentUser == null
+                ? false
+                : wishlistsTimestamp.containsKey(auth.currentUser!.uid),
+            myVendors[vendorId]!['Name'],
+            myVendors[vendorId]!['Image'],
+            'product',
+          ];
         }),
-    );
+      );
 
-    myPostsAndProducts = sortedProductsAndPosts;
+      final postsSnap = await store
+          .collection('Business')
+          .doc('Data')
+          .collection('Post')
+          .where('postVendorId', whereIn: followedShops)
+          .orderBy('postDateTime', descending: true)
+          .limit(noOf)
+          .get();
+
+      await Future.wait(
+        postsSnap.docs.map((postSnap) async {
+          final postData = postSnap.data();
+          final String id = postData['postId'];
+          final String text = postData['postText'];
+          final price = postData['postPrice'];
+          final List? imageUrl = postData['postImage'];
+          final String vendorId = postData['postVendorId'];
+          final Timestamp datetime = postData['postDateTime'];
+
+          if (!myVendors.containsKey(vendorId)) {
+            final vendorSnap = await store
+                .collection('Business')
+                .doc('Owners')
+                .collection('Shops')
+                .doc(vendorId)
+                .get();
+
+            final vendorData = vendorSnap.data()!;
+            myVendors[vendorId] = vendorData;
+          }
+
+          myPostsAndProducts[id] = [
+            text,
+            imageUrl,
+            price,
+            vendorId,
+            datetime,
+            false,
+            myVendors[vendorId]!['Name'],
+            myVendors[vendorId]!['Image'],
+            'post',
+          ];
+        }),
+      );
+
+      final sortedProductsAndPosts = Map.fromEntries(
+        myPostsAndProducts.entries.toList()
+          ..sort((a, b) {
+            DateTime dateA = (a.value[4] as Timestamp).toDate();
+            DateTime dateB = (b.value[4] as Timestamp).toDate();
+            return dateB.compareTo(dateA);
+          }),
+      );
+
+      myPostsAndProducts = sortedProductsAndPosts;
+    }
 
     setState(() {
       postsAndProducts = myPostsAndProducts;
