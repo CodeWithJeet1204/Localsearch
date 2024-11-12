@@ -19,20 +19,20 @@ class _SignInPageState extends State<SignInPage> {
   final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
   final GlobalKey<FormState> signInEmailFormKey = GlobalKey<FormState>();
-  final GlobalKey<FormState> signInNumberFormKey = GlobalKey<FormState>();
+  // final GlobalKey<FormState> signInNumberFormKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-  final phoneController = TextEditingController();
-  bool isGoogleSigningIn = false;
+  // final phoneController = TextEditingController();
+  // bool isGoogleSigningIn = false;
   bool isEmailSigningIn = false;
-  bool isPhoneSigningIn = false;
+  // bool isPhoneSigningIn = false;
 
   // DISPOSE
   @override
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
-    phoneController.dispose();
+    // phoneController.dispose();
     super.dispose();
   }
 
@@ -165,7 +165,6 @@ class _SignInPageState extends State<SignInPage> {
   //       setState(() {
   //         isPhoneSigningIn = true;
   //       });
-
   //       final vendorExistsSnap = await store
   //           .collection('Business')
   //           .doc('Owners')
@@ -174,7 +173,6 @@ class _SignInPageState extends State<SignInPage> {
   //               isGreaterThanOrEqualTo: phoneController.text.toString().trim())
   //           .where('Registration', isEqualTo: 'phone number')
   //           .get();
-
   //       if (vendorExistsSnap.docs.isNotEmpty) {
   //         if (mounted) {
   //           setState(() {
@@ -186,14 +184,12 @@ class _SignInPageState extends State<SignInPage> {
   //           );
   //         }
   //       }
-
   //       final userExistsSnap = await store
   //           .collection('Users')
   //           .where('Phone Number',
   //               isGreaterThanOrEqualTo: phoneController.text.toString().trim())
   //           .where('Registration', isEqualTo: 'phone number')
   //           .get();
-
   //       if (userExistsSnap.docs.isNotEmpty) {
   //         if (mounted) {
   //           await auth.verifyPhoneNumber(
@@ -249,7 +245,6 @@ class _SignInPageState extends State<SignInPage> {
   //         }
   //         return;
   //       }
-
   //       await auth.verifyPhoneNumber(
   //         phoneNumber: phoneController.text.toString().trim().contains('+91 ')
   //             ? phoneController.text.toString().trim()
@@ -297,7 +292,6 @@ class _SignInPageState extends State<SignInPage> {
   //           }
   //         },
   //       );
-
   //       // await store.collection('Users').doc(auth.currentUser!.uid).set({
   //       //   'Phone Number': phoneController.text.contains('+91')
   //       //       ? phoneController.text
@@ -342,18 +336,14 @@ class _SignInPageState extends State<SignInPage> {
   //     setState(() {
   //       isGoogleSigningIn = true;
   //     });
-
   //     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
   //     final GoogleSignInAuthentication googleAuth =
   //         await googleUser!.authentication;
-
   //     final credential = GoogleAuthProvider.credential(
   //       accessToken: googleAuth.accessToken,
   //       idToken: googleAuth.idToken,
   //     );
-
   //     final userCredential = await auth.signInWithCredential(credential);
-
   //     if (auth.currentUser != null) {
   //       final vendorExistsSnap = await store
   //           .collection('Business')
@@ -362,7 +352,6 @@ class _SignInPageState extends State<SignInPage> {
   //           .where('Email', isEqualTo: auth.currentUser!.email)
   //           .where('Registration', isEqualTo: 'google')
   //           .get();
-
   //       if (vendorExistsSnap.docs.isNotEmpty) {
   //         await auth.signOut();
   //         if (mounted) {
@@ -375,13 +364,11 @@ class _SignInPageState extends State<SignInPage> {
   //           );
   //         }
   //       }
-
   //       final userExistsSnap = await store
   //           .collection('Users')
   //           .where('Email', isEqualTo: auth.currentUser!.email)
   //           .where('Registration', isEqualTo: 'google')
   //           .get();
-
   //       if (userExistsSnap.docs.isNotEmpty &&
   //           (userCredential.additionalUserInfo == null
   //               ? true
@@ -402,7 +389,6 @@ class _SignInPageState extends State<SignInPage> {
   //           );
   //         }
   //       }
-
   //       await store.collection('Users').doc(auth.currentUser!.uid).set({
   //         'Email': auth.currentUser!.email,
   //         'Registration': 'google',
@@ -421,11 +407,9 @@ class _SignInPageState extends State<SignInPage> {
   //         // 'wishlistEvents': [],
   //         // 'fcmToken': '',
   //       });
-
   //       setState(() {
   //         isGoogleSigningIn = false;
   //       });
-
   //       if (context.mounted) {
   //         Navigator.of(context).pushAndRemoveUntil(
   //           MaterialPageRoute(
