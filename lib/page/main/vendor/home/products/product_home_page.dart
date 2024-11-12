@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_function_literals_in_foreach_calls, unused_local_variable, empty_catches
 import 'dart:async';
 import 'dart:convert';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:localsearch/page/main/exhibition_page.dart';
 import 'package:localsearch/page/main/vendor/status_page_view.dart';
@@ -159,11 +160,14 @@ class _ProductHomePageState extends State<ProductHomePage> {
           .collection('Status')
           .get();
 
+      print('status length: ${statusSnap.docs.length}');
+
       await Future.wait(
         statusSnap.docs.map((status) async {
           bool isViewed = false;
           final String statusId = status.id;
           final statusData = status.data();
+          print('statusId: $statusId');
 
           final String statusText = statusData['statusText'];
           final String vendorId = statusData['statusVendorId'];
@@ -171,8 +175,10 @@ class _ProductHomePageState extends State<ProductHomePage> {
           final String statusViews =
               (statusData['statusViews'] as List).length.toString();
 
-          if (statusViews.contains(auth.currentUser!.uid)) {
-            isViewed = true;
+          if (auth.currentUser != null) {
+            if (statusViews.contains(auth.currentUser!.uid)) {
+              isViewed = true;
+            }
           }
 
           if (myStatus.containsKey(vendorId)) {
@@ -217,14 +223,12 @@ class _ProductHomePageState extends State<ProductHomePage> {
           final bool aIsFollowed = a.value['isFollowed'] as bool;
           final bool bIsFollowed = b.value['isFollowed'] as bool;
 
-          // Sort followed shops first
           if (aIsFollowed && !bIsFollowed) {
             return -1;
           } else if (!aIsFollowed && bIsFollowed) {
             return 1;
           }
 
-          // Sort by total views in descending order
           final aTotalViews = a.value['status'].values.fold<int>(
             0,
             (int additionSum, dynamic status) {
@@ -1407,10 +1411,10 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                             onTap: () {
                                               Navigator.of(context).push(
                                                 MaterialPageRoute(
-                                                  builder: ((context) =>
+                                                  builder: (context) =>
                                                       ShopCategoriesPage(
-                                                        shopType: name,
-                                                      )),
+                                                    shopType: name,
+                                                  ),
                                                 ),
                                               );
                                             },
@@ -1433,19 +1437,30 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                                   crossAxisAlignment:
                                                       CrossAxisAlignment.center,
                                                   children: [
-                                                    ClipRRect(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                        12,
-                                                      ),
-                                                      child: Image.network(
-                                                        imageUrl
-                                                            .toString()
-                                                            .trim(),
-                                                        width: width * 0.175,
-                                                        height: width * 0.175,
-                                                        fit: BoxFit.cover,
-                                                      ),
+                                                    CachedNetworkImage(
+                                                      imageUrl: imageUrl
+                                                          .toString()
+                                                          .trim(),
+                                                      imageBuilder: (context,
+                                                          imageProvider) {
+                                                        return ClipRRect(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                            12,
+                                                          ),
+                                                          child: Image.network(
+                                                            imageUrl
+                                                                .toString()
+                                                                .trim(),
+                                                            width:
+                                                                width * 0.175,
+                                                            height:
+                                                                width * 0.175,
+                                                            fit: BoxFit.cover,
+                                                          ),
+                                                        );
+                                                      },
                                                     ),
                                                     Text(
                                                       name.toString().trim(),
@@ -1499,10 +1514,10 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                                 onTap: () {
                                                   Navigator.of(context).push(
                                                     MaterialPageRoute(
-                                                      builder: ((context) =>
+                                                      builder: (context) =>
                                                           ShopCategoriesPage(
-                                                            shopType: name,
-                                                          )),
+                                                        shopType: name,
+                                                      ),
                                                     ),
                                                   );
                                                 },
@@ -1530,20 +1545,32 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                                           CrossAxisAlignment
                                                               .center,
                                                       children: [
-                                                        ClipRRect(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(
-                                                            12,
-                                                          ),
-                                                          child: Image.network(
-                                                            imageUrl
-                                                                .toString()
-                                                                .trim(),
-                                                            height:
-                                                                width * 0.175,
-                                                            fit: BoxFit.cover,
-                                                          ),
+                                                        CachedNetworkImage(
+                                                          imageUrl: imageUrl
+                                                              .toString()
+                                                              .trim(),
+                                                          imageBuilder: (context,
+                                                              imageProvider) {
+                                                            return ClipRRect(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                12,
+                                                              ),
+                                                              child:
+                                                                  Image.network(
+                                                                imageUrl
+                                                                    .toString()
+                                                                    .trim(),
+                                                                width: width *
+                                                                    0.175,
+                                                                height: width *
+                                                                    0.175,
+                                                                fit: BoxFit
+                                                                    .cover,
+                                                              ),
+                                                            );
+                                                          },
                                                         ),
                                                         Text(
                                                           name

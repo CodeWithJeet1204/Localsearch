@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:localsearch/utils/colors.dart';
 import 'package:localsearch/widgets/snack_bar.dart';
 
 class VendorCataloguePage extends StatefulWidget {
@@ -32,7 +33,6 @@ class _VendorCataloguePageState extends State<VendorCataloguePage> {
   Future<void> getData() async {
     try {
       final List<String> fetchedProducts = List<String>.from(widget.products);
-
       final Map<String, Map<String, List<String>>> tempCategorizedProducts = {};
 
       final catalogueSnap = await store
@@ -41,7 +41,6 @@ class _VendorCataloguePageState extends State<VendorCataloguePage> {
           .get();
 
       final catalogueData = catalogueSnap.data()!;
-
       final catalogue = catalogueData['catalogueData'];
 
       for (String product in fetchedProducts) {
@@ -86,6 +85,8 @@ class _VendorCataloguePageState extends State<VendorCataloguePage> {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('All Products'),
@@ -95,76 +96,104 @@ class _VendorCataloguePageState extends State<VendorCataloguePage> {
             ? const Center(
                 child: CircularProgressIndicator(),
               )
-            : LayoutBuilder(builder: (context, constraints) {
-                final width = constraints.maxWidth;
-
-                return ListView(
+            : Padding(
+                padding: EdgeInsets.all(width * 0.0225),
+                child: ListView(
                   children: categorizedProducts.entries.map((shopTypeEntry) {
                     final shopType = shopTypeEntry.key;
                     final categories = shopTypeEntry.value;
 
-                    return Padding(
-                      padding: EdgeInsets.all(width * 0.0225),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            shopType.toString().trim(),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: width * 0.06,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          ...categories.entries.map((categoryEntry) {
-                            final category = categoryEntry.key;
-                            final products = categoryEntry.value;
-
-                            return Padding(
-                              padding: EdgeInsets.symmetric(
-                                vertical: width * 0.0225,
+                    return Card(
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      margin: EdgeInsets.only(
+                        bottom: width * 0.0166,
+                      ),
+                      color: primary2,
+                      child: Padding(
+                        padding: EdgeInsets.all(width * 0.0225),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              shopType,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 22,
+                                color: primaryDark,
+                                fontWeight: FontWeight.w700,
                               ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: EdgeInsets.only(
-                                      left: width * 0.0175,
-                                    ),
-                                    child: Text(
-                                      '- $category',
+                            ),
+                            const SizedBox(height: 12),
+                            ...categories.entries.map((categoryEntry) {
+                              final category = categoryEntry.key;
+                              final products = categoryEntry.value;
+
+                              return Padding(
+                                padding: const EdgeInsets.only(),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      category,
                                       style: TextStyle(
-                                        fontSize: width * 0.055,
+                                        fontSize: 18,
+                                        color: primaryDark2,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
-                                  ),
-                                  ...products.map((product) {
-                                    return Padding(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: width * 0.0375,
-                                        vertical: width * 0.0125,
+                                    const SizedBox(height: 8),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: primary2,
+                                        borderRadius: BorderRadius.circular(8),
                                       ),
-                                      child: Text(
-                                        '◯ $product',
-                                        style: TextStyle(
-                                          fontSize: width * 0.05,
-                                          fontWeight: FontWeight.w500,
-                                        ),
+                                      padding: const EdgeInsets.all(12),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: products.map((product) {
+                                          return Padding(
+                                            padding: const EdgeInsets.only(
+                                                bottom: 8.0),
+                                            child: Row(
+                                              children: [
+                                                const Icon(
+                                                  Icons.circle,
+                                                  size: 8,
+                                                  color: primaryDark2,
+                                                ),
+                                                const SizedBox(width: 8),
+                                                Expanded(
+                                                  child: Text(
+                                                    product,
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      color: primaryDark,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        }).toList(),
                                       ),
-                                    );
-                                  }),
-                                ],
-                              ),
-                            );
-                          }),
-                        ],
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                          ],
+                        ),
                       ),
                     );
                   }).toList(),
-                );
-              }),
+                ),
+              ),
       ),
     );
   }
