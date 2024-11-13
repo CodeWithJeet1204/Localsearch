@@ -1,7 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:localsearch/page/main/vendor/vendor_page.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:localsearch/page/main/vendor/vendor_page.dart';
 import 'package:localsearch/utils/colors.dart';
 
 class StatusPageView extends StatefulWidget {
@@ -20,15 +20,19 @@ class StatusPageView extends StatefulWidget {
 
 class _StatusPageViewState extends State<StatusPageView> {
   final PageController _pageController = PageController();
-  final carouselController = CarouselSliderController();
-  late int index;
+  late int initialIndex;
   int currentImageIndex = 0;
 
   // INIT STATE
   @override
   void initState() {
-    index = widget.currentIndex;
     super.initState();
+    print('Initial Index: ${widget.currentIndex}');
+    initialIndex = widget.currentIndex;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _pageController.jumpToPage(initialIndex);
+    });
   }
 
   // SHOW TEXT DIALOG
@@ -57,13 +61,10 @@ class _StatusPageViewState extends State<StatusPageView> {
   // FLATTEN POSTS
   List<Map<String, dynamic>> flattenStatus() {
     List<Map<String, dynamic>> statusList = [];
-
     widget.status.forEach((vendorId, vendorData) {
       String vendorName = vendorData['vendorName'] ?? '';
       String vendorImageUrl = vendorData['vendorImageUrl'] ?? '';
-
       Map<String, dynamic> vendorStatus = vendorData['status'] ?? {};
-
       vendorStatus.forEach((statusId, status) {
         if (status is Map<String, dynamic>) {
           statusList.add({
@@ -79,7 +80,6 @@ class _StatusPageViewState extends State<StatusPageView> {
         }
       });
     });
-
     return statusList;
   }
 
@@ -110,164 +110,181 @@ class _StatusPageViewState extends State<StatusPageView> {
         shadowColor: black,
         surfaceTintColor: black,
       ),
-      body: PageView.builder(
-        controller: _pageController,
-        itemCount: flattenedStatus.length,
-        itemBuilder: (context, index) {
-          final status = flattenedStatus[index];
-          final vendorId = status['vendorId'];
-          final statusText = status['statusText'];
-          final List statusImageUrl = status['statusImage'];
+      body: GestureDetector(
+        onTapUp: (details) {
+          final screenWidth = MediaQuery.of(context).size.width;
+          if (details.localPosition.dx > screenWidth / 2) {
+            if (currentImageIndex < flattenedStatus.length - 1) {
+              setState(() {
+                currentImageIndex++;
+              });
+              _pageController.jumpToPage(currentImageIndex);
+            }
+          }
+        },
+        child: PageView.builder(
+          controller: _pageController,
+          itemCount: flattenedStatus.length,
+          onPageChanged: (index) {
+            setState(() {
+              currentImageIndex = index;
+            });
+          },
+          itemBuilder: (context, index) {
+            final status = flattenedStatus[index];
+            final vendorId = status['vendorId'];
+            final statusText = status['statusText'];
+            final List statusImageUrl = status['statusImage'];
 
-          return Padding(
-            padding: EdgeInsets.all(width * 0.006125),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => VendorPage(
-                          vendorId: vendorId,
+            return Padding(
+              padding: EdgeInsets.all(width * 0.006125),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => VendorPage(
+                            vendorId: vendorId,
+                          ),
+                        ),
+                      );
+                    },
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: width * 0.0125),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          CircleAvatar(
+                            radius: width * 0.05,
+                            backgroundImage: NetworkImage(
+                              status['vendorImageUrl'].toString().trim(),
+                            ),
+                            backgroundColor: Colors.black,
+                          ),
+                          SizedBox(width: width * 0.0125),
+                          Text(
+                            status['vendorName'].toString().trim(),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: width * 0.055,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Stack(
+                    alignment: Alignment.centerRight,
+                    children: [
+                      Center(
+                        child: CarouselSlider(
+                          items: statusImageUrl
+                              .map(
+                                (e) => Image.network(
+                                  e,
+                                  width: width,
+                                  height: width,
+                                  fit: BoxFit.contain,
+                                  filterQuality: FilterQuality.low,
+                                ),
+                              )
+                              .toList(),
+                          options: CarouselOptions(
+                            enableInfiniteScroll: false,
+                            aspectRatio: 1,
+                            enlargeCenterPage: true,
+                            onPageChanged: (index, reason) {
+                              setState(() {
+                                currentImageIndex = index;
+                              });
+                            },
+                          ),
                         ),
                       ),
-                    );
-                  },
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: width * 0.0125),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        CircleAvatar(
-                          radius: width * 0.05,
-                          backgroundImage: NetworkImage(
-                            status['vendorImageUrl'].toString().trim(),
-                          ),
-                          backgroundColor: Colors.black,
-                        ),
-                        SizedBox(width: width * 0.0125),
-                        Text(
-                          status['vendorName'].toString().trim(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          index == 0
+                              ? Container()
+                              : Container(
+                                  decoration: BoxDecoration(
+                                    color: primaryDark2,
+                                    borderRadius: BorderRadius.circular(100),
+                                  ),
+                                  child: IconButton(
+                                    onPressed: () {
+                                      _pageController.previousPage(
+                                        duration:
+                                            const Duration(milliseconds: 300),
+                                        curve: Curves.easeInOut,
+                                      );
+                                    },
+                                    icon: Icon(
+                                      Icons.arrow_left,
+                                      color: Colors.white,
+                                      size: width * 0.09,
+                                    ),
+                                    padding: EdgeInsets.all(width * 0.025),
+                                  ),
+                                ),
+                          index == (flattenedStatus.length - 1)
+                              ? Container()
+                              : Container(
+                                  decoration: BoxDecoration(
+                                    color: primaryDark2,
+                                    borderRadius: BorderRadius.circular(100),
+                                  ),
+                                  child: IconButton(
+                                    onPressed: () {
+                                      _pageController.nextPage(
+                                        duration:
+                                            const Duration(milliseconds: 300),
+                                        curve: Curves.easeInOut,
+                                      );
+                                    },
+                                    icon: Icon(
+                                      Icons.arrow_right,
+                                      color: Colors.white,
+                                      size: width * 0.09,
+                                    ),
+                                    padding: EdgeInsets.all(width * 0.025),
+                                  ),
+                                ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  Center(
+                    child: Padding(
+                      padding: EdgeInsets.only(bottom: width * 0.025),
+                      child: GestureDetector(
+                        onTap: () async {
+                          await showTextDialog(statusText, width);
+                        },
+                        child: Text(
+                          statusText.toString().trim(),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.white,
-                            fontSize: width * 0.055,
-                            fontWeight: FontWeight.w500,
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-                Stack(
-                  alignment: Alignment.centerRight,
-                  children: [
-                    Center(
-                      child: CarouselSlider(
-                        carouselController: carouselController,
-                        items: statusImageUrl
-                            .map(
-                              (e) => Image.network(
-                                e,
-                                width: width,
-                                height: width,
-                                fit: BoxFit.contain,
-                                filterQuality: FilterQuality.low,
-                              ),
-                            )
-                            .toList(),
-                        options: CarouselOptions(
-                          enableInfiniteScroll: false,
-                          aspectRatio: 1,
-                          enlargeCenterPage: true,
-                          onPageChanged: (index, reason) {
-                            setState(() {
-                              carouselController.animateToPage(index);
-                            });
-                          },
-                        ),
-                      ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        index == 0
-                            ? Container()
-                            : Container(
-                                decoration: BoxDecoration(
-                                  color: primaryDark2,
-                                  borderRadius: BorderRadius.circular(100),
-                                ),
-                                child: IconButton(
-                                  onPressed: () {
-                                    _pageController.previousPage(
-                                      duration:
-                                          const Duration(milliseconds: 300),
-                                      curve: Curves.easeInOut,
-                                    );
-                                  },
-                                  icon: Icon(
-                                    Icons.arrow_left,
-                                    color: Colors.white,
-                                    size: width * 0.09,
-                                  ),
-                                  padding: EdgeInsets.all(width * 0.025),
-                                ),
-                              ),
-                        index == (flattenedStatus.length - 1)
-                            ? Container()
-                            : Container(
-                                decoration: BoxDecoration(
-                                  color: primaryDark2,
-                                  borderRadius: BorderRadius.circular(100),
-                                ),
-                                child: IconButton(
-                                  onPressed: () {
-                                    _pageController.nextPage(
-                                      duration:
-                                          const Duration(milliseconds: 300),
-                                      curve: Curves.easeInOut,
-                                    );
-                                  },
-                                  icon: Icon(
-                                    Icons.arrow_right,
-                                    color: Colors.white,
-                                    size: width * 0.09,
-                                  ),
-                                  padding: EdgeInsets.all(width * 0.025),
-                                ),
-                              ),
-                      ],
-                    ),
-                  ],
-                ),
-                Center(
-                  child: Padding(
-                    padding: EdgeInsets.only(bottom: width * 0.025),
-                    child: GestureDetector(
-                      onTap: () async {
-                        await showTextDialog(statusText, width);
-                      },
-                      child: Text(
-                        statusText.toString().trim(),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Colors.white,
-                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          );
-        },
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }

@@ -193,34 +193,36 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
       await Future.wait(
         shopSnap.docs.map((shopSnap) async {
           final shopData = shopSnap.data();
-          final String name = shopData['Name'];
-          final String imageUrl = shopData['Image'];
-          final double latitude = shopData['Latitude'];
-          final double longitude = shopData['Longitude'];
+          final String? name = shopData['Name'];
+          final String? imageUrl = shopData['Image'];
+          final double? latitude = shopData['Latitude'];
+          final double? longitude = shopData['Longitude'];
           final String vendorId = shopSnap.id;
           double distance = 0;
 
-          final address = await getAddress(latitude, longitude);
+          if (name != null) {
+            final address = await getAddress(latitude!, longitude!);
 
-          if (yourLatitude != null && yourLongitude != null) {
-            distance = await getDrivingDistance(
-                  yourLatitude,
-                  yourLongitude,
-                  latitude,
-                  longitude,
-                ) ??
-                0;
-          }
+            if (yourLatitude != null && yourLongitude != null) {
+              distance = await getDrivingDistance(
+                    yourLatitude,
+                    yourLongitude,
+                    latitude,
+                    longitude,
+                  ) ??
+                  0;
+            }
 
-          if (distance * 0.925 < 5) {
-            allShops[vendorId] = {
-              'name': name,
-              'imageUrl': imageUrl,
-              'Latitude': latitude,
-              'Longitude': longitude,
-              'address': address,
-              'distance': distance,
-            };
+            if (distance * 0.925 < 5) {
+              allShops[vendorId] = {
+                'name': name,
+                'imageUrl': imageUrl,
+                'Latitude': latitude,
+                'Longitude': longitude,
+                'address': address,
+                'distance': distance,
+              };
+            }
           }
         }),
       );
@@ -236,23 +238,24 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
       for (var shopSnap in shopSnap.docs) {
         final shopData = shopSnap.data();
 
-        final String name = shopData['Name'];
-        final String imageUrl = shopData['Image'];
-        final double latitude = shopData['Latitude'];
-        final double longitude = shopData['Longitude'];
-        final String cityName = shopData['City'];
-        final String vendorId = shopSnap.id;
+        final String? name = shopData['Name'];
+        final String? imageUrl = shopData['Image'];
+        final double? latitude = shopData['Latitude'];
+        final double? longitude = shopData['Longitude'];
+        final String? cityName = shopData['City'];
+        final String? vendorId = shopSnap.id;
+        if (name != null) {
+          final address = await getAddress(latitude!, longitude!);
 
-        final address = await getAddress(latitude, longitude);
-
-        if (cityName == locationProvider.cityName) {
-          allShops[vendorId] = {
-            'name': name,
-            'imageUrl': imageUrl,
-            'Latitude': latitude,
-            'Longitude': longitude,
-            'address': address,
-          };
+          if (cityName == locationProvider.cityName) {
+            allShops[vendorId!] = {
+              'name': name,
+              'imageUrl': imageUrl,
+              'Latitude': latitude,
+              'Longitude': longitude,
+              'address': address,
+            };
+          }
         }
       }
     }

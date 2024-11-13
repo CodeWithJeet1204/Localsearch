@@ -160,14 +160,11 @@ class _ProductHomePageState extends State<ProductHomePage> {
           .collection('Status')
           .get();
 
-      print('status length: ${statusSnap.docs.length}');
-
       await Future.wait(
         statusSnap.docs.map((status) async {
           bool isViewed = false;
           final String statusId = status.id;
           final statusData = status.data();
-          print('statusId: $statusId');
 
           final String statusText = statusData['statusText'];
           final String vendorId = statusData['statusVendorId'];
@@ -1103,10 +1100,9 @@ class _ProductHomePageState extends State<ProductHomePage> {
                           Container()
                           : status.isEmpty
                               ? Container()
-                              : AnimatedContainer(
+                              : Container(
                                   width: width,
                                   height: width * 0.3,
-                                  duration: Duration(milliseconds: 250),
                                   child: ListView.builder(
                                     shrinkWrap: true,
                                     physics: const ClampingScrollPhysics(),
@@ -1655,21 +1651,17 @@ class _ProductHomePageState extends State<ProductHomePage> {
                       // CONTINUE SHOPPING
                       recentShopProducts.isEmpty
                           ? Container()
-                          : AnimatedOpacity(
-                              opacity: 1.0,
-                              duration: Duration(milliseconds: 250),
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: width * 0.025,
-                                  vertical: width * 0.025,
-                                ),
-                                child: Text(
-                                  'Continue Shopping',
-                                  style: TextStyle(
-                                    color: primaryDark,
-                                    fontSize: width * 0.06,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                          : Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: width * 0.025,
+                                vertical: width * 0.025,
+                              ),
+                              child: Text(
+                                'Continue Shopping',
+                                style: TextStyle(
+                                  color: primaryDark,
+                                  fontSize: width * 0.06,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ),
@@ -1677,10 +1669,9 @@ class _ProductHomePageState extends State<ProductHomePage> {
                       // CONTINUE SHOPPING PRODUCTS
                       recentShopProducts.isEmpty
                           ? Container()
-                          : AnimatedContainer(
+                          : Container(
                               width: width,
                               height: width * 0.45,
-                              duration: Duration(milliseconds: 250),
                               child: ListView.builder(
                                 shrinkWrap: true,
                                 physics: const ClampingScrollPhysics(),
@@ -1775,42 +1766,38 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                   ),
                                 )*/
                               Container()
-                              : AnimatedOpacity(
-                                  opacity: 1.0,
-                                  duration: Duration(milliseconds: 2500),
-                                  child: Padding(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: width * 0.025,
-                                      vertical: width * 0.025,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          'Your Wishlists ❤️',
-                                          style: TextStyle(
-                                            color: primaryDark,
-                                            fontSize: width * 0.06,
-                                            fontWeight: FontWeight.w500,
-                                          ),
+                              : Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: width * 0.025,
+                                    vertical: width * 0.025,
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'Your Wishlists ❤️',
+                                        style: TextStyle(
+                                          color: primaryDark,
+                                          fontSize: width * 0.06,
+                                          fontWeight: FontWeight.w500,
                                         ),
-                                        MyTextButton(
-                                          onPressed: () {
-                                            Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    WishlistPage(),
-                                              ),
-                                            );
-                                          },
-                                          text: 'See All',
-                                          textColor: primaryDark,
-                                        ),
-                                      ],
-                                    ),
+                                      ),
+                                      MyTextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  WishlistPage(),
+                                            ),
+                                          );
+                                        },
+                                        text: 'See All',
+                                        textColor: primaryDark,
+                                      ),
+                                    ],
                                   ),
                                 ),
 
