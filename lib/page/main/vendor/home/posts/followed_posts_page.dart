@@ -177,7 +177,9 @@ class _FollowedPostsPageState extends State<FollowedPostsPage>
         postsSnap.docs.map((postSnap) async {
           final postData = postSnap.data();
           final String id = postData['postId'];
-          final String text = postData['postText'];
+          final String text = postData['postText'].toString().trim().isEmpty
+              ? 'No Post Name'
+              : postData['postText'];
           final price = postData['postPrice'];
           final List? imageUrl = postData['postImage'];
           final String vendorId = postData['postVendorId'];

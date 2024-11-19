@@ -274,7 +274,12 @@ class _VendorProductsTabPageState extends State<VendorProductsTabPage> {
 
                 // PRODUCTS
                 products.isEmpty
-                    ? Container()
+                    ? SizedBox(
+                        height: 80,
+                        child: Center(
+                          child: Text('No Products'),
+                        ),
+                      )
                     : SizedBox(
                         width: widget.width,
                         height: getScreenHeight() * 0.675,

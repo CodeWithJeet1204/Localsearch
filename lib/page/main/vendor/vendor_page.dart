@@ -244,6 +244,7 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
       scheme: 'tel',
       path: ownerData!['Phone Number'],
     );
+    print('123');
     if (await canLaunchUrl(url)) {
       await launchUrl(url);
     } else {
@@ -1097,6 +1098,8 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                                       'Hey, I found you on Localsearch\n';
                                                   final url =
                                                       'https://wa.me/$phoneNumber?text=$message';
+
+                                                  print('url: $url');
 
                                                   if (await canLaunchUrl(
                                                       Uri.parse(url))) {

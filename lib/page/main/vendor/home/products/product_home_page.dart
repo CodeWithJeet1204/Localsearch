@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_function_literals_in_foreach_calls, unused_local_variable, empty_catches
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:localsearch/page/main/exhibition_page.dart';
@@ -143,47 +144,33 @@ class _ProductHomePageState extends State<ProductHomePage> {
     // GET STATUS
     Future<void> getStatus() async {
       Map<String, Map<String, dynamic>> myStatus = {};
-      List followedShops = [];
+      List<String> followedShops = [];
 
-      if (auth.currentUser != null) {
-        final userSnap =
-            await store.collection('Users').doc(auth.currentUser!.uid).get();
+      try {
+        if (auth.currentUser != null) {
+          final userSnap =
+              await store.collection('Users').doc(auth.currentUser!.uid).get();
+          followedShops =
+              List<String>.from(userSnap.data()?['followedShops'] ?? []);
+        }
 
-        final userData = userSnap.data()!;
+        final statusSnap = await store
+            .collection('Business')
+            .doc('Data')
+            .collection('Status')
+            .get();
 
-        followedShops = userData['followedShops'];
-      }
-
-      final statusSnap = await store
-          .collection('Business')
-          .doc('Data')
-          .collection('Status')
-          .get();
-
-      await Future.wait(
-        statusSnap.docs.map((status) async {
-          bool isViewed = false;
-          final String statusId = status.id;
+        for (var status in statusSnap.docs) {
           final statusData = status.data();
-
-          final String statusText = statusData['statusText'];
+          final String statusId = status.id;
           final String vendorId = statusData['statusVendorId'];
-          final List statusImage = statusData['statusImage'];
-          final String statusViews =
-              (statusData['statusViews'] as List).length.toString();
-
-          if (auth.currentUser != null) {
-            if (statusViews.contains(auth.currentUser!.uid)) {
-              isViewed = true;
-            }
-          }
+          final String statusText = statusData['statusText']?.toString() ?? '';
+          final List statusImage = statusData['statusImage'] ?? [];
 
           if (myStatus.containsKey(vendorId)) {
             myStatus[vendorId]!['status']![statusId] = {
               'statusText': statusText,
               'statusImage': statusImage,
-              'statusViews': statusViews,
-              'isViewed': isViewed,
             };
           } else {
             final vendorSnap = await store
@@ -193,65 +180,41 @@ class _ProductHomePageState extends State<ProductHomePage> {
                 .doc(vendorId)
                 .get();
 
-            final vendorData = vendorSnap.data()!;
-            final String vendorName = vendorData['Name'];
-            final String vendorImageUrl = vendorData['Image'];
-
-            myStatus[vendorId] = {
-              'vendorName': vendorName,
-              'vendorImageUrl': vendorImageUrl,
-              'isFollowed': followedShops.contains(vendorId),
-              'status': {
-                statusId: {
-                  'statusText': statusText,
-                  'statusImage': statusImage,
-                  'statusViews': statusViews,
-                  'isViewed': isViewed,
+            final vendorData = vendorSnap.data();
+            if (vendorData != null) {
+              myStatus[vendorId] = {
+                'vendorName': vendorData['Name'] ?? '',
+                'vendorImageUrl': vendorData['Image'] ?? '',
+                'isFollowed': followedShops.contains(vendorId),
+                'status': {
+                  statusId: {
+                    'statusText': statusText,
+                    'statusImage': statusImage,
+                  },
                 },
-              },
-            };
+              };
+            }
           }
-        }),
-      );
+        }
 
-      final sortedEntries = myStatus.entries.toList()
-        ..sort((MapEntry<String, Map<String, dynamic>> a,
-            MapEntry<String, Map<String, dynamic>> b) {
-          final bool aIsFollowed = a.value['isFollowed'] as bool;
-          final bool bIsFollowed = b.value['isFollowed'] as bool;
+        final sortedEntries = myStatus.entries.toList()
+          ..sort((a, b) {
+            final bool aIsFollowed = a.value['isFollowed'] as bool;
+            final bool bIsFollowed = b.value['isFollowed'] as bool;
 
-          if (aIsFollowed && !bIsFollowed) {
-            return -1;
-          } else if (!aIsFollowed && bIsFollowed) {
-            return 1;
-          }
+            return (bIsFollowed ? 1 : 0).compareTo(aIsFollowed ? 1 : 0);
+          });
 
-          final aTotalViews = a.value['status'].values.fold<int>(
-            0,
-            (int additionSum, dynamic status) {
-              final statusMap = status as Map<String, dynamic>;
-              return additionSum + int.parse(statusMap['statusViews']);
-            },
-          );
+        myStatus = Map<String, Map<String, dynamic>>.fromEntries(sortedEntries);
 
-          final bTotalViews = b.value['status'].values.fold<int>(
-            0,
-            (int additionSum, dynamic status) {
-              final statusMap = status as Map<String, dynamic>;
-              return additionSum + int.parse(statusMap['statusViews']);
-            },
-          );
-
-          return bTotalViews.compareTo(aTotalViews);
-        });
-
-      myStatus = Map<String, Map<String, dynamic>>.fromEntries(sortedEntries);
-
-      if (mounted) {
-        setState(() {
-          status = myStatus;
-          isStatusData = true;
-        });
+        if (mounted) {
+          setState(() {
+            status = myStatus;
+            isStatusData = true;
+          });
+        }
+      } catch (e) {
+        log('Error fetching statuses: $e');
       }
     }
 
@@ -1118,14 +1081,14 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                       final String vendorImageUrl =
                                           status.values.toList()[index]
                                               ['vendorImageUrl'];
-                                      final bool isViewed =
-                                          (status[vendorId]!['status'] as Map<
-                                                  String, Map<String, dynamic>>)
-                                              .values
-                                              .every(
-                                                (status) =>
-                                                    status['isViewed'] == true,
-                                              );
+                                      // final bool isViewed =
+                                      //     (status[vendorId]!['status'] as Map<
+                                      //             String, Map<String, dynamic>>)
+                                      //         .values
+                                      //         .every(
+                                      //           (status) =>
+                                      //               status['isViewed'] == true,
+                                      //         );
 
                                       /*index != (status.length - 1)
                                       ?*/
@@ -1135,11 +1098,12 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                         ),
                                         child: GestureDetector(
                                           onTap: () {
+                                            log(status.toString());
                                             Navigator.of(context).push(
                                               MaterialPageRoute(
                                                 builder: (context) =>
                                                     StatusPageView(
-                                                  currentIndex: index,
+                                                  vendorId: vendorId,
                                                   status: status,
                                                 ),
                                               ),
@@ -1155,7 +1119,8 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                                   CrossAxisAlignment.center,
                                               children: [
                                                 Opacity(
-                                                  opacity: isViewed ? 0.75 : 1,
+                                                  // opacity: isViewed ? 0.75 : 1,
+                                                  opacity: 1,
                                                   child: Container(
                                                     width: width * 0.2,
                                                     height: width * 0.2,
@@ -1196,9 +1161,11 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                                     overflow:
                                                         TextOverflow.ellipsis,
                                                     style: TextStyle(
-                                                      fontWeight: isViewed
-                                                          ? FontWeight.w400
-                                                          : FontWeight.w500,
+                                                      // fontWeight: isViewed
+                                                      //     ? FontWeight.w400
+                                                      //     : FontWeight.w500,
+                                                      fontWeight:
+                                                          FontWeight.w500,
                                                     ),
                                                   ),
                                                 ),

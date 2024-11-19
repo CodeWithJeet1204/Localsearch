@@ -1,4 +1,4 @@
-import 'package:firebase_app_check/firebase_app_check.dart';
+// import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:localsearch/firebase_options.dart';
 import 'package:localsearch/page/main/get_location_page.dart';
 import 'package:localsearch/providers/location_provider.dart';
@@ -18,9 +18,9 @@ void main() async {
     options: DefaultFirebaseOptions.android,
   );
   await Firebase.initializeApp();
-  await FirebaseAppCheck.instance.activate(
-    androidProvider: AndroidProvider.playIntegrity,
-  );
+  // await FirebaseAppCheck.instance.activate(
+  //   androidProvider: AndroidProvider.playIntegrity,
+  // );
 
   runApp(
     MultiProvider(
