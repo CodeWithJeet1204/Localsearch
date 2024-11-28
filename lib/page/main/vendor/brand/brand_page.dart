@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:localsearch/page/main/vendor/product/product_page.dart';
 import 'package:localsearch/utils/colors.dart';
 import 'package:localsearch/widgets/image_show.dart';
+import 'package:localsearch/widgets/loading_indicator.dart';
 import 'package:localsearch/widgets/sign_in_dialog.dart';
 import 'package:localsearch/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -110,7 +111,6 @@ class _BrandPageState extends State<BrandPage> {
         .doc('Data')
         .collection('Products')
         .where('productBrandId', isEqualTo: widget.brandId)
-        .limit(noOf)
         .get();
 
     for (var productData in productsSnap.docs) {
@@ -222,7 +222,7 @@ class _BrandPageState extends State<BrandPage> {
       ),
       body: id == null || name == null || imageUrl == null || products == null
           ? const Center(
-              child: CircularProgressIndicator(),
+              child: LoadingIndicator(),
             )
           : SafeArea(
               child: Padding(

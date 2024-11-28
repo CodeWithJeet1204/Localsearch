@@ -52,43 +52,59 @@ const logger = require("firebase-functions/logger");
 //   });
 
 // Function to delete documents from Status collection every 23 hours 50 minutes
-exports.scheduledFunction = functions.region('asia-southeast1').pubsub.schedule('every 5 minutes').onRun(async (context) => {
-  const now = admin.firestore.Timestamp.now();
-  const cutoff = new admin.firestore.Timestamp(now.seconds - (23 * 60 * 60 + 50 * 60), 0);
-  const postsRef = admin.firestore().collection('Business').doc('Data').collection('Status');
-  
-  try {
-    const snapshot = await postsRef.where('statusDateTime', '<=', cutoff).get();
-    if (snapshot.empty) {
-      console.log('No documents to delete.');
-      return null;
-    }
-
-    const bucket = admin.storage().bucket();
-    const batch = admin.firestore().batch();
+exports.scheduledFunction = functions
+  .region('asia-southeast1')
+  .pubsub.schedule('every 5 minutes')
+  .onRun(async (context) => {
+    const now = admin.firestore.Timestamp.now();
+    const cutoff = new admin.firestore.Timestamp(
+      now.seconds - (23 * 60 * 60 + 50 * 60),
+      0
+    );
+    const statusRef = admin
+      .firestore()
+      .collection('Business')
+      .doc('Data')
+      .collection('Status');
     
-    const fileDeletions = [];
-
-    snapshot.docs.forEach(doc => {
-      batch.delete(doc.ref);
-
-      const statusImage = doc.data().statusImage;
-      if (statusImage) {
-        const filePath = statusImage.split('/o/')[1].split('?')[0].replace(/%2F/g, '/');
-
-        fileDeletions.push(bucket.file(filePath).delete());
+    try {
+      const snapshot = await statusRef.where('statusDateTime', '<=', cutoff).get();
+      
+      if (snapshot.empty) {
+        console.log('No documents to delete.');
+        return null;
       }
-    });
+      
+      const bucket = admin.storage().bucket();
+      const batch = admin.firestore().batch();
+      const fileDeletions = [];
+      
+      snapshot.docs.forEach((doc) => {
+        batch.delete(doc.ref);
 
-    await Promise.all(fileDeletions);
+        const statusImage = doc.data().statusImage;
+        if (statusImage) {
+          try {
+            const filePath = statusImage
+              .split('/o/')[1]
+              .split('?')[0]
+              .replace(/%2F/g, '/');
+            fileDeletions.push(bucket.file(filePath).delete());
+          } catch (err) {
+            console.error(`Error parsing file path for doc ${doc.id}:`, err);
+          }
+        }
+      });
 
-    await batch.commit();
+      await Promise.all(fileDeletions);
+      await batch.commit();
 
-    console.log(`Successfully deleted ${snapshot.size} documents and associated files.`);
-  } catch (error) {
-    console.error("Error deleting documents or files:", error);
-  }
-});
+      console.log(`Successfully deleted ${snapshot.size} documents and associated files.`);
+    } catch (error) {
+      console.error("Error deleting documents or files:", error);
+    }
+  });
+
 
 
 // Sample helloWorld function (optional, uncomment if needed)

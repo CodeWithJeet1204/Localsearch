@@ -528,7 +528,7 @@
 //                             ),
 //                             child: isGoogleLogging
 //                                 ? const Center(
-//                                     child: CircularProgressIndicator(
+//                                     child: LoadingIndicator(
 //                                       color: primaryDark,
 //                                     ),
 //                                   )
@@ -837,7 +837,7 @@
 //                               //       ),
 //                               //       child: isGoogleLogging
 //                               //           ? const Center(
-//                               //               child: CircularProgressIndicator(
+//                               //               child: LoadingIndicator(
 //                               //                 color: primaryDark,
 //                               //               ),
 //                               //             )

@@ -4,6 +4,7 @@ import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:localsearch/widgets/image_view.dart';
+import 'package:localsearch/widgets/loading_indicator.dart';
 import 'package:localsearch/widgets/snack_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -116,7 +117,7 @@ class _ExhibitionPageState extends State<ExhibitionPage> {
       ),
       body: data == null
           ? Center(
-              child: CircularProgressIndicator(),
+              child: LoadingIndicator(),
             )
           : SafeArea(
               child: Padding(
@@ -166,8 +167,7 @@ class _ExhibitionPageState extends State<ExhibitionPage> {
                                             width: width,
                                             height: width,
                                             child: Center(
-                                              child:
-                                                  CircularProgressIndicator(),
+                                              child: LoadingIndicator(),
                                             ),
                                           );
                                         }

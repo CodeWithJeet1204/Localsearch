@@ -81,7 +81,6 @@ class _AllBrandPageState extends State<AllBrandPage> {
         .doc('Data')
         .collection('Brands')
         .where('vendorId', isEqualTo: widget.vendorId)
-        .limit(noOf)
         .get();
 
     for (var brandData in brandsSnap.docs) {

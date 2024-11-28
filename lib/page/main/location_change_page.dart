@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:localsearch/providers/location_provider.dart';
 import 'package:localsearch/utils/colors.dart';
+import 'package:localsearch/widgets/loading_indicator.dart';
 import 'package:localsearch/widgets/snack_bar.dart';
 import 'package:provider/provider.dart';
 
@@ -80,7 +81,7 @@ class _LocationChangePageState extends State<LocationChangePage> {
   // GET DATA
   Future<void> getData() async {
     Map<String, Map<String, dynamic>> tempCities = {};
-    final citySnap = await store.collection('Cities').limit(noOf).get();
+    final citySnap = await store.collection('Cities').get();
 
     for (var city in citySnap.docs) {
       final cityData = city.data();
@@ -308,7 +309,7 @@ class _LocationChangePageState extends State<LocationChangePage> {
                                 margin: EdgeInsets.all(width * 0.0225),
                                 child: isGettingLocation
                                     ? Center(
-                                        child: CircularProgressIndicator(),
+                                        child: LoadingIndicator(),
                                       )
                                     : Row(
                                         crossAxisAlignment:
@@ -493,8 +494,7 @@ class _LocationChangePageState extends State<LocationChangePage> {
                                           ? SizedBox(
                                               height: 45,
                                               child: Center(
-                                                child:
-                                                    CircularProgressIndicator(),
+                                                child: LoadingIndicator(),
                                               ),
                                             )
                                           : Container();

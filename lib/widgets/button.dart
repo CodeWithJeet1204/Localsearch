@@ -1,5 +1,6 @@
 import 'package:localsearch/utils/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:localsearch/widgets/loading_indicator.dart';
 
 class MyButton extends StatelessWidget {
   const MyButton({
@@ -37,9 +38,7 @@ class MyButton extends StatelessWidget {
         ),
         child: isLoading
             ? const Center(
-                child: CircularProgressIndicator(
-                  color: white,
-                ),
+                child: LoadingIndicator(),
               )
             : Text(
                 text.toString().trim(),

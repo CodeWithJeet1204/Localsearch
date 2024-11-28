@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:localsearch/page/main/vendor/vendor_page.dart';
 import 'package:localsearch/utils/colors.dart';
+import 'package:localsearch/widgets/loading_indicator.dart';
 
 class StatusPageView extends StatefulWidget {
   const StatusPageView({
@@ -163,9 +164,7 @@ class _StatusPageViewState extends State<StatusPageView> {
                                     progressIndicatorBuilder:
                                         (context, url, progress) {
                                       return Center(
-                                        child: CircularProgressIndicator(
-                                          color: white,
-                                        ),
+                                        child: LoadingIndicator(),
                                       );
                                     },
                                     imageUrl: e,

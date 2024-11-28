@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:localsearch/page/main/vendor/product/product_page.dart';
 import 'package:localsearch/utils/colors.dart';
 import 'package:localsearch/widgets/image_show.dart';
+import 'package:localsearch/widgets/loading_indicator.dart';
 import 'package:localsearch/widgets/sign_in_dialog.dart';
 import 'package:localsearch/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -109,14 +110,12 @@ class _CategoryPageState extends State<CategoryPage> {
             .collection('Products')
             .where('vendorId', isEqualTo: widget.vendorId)
             .where('categoryName', isEqualTo: widget.categoryName)
-            .limit(noOf)
             .get()
         : await store
             .collection('Business')
             .doc('Data')
             .collection('Products')
             .where('categoryName', isEqualTo: widget.categoryName)
-            .limit(noOf)
             .get();
 
     for (var productData in productsSnap.docs) {
@@ -228,7 +227,7 @@ class _CategoryPageState extends State<CategoryPage> {
       ),
       body: imageUrl == null || products == null
           ? const Center(
-              child: CircularProgressIndicator(),
+              child: LoadingIndicator(),
             )
           : SafeArea(
               child: Padding(

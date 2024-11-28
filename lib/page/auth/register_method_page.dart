@@ -596,7 +596,7 @@
 //                       color: primary2.withOpacity(0.75),
 //                     ),
 //                     child: isGoogleRegistering
-//                         ? const CircularProgressIndicator(
+//                         ? const LoadingIndicator(
 //                             color: primaryDark,
 //                           )
 //                         : Text(
@@ -859,7 +859,7 @@
 //           //             //     ),
 //           //             //     child: isGoogleRegistering
 //           //             //         ? const Center(
-//           //             //             child: CircularProgressIndicator(
+//           //             //             child: LoadingIndicator(
 //           //             //               color: primaryDark,
 //           //             //             ),
 //           //             //           )

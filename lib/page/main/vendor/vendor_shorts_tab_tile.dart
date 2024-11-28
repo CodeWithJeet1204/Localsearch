@@ -4,6 +4,7 @@ import 'package:localsearch/utils/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flick_video_player/flick_video_player.dart';
 import 'package:flutter/material.dart';
+import 'package:localsearch/widgets/loading_indicator.dart';
 import 'package:localsearch/widgets/sign_in_dialog.dart';
 import 'package:video_player/video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -202,9 +203,7 @@ class _VendorShortsTabTileState extends State<VendorShortsTabTile> {
                             videoFit: BoxFit.contain,
                             playerLoadingFallback: Align(
                               alignment: Alignment.center,
-                              child: CircularProgressIndicator(
-                                color: white,
-                              ),
+                              child: LoadingIndicator(),
                             ),
                           ),
                         ),
@@ -316,9 +315,7 @@ class _VendorShortsTabTileState extends State<VendorShortsTabTile> {
         : Stack(
             children: [
               const Center(
-                child: CircularProgressIndicator(
-                  color: white,
-                ),
+                child: LoadingIndicator(),
               ),
               Padding(
                 padding: EdgeInsets.all(width * 0.025),

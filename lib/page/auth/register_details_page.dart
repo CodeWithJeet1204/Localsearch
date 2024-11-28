@@ -3,6 +3,7 @@ import 'package:localsearch/providers/location_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:localsearch/utils/colors.dart';
 import 'package:localsearch/widgets/button.dart';
+import 'package:localsearch/widgets/loading_indicator.dart';
 import 'package:localsearch/widgets/snack_bar.dart';
 import 'package:localsearch/widgets/text_form_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -262,7 +263,7 @@ class _RegisterDetailsPageState extends State<RegisterDetailsPage> {
                               padding: EdgeInsets.all(width * 0.025),
                               child: isGettingLocation
                                   ? const Center(
-                                      child: CircularProgressIndicator(),
+                                      child: LoadingIndicator(),
                                     )
                                   : Text(
                                       address != null

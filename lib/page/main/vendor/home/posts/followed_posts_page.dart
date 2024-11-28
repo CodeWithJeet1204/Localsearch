@@ -121,7 +121,6 @@ class _FollowedPostsPageState extends State<FollowedPostsPage>
           .where('vendorId', whereIn: followedShops)
           .where('isPost', isEqualTo: true)
           .orderBy('datetime', descending: true)
-          .limit(noOf)
           .get();
 
       await Future.wait(
@@ -170,7 +169,6 @@ class _FollowedPostsPageState extends State<FollowedPostsPage>
           .collection('Post')
           .where('postVendorId', whereIn: followedShops)
           .orderBy('postDateTime', descending: true)
-          .limit(noOf)
           .get();
 
       await Future.wait(

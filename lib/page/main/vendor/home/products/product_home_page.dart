@@ -7,6 +7,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:localsearch/page/main/exhibition_page.dart';
 import 'package:localsearch/page/main/vendor/status_page_view.dart';
 import 'package:localsearch/page/main/vendor/profile/wishlist_page.dart';
+import 'package:localsearch/widgets/loading_indicator.dart';
 import 'package:localsearch/widgets/text_button.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -519,7 +520,6 @@ class _ProductHomePageState extends State<ProductHomePage> {
           .doc('Data')
           .collection('Products')
           .where('categoryName', isEqualTo: category1)
-          // .limit(noOf1)
           .get();
 
       productSnap1.docs.forEach((product1) {
@@ -537,7 +537,6 @@ class _ProductHomePageState extends State<ProductHomePage> {
           .doc('Data')
           .collection('Products')
           .where('categoryName', isEqualTo: category2)
-          // .limit(noOf2)
           .get();
 
       productSnap2.docs.forEach((product2) {
@@ -555,7 +554,6 @@ class _ProductHomePageState extends State<ProductHomePage> {
           .doc('Data')
           .collection('Products')
           .where('categoryName', isEqualTo: category3)
-          // .limit(noOf3)
           .get();
 
       productSnap3.docs.forEach((product3) {
@@ -625,7 +623,6 @@ class _ProductHomePageState extends State<ProductHomePage> {
   //         .doc('Data')
   //         .collection('Products')
   //         .where('categoryName', isEqualTo: category1)
-  //         .limit(noOf1)
   //         .get();
   //     productSnap1.docs.forEach((product1) {
   //       final productId1 = product1.id;
@@ -666,7 +663,6 @@ class _ProductHomePageState extends State<ProductHomePage> {
   //         .doc('Data')
   //         .collection('Products')
   //         .where('categoryName', isEqualTo: category2)
-  //         .limit(noOf2)
   //         .get();
   //     productSnap2.docs.forEach((product2) {
   //       final productId2 = product2.id;
@@ -707,7 +703,6 @@ class _ProductHomePageState extends State<ProductHomePage> {
   //         .doc('Data')
   //         .collection('Products')
   //         .where('categoryName', isEqualTo: category3)
-  //         .limit(noOf3)
   //         .get();
   //     productSnap3.docs.forEach((product3) {
   //       final productId3 = product3.id;
@@ -764,9 +759,11 @@ class _ProductHomePageState extends State<ProductHomePage> {
     Map<String, dynamic> tempWishlist = {};
 
     allWishlist.forEach((key, value) {
-      final double distance = value[3];
-      if (distance * 0.925 <= endDistance) {
-        tempWishlist[key] = value;
+      final double? distance = value[3];
+      if (distance != null) {
+        if (distance * 0.925 <= endDistance) {
+          tempWishlist[key] = value;
+        }
       }
     });
     if (mounted) {
@@ -780,9 +777,11 @@ class _ProductHomePageState extends State<ProductHomePage> {
   void updateFollowed(double endDistance) {
     Map<String, dynamic> tempFollowed = {};
     allFollowedShops.forEach((key, value) {
-      final double distance = value[2];
-      if (distance * 0.925 <= endDistance) {
-        tempFollowed[key] = value;
+      final double? distance = value[2];
+      if (distance != null) {
+        if (distance * 0.925 <= endDistance) {
+          tempFollowed[key] = value;
+        }
       }
     });
     if (mounted) {
@@ -1006,7 +1005,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
                                                       height: width,
                                                       child: Center(
                                                         child:
-                                                            CircularProgressIndicator(),
+                                                            LoadingIndicator(),
                                                       ),
                                                     );
                                                   }

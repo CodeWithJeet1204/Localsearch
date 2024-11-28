@@ -1,6 +1,6 @@
 name: localsearch
 description: "Local E Commerce Platform"
-version: 1.0.0+8
+version: 1.0.0+10
 environment:
   sdk: ">=3.2.6 <4.0.0"
 
@@ -46,8 +46,8 @@ dependencies:
 flutter:
   uses-material-design: true
 
-  # assets:
-  #   - images/a_dot_burr.jpeg
+  assets:
+    - logo/logo.png
   #   - images/a_dot_ham.jpeg
 
   # fonts:

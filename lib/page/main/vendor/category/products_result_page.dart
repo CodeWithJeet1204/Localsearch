@@ -1,5 +1,4 @@
 // ignore_for_file: unnecessary_null_comparison
-
 import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:localsearch/page/main/location_change_page.dart';
@@ -14,19 +13,19 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 
-class CategoryProductsPage extends StatefulWidget {
-  const CategoryProductsPage({
+class ProductsResultPage extends StatefulWidget {
+  const ProductsResultPage({
     super.key,
-    required this.categoryName,
+    required this.productName,
   });
 
-  final String categoryName;
+  final String productName;
 
   @override
-  State<CategoryProductsPage> createState() => _CategoryProductsPageState();
+  State<ProductsResultPage> createState() => _ProductsResultPageState();
 }
 
-class _CategoryProductsPageState extends State<CategoryProductsPage> {
+class _ProductsResultPageState extends State<ProductsResultPage> {
   final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
   final searchController = TextEditingController();
@@ -81,7 +80,7 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
         .collection('Business')
         .doc('Data')
         .collection('Products')
-        .where('categoryName', isEqualTo: widget.categoryName)
+        .where('productProductName', isEqualTo: widget.productName)
         .get();
 
     final totalLength = totalSnap.docs.length;
@@ -100,8 +99,7 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
         .collection('Business')
         .doc('Data')
         .collection('Products')
-        .where('categoryName', isEqualTo: widget.categoryName)
-        .limit(noOf)
+        .where('productProductName', isEqualTo: widget.productName)
         .get();
 
     if (auth.currentUser != null) {
@@ -170,16 +168,14 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
           }
 
           if (locationProvider.cityName == 'Your Location') {
-            if (distance != null && distance * 0.925 < 5) {
-              myProducts[id] = [
-                name,
-                price,
-                imageUrl,
-                ratings,
-                myProductData,
-                distance,
-              ];
-            }
+            myProducts[id] = [
+              name,
+              price,
+              imageUrl,
+              ratings,
+              myProductData,
+              distance,
+            ];
           } else {
             final city = productData['City'];
             if (city == locationProvider.cityName) {
@@ -189,6 +185,7 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
                 imageUrl,
                 ratings,
                 myProductData,
+                distance,
               ];
             }
           }
@@ -202,6 +199,7 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
               'ratings': ratings,
               'myProductData': myProductData,
               'views': productViews,
+              'distance': distance,
             });
           } else {
             nonFollowedProducts.add({
@@ -212,6 +210,7 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
               'ratings': ratings,
               'myProductData': myProductData,
               'views': productViews,
+              'distance': distance,
             });
           }
         }),
@@ -230,6 +229,7 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
             item['imageUrl'],
             item['ratings'],
             item['myProductData'],
+            item['distance'],
           ]
       };
     } catch (e) {
@@ -239,7 +239,10 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
     }
 
     setState(() {
-      currentProducts = myProducts;
+      currentProducts = {
+        for (var entry in myProducts.entries)
+          if (entry.value[5] < 5) entry.key: entry.value
+      };
       allProducts = myProducts;
       isData = true;
     });
@@ -249,9 +252,11 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
   void updateProducts(double endDistance) {
     Map<String, dynamic> tempProducts = {};
     allProducts.forEach((key, value) {
-      final double distance = value[5];
-      if (distance * 0.925 <= endDistance) {
-        tempProducts[key] = value;
+      final double? distance = value[5];
+      if (distance != null) {
+        if (distance * 0.925 <= endDistance) {
+          tempProducts[key] = value;
+        }
       }
     });
     setState(() {
@@ -269,7 +274,7 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          widget.categoryName.toString().trim(),
+          widget.productName.toString().trim(),
         ),
         actions: [
           IconButton(
@@ -348,8 +353,8 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) => LocationChangePage(
-                            page: CategoryProductsPage(
-                              categoryName: widget.categoryName,
+                            page: ProductsResultPage(
+                              productName: widget.productName,
                             ),
                           ),
                         ),
@@ -399,8 +404,12 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
                               divisions: 20,
                               value: distanceRange,
                               activeColor: primaryDark,
-                              inactiveColor:
-                                  const Color.fromRGBO(197, 243, 255, 1),
+                              inactiveColor: const Color.fromRGBO(
+                                197,
+                                243,
+                                255,
+                                1,
+                              ),
                               onChanged: (newValue) {
                                 setState(() {
                                   isData = false;

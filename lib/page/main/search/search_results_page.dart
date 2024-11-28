@@ -184,7 +184,6 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
           .collection('Business')
           .doc('Owners')
           .collection('Shops')
-          .limit(noOf)
           .get();
 
       yourLatitude = locationProvider.cityLatitude;
@@ -198,31 +197,28 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
           final double? latitude = shopData['Latitude'];
           final double? longitude = shopData['Longitude'];
           final String vendorId = shopSnap.id;
-          double distance = 0;
+          double? distance;
 
           if (name != null) {
             final address = await getAddress(latitude!, longitude!);
 
             if (yourLatitude != null && yourLongitude != null) {
               distance = await getDrivingDistance(
-                    yourLatitude,
-                    yourLongitude,
-                    latitude,
-                    longitude,
-                  ) ??
-                  0;
+                yourLatitude,
+                yourLongitude,
+                latitude,
+                longitude,
+              );
             }
 
-            if (distance * 0.925 < 5) {
-              allShops[vendorId] = {
-                'name': name,
-                'imageUrl': imageUrl,
-                'Latitude': latitude,
-                'Longitude': longitude,
-                'address': address,
-                'distance': distance,
-              };
-            }
+            allShops[vendorId] = {
+              'name': name,
+              'imageUrl': imageUrl,
+              'Latitude': latitude,
+              'Longitude': longitude,
+              'address': address,
+              'distance': distance,
+            };
           }
         }),
       );
@@ -232,7 +228,6 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
           .doc('Owners')
           .collection('Shops')
           .where('City', isEqualTo: locationProvider.cityName)
-          .limit(noOf)
           .get();
 
       for (var shopSnap in shopSnap.docs) {
@@ -254,11 +249,13 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
               'Latitude': latitude,
               'Longitude': longitude,
               'address': address,
+              'distance': null,
             };
           }
         }
       }
     }
+
     searchedShops.clear();
 
     List<MapEntry<String, int>> relevanceScores = [];
@@ -280,11 +277,20 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
       return a.key.compareTo(b.key);
     });
 
-    for (var entry in relevanceScores) {
-      searchedShops[entry.key] = allShops[entry.key]!;
-      rangeShops[entry.key] = allShops[entry.key]!;
-    }
     setState(() {
+      for (var entry in relevanceScores) {
+        searchedShops[entry.key] = allShops[entry.key]!;
+
+        if (locationProvider.cityName == 'Your Location') {
+          if (allShops[entry.key]!['distance'] != null &&
+              allShops[entry.key]!['distance'] < 5) {
+            rangeShops[entry.key] = allShops[entry.key]!;
+          }
+        } else {
+          rangeShops[entry.key] = allShops[entry.key]!;
+        }
+      }
+
       isShopsData = true;
     });
   }
@@ -385,7 +391,6 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
           .collection('Business')
           .doc('Data')
           .collection('Products')
-          .limit(noOf)
           .get();
 
       setState(() {
@@ -410,7 +415,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
         final List views = productData['productViewsTimestamp'];
         final double vendorLatitude = productData['Latitude'];
         final double vendorLongitude = productData['Longitude'];
-        double distance = 0;
+        double? distance;
 
         final productNameLower = productName.toLowerCase();
         final searchNameLower = widget.search.toLowerCase();
@@ -427,65 +432,68 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
             searchWords.any((searchWord) => brandName.contains(searchWord))) {
           if (yourLatitude != null && yourLongitude != null) {
             distance = await getDrivingDistance(
-                  yourLatitude!,
-                  yourLongitude!,
-                  vendorLatitude,
-                  vendorLongitude,
-                ) ??
-                0;
+              yourLatitude!,
+              yourLongitude!,
+              vendorLatitude,
+              vendorLongitude,
+            );
           }
 
-          if (distance * 0.925 < 5) {
-            int relevanceScore = calculateRelevanceScoreProducts(
-              productNameLower,
-              searchNameLower,
-              categoryName,
-              brandName,
-              tags,
-            );
+          int relevanceScore = calculateRelevanceScoreProducts(
+            productNameLower,
+            searchNameLower,
+            categoryName,
+            brandName,
+            tags,
+          );
 
-            Map<String, dynamic> productInfo = {
-              'imageUrl': imageUrl,
-              'productName': productName,
-              'productPrice': productPrice,
-              'productId': productId,
-              'relevanceScore': relevanceScore,
-              'ratings': ratings,
-              'datetime': datetime,
-              'views': views,
-              'distance': distance,
-            };
+          Map<String, dynamic> productInfo = {
+            'imageUrl': imageUrl,
+            'productName': productName,
+            'productPrice': productPrice,
+            'productId': productId,
+            'relevanceScore': relevanceScore,
+            'ratings': ratings,
+            'datetime': datetime,
+            'views': views,
+            'distance': distance,
+          };
 
-            if (followedShops.contains(productData['vendorId'])) {
-              followedProducts.add(productInfo);
-            } else {
-              nonFollowedProducts.add(productInfo);
-            }
+          if (followedShops.contains(productData['vendorId'])) {
+            followedProducts.add(productInfo);
+          } else {
+            nonFollowedProducts.add(productInfo);
           }
         }
       }
 
       followedProducts
           .sort((a, b) => b['views'].length.compareTo(a['views'].length));
+
       nonFollowedProducts
           .sort((a, b) => b['views'].length.compareTo(a['views'].length));
 
       for (var product in followedProducts) {
         searchedProducts[product['productName']] = product;
-        rangeProducts[product['productName']] = product;
       }
 
       for (var product in nonFollowedProducts) {
         searchedProducts[product['productName']] = product;
-        rangeProducts[product['productName']] = product;
       }
+
+      setState(() {
+        rangeProducts = {
+          for (var product in searchedProducts.values)
+            if (product['distance'] != null && product['distance'] < 5)
+              product['productName']: product
+        };
+      });
     } else {
       final productsSnap = await store
           .collection('Business')
           .doc('Data')
           .collection('Products')
           .where('City', isEqualTo: locationProvider.cityName)
-          .limit(noOf)
           .get();
 
       for (var productSnap in productsSnap.docs) {
@@ -547,12 +555,14 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
       }
     }
 
-    searchedProducts = Map.fromEntries(searchedProducts.entries.toList()
-      ..sort((a, b) =>
-          b.value['relevanceScore'].compareTo(a.value['relevanceScore'])));
-    rangeProducts = Map.fromEntries(searchedProducts.entries.toList()
-      ..sort((a, b) =>
-          b.value['relevanceScore'].compareTo(a.value['relevanceScore'])));
+    setState(() {
+      searchedProducts = Map.fromEntries(searchedProducts.entries.toList()
+        ..sort((a, b) =>
+            b.value['relevanceScore'].compareTo(a.value['relevanceScore'])));
+      rangeProducts = Map.fromEntries(rangeProducts.entries.toList()
+        ..sort((a, b) =>
+            b.value['relevanceScore'].compareTo(a.value['relevanceScore'])));
+    });
 
     setState(() {
       isProductsData = true;
@@ -701,7 +711,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
   }
 
   // SORT PRODUCTS
-  void sortProducts(EventSorting sorting) {
+  void sortProducts(EventSorting sorting, LocationProvider locationProvider) {
     setState(() {
       switch (sorting) {
         case EventSorting.recentlyAdded:
@@ -730,6 +740,15 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                 .compareTo(double.parse(a.value['productPrice'].toString()))));
           break;
       }
+      rangeProducts = {
+        for (var product in searchedProducts.values)
+          if (locationProvider.cityName == 'Your Location')
+            if (product['distance'] != null &&
+                product['distance'] < distanceRange)
+              product['productName']: product
+            else if (product['City'] == locationProvider.cityName)
+              product['productName']: product
+      };
     });
   }
 
@@ -788,9 +807,11 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
     rangeShops.clear();
 
     searchedShops.forEach((key, value) {
-      final double distance = value['distance'];
-      if (distance * 0.925 <= endDistance) {
-        tempShops[key] = value;
+      final double? distance = value['distance'];
+      if (distance != null) {
+        if (distance * 0.925 <= endDistance) {
+          tempShops[key] = value;
+        }
       }
     });
 
@@ -806,9 +827,11 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
     rangeProducts.clear();
 
     searchedProducts.forEach((key, value) {
-      final double distance = value['distance'];
-      if (distance * 0.925 <= endDistance) {
-        tempProducts[key] = value;
+      final double? distance = value['distance'];
+      if (distance != null) {
+        if (distance * 0.925 <= endDistance) {
+          tempProducts[key] = value;
+        }
       }
     });
 
@@ -1281,9 +1304,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                             shrinkWrap: true,
                                             physics:
                                                 const NeverScrollableScrollPhysics(),
-                                            itemCount: rangeShops.length > 3
-                                                ? 3
-                                                : rangeShops.length,
+                                            itemCount: rangeShops.length,
                                             itemBuilder: ((context, index) {
                                               final currentShop = rangeShops
                                                   .keys
@@ -1434,6 +1455,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                                                       .highestPrice
                                                                   : EventSorting
                                                                       .lowestPrice,
+                                                  locationProvider,
                                                 );
                                                 setState(() {
                                                   productSort = value;
@@ -1459,7 +1481,8 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                           itemBuilder: ((context, index) {
                                             return Padding(
                                               padding: EdgeInsets.all(
-                                                  width * 0.0225),
+                                                width * 0.0225,
+                                              ),
                                               child: Container(
                                                 width: width * 0.28,
                                                 height: width * 0.3,

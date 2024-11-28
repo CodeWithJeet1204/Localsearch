@@ -92,7 +92,6 @@ class _DiscoverPostsPageState extends State<DiscoverPostsPage>
         .collection('Products')
         .where('isPost', isEqualTo: true)
         .orderBy('datetime', descending: true)
-        .limit(noOf)
         .get();
 
     await Future.wait(
@@ -140,7 +139,6 @@ class _DiscoverPostsPageState extends State<DiscoverPostsPage>
         .doc('Data')
         .collection('Post')
         .orderBy('postDateTime', descending: true)
-        .limit(noOf)
         .get();
 
     await Future.wait(

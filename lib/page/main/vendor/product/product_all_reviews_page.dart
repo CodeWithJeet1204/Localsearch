@@ -1,3 +1,4 @@
+import 'package:localsearch/widgets/loading_indicator.dart';
 import 'package:localsearch/widgets/review_container.dart';
 import 'package:localsearch/widgets/video_tutorial.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -113,7 +114,7 @@ class _ProductAllReviewPageState extends State<ProductAllReviewPage> {
       ),
       body: reviews == null
           ? Center(
-              child: CircularProgressIndicator(),
+              child: LoadingIndicator(),
             )
           : SafeArea(
               child: Padding(

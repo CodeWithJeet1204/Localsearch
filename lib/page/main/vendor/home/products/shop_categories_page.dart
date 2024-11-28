@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:localsearch/page/main/vendor/category/category_products_page.dart';
+import 'package:localsearch/page/main/vendor/home/products/category_product_page.dart';
 import 'package:localsearch/utils/colors.dart';
 import 'package:localsearch/widgets/video_tutorial.dart';
 import 'package:auto_size_text/auto_size_text.dart';
@@ -135,9 +135,10 @@ class _ShopCategoriesPageState extends State<ShopCategoriesPage> {
                     onTap: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: ((context) => CategoryProductsPage(
-                                categoryName: name,
-                              )),
+                          builder: (context) => CategoryProductPage(
+                            shopType: widget.shopType,
+                            categoryName: name,
+                          ),
                         ),
                       );
                     },

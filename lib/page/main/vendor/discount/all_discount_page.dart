@@ -8,6 +8,7 @@ import 'package:localsearch/page/main/vendor/discount/discount_page.dart';
 import 'package:localsearch/page/main/location_change_page.dart';
 import 'package:localsearch/providers/location_provider.dart';
 import 'package:localsearch/utils/colors.dart';
+import 'package:localsearch/widgets/loading_indicator.dart';
 import 'package:localsearch/widgets/shimmer_skeleton_container.dart';
 import 'package:localsearch/widgets/snack_bar.dart';
 import 'package:provider/provider.dart';
@@ -193,15 +194,12 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
               );
             }
 
-            if (distance != null && distance * 0.925 < 5) {
-              if (endDateTime.toDate().isAfter(DateTime.now())) {
-                discountData.addAll({'distance': distance});
-                myDiscounts[discountId] = discountData;
-              }
+            if (endDateTime.toDate().isAfter(DateTime.now())) {
+              discountData.addAll({'distance': distance});
+              myDiscounts[discountId] = discountData;
             }
           }),
         );
-
 
         if (mounted) {
           List<MapEntry<String, Map<String, dynamic>>> sortedDiscounts =
@@ -216,10 +214,20 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
                   return 0;
                 });
 
-          myDiscounts =
-              Map<String, Map<String, dynamic>>.fromEntries(sortedDiscounts);
+          myDiscounts = Map<String, Map<String, dynamic>>.fromEntries(
+            sortedDiscounts,
+          );
           setState(() {
-            currentDiscounts = myDiscounts;
+            if (locationProvider.cityName == 'Your Location') {
+              currentDiscounts = {
+                for (var entry in myDiscounts.entries)
+                  if (entry.value['distance'] != null &&
+                      entry.value['distance'] < 5)
+                    entry.key: entry.value,
+              };
+            } else {
+              currentDiscounts = myDiscounts;
+            }
             allDiscounts = myDiscounts;
             isData = true;
           });
@@ -236,7 +244,6 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
             }
           }),
         );
-
 
         List<MapEntry<String, Map<String, dynamic>>> sortedDiscounts =
             myDiscounts.entries.toList()
@@ -268,9 +275,11 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
   void updateDiscounts(double endDistance) {
     Map<String, Map<String, dynamic>> tempDiscounts = {};
     allDiscounts.forEach((key, value) {
-      final double distance = value['distance'];
-      if (distance * 0.925 <= endDistance) {
-        tempDiscounts[key] = value;
+      final double? distance = value['distance'];
+      if (distance != null) {
+        if (distance * 0.925 <= endDistance) {
+          tempDiscounts[key] = value;
+        }
       }
     });
     setState(() {
@@ -1025,7 +1034,7 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
                                                         height: 45,
                                                         child: Center(
                                                           child:
-                                                              CircularProgressIndicator(),
+                                                              LoadingIndicator(),
                                                         ),
                                                       )
                                                     : Container();

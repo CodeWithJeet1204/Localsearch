@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:localsearch/page/main/vendor/vendor_products_tab_page.dart';
 import 'package:localsearch/page/main/vendor/vendor_shorts_tab_page.dart';
 import 'package:localsearch/providers/location_provider.dart';
+import 'package:localsearch/widgets/loading_indicator.dart';
 import 'package:localsearch/widgets/sign_in_dialog.dart';
 import 'package:localsearch/widgets/vendor_discounts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -341,7 +342,6 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
         .doc('Data')
         .collection('Brands')
         .where('vendorId', isEqualTo: widget.vendorId)
-        .limit(noOf)
         .get();
 
     for (var brandData in brandSnap.docs) {
@@ -857,7 +857,7 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
       ),
       body: shopData == null || ownerData == null
           ? const Center(
-              child: CircularProgressIndicator(),
+              child: LoadingIndicator(),
             )
           : SafeArea(
               child: Padding(
@@ -1977,8 +1977,7 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                               ? SizedBox(
                                                   height: 45,
                                                   child: Center(
-                                                    child:
-                                                        CircularProgressIndicator(),
+                                                    child: LoadingIndicator(),
                                                   ),
                                                 )
                                               : Container();

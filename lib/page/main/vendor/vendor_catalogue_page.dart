@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:localsearch/utils/colors.dart';
+import 'package:localsearch/widgets/loading_indicator.dart';
 import 'package:localsearch/widgets/snack_bar.dart';
 
 class VendorCataloguePage extends StatefulWidget {
@@ -94,7 +95,7 @@ class _VendorCataloguePageState extends State<VendorCataloguePage> {
       body: SafeArea(
         child: !isData
             ? const Center(
-                child: CircularProgressIndicator(),
+                child: LoadingIndicator(),
               )
             : Padding(
                 padding: EdgeInsets.all(width * 0.0225),

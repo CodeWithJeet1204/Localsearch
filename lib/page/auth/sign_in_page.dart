@@ -554,7 +554,7 @@ class _SignInPageState extends State<SignInPage> {
                 //       horizontal: width * 0.035,
                 //     ),
                 //     child: isGoogleSigningIn
-                //         ? const CircularProgressIndicator(
+                //         ? const LoadingIndicator(
                 //             color: primaryDark,
                 //           )
                 //         : Text(
@@ -834,7 +834,7 @@ class _SignInPageState extends State<SignInPage> {
           //             //     ),
           //             //     child: isGoogleRegistering
           //             //         ? const Center(
-          //             //             child: CircularProgressIndicator(
+          //             //             child: LoadingIndicator(
           //             //               color: primaryDark,
           //             //             ),
           //             //           )

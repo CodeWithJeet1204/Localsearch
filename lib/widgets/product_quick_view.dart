@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:localsearch/utils/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:localsearch/widgets/loading_indicator.dart';
 
 class ProductQuickView extends StatefulWidget {
   const ProductQuickView({
@@ -158,7 +159,7 @@ class _ProductQuickViewState extends State<ProductQuickView> {
         ),
         child: !isData
             ? Center(
-                child: CircularProgressIndicator(),
+                child: LoadingIndicator(),
               )
             : Column(
                 mainAxisAlignment: MainAxisAlignment.center,

@@ -2,6 +2,7 @@ import 'package:localsearch/page/main/vendor/discount/discount_page.dart';
 import 'package:localsearch/utils/colors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:localsearch/widgets/loading_indicator.dart';
 
 class VendorDiscounts extends StatefulWidget {
   const VendorDiscounts({
@@ -240,7 +241,7 @@ class _VendorDiscountsState extends State<VendorDiscounts> {
                           }
 
                           return const Center(
-                            child: CircularProgressIndicator(),
+                            child: LoadingIndicator(),
                           );
                         }),
 

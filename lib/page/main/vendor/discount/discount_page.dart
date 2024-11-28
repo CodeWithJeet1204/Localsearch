@@ -1,3 +1,4 @@
+import 'package:localsearch/widgets/loading_indicator.dart';
 import 'package:localsearch/widgets/shimmer_skeleton_container.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
@@ -187,7 +188,7 @@ class _DiscountPageState extends State<DiscountPage> {
       appBar: AppBar(),
       body: !isData
           ? Center(
-              child: CircularProgressIndicator(),
+              child: LoadingIndicator(),
             )
           : SafeArea(
               child: LayoutBuilder(

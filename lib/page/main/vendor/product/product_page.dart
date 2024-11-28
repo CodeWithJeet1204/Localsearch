@@ -4,12 +4,13 @@ import 'package:localsearch/page/main/vendor/brand/brand_page.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feather_icons/feather_icons.dart';
-import 'package:localsearch/page/main/vendor/category/category_products_page.dart';
+import 'package:localsearch/page/main/vendor/category/products_result_page.dart';
 import 'package:localsearch/page/main/vendor/product/product_all_reviews_page.dart';
 import 'package:localsearch/page/main/vendor/vendor_page.dart';
 import 'package:localsearch/utils/colors.dart';
 import 'package:localsearch/widgets/image_view.dart';
 import 'package:localsearch/widgets/info_box.dart';
+import 'package:localsearch/widgets/loading_indicator.dart';
 import 'package:localsearch/widgets/ratings_bar.dart';
 import 'package:localsearch/widgets/review_container.dart';
 import 'package:localsearch/widgets/search_bar.dart';
@@ -332,7 +333,7 @@ class _ProductPageState extends State<ProductPage> {
       vendorType = vendorData['Type'];
     });
 
-    await getCategoryImage(vendorData['Type']);
+    await getCategoryImage();
   }
 
   // IF DISCOUNT
@@ -521,7 +522,7 @@ class _ProductPageState extends State<ProductPage> {
   }
 
   // GET CATEGORY IMAGE
-  Future<void> getCategoryImage(List shopTypes) async {
+  Future<void> getCategoryImage() async {
     if (widget.productData['categoryName'] != '0') {
       final categoriesSnap = await store
           .collection('Shop Types And Category Data')
@@ -552,7 +553,6 @@ class _ProductPageState extends State<ProductPage> {
         .collection('Products')
         .where('vendorId', isEqualTo: widget.productData['vendorId'])
         .where('productName', isNotEqualTo: widget.productData['productName'])
-        .limit(noOfOtherVendorProducts)
         .get();
 
     for (var productSnap in productsSnap.docs) {
@@ -1126,6 +1126,7 @@ class _ProductPageState extends State<ProductPage> {
     final String brandId = data['productBrandId'];
     final List images = data['images'];
     final String categoryName = data['categoryName'];
+    final String? productProductName = data['productProductName'];
     final Map<String, dynamic> ratings = data['ratings'];
 
     final Map<String, dynamic> properties = data['Properties'];
@@ -1731,6 +1732,7 @@ class _ProductPageState extends State<ProductPage> {
                                     width: 0.33,
                                     color: black,
                                   ),
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: SeeMoreText(
                                   description.toString().trim(),
@@ -1750,46 +1752,27 @@ class _ProductPageState extends State<ProductPage> {
                       Padding(
                         padding: EdgeInsets.symmetric(
                           vertical: width * 0.0175,
-                          horizontal: width * 0.02,
+                          horizontal: width * 0.025,
                         ),
-                        child: Container(
-                          padding: EdgeInsets.all(
-                            width * 0.0125,
-                          ),
-                          decoration: BoxDecoration(
-                            color: primary2.withOpacity(0.0125),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: ((context) => BrandPage(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            GestureDetector(
+                              onTap: brand == 'No Brand'
+                                  ? () {}
+                                  : () {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (context) => BrandPage(
                                             brandId: brandId,
-                                          )),
-                                    ),
-                                  );
-                                },
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    brandImageUrl == null
-                                        ? Container()
-                                        : CircleAvatar(
-                                            backgroundImage: NetworkImage(
-                                              brandImageUrl!.toString().trim(),
-                                            ),
-                                            radius: width * 0.06125,
-                                            backgroundColor: lightGrey,
                                           ),
-                                    SizedBox(
-                                      width: width * 0.8,
+                                        ),
+                                      );
+                                    },
+                              child: brandImageUrl == null
+                                  ? SizedBox(
+                                      width: width * 0.95,
                                       child: Column(
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
@@ -1810,100 +1793,191 @@ class _ProductPageState extends State<ProductPage> {
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                             style: TextStyle(
-                                              fontSize: width * 0.05833,
+                                              fontSize: width * 0.055,
+                                              color: primaryDark,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  : Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        CircleAvatar(
+                                          backgroundImage: NetworkImage(
+                                            brandImageUrl!.toString().trim(),
+                                          ),
+                                          radius: width * 0.06125,
+                                          backgroundColor: lightGrey,
+                                        ),
+                                        SizedBox(
+                                          width: width * 0.8,
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              const Text(
+                                                'Brand',
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w500,
+                                                  color: primaryDark2,
+                                                ),
+                                              ),
+                                              AutoSizeText(
+                                                brand.toString().trim(),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                  fontSize: width * 0.055,
+                                                  color: primaryDark,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                            ),
+                            const SizedBox(height: 20),
+                            categoryName == '0'
+                                ? Container()
+                                : GestureDetector(
+                                    // onTap: () {
+                                    //   if (vendorType == null) {
+                                    //     return mySnackBar(
+                                    //       'Some error occured',
+                                    //       context,
+                                    //     );
+                                    //   } else {
+                                    //     Navigator.of(context).push(
+                                    //       MaterialPageRoute(
+                                    //         builder: (context) =>
+                                    //             CategoryProductPage(
+                                    //           shopType: widget
+                                    //               .productData['shopType'],
+                                    //           categoryName: categoryName,
+                                    //         ),
+                                    //       ),
+                                    //     );
+                                    //   }
+                                    // },
+                                    child: SizedBox(
+                                      width: width,
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          categoryImageUrl == null
+                                              ? Container()
+                                              : CircleAvatar(
+                                                  backgroundImage: NetworkImage(
+                                                    categoryImageUrl!
+                                                        .toString()
+                                                        .trim(),
+                                                  ),
+                                                  backgroundColor: lightGrey,
+                                                  radius: width * 0.06125,
+                                                ),
+                                          SizedBox(
+                                            width: width * 0.8,
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                const Text(
+                                                  'Category',
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.w500,
+                                                    color: primaryDark2,
+                                                  ),
+                                                ),
+                                                AutoSizeText(
+                                                  categoryName
+                                                      .toString()
+                                                      .trim(),
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: TextStyle(
+                                                    fontSize: width * 0.055,
+                                                    color: primaryDark,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                            const SizedBox(height: 20),
+                            productProductName == null
+                                ? Container()
+                                : GestureDetector(
+                                    onTap: () {
+                                      if (vendorType == null) {
+                                        return mySnackBar(
+                                          'Some error occured',
+                                          context,
+                                        );
+                                      } else {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                ProductsResultPage(
+                                              productName: productProductName,
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    child: SizedBox(
+                                      width: width * 0.95,
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const Text(
+                                            'Product',
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
                                               fontWeight: FontWeight.w500,
+                                              color: primaryDark2,
+                                            ),
+                                          ),
+                                          AutoSizeText(
+                                            productProductName
+                                                .toString()
+                                                .trim(),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                              fontSize: width * 0.055,
                                               color: primaryDark,
                                             ),
                                           ),
                                         ],
                                       ),
                                     ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                              categoryName == '0'
-                                  ? Container()
-                                  : GestureDetector(
-                                      onTap: () {
-                                        if (vendorType == null) {
-                                          return mySnackBar(
-                                            'Some error occured',
-                                            context,
-                                          );
-                                        } else {
-                                          Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  CategoryProductsPage(
-                                                categoryName: categoryName,
-                                              ),
-                                            ),
-                                          );
-                                        }
-                                      },
-                                      child: SizedBox(
-                                        width: width,
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            categoryImageUrl == null
-                                                ? Container()
-                                                : CircleAvatar(
-                                                    backgroundImage:
-                                                        NetworkImage(
-                                                      categoryImageUrl!
-                                                          .toString()
-                                                          .trim(),
-                                                    ),
-                                                    backgroundColor: lightGrey,
-                                                    radius: width * 0.06125,
-                                                  ),
-                                            SizedBox(
-                                              width: width * 0.8,
-                                              child: Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  const Text(
-                                                    'Category',
-                                                    maxLines: 1,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      color: primaryDark2,
-                                                    ),
-                                                  ),
-                                                  AutoSizeText(
-                                                    categoryName
-                                                        .toString()
-                                                        .trim(),
-                                                    maxLines: 1,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    style: TextStyle(
-                                                      fontSize: width * 0.05833,
-                                                      color: primaryDark,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                            ],
-                          ),
+                                  ),
+                          ],
                         ),
                       ),
 
@@ -1940,7 +2014,7 @@ class _ProductPageState extends State<ProductPage> {
                                         vertical: width * 0.0125,
                                       ),
                                       child: Text(
-                                        'Properties',
+                                        'Information',
                                         style: TextStyle(
                                           fontSize: width * 0.05,
                                         ),
@@ -2371,7 +2445,7 @@ class _ProductPageState extends State<ProductPage> {
                                         //         height: 45,
                                         //         child: Center(
                                         //           child:
-                                        //               CircularProgressIndicator(),
+                                        //               LoadingIndicator(),
                                         //         ),
                                         //       )
                                         //     : Container();
@@ -2549,7 +2623,7 @@ class _ProductPageState extends State<ProductPage> {
                                         //         height: 45,
                                         //         child: Center(
                                         //           child:
-                                        //               CircularProgressIndicator(),
+                                        //               LoadingIndicator(),
                                         //         ),
                                         //       )
                                         //     : Container();
@@ -3164,7 +3238,7 @@ class _AllDiscountsWidgetState extends State<AllDiscountsWidget> {
                                       }
 
                                       return const Center(
-                                        child: CircularProgressIndicator(),
+                                        child: LoadingIndicator(),
                                       );
                                     }),
 
@@ -3189,7 +3263,7 @@ class _AllDiscountsWidgetState extends State<AllDiscountsWidget> {
                                       }
 
                                       return const Center(
-                                        child: CircularProgressIndicator(),
+                                        child: LoadingIndicator(),
                                       );
                                     }),
                                 Text(

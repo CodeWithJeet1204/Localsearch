@@ -3,6 +3,7 @@ import 'package:localsearch/page/auth/register_details_page.dart';
 import 'package:localsearch/providers/location_provider.dart';
 import 'package:localsearch/utils/colors.dart';
 import 'package:localsearch/widgets/button.dart';
+import 'package:localsearch/widgets/loading_indicator.dart';
 import 'package:localsearch/widgets/snack_bar.dart';
 import 'package:localsearch/widgets/text_form_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -159,7 +160,7 @@ class _NumberVerifyPageState extends State<NumberVerifyPage> {
                       ),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       child: const Center(
-                        child: CircularProgressIndicator(),
+                        child: LoadingIndicator(),
                       ),
                     )
                   : MyButton(

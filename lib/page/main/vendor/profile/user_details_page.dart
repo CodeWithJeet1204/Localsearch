@@ -6,6 +6,7 @@ import 'package:feather_icons/feather_icons.dart';
 import 'package:http/http.dart' as http;
 import 'package:localsearch/utils/colors.dart';
 import 'package:localsearch/widgets/button.dart';
+import 'package:localsearch/widgets/loading_indicator.dart';
 import 'package:localsearch/widgets/snack_bar.dart';
 import 'package:localsearch/widgets/text_button.dart';
 import 'package:localsearch/widgets/video_tutorial.dart';
@@ -416,7 +417,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                 ),
                                 child: isChangingAddress
                                     ? const Center(
-                                        child: CircularProgressIndicator(),
+                                        child: LoadingIndicator(),
                                       )
                                     : Row(
                                         mainAxisAlignment:
@@ -726,10 +727,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                                 color: buttonColor,
                                               ),
                                               child: const Center(
-                                                child:
-                                                    CircularProgressIndicator(
-                                                  color: white,
-                                                ),
+                                                child: LoadingIndicator(),
                                               ))
                                           : MyButton(
                                               text: 'SAVE',
@@ -761,7 +759,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                     }
 
                     return const Center(
-                      child: CircularProgressIndicator(),
+                      child: LoadingIndicator(),
                     );
                   });
             }),

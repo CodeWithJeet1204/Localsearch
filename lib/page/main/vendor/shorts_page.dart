@@ -3,6 +3,7 @@ import 'package:localsearch/page/main/vendor/shorts_tile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:localsearch/providers/main_page_provider.dart';
+import 'package:localsearch/widgets/loading_indicator.dart';
 import 'package:provider/provider.dart';
 // import 'package:preload_page_view/preload_page_view.dart';
 import 'package:video_player/video_player.dart';
@@ -160,7 +161,7 @@ class _ShortsPageState extends State<ShortsPage> {
                 }
 
                 return const Center(
-                  child: CircularProgressIndicator(),
+                  child: LoadingIndicator(),
                 );
               }),
         ),
