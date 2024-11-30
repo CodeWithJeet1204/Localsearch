@@ -1,5 +1,4 @@
 import 'package:localsearch/utils/colors.dart';
-import 'package:localsearch/widgets/video_tutorial.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flick_video_player/flick_video_player.dart';
 import 'package:flutter/material.dart';
@@ -56,23 +55,23 @@ class _ImageViewState extends State<ImageView> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        actions: [
-          IconButton(
-            onPressed: () async {
-              await showYouTubePlayerDialog(
-                context,
-                getYoutubeVideoId(
-                  '',
-                ),
-              );
-            },
-            icon: const Icon(
-              Icons.question_mark_outlined,
-            ),
-            tooltip: 'Help',
+          // actions: [
+          //   IconButton(
+          //     onPressed: () async {
+          //       await showYouTubePlayerDialog(
+          //         context,
+          //         getYoutubeVideoId(
+          //           '',
+          //         ),
+          //       );
+          //     },
+          //     icon: const Icon(
+          //       Icons.question_mark_outlined,
+          //     ),
+          //     tooltip: 'Help',
+          //   ),
+          // ],
           ),
-        ],
-      ),
       body: SafeArea(
         child: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {

@@ -1,6 +1,5 @@
 import 'package:localsearch/widgets/loading_indicator.dart';
 import 'package:localsearch/widgets/review_container.dart';
-import 'package:localsearch/widgets/video_tutorial.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -95,22 +94,22 @@ class _ProductAllReviewPageState extends State<ProductAllReviewPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('All Reviews'),
-        actions: [
-          IconButton(
-            onPressed: () async {
-              await showYouTubePlayerDialog(
-                context,
-                getYoutubeVideoId(
-                  '',
-                ),
-              );
-            },
-            icon: const Icon(
-              Icons.question_mark_outlined,
-            ),
-            tooltip: 'Help',
-          ),
-        ],
+        // actions: [
+        //   IconButton(
+        //     onPressed: () async {
+        //       await showYouTubePlayerDialog(
+        //         context,
+        //         getYoutubeVideoId(
+        //           '',
+        //         ),
+        //       );
+        //     },
+        //     icon: const Icon(
+        //       Icons.question_mark_outlined,
+        //     ),
+        //     tooltip: 'Help',
+        //   ),
+        // ],
       ),
       body: reviews == null
           ? Center(

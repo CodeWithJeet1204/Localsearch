@@ -1,104 +1,104 @@
-// ignore_for_file: unnecessary_null_comparison
+// // ignore_for_file: unnecessary_null_comparison
 
-import 'package:localsearch/widgets/snack_bar.dart';
-import 'package:flutter/material.dart';
-// import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+// import 'package:localsearch/widgets/snack_bar.dart';
+// import 'package:flutter/material.dart';
+// // import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
-// SHOW YOUTUBE PLAYER DIALOG
-Future<void> showYouTubePlayerDialog(BuildContext context, String? url) async {
-  if (url != null) {
-    // String? videoId = YoutubePlayer.convertUrlToId(url);
-    String? videoId;
-    if (videoId != null) {
-      if (videoId.isNotEmpty) {
-        await showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            // return YouTubePlayerDialog(videoId: videoId);
-            return Container();
-          },
-        );
-      } else {
-        mySnackBar('Some error occured', context);
-      }
-    } else {
-      mySnackBar('Some error occured', context);
-    }
-  } else {
-    mySnackBar('Some error occured', context);
-  }
-}
-
-// GET YOUTUBE VIDEO ID
-String? getYoutubeVideoId(String url) {
-  // return YoutubePlayer.convertUrlToId(url);
-  return '';
-}
-
-// class YouTubePlayerDialog extends StatefulWidget {
-//   const YouTubePlayerDialog({
-//     super.key,
-//     required this.videoId,
-//   });
-
-//   final String videoId;
-
-//   @override
-//   YouTubePlayerDialogState createState() => YouTubePlayerDialogState();
-// }
-
-// class YouTubePlayerDialogState extends State<YouTubePlayerDialog> {
-//   late YoutubePlayerController controller;
-
-//   // INIT STATE
-//   @override
-//   void initState() {
-//     super.initState();
-//     controller = YoutubePlayerController(
-//       initialVideoId: widget.videoId,
-//       flags: const YoutubePlayerFlags(
-//         autoPlay: true,
-//         mute: false,
-//         showLiveFullscreenButton: false,
-//       ),
-//     );
-//   }
-
-//   // DISPOSE
-//   @override
-//   void dispose() {
-//     controller.dispose();
-//     super.dispose();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Dialog(
-//       child: Column(
-//         mainAxisSize: MainAxisSize.min,
-//         children: [
-//           YoutubePlayer(
-//             controller: controller,
-//             aspectRatio: 9 / 16,
-//             showVideoProgressIndicator: true,
-//             progressIndicatorColor: Colors.red,
-//             bottomActions: const [
-//               CurrentPosition(),
-//               ProgressBar(
-//                 isExpanded: true,
-//                 colors: ProgressBarColors(
-//                   playedColor: primary2,
-//                   handleColor: darkGrey,
-//                 ),
-//               ),
-//             ],
-//             onEnded: (metaData) {
-//               controller.seekTo(const Duration(seconds: 0));
-//               controller.play();
-//             },
-//           ),
-//         ],
-//       ),
-//     );
+// // SHOW YOUTUBE PLAYER DIALOG
+// Future<void> showYouTubePlayerDialog(BuildContext context, String? url) async {
+//   if (url != null) {
+//     // String? videoId = YoutubePlayer.convertUrlToId(url);
+//     String? videoId;
+//     if (videoId != null) {
+//       if (videoId.isNotEmpty) {
+//         await showDialog(
+//           context: context,
+//           builder: (BuildContext context) {
+//             // return YouTubePlayerDialog(videoId: videoId);
+//             return Container();
+//           },
+//         );
+//       } else {
+//         mySnackBar('Some error occured', context);
+//       }
+//     } else {
+//       mySnackBar('Some error occured', context);
+//     }
+//   } else {
+//     mySnackBar('Some error occured', context);
 //   }
 // }
+
+// // GET YOUTUBE VIDEO ID
+// String? getYoutubeVideoId(String url) {
+//   // return YoutubePlayer.convertUrlToId(url);
+//   return '';
+// }
+
+// // class YouTubePlayerDialog extends StatefulWidget {
+// //   const YouTubePlayerDialog({
+// //     super.key,
+// //     required this.videoId,
+// //   });
+
+// //   final String videoId;
+
+// //   @override
+// //   YouTubePlayerDialogState createState() => YouTubePlayerDialogState();
+// // }
+
+// // class YouTubePlayerDialogState extends State<YouTubePlayerDialog> {
+// //   late YoutubePlayerController controller;
+
+// //   // INIT STATE
+// //   @override
+// //   void initState() {
+// //     super.initState();
+// //     controller = YoutubePlayerController(
+// //       initialVideoId: widget.videoId,
+// //       flags: const YoutubePlayerFlags(
+// //         autoPlay: true,
+// //         mute: false,
+// //         showLiveFullscreenButton: false,
+// //       ),
+// //     );
+// //   }
+
+// //   // DISPOSE
+// //   @override
+// //   void dispose() {
+// //     controller.dispose();
+// //     super.dispose();
+// //   }
+
+// //   @override
+// //   Widget build(BuildContext context) {
+// //     return Dialog(
+// //       child: Column(
+// //         mainAxisSize: MainAxisSize.min,
+// //         children: [
+// //           YoutubePlayer(
+// //             controller: controller,
+// //             aspectRatio: 9 / 16,
+// //             showVideoProgressIndicator: true,
+// //             progressIndicatorColor: Colors.red,
+// //             bottomActions: const [
+// //               CurrentPosition(),
+// //               ProgressBar(
+// //                 isExpanded: true,
+// //                 colors: ProgressBarColors(
+// //                   playedColor: primary2,
+// //                   handleColor: darkGrey,
+// //                 ),
+// //               ),
+// //             ],
+// //             onEnded: (metaData) {
+// //               controller.seekTo(const Duration(seconds: 0));
+// //               controller.play();
+// //             },
+// //           ),
+// //         ],
+// //       ),
+// //     );
+// //   }
+// // }

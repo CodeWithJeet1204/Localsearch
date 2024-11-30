@@ -3,7 +3,6 @@ import 'package:localsearch/page/main/vendor/home/posts/discover_posts_page.dart
 import 'package:localsearch/page/main/vendor/home/posts/followed_posts_page.dart';
 import 'package:localsearch/providers/main_page_provider.dart';
 import 'package:localsearch/utils/colors.dart';
-import 'package:localsearch/widgets/video_tutorial.dart';
 import 'package:provider/provider.dart';
 
 class PostsPage extends StatefulWidget {
@@ -36,22 +35,22 @@ class _PostsPageState extends State<PostsPage> with TickerProviderStateMixin {
           title: const Text(
             'Posts',
           ),
-          actions: [
-            IconButton(
-              onPressed: () async {
-                await showYouTubePlayerDialog(
-                  context,
-                  getYoutubeVideoId(
-                    '',
-                  ),
-                );
-              },
-              icon: const Icon(
-                Icons.question_mark_outlined,
-              ),
-              tooltip: 'Help',
-            ),
-          ],
+          // actions: [
+          //   IconButton(
+          //     onPressed: () async {
+          //       await showYouTubePlayerDialog(
+          //         context,
+          //         getYoutubeVideoId(
+          //           '',
+          //         ),
+          //       );
+          //     },
+          //     icon: const Icon(
+          //       Icons.question_mark_outlined,
+          //     ),
+          //     tooltip: 'Help',
+          //   ),
+          // ],
           automaticallyImplyLeading: false,
           forceMaterialTransparency: true,
           bottom: PreferredSize(

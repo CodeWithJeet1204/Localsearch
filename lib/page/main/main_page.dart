@@ -3,6 +3,7 @@ import 'package:feather_icons/feather_icons.dart';
 import 'package:localsearch/page/auth/register_details_page.dart';
 import 'package:localsearch/page/auth/sign_in_page.dart';
 import 'package:localsearch/page/main/under_development_page.dart';
+import 'package:localsearch/page/main/update_page.dart';
 import 'package:localsearch/page/main/vendor/home/posts/posts_page.dart';
 import 'package:localsearch/page/main/vendor/home/products/product_home_page.dart';
 import 'package:localsearch/page/main/vendor/profile/profile_page.dart';
@@ -12,6 +13,7 @@ import 'package:localsearch/utils/colors.dart';
 import 'package:localsearch/widgets/snack_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 
 class MainPage extends StatefulWidget {
@@ -37,7 +39,58 @@ class _MainPageState extends State<MainPage> {
 
   // GET DATA
   Future<void> getData() async {
+    bool isPlayStoreVersionNewer(
+      String currentVersion,
+      String playStoreVersion,
+    ) {
+      List<int> currentParts =
+          currentVersion.split('.').map(int.parse).toList();
+      List<int> playStoreParts =
+          playStoreVersion.split('.').map(int.parse).toList();
+
+      for (int i = 0; i < playStoreParts.length; i++) {
+        if (i >= currentParts.length) return true;
+        if (playStoreParts[i] > currentParts[i]) return true;
+        if (playStoreParts[i] < currentParts[i]) return false;
+      }
+      return false;
+    }
+
+    Future<bool> checkLatestVersion() async {
+      try {
+        PackageInfo packageInfo = await PackageInfo.fromPlatform();
+        String currentVersion = packageInfo.version;
+
+        final latestVersionSnap =
+            await store.collection('Information').doc('Localsearch').get();
+
+        final latestVersionData = latestVersionSnap.data()!;
+
+        String playStoreVersion = latestVersionData['latest_version'];
+
+        if (playStoreVersion.isEmpty) {
+          return false;
+        }
+
+        return isPlayStoreVersionNewer(currentVersion, playStoreVersion);
+      } catch (e) {}
+      return false;
+    }
+
     try {
+      final isUpdateAvailable = await checkLatestVersion();
+
+      if (isUpdateAvailable) {
+        if (context.mounted) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: (context) => const UpdatePage(),
+            ),
+            (route) => false,
+          );
+        }
+      }
+
       final developmentSnap =
           await store.collection('Development').doc('Under Development').get();
 

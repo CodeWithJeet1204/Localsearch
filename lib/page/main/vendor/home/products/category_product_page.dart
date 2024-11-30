@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:localsearch/page/main/vendor/category/products_result_page.dart';
 import 'package:localsearch/utils/colors.dart';
 import 'package:localsearch/widgets/loading_indicator.dart';
-import 'package:localsearch/widgets/video_tutorial.dart';
 
 class CategoryProductPage extends StatefulWidget {
   const CategoryProductPage({
@@ -53,22 +52,22 @@ class _CategoryProductPageState extends State<CategoryProductPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.categoryName),
-        actions: [
-          IconButton(
-            onPressed: () async {
-              await showYouTubePlayerDialog(
-                context,
-                getYoutubeVideoId(
-                  '',
-                ),
-              );
-            },
-            icon: const Icon(
-              Icons.question_mark_outlined,
-            ),
-            tooltip: 'Help',
-          ),
-        ],
+        // actions: [
+        //   IconButton(
+        //     onPressed: () async {
+        //       await showYouTubePlayerDialog(
+        //         context,
+        //         getYoutubeVideoId(
+        //           '',
+        //         ),
+        //       );
+        //     },
+        //     icon: const Icon(
+        //       Icons.question_mark_outlined,
+        //     ),
+        //     tooltip: 'Help',
+        //   ),
+        // ],
       ),
       body: SafeArea(
         child: products == null

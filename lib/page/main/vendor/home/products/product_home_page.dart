@@ -26,7 +26,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:localsearch/widgets/snack_bar.dart';
-import 'package:localsearch/widgets/video_tutorial.dart';
 import 'package:provider/provider.dart';
 
 class ProductHomePage extends StatefulWidget {
@@ -859,22 +858,22 @@ class _ProductHomePageState extends State<ProductHomePage> {
             const SizedBox(height: 4),
           ],
         ),
-        actions: [
-          IconButton(
-            onPressed: () async {
-              await showYouTubePlayerDialog(
-                context,
-                getYoutubeVideoId(
-                  '',
-                ),
-              );
-            },
-            icon: const Icon(
-              Icons.question_mark_outlined,
-            ),
-            tooltip: 'Help',
-          ),
-        ],
+        // actions: [
+        //   IconButton(
+        //     onPressed: () async {
+        //       await showYouTubePlayerDialog(
+        //         context,
+        //         getYoutubeVideoId(
+        //           '',
+        //         ),
+        //       );
+        //     },
+        //     icon: const Icon(
+        //       Icons.question_mark_outlined,
+        //     ),
+        //     tooltip: 'Help',
+        //   ),
+        // ],
         automaticallyImplyLeading: false,
       ),
       body: SafeArea(

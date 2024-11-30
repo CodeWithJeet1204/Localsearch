@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:localsearch/page/main/vendor/home/products/category_product_page.dart';
 import 'package:localsearch/utils/colors.dart';
-import 'package:localsearch/widgets/video_tutorial.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -88,22 +87,22 @@ class _ShopCategoriesPageState extends State<ShopCategoriesPage> {
         title: Text(
           widget.shopType.toString().trim(),
         ),
-        actions: [
-          IconButton(
-            onPressed: () async {
-              await showYouTubePlayerDialog(
-                context,
-                getYoutubeVideoId(
-                  '',
-                ),
-              );
-            },
-            icon: const Icon(
-              Icons.question_mark_outlined,
-            ),
-            tooltip: 'Help',
-          ),
-        ],
+        // actions: [
+        //   IconButton(
+        //     onPressed: () async {
+        //       await showYouTubePlayerDialog(
+        //         context,
+        //         getYoutubeVideoId(
+        //           '',
+        //         ),
+        //       );
+        //     },
+        //     icon: const Icon(
+        //       Icons.question_mark_outlined,
+        //     ),
+        //     tooltip: 'Help',
+        //   ),
+        // ],
       ),
       body: categoryData == null
           ? Container()

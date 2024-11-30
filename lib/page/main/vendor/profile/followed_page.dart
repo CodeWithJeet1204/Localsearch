@@ -6,7 +6,6 @@ import 'package:localsearch/widgets/sign_in_dialog.dart';
 import 'package:localsearch/widgets/skeleton_container.dart';
 import 'package:localsearch/widgets/snack_bar.dart';
 import 'package:localsearch/widgets/text_button.dart';
-import 'package:localsearch/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -232,22 +231,22 @@ class _FollowedPageState extends State<FollowedPage>
     return Scaffold(
       appBar: AppBar(
         title: const Text('Followed'),
-        actions: [
-          IconButton(
-            onPressed: () async {
-              await showYouTubePlayerDialog(
-                context,
-                getYoutubeVideoId(
-                  '',
-                ),
-              );
-            },
-            icon: const Icon(
-              Icons.question_mark_outlined,
-            ),
-            tooltip: 'Help',
-          ),
-        ],
+        // actions: [
+        //   IconButton(
+        //     onPressed: () async {
+        //       await showYouTubePlayerDialog(
+        //         context,
+        //         getYoutubeVideoId(
+        //           '',
+        //         ),
+        //       );
+        //     },
+        //     icon: const Icon(
+        //       Icons.question_mark_outlined,
+        //     ),
+        //     tooltip: 'Help',
+        //   ),
+        // ],
         forceMaterialTransparency: true,
         // bottom: PreferredSize(
         //   preferredSize: Size(

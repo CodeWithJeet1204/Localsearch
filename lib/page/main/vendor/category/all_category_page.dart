@@ -1,7 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:localsearch/page/main/vendor/category/category_page.dart';
-import 'package:localsearch/widgets/video_tutorial.dart';
 import 'package:flutter/material.dart';
 
 class AllCategoryPage extends StatefulWidget {
@@ -60,22 +59,22 @@ class _AllCategoryPageState extends State<AllCategoryPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('All Categories'),
-        actions: [
-          IconButton(
-            onPressed: () async {
-              await showYouTubePlayerDialog(
-                context,
-                getYoutubeVideoId(
-                  '',
-                ),
-              );
-            },
-            icon: const Icon(
-              Icons.question_mark_outlined,
-            ),
-            tooltip: 'Help',
-          ),
-        ],
+        // actions: [
+        //   IconButton(
+        //     onPressed: () async {
+        //       await showYouTubePlayerDialog(
+        //         context,
+        //         getYoutubeVideoId(
+        //           '',
+        //         ),
+        //       );
+        //     },
+        //     icon: const Icon(
+        //       Icons.question_mark_outlined,
+        //     ),
+        //     tooltip: 'Help',
+        //   ),
+        // ],
       ),
       body: SafeArea(
         child: GridView.builder(

@@ -9,7 +9,6 @@ import 'package:localsearch/widgets/sign_in_dialog.dart';
 import 'package:localsearch/widgets/small_text_container.dart';
 import 'package:localsearch/widgets/snack_bar.dart';
 import 'package:localsearch/widgets/text_button.dart';
-import 'package:localsearch/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -145,20 +144,20 @@ class _ProfilePageState extends State<ProfilePage> {
                     icon: const Icon(Icons.logout),
                     tooltip: 'LOG OUT',
                   ),
-            IconButton(
-              onPressed: () async {
-                await showYouTubePlayerDialog(
-                  context,
-                  getYoutubeVideoId(
-                    '',
-                  ),
-                );
-              },
-              icon: const Icon(
-                Icons.question_mark_outlined,
-              ),
-              tooltip: 'Help',
-            ),
+            // IconButton(
+            //   onPressed: () async {
+            //     await showYouTubePlayerDialog(
+            //       context,
+            //       getYoutubeVideoId(
+            //         '',
+            //       ),
+            //     );
+            //   },
+            //   icon: const Icon(
+            //     Icons.question_mark_outlined,
+            //   ),
+            //   tooltip: 'Help',
+            // ),
           ],
           automaticallyImplyLeading: false,
         ),

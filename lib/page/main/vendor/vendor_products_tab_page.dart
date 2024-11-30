@@ -273,17 +273,17 @@ class _VendorProductsTabPageState extends State<VendorProductsTabPage> {
                       ),
 
                 // PRODUCTS
-                products.isEmpty
-                    ? SizedBox(
-                        height: 80,
-                        child: Center(
-                          child: Text('No Products'),
-                        ),
-                      )
-                    : SizedBox(
-                        width: widget.width,
-                        height: getScreenHeight() * 0.675,
-                        child: GridView.builder(
+                SizedBox(
+                  width: widget.width,
+                  height: getScreenHeight() * 0.675,
+                  child: products.isEmpty
+                      ? SizedBox(
+                          height: 60,
+                          child: Center(
+                            child: Text('No Products'),
+                          ),
+                        )
+                      : GridView.builder(
                           primary: false,
                           controller: scrollController,
                           cacheExtent: getScreenHeight() * 1.5,
@@ -526,7 +526,7 @@ class _VendorProductsTabPageState extends State<VendorProductsTabPage> {
                                 });
                           }),
                         ),
-                      ),
+                ),
               ],
             ),
           ),

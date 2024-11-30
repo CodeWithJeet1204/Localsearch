@@ -20,7 +20,6 @@ import 'package:localsearch/widgets/image_show.dart';
 import 'package:localsearch/widgets/see_more_text.dart';
 import 'package:localsearch/widgets/snack_bar.dart';
 import 'package:localsearch/widgets/text_button.dart';
-import 'package:localsearch/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -687,6 +686,9 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
       if (sundayStartTime != null) {
         return 'Opens at ${formatTimeOfDay(getTimeOfDay(sundayStartTime))} on Sunday';
       }
+      if (weekdayStartTime != null) {
+        return 'Opens at ${formatTimeOfDay(getTimeOfDay(weekdayStartTime))} on Monday';
+      }
     }
 
     if (now.weekday == DateTime.sunday) {
@@ -839,20 +841,20 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
             icon: const Icon(FeatherIcons.share2),
             tooltip: 'Share Shop',
           ),
-          IconButton(
-            onPressed: () async {
-              await showYouTubePlayerDialog(
-                context,
-                getYoutubeVideoId(
-                  '',
-                ),
-              );
-            },
-            icon: const Icon(
-              Icons.question_mark_outlined,
-            ),
-            tooltip: 'Help',
-          ),
+          // IconButton(
+          //   onPressed: () async {
+          //     await showYouTubePlayerDialog(
+          //       context,
+          //       getYoutubeVideoId(
+          //         '',
+          //       ),
+          //     );
+          //   },
+          //   icon: const Icon(
+          //     Icons.question_mark_outlined,
+          //   ),
+          //   tooltip: 'Help',
+          // ),
         ],
       ),
       body: shopData == null || ownerData == null
@@ -909,7 +911,15 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                       child: CircleAvatar(
                                         radius: width * 0.1,
                                         backgroundImage: NetworkImage(
-                                          shopData!['Image'].toString().trim(),
+                                          shopData!['Image'] == null ||
+                                                  shopData!['Image']
+                                                      .toString()
+                                                      .trim()
+                                                      .isEmpty
+                                              ? 'https://img.freepik.com/premium-vector/shop-clipart-cartoon-style-vector-illustration_761413-4813.jpg?semt=ais_hybrid'
+                                              : shopData!['Image']
+                                                  .toString()
+                                                  .trim(),
                                         ),
                                       ),
                                     ),
@@ -1939,16 +1949,17 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                                   ? 0
                                                   : index - 1
                                               : index];
+                                      print('brands: $brands');
 
                                       return index <= brands.length
                                           ? GestureDetector(
                                               onTap: () {
                                                 Navigator.of(context).push(
                                                   MaterialPageRoute(
-                                                    builder: ((context) =>
+                                                    builder: (context) =>
                                                         BrandPage(
-                                                          brandId: id,
-                                                        )),
+                                                      brandId: id,
+                                                    ),
                                                   ),
                                                 );
                                               },

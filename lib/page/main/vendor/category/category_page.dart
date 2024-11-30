@@ -4,7 +4,6 @@ import 'package:localsearch/utils/colors.dart';
 import 'package:localsearch/widgets/image_show.dart';
 import 'package:localsearch/widgets/loading_indicator.dart';
 import 'package:localsearch/widgets/sign_in_dialog.dart';
-import 'package:localsearch/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -208,23 +207,23 @@ class _CategoryPageState extends State<CategoryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        actions: [
-          IconButton(
-            onPressed: () async {
-              await showYouTubePlayerDialog(
-                context,
-                getYoutubeVideoId(
-                  '',
-                ),
-              );
-            },
-            icon: const Icon(
-              Icons.question_mark_outlined,
-            ),
-            tooltip: 'Help',
+          // actions: [
+          //   IconButton(
+          //     onPressed: () async {
+          //       await showYouTubePlayerDialog(
+          //         context,
+          //         getYoutubeVideoId(
+          //           '',
+          //         ),
+          //       );
+          //     },
+          //     icon: const Icon(
+          //       Icons.question_mark_outlined,
+          //     ),
+          //     tooltip: 'Help',
+          //   ),
+          // ],
           ),
-        ],
-      ),
       body: imageUrl == null || products == null
           ? const Center(
               child: LoadingIndicator(),

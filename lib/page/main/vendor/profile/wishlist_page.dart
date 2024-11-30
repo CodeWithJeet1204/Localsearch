@@ -4,7 +4,6 @@ import 'package:localsearch/utils/colors.dart';
 import 'package:localsearch/widgets/sign_in_dialog.dart';
 import 'package:localsearch/widgets/skeleton_container.dart';
 import 'package:localsearch/widgets/text_button.dart';
-import 'package:localsearch/widgets/video_tutorial.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -239,39 +238,39 @@ class _WishlistPageState extends State<WishlistPage> {
         title: const Text(
           'Wishlist',
         ),
-        actions: [
-          IconButton(
-            onPressed: () async {
-              await showYouTubePlayerDialog(
-                context,
-                getYoutubeVideoId(
-                  '',
-                ),
-              );
+        // actions: [
+        //   IconButton(
+        //     onPressed: () async {
+        //       await showYouTubePlayerDialog(
+        //         context,
+        //         getYoutubeVideoId(
+        //           '',
+        //         ),
+        //       );
 
-              // final Map<String, dynamic> householdCategories = {};
+        //       // final Map<String, dynamic> householdCategories = {};
 
-              // householdSubCategories.forEach((shopType, shopTypeData) {
-              //   shopTypeData.forEach((categoryName, categoryImageUrl) {
-              //     householdCategories.addAll({
-              //       categoryName: categoryImageUrl,
-              //     });
-              //   });
-              // });
+        //       // householdSubCategories.forEach((shopType, shopTypeData) {
+        //       //   shopTypeData.forEach((categoryName, categoryImageUrl) {
+        //       //     householdCategories.addAll({
+        //       //       categoryName: categoryImageUrl,
+        //       //     });
+        //       //   });
+        //       // });
 
-              // await store
-              //     .collection('Shop Types And Category Data')
-              //     .doc('Just Category Data')
-              //     .update({
-              //   'householdCategories': householdCategories,
-              // });
-            },
-            icon: const Icon(
-              Icons.question_mark_outlined,
-            ),
-            tooltip: 'Help',
-          ),
-        ],
+        //       // await store
+        //       //     .collection('Shop Types And Category Data')
+        //       //     .doc('Just Category Data')
+        //       //     .update({
+        //       //   'householdCategories': householdCategories,
+        //       // });
+        //     },
+        //     icon: const Icon(
+        //       Icons.question_mark_outlined,
+        //     ),
+        //     tooltip: 'Help',
+        //   ),
+        // ],
         // bottom: PreferredSize(
         //   preferredSize: Size(
         //     MediaQuery.sizeOf(context).width,

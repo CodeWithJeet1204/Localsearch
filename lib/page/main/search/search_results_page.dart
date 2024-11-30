@@ -1345,9 +1345,17 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                                   leading: CircleAvatar(
                                                     backgroundImage:
                                                         NetworkImage(
-                                                      shopData['imageUrl']
-                                                          .toString()
-                                                          .trim(),
+                                                      shopData['imageUrl'] ==
+                                                                  null ||
+                                                              shopData[
+                                                                      'imageUrl']
+                                                                  .toString()
+                                                                  .trim()
+                                                                  .isEmpty
+                                                          ? 'https://img.freepik.com/premium-vector/shop-clipart-cartoon-style-vector-illustration_761413-4813.jpg?semt=ais_hybrid'
+                                                          : shopData['imageUrl']
+                                                              .toString()
+                                                              .trim(),
                                                     ),
                                                     radius: width * 0.0575,
                                                   ),

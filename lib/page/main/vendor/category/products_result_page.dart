@@ -8,7 +8,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:localsearch/page/main/vendor/product/product_page.dart';
 import 'package:localsearch/utils/colors.dart';
 import 'package:localsearch/widgets/skeleton_container.dart';
-import 'package:localsearch/widgets/video_tutorial.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
@@ -276,22 +275,22 @@ class _ProductsResultPageState extends State<ProductsResultPage> {
         title: Text(
           widget.productName.toString().trim(),
         ),
-        actions: [
-          IconButton(
-            onPressed: () async {
-              await showYouTubePlayerDialog(
-                context,
-                getYoutubeVideoId(
-                  '',
-                ),
-              );
-            },
-            icon: const Icon(
-              Icons.question_mark_outlined,
-            ),
-            tooltip: 'Help',
-          ),
-        ],
+        // actions: [
+        //   IconButton(
+        //     onPressed: () async {
+        //       await showYouTubePlayerDialog(
+        //         context,
+        //         getYoutubeVideoId(
+        //           '',
+        //         ),
+        //       );
+        //     },
+        //     icon: const Icon(
+        //       Icons.question_mark_outlined,
+        //     ),
+        //     tooltip: 'Help',
+        //   ),
+        // ],
         bottom: PreferredSize(
           preferredSize: Size(width, height * 0.55),
           child: Padding(
