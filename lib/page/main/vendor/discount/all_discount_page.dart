@@ -181,22 +181,37 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
             final discountData = discount.data();
             final discountId = discount.id;
             final Timestamp endDateTime = discountData['discountEndDateTime'];
+            final vendorId = discountData['vendorId'];
             final vendorLatitude = discountData['Latitude'];
             final vendorLongitude = discountData['Longitude'];
             double? distance;
 
-            if (yourLatitude != null && yourLongitude != null) {
-              distance = await getDrivingDistance(
-                yourLatitude,
-                yourLongitude,
-                vendorLatitude,
-                vendorLongitude,
-              );
-            }
+            final vendorSnap = await store
+                .collection('Business')
+                .doc('Owners')
+                .collection('Shops')
+                .doc(vendorId)
+                .get();
 
-            if (endDateTime.toDate().isAfter(DateTime.now())) {
-              discountData.addAll({'distance': distance});
-              myDiscounts[discountId] = discountData;
+            final vendorData = vendorSnap.data()!;
+
+            final Timestamp membershipEndDateTime =
+                vendorData['MembershipEndDateTime'];
+
+            if (membershipEndDateTime.toDate().isAfter(DateTime.now())) {
+              if (yourLatitude != null && yourLongitude != null) {
+                distance = await getDrivingDistance(
+                  yourLatitude,
+                  yourLongitude,
+                  vendorLatitude,
+                  vendorLongitude,
+                );
+              }
+
+              if (endDateTime.toDate().isAfter(DateTime.now())) {
+                discountData.addAll({'distance': distance});
+                myDiscounts[discountId] = discountData;
+              }
             }
           }),
         );
@@ -237,10 +252,25 @@ class _AllDiscountPageState extends State<AllDiscountPage> {
           discountSnap.docs.map((discount) async {
             final discountData = discount.data();
             final discountId = discount.id;
+            final vendorId = discountData['vendorId'];
             final Timestamp endDateTime = discountData['discountEndDateTime'];
 
-            if (endDateTime.toDate().isAfter(DateTime.now())) {
-              myDiscounts[discountId] = discountData;
+            final vendorSnap = await store
+                .collection('Business')
+                .doc('Owners')
+                .collection('Shops')
+                .doc(vendorId)
+                .get();
+
+            final vendorData = vendorSnap.data()!;
+
+            final Timestamp membershipEndDateTime =
+                vendorData['MembershipEndDateTime'];
+
+            if (membershipEndDateTime.toDate().isAfter(DateTime.now())) {
+              if (endDateTime.toDate().isAfter(DateTime.now())) {
+                myDiscounts[discountId] = discountData;
+              }
             }
           }),
         );

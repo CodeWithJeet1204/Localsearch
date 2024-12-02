@@ -827,7 +827,6 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => VendorCataloguePage(
-                    vendorId: widget.vendorId,
                     products: shopData!['Products'],
                   ),
                 ),
@@ -950,7 +949,6 @@ class _VendorPageState extends State<VendorPage> with TickerProviderStateMixin {
                                                 MaterialPageRoute(
                                                   builder: (context) =>
                                                       VendorCataloguePage(
-                                                    vendorId: widget.vendorId,
                                                     products:
                                                         shopData!['Products'],
                                                   ),

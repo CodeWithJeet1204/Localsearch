@@ -7,11 +7,9 @@ import 'package:localsearch/widgets/snack_bar.dart';
 class VendorCataloguePage extends StatefulWidget {
   const VendorCataloguePage({
     super.key,
-    required this.vendorId,
     required this.products,
   });
 
-  final String vendorId;
   final List products;
 
   @override

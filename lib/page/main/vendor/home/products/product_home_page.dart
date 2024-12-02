@@ -180,8 +180,11 @@ class _ProductHomePageState extends State<ProductHomePage> {
                 .doc(vendorId)
                 .get();
 
-            final vendorData = vendorSnap.data();
-            if (vendorData != null) {
+            final vendorData = vendorSnap.data()!;
+            final Timestamp membershipEndDateTime =
+                vendorData['MembershipEndDateTime'];
+
+            if (membershipEndDateTime.toDate().isAfter(DateTime.now())) {
               myStatus[vendorId] = {
                 'vendorName': vendorData['Name'] ?? '',
                 'vendorImageUrl': vendorData['Image'] ?? '',

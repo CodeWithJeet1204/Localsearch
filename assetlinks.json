@@ -5,9 +5,9 @@
         ],
         "target": {
             "namespace": "android_app",
-            "package_name": "com.yourcompany.yourapp",
+            "package_name": "com.infinitylab.localsearch",
             "sha256_cert_fingerprints": [
-                "YOUR_SHA256_CERT_FINGERPRINT"
+                "F9:0B:87:B1:A9:B9:39:00:D7:E1:DC:85:EC:F2:F0:10:61:44:C5:BA:8E:00:7A:E0:CA:F6:1B:9A:A5:F5:E7:1C"
             ]
         }
     }

@@ -196,29 +196,33 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
           final String? imageUrl = shopData['Image'];
           final double? latitude = shopData['Latitude'];
           final double? longitude = shopData['Longitude'];
+          final Timestamp membershipEndDateTime =
+              shopData['MembershipEndDateTime'];
           final String vendorId = shopSnap.id;
           double? distance;
 
-          if (name != null) {
-            final address = await getAddress(latitude!, longitude!);
+          if (membershipEndDateTime.toDate().isAfter(DateTime.now())) {
+            if (name != null) {
+              final address = await getAddress(latitude!, longitude!);
 
-            if (yourLatitude != null && yourLongitude != null) {
-              distance = await getDrivingDistance(
-                yourLatitude,
-                yourLongitude,
-                latitude,
-                longitude,
-              );
+              if (yourLatitude != null && yourLongitude != null) {
+                distance = await getDrivingDistance(
+                  yourLatitude,
+                  yourLongitude,
+                  latitude,
+                  longitude,
+                );
+              }
+
+              allShops[vendorId] = {
+                'name': name,
+                'imageUrl': imageUrl,
+                'Latitude': latitude,
+                'Longitude': longitude,
+                'address': address,
+                'distance': distance,
+              };
             }
-
-            allShops[vendorId] = {
-              'name': name,
-              'imageUrl': imageUrl,
-              'Latitude': latitude,
-              'Longitude': longitude,
-              'address': address,
-              'distance': distance,
-            };
           }
         }),
       );
@@ -238,19 +242,24 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
         final double? latitude = shopData['Latitude'];
         final double? longitude = shopData['Longitude'];
         final String? cityName = shopData['City'];
+        final Timestamp membershipEndDateTime =
+            shopData['MembershipEndDateTime'];
         final String? vendorId = shopSnap.id;
-        if (name != null) {
-          final address = await getAddress(latitude!, longitude!);
 
-          if (cityName == locationProvider.cityName) {
-            allShops[vendorId!] = {
-              'name': name,
-              'imageUrl': imageUrl,
-              'Latitude': latitude,
-              'Longitude': longitude,
-              'address': address,
-              'distance': null,
-            };
+        if (membershipEndDateTime.toDate().isAfter(DateTime.now())) {
+          if (name != null) {
+            final address = await getAddress(latitude!, longitude!);
+
+            if (cityName == locationProvider.cityName) {
+              allShops[vendorId!] = {
+                'name': name,
+                'imageUrl': imageUrl,
+                'Latitude': latitude,
+                'Longitude': longitude,
+                'address': address,
+                'distance': null,
+              };
+            }
           }
         }
       }

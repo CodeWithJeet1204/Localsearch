@@ -93,13 +93,17 @@ class _FollowedPageState extends State<FollowedPage>
         if (vendorSnap.exists) {
           final vendorData = vendorSnap.data()!;
           final String id = vendorId;
-          final String name = vendorData['Name'] as String;
-          final String imageUrl = vendorData['Image'] as String;
-          final double latitude = vendorData['Latitude'] as double;
-          final double longitude = vendorData['Longitude'] as double;
-          final List type = vendorData['Type'] as List;
+          final String name = vendorData['Name'];
+          final String imageUrl = vendorData['Image'];
+          final double latitude = vendorData['Latitude'];
+          final double longitude = vendorData['Longitude'];
+          final List type = vendorData['Type'];
+          final Timestamp membershipEndDateTime =
+              vendorData['MembershipEndDateTime'];
 
-          vendors[id] = [name, imageUrl, latitude, longitude, type];
+          if (membershipEndDateTime.toDate().isAfter(DateTime.now())) {
+            vendors[id] = [name, imageUrl, latitude, longitude, type];
+          }
         } else {
           myFollowedShops.remove(vendorId);
           await store.collection('Users').doc(auth.currentUser!.uid).update({

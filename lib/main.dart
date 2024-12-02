@@ -70,6 +70,7 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ),
+        // TODO: REMOVE EXPIRED MEMBERSHIP FROM APP
         scaffoldBackgroundColor: primary,
         appBarTheme: const AppBarTheme(
           backgroundColor: primary,

@@ -157,27 +157,29 @@ class _ProductsResultPageState extends State<ProductsResultPage> {
           final vendorLongitude = productData['Longitude'];
           double? distance;
 
-          if (yourLatitude != null && yourLongitude != null) {
-            distance = await getDrivingDistance(
-              yourLatitude,
-              yourLongitude,
-              vendorLatitude,
-              vendorLongitude,
-            );
-          }
+          final vendorSnap = await store
+              .collection('Business')
+              .doc('Owners')
+              .collection('Shops')
+              .doc(vendorId)
+              .get();
 
-          if (locationProvider.cityName == 'Your Location') {
-            myProducts[id] = [
-              name,
-              price,
-              imageUrl,
-              ratings,
-              myProductData,
-              distance,
-            ];
-          } else {
-            final city = productData['City'];
-            if (city == locationProvider.cityName) {
+          final vendorData = vendorSnap.data()!;
+
+          final Timestamp membershipEndDateTime =
+              vendorData['MembershipEndDateTime'];
+
+          if (membershipEndDateTime.toDate().isAfter(DateTime.now())) {
+            if (yourLatitude != null && yourLongitude != null) {
+              distance = await getDrivingDistance(
+                yourLatitude,
+                yourLongitude,
+                vendorLatitude,
+                vendorLongitude,
+              );
+            }
+
+            if (locationProvider.cityName == 'Your Location') {
               myProducts[id] = [
                 name,
                 price,
@@ -186,31 +188,43 @@ class _ProductsResultPageState extends State<ProductsResultPage> {
                 myProductData,
                 distance,
               ];
+            } else {
+              final city = productData['City'];
+              if (city == locationProvider.cityName) {
+                myProducts[id] = [
+                  name,
+                  price,
+                  imageUrl,
+                  ratings,
+                  myProductData,
+                  distance,
+                ];
+              }
             }
-          }
 
-          if (followedShops.contains(vendorId)) {
-            followedProducts.add({
-              'id': id,
-              'name': name,
-              'price': price,
-              'imageUrl': imageUrl,
-              'ratings': ratings,
-              'myProductData': myProductData,
-              'views': productViews,
-              'distance': distance,
-            });
-          } else {
-            nonFollowedProducts.add({
-              'id': id,
-              'name': name,
-              'price': price,
-              'imageUrl': imageUrl,
-              'ratings': ratings,
-              'myProductData': myProductData,
-              'views': productViews,
-              'distance': distance,
-            });
+            if (followedShops.contains(vendorId)) {
+              followedProducts.add({
+                'id': id,
+                'name': name,
+                'price': price,
+                'imageUrl': imageUrl,
+                'ratings': ratings,
+                'myProductData': myProductData,
+                'views': productViews,
+                'distance': distance,
+              });
+            } else {
+              nonFollowedProducts.add({
+                'id': id,
+                'name': name,
+                'price': price,
+                'imageUrl': imageUrl,
+                'ratings': ratings,
+                'myProductData': myProductData,
+                'views': productViews,
+                'distance': distance,
+              });
+            }
           }
         }),
       );
